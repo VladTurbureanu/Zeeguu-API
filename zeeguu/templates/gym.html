@@ -6,7 +6,7 @@
     <div id="language-selection">
         <select id="lang1">
             {% for language in languages %}
-                <option value="{{ language.id }}">
+                 <option value="{{ language.id }}" {% if g.user.preferred_language_id == language.id %} selected {% endif %} >
                     {{ language.name }}
                 </option>
             {% endfor %}
@@ -14,7 +14,7 @@
         <a href="#" id="direction"><i class="icon-long-arrow-right"></i></a>
         <select id="lang2">
             {% for language in languages %}
-                <option value="{{ language.id }}"{% if not first %} selected{% endif %}>
+                <option value="{{ language.id }}"{% if "English" == language.name %} selected{% endif %}>
                     {{ language.name }}
                 </option>
             {% endfor %}

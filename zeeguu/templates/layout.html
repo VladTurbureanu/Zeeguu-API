@@ -17,7 +17,7 @@
                 <div class="navbar-inner">
                     <ul class="nav">
                       <li{% if not tab %} class="active"{% endif %}><a href="{{ url_for('gym.home') }}">Browser Extension</a></li>
-                      <li{% if tab == "gym" %} class="active"{% endif %}><a href="{{ url_for('gym.gym_view') }}">Language Gym</a></li>
+                      <li{% if tab == "gym" %} class="active"{% endif %}><a href="{{ url_for('gym.gym_view') }}">Flashcards</a></li>
                     </ul>
                     {% if g.user %}
                         <ul class="nav pull-right">
