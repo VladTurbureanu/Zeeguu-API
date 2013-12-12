@@ -5,17 +5,17 @@
 {% block body %}
     <h2>Lookup History</h2>
     {% if searches %}
-        <p>These are the last {{ searches | length }} words you looked up.</p>
+        <p>These are the last {{ contributions | length }} words you looked up.</p>
 
         <table class="table table-striped table-bordered">
             <tr>
                 <th>Word</th>
                 <th>Contribution</th>
             </tr>
-            {% for search in searches %}
+            {% for contribution in contributions %}
             <tr>
-                <td>{{ search.word.word }}</td>
-                <td>{{ search.contribution.translation.word if search.contribution else "" }}</td>
+                <td>{{ contribution.origin.word }}</td>
+                <td>{{ contribution.translation.word }}</td>
             </tr>
             {% endfor %}
         </table>

@@ -53,6 +53,13 @@ def history():
     searches = model.Search.query.filter_by(user=flask.g.user).order_by(model.Search.id.desc()).all()
     return flask.render_template("history.html", searches=searches)
 
+@gym.route("/contributions")
+def contributions():
+    if not flask.g.user:
+        return flask.redirect(flask.url_for("gym.login"))
+    contribs = model.Contribution.query.filter_by(user_id=flask.g.user.id).order_by(model.Contribution.time.desc()).all()
+    return flask.render_template("contributions.html", contributions=contribs)
+
 
 @gym.route("/gym")
 def gym_view():

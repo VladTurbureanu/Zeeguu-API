@@ -19,6 +19,7 @@
                       <li{% if not tab %} class="active"{% endif %}><a href="{{ url_for('gym.home') }}">Browser Extension</a></li>
                       <li{% if tab == "gym" %} class="active"{% endif %}><a href="{{ url_for('gym.gym_view') }}">Flashcards</a></li>
                       <li{% if tab == "history" %} class="active"{% endif %}><a href="{{ url_for('gym.history') }}">History</a></li>
+                      <li{% if tab == "contributions" %} class="active"{% endif %}><a href="{{ url_for('gym.contributions') }}">Contributions</a></li>
                     </ul>
                     {% if g.user %}
                         <ul class="nav pull-right">
