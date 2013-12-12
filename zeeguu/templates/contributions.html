@@ -5,11 +5,11 @@
 {% block body %}
     <h2>Lookup History</h2>
     {% if contributions_by_date %}
-        <p>These are the words you have contributed and the corresponding times.</p>
+        <p>These really are the words you have contributed and the corresponding times.</p>
 
         
 
-        <table class="table table-striped table-bordered">
+        <table class="table table-striped">
             <tr>
                 <th>Date</th>
                 <th>Word</th>
@@ -18,14 +18,14 @@
 	
 	    {% for date in sorted_dates %}
 	<tr>
-		<td><small>{{ date.strftime("%A %B %d, %Y") }}</small></td>
-		<td>
-        <td>
+		<td style="border:0px solid white;background-color:white;"><small>{{ date.strftime("%A %B %d, %Y") }}</small></td>
+		<td style="border:0px solid white;background-color:white;">
+        	<td style="border:0px solid green;background-color:white;">
 	</tr>
 
             {% for contribution in contributions_by_date.get(date) %}
             <tr>
-		    <td></td>
+		    <td style="border:0px solid white;background-color:white;"></td>
                 <td>{{ contribution.origin.word }}</td>
                 <td>{{ contribution.translation.word }}</td>
             </tr>

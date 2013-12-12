@@ -64,3 +64,8 @@ h1 img {
 .loading {
     color: #ccc;
 }
+
+.white-cell {
+	border: 0px solid white;
+	background-color:white;
+}
