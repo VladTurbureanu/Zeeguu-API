@@ -53,12 +53,20 @@ def history():
     searches = model.Search.query.filter_by(user=flask.g.user).order_by(model.Search.id.desc()).all()
     return flask.render_template("history.html", searches=searches)
 
+def extract_day_from_date(pair):
+    return (pair[0], pair[1].strftime("%A %B %d, %Y"))
+
 @gym.route("/contributions")
 def contributions():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
     contribs = model.Contribution.query.filter_by(user_id=flask.g.user.id).order_by(model.Contribution.time.desc()).all()
-    return flask.render_template("contributions.html", contributions=contribs)
+    contribs_by_date = dict()
+
+    for elem in map(extract_day_from_date, contribs):
+        contribs_by_date.setdefault(elem[1],[]).append(elem[0])
+
+    return flask.render_template("contributions.html", contributions_by_date=contribs_by_date)
 
 
 @gym.route("/gym")
