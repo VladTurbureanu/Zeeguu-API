@@ -11,11 +11,13 @@
             <tr>
                 <th>Word</th>
                 <th>Contribution</th>
+                <th>Date</th>
             </tr>
             {% for contribution in contributions %}
             <tr>
                 <td>{{ contribution.origin.word }}</td>
                 <td>{{ contribution.translation.word }}</td>
+                <td>{{ str(contribution.time) }}</td>
             </tr>
             {% endfor %}
         </table>
