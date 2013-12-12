@@ -18,9 +18,9 @@
 	
 	    {% for date in sorted_dates %}
 	<tr>
-		<td><small>{{ date }}</small></td>
-		<td></td><td></td>
+		<td><small>{{ date.strftime("%A %B %d, %Y") }}</small></td>
 		<td>
+        <td>
 	</tr>
 
             {% for contribution in contributions_by_date.get(date) %}
