@@ -3,6 +3,7 @@ instance
 *.pyc
 *.egg-info
 
+.idea/
 *~
 *.orig
 
