@@ -50,7 +50,7 @@ def logout():
 def history():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
-    searches = model.Search.query.filter_by(user=flask.g.user).limit(100).all()
+    searches = model.Search.query.filter_by(user=flask.g.user).order_by(model.Search.id.desc()).all()
     return flask.render_template("history.html", searches=searches)
 
 

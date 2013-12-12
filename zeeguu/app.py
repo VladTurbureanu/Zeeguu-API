@@ -20,8 +20,8 @@ class CrossdomainErrorFlask(flask.Flask):
 
 
 app = CrossdomainErrorFlask(__name__, instance_relative_config=True)
-app.config.from_object("zeeguu.config")
-app.config.from_pyfile("config.cfg", silent=True)
+app.config.from_object("zeeguu.config") #first stuff from config.py module
+app.config.from_pyfile("config.cfg", silent=True) #then load config.cfg from the instance folder
 app.config.from_envvar("ZEEGUU_CONFIG", silent=True)
 
 instance_path = os.path.join(app.instance_path, "gen")
