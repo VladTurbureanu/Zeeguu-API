@@ -1,11 +1,11 @@
 {% extends "layout.html" %}
 
-{% set tab = "history" %}
+{% set tab = "contributions" %}
 
 {% block body %}
     <h2>Lookup History</h2>
     {% if contributions %}
-        <p>These are the last {{ contributions | length }} words you looked up.</p>
+        <p>These are the last {{ contributions | length }} words you contributed.</p>
 
         <table class="table table-striped table-bordered">
             <tr>
