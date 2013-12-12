@@ -7,23 +7,26 @@
     {% if contributions_by_date %}
         <p>These are the words you have contributed and the corresponding times.</p>
 
+        
+
         <table class="table table-striped table-bordered">
             <tr>
+                <th>Date</th>
                 <th>Word</th>
                 <th>Contribution</th>
-                <th>Date</th>
             </tr>
-            {% for date in contributions_by_date.keys() %}
-            <tr>
-                <td>{{ date }}</td>
-                <td></td>
-                <td></td>
-            </tr>
+	
+	    {% for date in sorted_dates %}
+	<tr>
+		<td><small>{{ date }}</small></td>
+		<td></td><td></td>
+	</tr>
+
             {% for contribution in contributions_by_date.get(date) %}
             <tr>
+		    <td></td>
                 <td>{{ contribution.origin.word }}</td>
                 <td>{{ contribution.translation.word }}</td>
-                <td>{{ contribution.time }}</td>
             </tr>
             {% endfor %}
             {% endfor %}

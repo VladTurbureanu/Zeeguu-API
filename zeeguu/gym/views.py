@@ -54,7 +54,7 @@ def history():
     return flask.render_template("history.html", searches=searches)
 
 def extract_day_from_date(contrib):
-	return (contrib, contrib.time.strftime("%A %B %d, %Y"))
+	return (contrib, contrib.time.replace(contrib.time.year, contrib.time.month, contrib.time.day,0,0,0,0))
 
 @gym.route("/contributions")
 def contributions():
@@ -66,7 +66,10 @@ def contributions():
     for elem in map(extract_day_from_date, contribs):
         contribs_by_date.setdefault(elem[1],[]).append(elem[0])
 
-    return flask.render_template("contributions.html", contributions_by_date=contribs_by_date)
+    sorted_dates = contribs_by_date.keys()
+    sorted_dates.sort(reverse=True)
+
+    return flask.render_template("contributions.html", contributions_by_date=contribs_by_date, sorted_dates=sorted_dates)
 
 
 @gym.route("/gym")
