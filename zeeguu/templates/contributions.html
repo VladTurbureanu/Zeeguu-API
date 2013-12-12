@@ -4,7 +4,7 @@
 
 {% block body %}
     <h2>Lookup History</h2>
-    {% if contributions %}
+    {% if contributions_by_date %}
         <p>These are the words you have contributed and the corresponding times.</p>
 
         <table class="table table-striped table-bordered">
@@ -19,7 +19,7 @@
                 <td></td>
                 <td></td>
             </tr>
-            {{ for contribution in contrib_by_date.get(date) }}
+            {% for contribution in contributions_by_date.get(date) %}
             <tr>
                 <td>{{ contribution.origin.word }}</td>
                 <td>{{ contribution.translation.word }}</td>
