@@ -57,6 +57,7 @@ def adduser(email):
 
 
 @api.route("/session/<email>", methods=["POST"])
+@crossdomain
 def get_session(email):
     password = flask.request.form.get("password", None)
     if password is None:
