@@ -66,6 +66,24 @@ class User(db.Model):
                 return user
         except sqlalchemy.orm.exc.NoResultFound:
             return None
+	
+    def contribs_chronologically(self):
+	    return Contribution.query.filter_by(user_id=self.id).order_by(Contribution.time.desc()).all()
+
+    def contribs_by_date(self):
+	def extract_day_from_date(contrib):
+		return (contrib, contrib.time.replace(contrib.time.year, contrib.time.month, contrib.time.day,0,0,0,0))
+
+	contribs = Contribution.query.filter_by(user_id=self.id).order_by(Contribution.time.desc()).all()
+	contribs_by_date = dict()
+				                                        
+	for elem in map(extract_day_from_date, contribs):
+		contribs_by_date.setdefault(elem[1],[]).append(elem[0])
+
+	sorted_dates = contribs_by_date.keys()
+	sorted_dates.sort(reverse=True)
+	return contribs_by_date, sorted_dates
+
 
 
 class Session(db.Model):

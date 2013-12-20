@@ -7,6 +7,7 @@ import sqlalchemy.exc
 
 import zeeguu
 from zeeguu import model
+import sys
 
 
 api = flask.Blueprint("api", __name__)
@@ -16,6 +17,7 @@ def with_user(view):
     @functools.wraps(view)
     def wrapped_view(*args, **kwargs):
         try:
+            sys.stderr.write("got there ..." + str(flask.request.args))
             session_id = int(flask.request.args['session'])
         except:
             flask.abort(401)
@@ -59,16 +61,36 @@ def adduser(email):
 @api.route("/session/<email>", methods=["POST"])
 @crossdomain
 def get_session(email):
-    password = flask.request.form.get("password", None)
-    if password is None:
-        flask.abort(400)
-    user = model.User.authorize(email, password)
-    if user is None:
-        flask.abort(401)
-    session = model.Session.for_user(user)
-    zeeguu.db.session.add(session)
-    zeeguu.db.session.commit()
-    return str(session.id)
+	password = flask.request.form.get("password", None)
+	if password is None:
+		flask.abort(400)
+	user = model.User.authorize(email, password)
+	if user is None:
+		flask.abort(401)
+	session = model.Session.for_user(user)
+	zeeguu.db.session.add(session)
+	zeeguu.db.session.commit()
+	return str(session.id)
+
+
+@api.route("/contribs", methods=["GET"])
+@crossdomain
+@with_user
+def contribs():
+	#at this moment it seems nice to exchange data in json format
+	contribs = flask.g.user.contribs_chronologically()
+
+	words = []
+	for contrib in contribs:
+		word = {}
+		word ['from'] = contrib.origin.word
+		word ['to'] = contrib.translation.word
+		words.append (word)
+
+	import json
+	js = json.dumps(words)
+	resp = flask.Response(js, status=200, mimetype='application/json')
+	return resp
 
 
 @api.route("/contribute/<from_lang_code>/<term>/<to_lang_code>/<translation>",

@@ -30,6 +30,7 @@ app.register_blueprint(instance)
 
 app.register_blueprint(zeeguu.gym.views.gym)
 app.register_blueprint(zeeguu.api.views.api)
+app.debug=True
 
 try:
     os.makedirs(instance_path)
