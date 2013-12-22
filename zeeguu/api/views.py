@@ -100,7 +100,7 @@ def contribs():
 
 @api.route("/contribs_by_day", methods=["GET"])
 @crossdomain
-@with_user_test
+@with_user
 def contribs_by_day():
 	usr = flask.g.user
         contribs_by_date,sorted_dates = usr.contribs_by_date()
@@ -114,7 +114,7 @@ def contribs_by_day():
                 	word ['to'] = contrib.translation.word
                 	words.append (word)
 		date_entry = {}
-		date_entry ['date'] = date.strftime("%d.%m.%Y")
+		date_entry ['date'] = date.strftime("%A, %d %B")
 		date_entry ['contribs'] = words
 		dates.append(date_entry)
 
