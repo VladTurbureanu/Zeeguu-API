@@ -17,7 +17,6 @@ def with_user(view):
     @functools.wraps(view)
     def wrapped_view(*args, **kwargs):
         try:
-            sys.stderr.write("got there ..." + str(flask.request.args))
             session_id = int(flask.request.args['session'])
         except:
             flask.abort(401)
@@ -27,6 +26,13 @@ def with_user(view):
         flask.g.user = session.user
         session.update_use_date()
         return view(*args, **kwargs)
+    return wrapped_view
+
+def with_user_test(view):
+    @functools.wraps(view)
+    def wrapped_view(*args, **kwargs):
+        flask.g.user = model.User.find("user@localhost.com")
+    	return view(*args, **kwargs)
     return wrapped_view
 
 
@@ -91,6 +97,31 @@ def contribs():
 	js = json.dumps(words)
 	resp = flask.Response(js, status=200, mimetype='application/json')
 	return resp
+
+@api.route("/contribs_by_day", methods=["GET"])
+@crossdomain
+@with_user_test
+def contribs_by_day():
+	usr = flask.g.user
+        contribs_by_date,sorted_dates = usr.contribs_by_date()
+
+	dates = []
+	for date in sorted_dates:
+        	words = []
+        	for contrib in contribs_by_date[date]:
+                	word = {}
+                	word ['from'] = contrib.origin.word
+                	word ['to'] = contrib.translation.word
+                	words.append (word)
+		date_entry = {}
+		date_entry ['date'] = date.strftime("%d.%m.%Y")
+		date_entry ['contribs'] = words
+		dates.append(date_entry)
+
+        import json
+        js = json.dumps(dates)
+        resp = flask.Response(js, status=200, mimetype='application/json')
+        return resp
 
 
 @api.route("/contribute/<from_lang_code>/<term>/<to_lang_code>/<translation>",

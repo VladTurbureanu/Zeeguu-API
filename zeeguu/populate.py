@@ -2,6 +2,7 @@
 import re
 
 import zeeguu
+import datetime
 from zeeguu import model
 
 
@@ -54,5 +55,25 @@ if __name__ == "__main__":
     user = model.User("user@localhost.com", "password", de)
     zeeguu.db.session.add(user)
     zeeguu.db.session.add(en)
+
+    w1 = model.Word("fun", en)
+    w2 = model.Word("Spass", de)
+    w3 = model.Word("work", en)
+    w4 = model.Word("Arbeit", de)
+
+    zeeguu.db.session.add(w3)
+    zeeguu.db.session.add(w1)
+    zeeguu.db.session.add(w2)
+    zeeguu.db.session.add(w4)
+
+    today = datetime.datetime.now()
+    yes = datetime.date(2001,01,01)
+
+    t1= model.Contribution(w1,w2,user, today)
+    zeeguu.db.session.add(t1)
+    t2= model.Contribution(w3,w4,user, yes)
+    zeeguu.db.session.add(t2)
+    
+    
 
     zeeguu.db.session.commit()

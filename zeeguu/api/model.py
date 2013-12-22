@@ -184,6 +184,13 @@ class Contribution(db.Model):
         self.user = user
         self.time = datetime.datetime.now()
 
+    def __init__(self, origin, translation, user, time):
+        self.origin = origin
+        self.translation = translation
+        self.user = user
+        self.time = time 
+
+
 
 class Text(db.Model):
     id = db.Column(db.Integer, primary_key=True)
