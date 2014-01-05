@@ -4,6 +4,7 @@ import random
 import datetime
 
 import sqlalchemy.orm.exc
+import sys
 
 from zeeguu import db
 from zeeguu import util
@@ -144,6 +145,23 @@ class Word(db.Model, util.JSONSerializable):
 
     def serialize(self):
         return self.word
+
+    def importance_level(self):
+        f=open("./languages/"+self.language_id+".txt", "r")
+        all_words = f.readlines()
+        all_words_without_space = []
+        for each_word in all_words:
+            each_word_without_space = each_word[:-1]
+            all_words_without_space.append(each_word_without_space)
+
+        def importance_range(the_word, frequency_list):
+            if the_word in frequency_list:
+                position = frequency_list.index(the_word)
+                return (position // 500) + 1
+            else:
+                return 21
+
+        return importance_range(self.word, all_words_without_space)
 
     @classmethod
     def find(cls, word, language):

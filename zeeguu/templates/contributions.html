@@ -14,6 +14,7 @@
                 <th>Date</th>
                 <th>Word</th>
                 <th>Contribution</th>
+                <th style="text-align: right">Level</th>
             </tr>
 	
 	    {% for date in sorted_dates %}
@@ -28,6 +29,8 @@
 		    <td style="border:0px solid white;background-color:white;"></td>
                 <td>{{ contribution.origin.word }}</td>
                 <td>{{ contribution.translation.word }}</td>
+                <td style="text-align: right"><small>{{ contribution.origin.importance_level() }}<small></td>
+
             </tr>
             {% endfor %}
             {% endfor %}
