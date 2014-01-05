@@ -147,7 +147,7 @@ class Word(db.Model, util.JSONSerializable):
         return self.word
 
     def importance_level(self):
-        f=open("./languages/"+self.language_id+".txt", "r")
+        f=open("/home/mircea/zeeguu/Web/languages/"+self.language_id+".txt", "r")
         all_words = f.readlines()
         all_words_without_space = []
         for each_word in all_words:
@@ -159,7 +159,7 @@ class Word(db.Model, util.JSONSerializable):
                 position = frequency_list.index(the_word)
                 return (position // 500) + 1
             else:
-                return 21
+                return "" 
 
         return importance_range(self.word, all_words_without_space)
 

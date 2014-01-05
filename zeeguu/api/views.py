@@ -137,7 +137,8 @@ def contribute(from_lang_code, term, to_lang_code, translation):
     search = model.Search.query.filter_by(
         user=flask.g.user, word=word, language=to_lang
     ).order_by(model.Search.id.desc()).first()
-    search.contribution = model.Contribution(word, translation, flask.g.user)
+    import datetime
+    search.contribution = model.Contribution(word, translation, flask.g.user,datetime.datetime.now())
 
     zeeguu.db.session.commit()
 
