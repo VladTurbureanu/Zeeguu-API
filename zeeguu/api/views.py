@@ -144,6 +144,34 @@ def contribute(from_lang_code, term, to_lang_code, translation):
 
     return "OK"
 
+@api.route("/contribute_with_context/<from_lang_code>/<term>/<to_lang_code>/<translation>",
+           methods=["POST"])
+@crossdomain
+@with_user
+def contribute_with_context(from_lang_code, term, to_lang_code, translation):
+
+    sys.stderr.write(term+"\n")
+    sys.stderr.write(translation+"\n")
+    sys.stderr.write("url:" + str(flask.request.form['url']) + "\n")
+    sys.stderr.write("context:" + str(flask.request.form['context'].encode("ascii","ignore")))
+
+
+    from_lang = model.Language.find(from_lang_code)
+    to_lang = model.Language.find(to_lang_code)
+
+
+    word = model.Word.find(decodeWord(term), from_lang)
+    translation = model.Word.find(decodeWord(translation), to_lang)
+    search = model.Search.query.filter_by(
+        user=flask.g.user, word=word, language=to_lang
+    ).order_by(model.Search.id.desc()).first()
+    import datetime
+    search.contribution = model.Contribution(word, translation, flask.g.user,datetime.datetime.now())
+
+    zeeguu.db.session.commit()
+
+    return "OK"
+
 
 @api.route("/lookup/<from_lang>/<term>/<to_lang>", methods=("POST",))
 @crossdomain
