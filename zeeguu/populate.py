@@ -75,7 +75,7 @@ if __name__ == "__main__":
     zeeguu.db.session.add(fr)
     zeeguu.db.session.add(de)
 
-    today = datetime.datetime.now()
+    today = datetime.date(2011,01,01)
     yes = datetime.date(2001,01,01)
 
 
