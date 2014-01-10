@@ -8,6 +8,7 @@ import sys
 
 from zeeguu import db
 from zeeguu import util
+import zeeguu
 
 
 class User(db.Model):
@@ -147,7 +148,7 @@ class Word(db.Model, util.JSONSerializable):
         return self.word
 
     def importance_level(self):
-        f=open("/home/mircea/zeeguu/Web/languages/"+self.language_id+".txt", "r")
+        f=open(zeeguu.app.config.get("LANGUAGES_FOLDER").decode('utf-8')+self.language_id+".txt", "r")
         all_words = f.readlines()
         all_words_without_space = []
         for each_word in all_words:
