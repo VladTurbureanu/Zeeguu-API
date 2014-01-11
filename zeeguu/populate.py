@@ -45,13 +45,21 @@ def clean_word(word):
     return match.group(1).decode("utf8")
 
 
-def add_contribution(user, language, original, translation, date):
+def add_contribution(user, language, original, translation, date, the_context, the_url):
+
+    url = model.Url.find (the_url)
+    text = model.Text(the_context, en, url)
+
     w1 = model.Word(original, language)
     w2 = model.Word(translation, en)
+    zeeguu.db.session.add(url)
+    zeeguu.db.session.add(text)
     zeeguu.db.session.add(w1)
     zeeguu.db.session.add(w2)
-    t1= model.Contribution(w1,w2,user, date)
+    t1= model.Contribution(w1,w2, user, text, date)
     zeeguu.db.session.add(t1)
+
+    zeeguu.db.session.commit()
     return
 
 
@@ -93,7 +101,7 @@ if __name__ == "__main__":
     }
 
     for key in today_dict:
-        add_contribution(user, de, key, today_dict[key], today)
+        add_contribution(user, de, key, today_dict[key], today, "", "")
 
 
     dict = {
@@ -106,7 +114,7 @@ if __name__ == "__main__":
 
 
     for key in dict:
-        add_contribution(user, de, key, dict[key], yes)
+        add_contribution(user, de, key, dict[key], yes, "", "")
 
 
 
@@ -118,7 +126,7 @@ if __name__ == "__main__":
 
 
     for key in dict:
-        add_contribution(user2, fr, key, dict[key], yes)
+        add_contribution(user2, fr, key, dict[key], yes, "this is a " + key, "http://localhost.com")
 
 
 
