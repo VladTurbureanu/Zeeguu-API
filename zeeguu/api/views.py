@@ -151,7 +151,7 @@ def contribute(from_lang_code, term, to_lang_code, translation):
 def contribute_with_context(from_lang_code, term, to_lang_code, translation):
 
     url = model.Url.find(str(flask.request.form['url']))
-    context = str(flask.request.form['context'])
+    context = flask.request.form['context']
 
     # sys.stderr.write(term+"\n")
     # sys.stderr.write(translation+"\n")
