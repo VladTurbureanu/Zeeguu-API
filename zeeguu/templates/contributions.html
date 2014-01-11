@@ -27,7 +27,8 @@
             {% for contribution in contributions_by_date.get(date) %}
             <tr>
 		    <td style="border:0px solid white;background-color:white;"></td>
-                <td>{{ contribution.origin.word }}</td>
+                <td>{{contribution.text.url.render_link("..")|safe}}
+                    {{ contribution.origin.word }}</td>
                 <td>{{ contribution.translation.word }}</td>
                 <td style="text-align: right"><small>{{ contribution.origin.importance_level() }}<small></td>
 
