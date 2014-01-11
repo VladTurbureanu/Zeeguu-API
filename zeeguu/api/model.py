@@ -184,6 +184,26 @@ class Word(db.Model, util.JSONSerializable):
 
 WordAlias = db.aliased(Word, name="translated_word")
 
+class Url(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(2083))
+
+    def __init__(self, url):
+        self.url= url
+
+    @classmethod
+    def find(cls, url):
+        try:
+            return (cls.query.filter(cls.url == url)
+                             .one())
+        except sqlalchemy.orm.exc.NoResultFound:
+            return cls(url)
+
+    def render_link(self, link_text):
+        if self.url != "":
+            return '<a href="'+self.url+'">'+link_text+'</a>'
+        else:
+            return ""
 
 class Contribution(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -195,32 +215,48 @@ class Contribution(db.Model):
                                   primaryjoin=translation_id == Word.id)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship("User", backref="contributions")
+
+    text_id = db.Column(db.Integer, db.ForeignKey('text.id'))
+    text = db.relationship("Text", backref="contributions")
+
     time = db.Column(db.DateTime)
 
-    def __init__(self, origin, translation, user):
+    # def __init__(self, origin, translation, user):
+    #     self.origin = origin
+    #     self.translation = translation
+    #     self.user = user
+    #     self.time = datetime.datetime.now()
+    #
+    # def __init__(self, origin, translation, user, time):
+    #     self.origin = origin
+    #     self.translation = translation
+    #     self.user = user
+    #     self.time = time
+
+    def __init__(self, origin, translation, user, text, time):
         self.origin = origin
         self.translation = translation
         self.user = user
-        self.time = datetime.datetime.now()
-
-    def __init__(self, origin, translation, user, time):
-        self.origin = origin
-        self.translation = translation
-        self.user = user
-        self.time = time 
-
+        self.time = time
+        self.text = text
 
 
 class Text(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(10000))
+
     content_hash = db.Column(db.LargeBinary(32))
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
 
-    def __init__(self, content, language):
+    url_id = db.Column(db.Integer, db.ForeignKey('url.id'))
+    url = db.relationship("Url", backref="texts")
+
+
+    def __init__(self, content, language, url):
         self.content = content
         self.language = language
+        self.url = url
         self.content_hash = util.text_hash(content)
 
     def __repr__(self):
