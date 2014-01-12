@@ -148,7 +148,8 @@ class Word(db.Model, util.JSONSerializable):
         return self.word
 
     def importance_level(self):
-        f=open(zeeguu.app.config.get("LANGUAGES_FOLDER").decode('utf-8')+self.language_id+".txt", "r")
+        import codecs
+        f=codecs.open(zeeguu.app.config.get("LANGUAGES_FOLDER").decode('utf-8')+self.language_id+".txt", encoding="iso-8859-1")
         all_words = f.readlines()
         all_words_without_space = []
         for each_word in all_words:

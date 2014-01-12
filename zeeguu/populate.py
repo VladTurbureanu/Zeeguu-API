@@ -109,7 +109,8 @@ if __name__ == "__main__":
             'solche': 'suchlike',
             'ehemaliger': 'ex',
             'betroffen': 'affected',
-            'Ufer':'shore'
+            'Ufer':'shore',
+            u'höchstens':'at most'
             }
 
 
