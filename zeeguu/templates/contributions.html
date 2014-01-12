@@ -13,7 +13,7 @@
             <tr>
                 <th>Date</th>
                 <th>Word</th>
-                <th>Contribution</th>
+                <th>Translation</th>
                 <th style="text-align: right">Level</th>
             </tr>
 	
@@ -27,10 +27,13 @@
             {% for contribution in contributions_by_date.get(date) %}
             <tr>
 		    <td style="border:0px solid white;background-color:white;"></td>
-                <td>{{contribution.text.url.render_link("..")|safe}}
-                    {{ contribution.origin.word }}</td>
+                <td><div style="width: 250px" >{{contribution.text.url.render_link("..")|safe}}
+                    {{ contribution.origin.word }}
+                    <br/><small>{{ contribution.text.content }}</small>
+                    </div>
+                </td>
                 <td>{{ contribution.translation.word }}</td>
-                <td style="text-align: right"><small>{{ contribution.origin.importance_level() }}<small></td>
+                <td style="text-align: right"><small>{{ contribution.origin.importance_level() }}</small></td>
 
             </tr>
             {% endfor %}
