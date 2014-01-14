@@ -27,6 +27,17 @@ h1 img {
     position: relative;
 }
 
+.example {
+    text-align: center;
+    margin: 0 auto;
+    margin-top: 10px;
+    width: 400px;
+    border-radius: 2px;
+    font-size: 14px;
+    position: relative;
+}
+
+
 .card span {
     position: absolute;
     top: 80px;
