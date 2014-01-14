@@ -101,7 +101,7 @@ if __name__ == "__main__":
     }
 
     for key in today_dict:
-        add_contribution(user, de, key, today_dict[key], today, "", "")
+        add_contribution(user, de, key, today_dict[key], today, "lulu lalal", "http://url2")
 
 
     dict = {
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
 
     for key in dict:
-        add_contribution(user, de, key, dict[key], yes, "", "")
+        add_contribution(user, de, key, dict[key], yes, "lolo lele", "http://url1")
 
 
 

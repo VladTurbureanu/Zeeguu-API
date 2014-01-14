@@ -4,10 +4,9 @@
 
 {% block body %}
     <h2>History of Your Contributions</h2>
-    {% if contributions_by_date %}
-        <p>These really are the words you have contributed and the corresponding times.</p>
+    {% if sorted_dates %}
+        <p>These are the words you have contributed and the corresponding times.</p>
 
-        
 
         <table class="table table-striped">
             <tr>
@@ -24,7 +23,12 @@
         	<td style="border:0px solid green;background-color:white;">
 	</tr>
 
-            {% for contribution in contributions_by_date.get(date) %}
+         {% for url in urls_by_date.get(date) %}
+	<tr>
+		<td colspan="4" style="border:0px solid white;text-align:right; background-color:white;"><small><a href="{{ url.url }}">{{ url.url }}</a></small></td>
+	</tr>
+
+            {% for contribution in contribs_by_url.get(url) %}
             <tr>
 		    <td style="border:0px solid white;background-color:white;"></td>
                 <td><div style="width: 250px" >{{contribution.text.url.render_link("..")|safe}}
@@ -36,6 +40,7 @@
                 <td style="text-align: right"><small>{{ contribution.origin.importance_level() }}</small></td>
 
             </tr>
+            {% endfor %}
             {% endfor %}
             {% endfor %}
         </table>

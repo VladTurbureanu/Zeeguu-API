@@ -4,6 +4,7 @@ import json
 import flask
 
 from zeeguu import model
+import sys
 
 
 gym = flask.Blueprint("gym", __name__)
@@ -60,7 +61,24 @@ def contributions():
         return flask.redirect(flask.url_for("gym.login"))
 
     contribs,dates = flask.g.user.contribs_by_date()
-    return flask.render_template("contributions.html", contributions_by_date=contribs, sorted_dates=dates)
+    # contribs_by_url = {}
+    # for contrib in contribs:
+    #     contribs_by_url.setdefault(contrib.text.url, []).append(contrib)
+
+    urls_by_date = {}
+    contribs_by_url = {}
+    for date in dates:
+        sys.stderr.write(str(date)+"\n")
+        for contrib in contribs[date]:
+            urls_by_date.setdefault(date, set()).add(contrib.text.url)
+            contribs_by_url.setdefault(contrib.text.url,[]).append(contrib)
+    sys.stderr.write(str(urls_by_date)+"\n")
+    sys.stderr.write(str(contribs_by_url)+"\n")
+
+    return flask.render_template("contributions.html",
+                                 contribs_by_url=contribs_by_url,
+                                 urls_by_date=urls_by_date,
+                                 sorted_dates=dates)
 
 
 @gym.route("/gym")
