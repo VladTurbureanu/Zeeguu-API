@@ -29,6 +29,9 @@
 	</tr>
 
             {% for contribution in contribs_by_url.get(url) %}
+	    {% if contribution.time.day == date.day %}
+	    <!-- #small hack to make sure we don't bundle all the contribs with the same url in the same day... -->
+
             <tr>
 		    <td style="border:0px solid white;background-color:white;"></td>
                 <td><div style="width: 250px" >{{contribution.text.url.render_link("..")|safe}}
@@ -40,6 +43,7 @@
                 <td style="text-align: right"><small>{{ contribution.origin.importance_level() }}</small></td>
 
             </tr>
+	    {% endif %}
             {% endfor %}
             {% endfor %}
             {% endfor %}
