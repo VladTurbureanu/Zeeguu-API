@@ -22,6 +22,10 @@ def setup():
 def home():
     return flask.render_template("index.html")
 
+@gym.route("/install")
+def install():
+    return flask.render_template("install.html")
+
 
 @gym.route("/login", methods=("GET", "POST"))
 def login():

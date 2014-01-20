@@ -16,16 +16,21 @@
             <div class="navbar">
                 <div class="navbar-inner">
                     <ul class="nav">
-                      <li{% if not tab %} class="active"{% endif %}><a href="{{ url_for('gym.home') }}">Browser Extension</a></li>
+                      <li{% if not tab %} class="active"{% endif %}><a href="{{ url_for('gym.home') }}">Overview</a></li>
+                      <li{% if tab == "install" %} class="active"{% endif %}><a href="{{ url_for('gym.install') }}">Install</a></li>
+                    {% if g.user %}
                       <li{% if tab == "gym" %} class="active"{% endif %}><a href="{{ url_for('gym.gym_view') }}">Flashcards</a></li>
                       <li{% if tab == "history" %} class="active"{% endif %}><a href="{{ url_for('gym.history') }}">History</a></li>
                       <li{% if tab == "contributions" %} class="active"{% endif %}><a href="{{ url_for('gym.contributions') }}">Contributions</a></li>
-                    </ul>
-                    {% if g.user %}
-                        <ul class="nav pull-right">
-                          <li><a href="{{ url_for('gym.logout') }}">Logout</a></li>
-                        </ul>
                     {% endif %}
+                    </ul>
+                    <ul class="nav pull-right">
+                    {% if g.user %}
+                          <li><a href="{{ url_for('gym.logout') }}">Logout</a></li>
+                        {% else %}
+                          <li><a href="{{ url_for('gym.history') }}">Login</a></li>
+                    {% endif %}
+                    </ul>
                 </div>
             </div>
             {% block body %}{% endblock %}
