@@ -65,10 +65,11 @@ def add_contribution(user, language, original, translation, date, the_context, t
 
 
 if __name__ == "__main__":
+    print("testing...")
     zeeguu.app.test_request_context().push()
 
-    zeeguu.db.drop_all()
-    zeeguu.db.create_all()
+    print (zeeguu.db.drop_all())
+    print (zeeguu.db.create_all())
 
     fr = model.Language("fr", "French")
     de = model.Language("de", "German")
@@ -85,6 +86,7 @@ if __name__ == "__main__":
 
     today = datetime.date(2011,01,01)
     yes = datetime.date(2001,01,01)
+    jan14 = datetime.date(2014,1,14)
 
 
     today_dict = {
@@ -115,7 +117,7 @@ if __name__ == "__main__":
 
 
     for key in dict:
-        add_contribution(user, de, key, dict[key], yes, "this is a " + key, "http://url1")
+        add_contribution(user, de, key, dict[key], yes, "this is an "+key, "http://url1")
 
 
 
@@ -130,5 +132,24 @@ if __name__ == "__main__":
         add_contribution(user2, fr, key, dict[key], yes, "this is a " + key, "http://localhost.com")
 
 
+    story_url = 'http://www.gutenberg.org/files/23393/23393-h/23393-h.htm'
+    japanese_story = [
+            # ['recht', 'right', 'Du hast recht', story_url],
+            ['hauen', 'to chop', 'Es waren einmal zwei Holzhauer', story_url],
+            ['gelangen','to arrive', u'Um in den Wald zu gelangen, mußten sie einen großen Fluß passieren', story_url],
+            ['eingerichtet','established',u'Um in den Wald zu gelangen, mußten sie einen großen Fluß passieren, über den eine Fähre eingerichtet war', story_url],
+            [u'vorläufig','temporary',u'von der er des rasenden Sturmes wegen vorläufig nicht zurück konnte', story_url],
+            [u'werfen', 'to throw',u'Im Hause angekommen, warfen sie sich zur Erde,', story_url],
+            ['Tosen','roar',u'sie Tür und Fenster wohl verwahrt hatten und lauschten dem Tosen des Sturmes',story_url],
+            ['Entsetzen','horror','Entsetzt starrte Teramichi auf die Wolke',story_url]
+        ]
 
-    zeeguu.db.session.commit()
+    for w in japanese_story:
+        if w[0] == 'recht':
+            # something special
+            add_contribution(user, de, w[0],w[1],jan14, w[2],w[3])
+        else:
+            add_contribution(user, de, w[0],w[1],jan14, w[2],w[3])
+
+
+    print (zeeguu.db.session.commit())
