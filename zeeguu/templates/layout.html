@@ -20,8 +20,8 @@
                       <li{% if tab == "install" %} class="active"{% endif %}><a href="{{ url_for('gym.install') }}">Install</a></li>
                     {% if g.user %}
                       <li{% if tab == "gym" %} class="active"{% endif %}><a href="{{ url_for('gym.gym_view') }}">Flashcards</a></li>
-                      <li{% if tab == "history" %} class="active"{% endif %}><a href="{{ url_for('gym.history') }}">History</a></li>
-                      <li{% if tab == "contributions" %} class="active"{% endif %}><a href="{{ url_for('gym.contributions') }}">Contributions</a></li>
+                      <!--<li{% if tab == "history" %} class="active"{% endif %}><a href="{{ url_for('gym.history') }}">History</a></li>-->
+                      <li{% if tab == "contributions" %} class="active"{% endif %}><a href="{{ url_for('gym.contributions') }}">Word History</a></li>
                     {% endif %}
                     </ul>
                     <ul class="nav pull-right">

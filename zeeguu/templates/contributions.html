@@ -3,7 +3,7 @@
 {% set tab = "contributions" %}
 
 {% block body %}
-    <h2>History of Your Contributions</h2>
+    <h2>Word History</h2>
     {% if sorted_dates %}
         <p>These are the words you have contributed and the corresponding times.</p>
 
@@ -34,9 +34,11 @@
 
             <tr>
 		    <td style="border:0px solid white;background-color:white;"></td>
-                <td><div style="width: 250px" >{{contribution.text.url.render_link("..")|safe}}
+                <td><div style="width: 250px" >
                     {{ contribution.origin.word }}
-                    <br/><small>{{ contribution.text.content }}</small>
+                    <br/><small>{{ contribution.text.content }}
+                        {{ contribution.text.url.render_link("...")|safe }}
+                    </small>
                     </div>
                 </td>
                 <td>{{ contribution.translation.word }}</td>
