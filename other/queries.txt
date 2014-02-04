@@ -1,0 +1,7 @@
+elect distinct(url), count(contribution.`origin_id`)
+from url inner join text 
+on url.id = text.url_id
+inner join contribution on contribution.`text_id` = text.id
+where not url = 'undefined' and not url = ''
+group by url
+order by count(contribution.`origin_id`) desc
