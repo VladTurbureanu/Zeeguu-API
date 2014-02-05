@@ -9,7 +9,7 @@
 
         <p>However, if you want to re-read one particular text, we recommend the following</p>
         <ol>
-        {% for u in all_urls %}
+        {% for u in all_urls[:3] %}
             <li>{{u.url }}</li>
         {% endfor %}
         </ol>

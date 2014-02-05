@@ -98,8 +98,9 @@ class User(db.Model):
     def recommended_urls(self):
         urls_to_words = {}
         for contrib in self.all_contributions():
-            urls_to_words.setdefault(contrib.text.url,0)
-            urls_to_words [contrib.text.url] += contrib.origin.importance_level_number()
+            if contrib.text.url.url != "undefined":
+                urls_to_words.setdefault(contrib.text.url,0)
+                urls_to_words [contrib.text.url] += contrib.origin.importance_level_number()
         return sorted(urls_to_words, key=urls_to_words.get, reverse=True)
 
 
