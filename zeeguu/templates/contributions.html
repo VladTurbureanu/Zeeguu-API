@@ -7,10 +7,10 @@
     {% if sorted_dates %}
         <p>These are the words you have encountered in your recent web wandering.</p>
 
-        <p>However, if you want to re-read one particular text, we recommend the following</p>
+        <p>If you want to review one particular text try these</p>
         <ol>
         {% for u in all_urls[:3] %}
-            <li>{{u.url }}</li>
+            <li><a href="{{ u.url }}">{{ u.url }}</a></li>
         {% endfor %}
         </ol>
 
