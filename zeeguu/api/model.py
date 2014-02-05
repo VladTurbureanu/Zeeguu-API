@@ -72,11 +72,14 @@ class User(db.Model):
     def contribs_chronologically(self):
 	    return Contribution.query.filter_by(user_id=self.id).order_by(Contribution.time.desc()).all()
 
+    def all_contributions(self):
+        return Contribution.query.filter_by(user_id=self.id).order_by(Contribution.time.desc()).all()
+
     def contribs_by_date(self):
 	def extract_day_from_date(contrib):
 		return (contrib, contrib.time.replace(contrib.time.year, contrib.time.month, contrib.time.day,0,0,0,0))
 
-	contribs = Contribution.query.filter_by(user_id=self.id).order_by(Contribution.time.desc()).all()
+	contribs = self.all_contributions()
 	contribs_by_date = dict()
 				                                        
 	for elem in map(extract_day_from_date, contribs):
@@ -85,6 +88,19 @@ class User(db.Model):
 	sorted_dates = contribs_by_date.keys()
 	sorted_dates.sort(reverse=True)
 	return contribs_by_date, sorted_dates
+
+    def unique_urls(self):
+        urls = set()
+        for c in self.all_contributions():
+            urls.add(c.text.url)
+        return urls
+
+    def recommended_urls(self):
+        urls_to_words = {}
+        for contrib in self.all_contributions():
+            urls_to_words.setdefault(contrib.text.url,0)
+            urls_to_words [contrib.text.url] += contrib.origin.importance_level_number()
+        return sorted(urls_to_words, key=urls_to_words.get, reverse=True)
 
 
 
@@ -164,6 +180,12 @@ class Word(db.Model, util.JSONSerializable):
                 return "" 
 
         return importance_range(self.word, all_words_without_space)
+
+    def importance_level_number(self):
+        if self.importance_level() == "":
+            return 50
+        return int(self.importance_level())
+
 
     @classmethod
     def find(cls, word, language):

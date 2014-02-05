@@ -5,7 +5,14 @@
 {% block body %}
     <h2>Word History</h2>
     {% if sorted_dates %}
-        <p>These are the words you have contributed and the corresponding times.</p>
+        <p>These are the words you have encountered in your recent web wandering.</p>
+
+        <p>However, if you want to re-read one particular text, we recommend the following</p>
+        <ol>
+        {% for u in all_urls %}
+            <li>{{u.url }}</li>
+        {% endfor %}
+        </ol>
 
 
         <table class="table table-striped">

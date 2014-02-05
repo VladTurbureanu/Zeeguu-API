@@ -79,10 +79,13 @@ def contributions():
     sys.stderr.write(str(urls_by_date)+"\n")
     sys.stderr.write(str(contribs_by_url)+"\n")
 
+
+
     return flask.render_template("contributions.html",
                                  contribs_by_url=contribs_by_url,
                                  urls_by_date=urls_by_date,
-                                 sorted_dates=dates)
+                                 sorted_dates=dates,
+                                 all_urls = flask.g.user.recommended_urls())
 
 
 @gym.route("/gym")
