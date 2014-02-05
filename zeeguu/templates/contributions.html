@@ -7,12 +7,16 @@
     {% if sorted_dates %}
         <p>These are the words you have encountered in your recent web wandering.</p>
 
-        <p>If you want to review one particular text try these</p>
+        <div style="background:#eeffee">
+        <small>
+        <p>If you want to review one particular text you might want to try...</p>
         <ol>
         {% for u in all_urls[:3] %}
             <li><a href="{{ u.url }}">{{ u.url }}</a></li>
         {% endfor %}
         </ol>
+        </small>
+        </div>
 
 
         <table class="table table-striped">
