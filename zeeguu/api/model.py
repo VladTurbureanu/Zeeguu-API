@@ -290,6 +290,35 @@ class Text(db.Model):
         for word in re.split(re.compile(u"[^\\w]+", re.U), self.content):
             yield Word.find(word, self.language)
 
+
+    def shorten_word_context(self, given_word, max_word_count):
+        # shorter_text = ""
+        limited_words=[]
+
+        words = self.content.split() # ==> gives me a list of the words ["these", "types", ",", "the"]
+        word_count = len(words)
+
+        if word_count <= max_word_count:
+            return self.content.capitalize()
+
+        for i in range(0, max_word_count):
+            limited_words.append(words[i]) # lista cu primele max_length cuvinte
+        shorter_text = ' '.join(limited_words) # string cu primele 'max_word_count' cuv
+
+        # sometimes the given_word does not exist in the text.
+        # in that case return a text containing max_length words
+        if given_word not in words:
+            return shorter_text.capitalize()
+
+        if words.index(given_word) <= max_word_count:
+            return shorter_text.capitalize()
+
+        for i in range(max_word_count + 1,  words.index(given_word) + 1):
+            limited_words.append(words[i])
+        shorter_text = ' '.join(limited_words)
+
+        return shorter_text.capitalize()
+
     @classmethod
     def find(cls, text, language):
         try:

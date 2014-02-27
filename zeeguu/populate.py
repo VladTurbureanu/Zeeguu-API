@@ -136,11 +136,11 @@ if __name__ == "__main__":
     japanese_story = [
             # ['recht', 'right', 'Du hast recht', story_url],
             ['hauen', 'to chop', 'Es waren einmal zwei Holzhauer', story_url],
-            ['gelangen','to arrive', u'Um in den Wald zu gelangen, mußten sie einen großen Fluß passieren', story_url],
+            [u'Wald','to arrive', u'Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren', story_url],
             ['eingerichtet','established',u'Um in den Wald zu gelangen, mußten sie einen großen Fluß passieren, über den eine Fähre eingerichtet war', story_url],
             [u'vorläufig','temporary',u'von der er des rasenden Sturmes wegen vorläufig nicht zurück konnte', story_url],
             [u'werfen', 'to throw',u'Im Hause angekommen, warfen sie sich zur Erde,', story_url],
-            ['Tosen','roar',u'sie Tür und Fenster wohl verwahrt hatten und lauschten dem Tosen des Sturmes',story_url],
+            ['Tosen','roar',u'sie Tür und Fenster wohl verwahrt hatten und lauschten dem Tosen des Sturmes.sie Tür und Fenster wohl verwahrt hatten und lauschten dem Tosen des Sturmes.sie Tür und Fenster wohl verwahrt hatten und lauschten dem Tosen des Sturmes',story_url],
             ['Entsetzen','horror','Entsetzt starrte Teramichi auf die Wolke',story_url]
         ]
 

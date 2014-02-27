@@ -47,7 +47,7 @@
 		    <td style="border:0px solid white;background-color:white;"></td>
                 <td><div style="width: 250px" >
                     {{ contribution.origin.word }}
-                    <br/><small>{{ contribution.text.content }}
+                    <br/><small>{{ contribution.text.shorten_word_context(contribution.origin.word, 42) }}
                     </small>
                     </div>
                 </td>
