@@ -41,7 +41,7 @@ def login():
                 flask.flash("Invalid email and password combination")
             else:
                 flask.session["user"] = user.id
-                return flask.redirect(flask.url_for("gym.gym_view"))
+                return flask.redirect(flask.url_for("gym.contributions"))
     return flask.render_template("login.html")
 
 
@@ -85,6 +85,34 @@ def contributions():
                                  contribs_by_url=contribs_by_url,
                                  urls_by_date=urls_by_date,
                                  sorted_dates=dates,
+                                 all_urls = flask.g.user.recommended_urls())
+
+@gym.route("/recommended_texts")
+def recommended_texts():
+    if not flask.g.user:
+        return flask.redirect(flask.url_for("gym.login"))
+
+    # contribs,dates = flask.g.user.contribs_by_date()
+    # contribs_by_url = {}
+    # for contrib in contribs:
+    #     contribs_by_url.setdefault(contrib.text.url, []).append(contrib)
+
+    # urls_by_date = {}
+    # contribs_by_url = {}
+    # for date in dates:
+    #     sys.stderr.write(str(date)+"\n")
+    #     for contrib in contribs[date]:
+    #         urls_by_date.setdefault(date, set()).add(contrib.text.url)
+    #         contribs_by_url.setdefault(contrib.text.url,[]).append(contrib)
+    # sys.stderr.write(str(urls_by_date)+"\n")
+    # sys.stderr.write(str(contribs_by_url)+"\n")
+
+
+
+    return flask.render_template("recommended_texts.html",
+                                 # contribs_by_url=contribs_by_url,
+                                 # urls_by_date=urls_by_date,
+                                 # sorted_dates=dates,
                                  all_urls = flask.g.user.recommended_urls())
 
 

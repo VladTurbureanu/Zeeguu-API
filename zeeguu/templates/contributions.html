@@ -3,21 +3,9 @@
 {% set tab = "contributions" %}
 
 {% block body %}
-    <h2>Word History</h2>
+    <h2>Contributions</h2>
     {% if sorted_dates %}
         <p>These are the words you have encountered in your recent web wandering.</p>
-
-        <div style="background:#eeffee">
-        <small>
-        <p>If you want to review one particular text you might want to try...</p>
-        <ol>
-        {% for u in all_urls[:3] %}
-            <li><a href="{{ u.url }}">{{ u.url }}</a></li>
-        {% endfor %}
-        </ol>
-        </small>
-        </div>
-
 
         <table class="table table-striped">
             <tr>

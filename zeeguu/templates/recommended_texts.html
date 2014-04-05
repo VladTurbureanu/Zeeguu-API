@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% set tab = "recommended_texts" %}
+
+{% block body %}
+    <h2>Recommended Reading</h2>
+    {% if all_urls %}
+        <div style="background:#eeffee">
+        <small>
+        <p>If you want to review one particular text we recommend you the following...</p>
+        <ol>
+        {% for u in all_urls[:3] %}
+            <li><a href="{{ u.url }}">{{ u.url }}</a></li>
+        {% endfor %}
+        </ol>
+        </small>
+        </div>
+    {% else %}
+        <p>You didn't look up any words yet. Install our <a href="#" id="install-extension">Chrome extensions</a> to get started.</p>
+    {% endif %}
+{% endblock %}
