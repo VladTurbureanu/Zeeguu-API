@@ -88,6 +88,7 @@ function newQuestion() {
         }
         $("#question").html('<span>' + data.question + '</span>');
         $("#example").html('<span>' + data.example+ '</span>');
+        $("#reason").html('<span>' + data.reason + '</span>');
         last_question = data;
         ready = true;
     });

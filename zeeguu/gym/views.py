@@ -5,6 +5,7 @@ import flask
 
 from zeeguu import model
 import sys
+import zeeguu
 
 
 gym = flask.Blueprint("gym", __name__)
@@ -65,10 +66,6 @@ def contributions():
         return flask.redirect(flask.url_for("gym.login"))
 
     contribs,dates = flask.g.user.contribs_by_date()
-    # contribs_by_url = {}
-    # for contrib in contribs:
-    #     contribs_by_url.setdefault(contrib.text.url, []).append(contrib)
-
     urls_by_date = {}
     contribs_by_url = {}
     for date in dates:
@@ -92,23 +89,6 @@ def recommended_texts():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
 
-    # contribs,dates = flask.g.user.contribs_by_date()
-    # contribs_by_url = {}
-    # for contrib in contribs:
-    #     contribs_by_url.setdefault(contrib.text.url, []).append(contrib)
-
-    # urls_by_date = {}
-    # contribs_by_url = {}
-    # for date in dates:
-    #     sys.stderr.write(str(date)+"\n")
-    #     for contrib in contribs[date]:
-    #         urls_by_date.setdefault(date, set()).add(contrib.text.url)
-    #         contribs_by_url.setdefault(contrib.text.url,[]).append(contrib)
-    # sys.stderr.write(str(urls_by_date)+"\n")
-    # sys.stderr.write(str(contribs_by_url)+"\n")
-
-
-
     return flask.render_template("recommended_texts.html",
                                  # contribs_by_url=contribs_by_url,
                                  # urls_by_date=urls_by_date,
@@ -116,41 +96,45 @@ def recommended_texts():
                                  all_urls = flask.g.user.recommended_urls())
 
 
-@gym.route("/gym")
-def gym_view():
+@gym.route("/flash_cards")
+def flash_cards():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
     languages = model.Language.query.all()
-    return flask.render_template("gym.html", languages=languages)
+    return flask.render_template("flash_cards.html", languages=languages)
 
 
-@gym.route("/gym/question/<from_lang>/<to_lang>")
-def question(from_lang, to_lang):
+
+def get_next_card(user, from_lang, to_lang):
     if not flask.g.user:
         return flask.abort(401)
 
     from_lang = model.Language.find(from_lang)
     to_lang = model.Language.find(to_lang)
 
-    contributions = (
+    contributions_never_tested = (
         model.Contribution.query.filter_by(user=flask.g.user)
                                 .join(model.Word, model.Contribution.origin)
                                 .join(model.WordAlias,
                                       model.Contribution.translation)
     )
-    forward = contributions.filter(
+    forward = contributions_never_tested.filter(
         model.Word.language == from_lang,
         model.WordAlias.language == to_lang
     )
-    backward = contributions.filter(
+    backward = contributions_never_tested.filter(
         model.Word.language == to_lang,
         model.WordAlias.language == from_lang
     )
-    contributions = forward.union(backward).filter_by(card=None)
-    if contributions.count() > 0:
+    contributions_never_tested = forward.union(backward).filter_by(card=None)
+    # assert zeeguu.app.debug == False
+    # 1/0
+
+    if contributions_never_tested.count() > 0:
         card = model.Card(
-            contributions.order_by(model.Contribution.time).first()
+            contributions_never_tested.order_by(model.Contribution.time).first()
         )
+        card . set_reason("never shown before")
     else:
         cards = (
             model.Card.query.join(model.Contribution, model.Card.contribution)
@@ -169,6 +153,16 @@ def question(from_lang, to_lang):
         )
         cards = forward.union(backward).filter(model.Card.position < 5)
         card = cards.order_by(model.Card.last_seen).first()
+        card . set_reason("all were shown before. importance: " + str(card.contribution.origin.importance_level()))
+        return card
+
+
+@gym.route("/gym/question/<from_lang>/<to_lang>")
+def question(from_lang, to_lang):
+    if not flask.g.user:
+        return flask.abort(401)
+
+    card = get_next_card(flask.g.user, from_lang, to_lang)
 
     if card is None:
         return "\"NO CARDS\""
@@ -188,6 +182,7 @@ def question(from_lang, to_lang):
         "example":card.contribution.text.content,
         "answer": answer.word,
         "id": card.id,
+        "reason":card.reason,
         "position": card.position
     })
 

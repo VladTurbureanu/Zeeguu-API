@@ -10,6 +10,7 @@ class Card(db.Model):
     contribution_id = db.Column(db.Integer, db.ForeignKey('contribution.id'))
     contribution = db.relationship("Contribution", backref="card")
     last_seen = db.Column(db.DateTime)
+    reason = ""
 
     def __init__(self, contribution):
         self.contribution = contribution
@@ -18,3 +19,9 @@ class Card(db.Model):
 
     def seen(self):
         self.last_seen = datetime.datetime.now()
+
+    def set_reason(self, reason):
+        self.reason = reason
+
+    def reason(self):
+        return self.reason
