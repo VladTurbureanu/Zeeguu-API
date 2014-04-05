@@ -153,10 +153,13 @@ class Word(db.Model, util.JSONSerializable):
     word = db.Column(db.String(255))
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
+    word_rank = db.Column(db.Integer)
+    IMPOSSIBLE_RANK = 1000000
 
     def __init__(self, word, language):
         self.word = word
         self.language = language
+        self.word_rank = self.get_rank_from_file()
 
     def __repr__(self):
         return '<Word %r>' % (self.word)
@@ -164,23 +167,32 @@ class Word(db.Model, util.JSONSerializable):
     def serialize(self):
         return self.word
 
-    def importance_level(self):
+    # if the word is not found, we assume a rank of 1000000
+    def get_rank_from_file(self):
         import codecs
-        f=codecs.open(zeeguu.app.config.get("LANGUAGES_FOLDER").decode('utf-8')+self.language_id+".txt", encoding="iso-8859-1")
-        all_words = f.readlines()
-        all_words_without_space = []
-        for each_word in all_words:
-            each_word_without_space = each_word[:-1]
-            all_words_without_space.append(each_word_without_space)
+        try:
+            f=codecs.open(zeeguu.app.config.get("LANGUAGES_FOLDER").decode('utf-8')+self.language.id+".txt", encoding="iso-8859-1")
 
-        def importance_range(the_word, frequency_list):
-            if the_word in frequency_list:
-                position = frequency_list.index(the_word)
-                return (position // 500) + 1
-            else:
-                return "" 
+            all_words = f.readlines()
+            all_words_without_space = []
+            for each_word in all_words:
+                each_word_without_space = each_word[:-1]
+                all_words_without_space.append(each_word_without_space)
 
-        return importance_range(self.word, all_words_without_space)
+            def importance_range(the_word, frequency_list):
+                if the_word in frequency_list:
+                    position = frequency_list.index(the_word)
+                    return position
+                else:
+                    return Word.IMPOSSIBLE_RANK
+            return importance_range(self.word, all_words_without_space)
+        except:
+            return Word.IMPOSSIBLE_RANK
+
+    # returns a number between
+    def importance_level(self):
+        return self.word_rank / 500
+
 
     def importance_level_number(self):
         if self.importance_level() == "":
