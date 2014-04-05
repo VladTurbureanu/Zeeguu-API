@@ -126,15 +126,23 @@ def get_next_card(user, from_lang, to_lang):
         model.Word.language == to_lang,
         model.WordAlias.language == from_lang
     )
+    # zeeguu.app.logger.debug(forward)
+    # zeeguu.app.logger.debug(backward)
+    # contributions_never_tested = contributions_never_tested.filter_by(card=None)
+
     contributions_never_tested = forward.union(backward).filter_by(card=None)
-    # assert zeeguu.app.debug == False
-    # 1/0
+    zeeguu.app.logger.debug(contributions_never_tested)
+
+    # zeeguu.app.logger.debug(str(contributions_never_tested.count()))
 
     if contributions_never_tested.count() > 0:
         card = model.Card(
             contributions_never_tested.order_by(model.Contribution.time).first()
         )
-        card . set_reason("never shown before")
+        card . set_reason("never shown before"
+                + str(card.contribution.origin.word_rank)
+                + " card position: " + str(card.position))
+
     else:
         cards = (
             model.Card.query.join(model.Contribution, model.Card.contribution)
@@ -153,8 +161,11 @@ def get_next_card(user, from_lang, to_lang):
         )
         cards = forward.union(backward).filter(model.Card.position < 5)
         card = cards.order_by(model.Card.last_seen).first()
-        card . set_reason("all were shown before. importance: " + str(card.contribution.origin.importance_level()))
-        return card
+        card . set_reason("all were shown before. rank: "
+                          + str(card.contribution.origin.word_rank)
+                          + " card position: " + str(card.position)
+        )
+    return card
 
 
 @gym.route("/gym/question/<from_lang>/<to_lang>")
