@@ -133,11 +133,11 @@ def get_next_card(user, from_lang, to_lang):
     contributions_never_tested = forward.union(backward).filter_by(card=None)
     zeeguu.app.logger.debug(contributions_never_tested)
 
-    # zeeguu.app.logger.debug(str(contributions_never_tested.count()))
-
     if contributions_never_tested.count() > 0:
         card = model.Card(
-            contributions_never_tested.order_by(model.Contribution.time).first()
+            contributions_never_tested.
+                join(model.Word, model.Contribution.origin).
+                order_by(model.Word.word_rank,model.Contribution.time).first()
         )
         card . set_reason("never shown before"
                 + str(card.contribution.origin.word_rank)
