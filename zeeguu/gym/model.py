@@ -10,11 +10,11 @@ class Card(db.Model):
     contribution_id = db.Column(db.Integer, db.ForeignKey('contribution.id'))
     contribution = db.relationship("Contribution", backref="card")
     last_seen = db.Column(db.DateTime)
-    reason = ""
 
     def __init__(self, contribution):
         self.contribution = contribution
         self.position = 0
+        self.reason = ""
         self.seen()
 
     def seen(self):
