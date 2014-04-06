@@ -2,7 +2,6 @@ from datetime import datetime, timedelta, date
 import json
 
 import flask
-from numpy.lib.type_check import datetime_data
 
 from zeeguu import model
 import sys
