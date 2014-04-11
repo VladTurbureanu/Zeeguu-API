@@ -30,6 +30,7 @@ def install():
 @gym.route("/login", methods=("GET", "POST"))
 def login():
     form = flask.request.form
+    print "in login..."
     if flask.request.method == "POST" and form.get("login", False):
         password = form.get("password", None)
         email = form.get("email", None)
