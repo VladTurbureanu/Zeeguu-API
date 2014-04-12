@@ -1,1 +1,1 @@
-ssh haddock.unibe.ch 'cd zeeguu/Web; git pull; touch zeeguu.wsgi'
+ssh haddock.unibe.ch 'cd zeeguu/website; git pull; touch zeeguu.wsgi'
