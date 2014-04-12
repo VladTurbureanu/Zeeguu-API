@@ -100,7 +100,7 @@ class User(db.Model):
         for contrib in self.all_contributions():
             if contrib.text.url.url != "undefined":
                 urls_to_words.setdefault(contrib.text.url,0)
-                urls_to_words [contrib.text.url] += contrib.origin.importance_level_number()
+                urls_to_words [contrib.text.url] += contrib.origin.importance_level()
         return sorted(urls_to_words, key=urls_to_words.get, reverse=True)
 
 
@@ -154,7 +154,10 @@ class Word(db.Model, util.JSONSerializable):
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
     word_rank = db.Column(db.Integer)
+
+    IMPORTANCE_LEVEL_STEP = 500
     IMPOSSIBLE_RANK = 1000000
+    IMPOSSIBLE_IMPORTANCE_LEVEL = IMPOSSIBLE_RANK / IMPORTANCE_LEVEL_STEP
 
     def __init__(self, word, language):
         self.word = word
@@ -189,16 +192,23 @@ class Word(db.Model, util.JSONSerializable):
         except:
             return Word.IMPOSSIBLE_RANK
 
+    def rank(self):
+        if self.word_rank == None:
+            self.word_rank = self.get_rank_from_file()
+            session = sqlalchemy.orm.object_session(self)
+            session.commit()
+        return self.word_rank
+
     # returns a number between
     def importance_level(self):
-        return self.word_rank / 500
+        return self.rank() / Word.IMPORTANCE_LEVEL_STEP
 
-
-    def importance_level_number(self):
-        if self.importance_level() == "":
-            return 50
-        return int(self.importance_level())
-
+    # we use this in the contributions.html to show the rank.
+    # for words in which there is no rank info, we don't display anything
+    def importance_level_string(self):
+        if self.rank() == Word.IMPOSSIBLE_RANK:
+            return ""
+        return str(self.importance_level())
 
     @classmethod
     def find(cls, word, language):
