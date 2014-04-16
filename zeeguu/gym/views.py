@@ -225,6 +225,7 @@ def question(from_lang, to_lang):
     return json.dumps({
         "question": question.word,
         "example":card.contribution.text.content,
+        "url":card.contribution.text.url.url,
         "answer": answer.word,
         "id": card.id,
         "position": card.position,
