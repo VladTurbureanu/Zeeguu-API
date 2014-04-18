@@ -123,7 +123,7 @@ function checkAnswer() {
 
     var correct = $("#answer").val().toLowerCase() == last_question.answer.toLowerCase();
     var back = flippant.flip(
-        $("#question").get(0),
+        $("#question2").get(0),
         '<span class="' + (correct ? "correct" : "wrong") + '">' + last_question.answer + '</span>',
         "card",
         "card"
