@@ -154,15 +154,17 @@ class Word(db.Model, util.JSONSerializable):
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
     word_rank = db.Column(db.Integer)
+    starred = db.Column(db.BOOLEAN)
 
     IMPORTANCE_LEVEL_STEP = 500
     IMPOSSIBLE_RANK = 1000000
     IMPOSSIBLE_IMPORTANCE_LEVEL = IMPOSSIBLE_RANK / IMPORTANCE_LEVEL_STEP
 
-    def __init__(self, word, language):
+    def __init__(self, word, language, starred):
         self.word = word
         self.language = language
         self.word_rank = self.get_rank_from_file()
+        self.starred = starred
 
     def __repr__(self):
         return '<Word %r>' % (self.word)

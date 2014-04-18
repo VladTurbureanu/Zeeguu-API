@@ -59,6 +59,13 @@ h1 img {
     position: relative;
 }
 
+#star {
+    text-align: right;
+    padding-right: 8px;
+    padding-top: 8px;
+    font-size: 16px;
+}
+
 
 .card span {
     position: absolute;
