@@ -228,7 +228,8 @@ def question(from_lang, to_lang):
         "answer": answer.word,
         "id": card.id,
         "position": card.position,
-        "reason": card.reason
+        "reason": card.reason,
+        "starred": card.contribution.origin.starred
     })
 
 
@@ -246,4 +247,20 @@ def wrong(card_id):
     if card.position > 0:
         card.position -= 1
         model.db.session.commit()
+    return "OK"
+
+@gym.route("/gym/starred/<card_id>", methods=("POST",))
+def starred(card_id):
+    card = model.Card.query.get(card_id)
+    card.contribution.origin.starred = True
+    model.db.session.commit()
+    print card.contribution.origin.starred
+    return "OK"
+
+@gym.route("/gym/unstarred/<card_id>", methods=("POST",))
+def unstarred(card_id):
+    card = model.Card.query.get(card_id)
+    card.contribution.origin.starred = False
+    model.db.session.commit()
+    print card.contribution.origin.starred
     return "OK"

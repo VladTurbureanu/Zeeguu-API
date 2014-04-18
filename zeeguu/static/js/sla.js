@@ -1,3 +1,11 @@
+function showStar(starred)
+{
+    if (starred) {
+        $("#star").html('<i style="color:gold" class="icon-star"></i>');
+    } else {
+        $("#star").html('<i style="color:lightgray" class="icon-star-empty"></i>');
+    }
+}
 $(function() {
     if (typeof chrome !== "undefined" && !chrome.app.isInstalled) {
         $("#install-extension").click(function() {
@@ -58,6 +66,15 @@ $(function() {
         newQuestion();
     });
 
+    $("#star").click(
+        function() {
+            starred = !starred;
+            showStar(starred);
+            $.post("/gym/" + (starred? "starred" : "unstarred") + "/" + last_question.id);
+        }
+    );
+
+
     $("#answer").focus().keyup(function(e) {
         if (e.keyCode == 13) {  // Return key
             checkAnswer();
@@ -70,6 +87,7 @@ $(function() {
 var last_question = null;
 var reverse = false;
 var ready = false;
+var starred = false;
 
 function newQuestion() {
     var from_lang = $("#lang1").val(),
@@ -90,6 +108,9 @@ function newQuestion() {
         $("#example").html('<span>' + data.example+ '</span>');
         $("#reason").html('<span>' + data.reason + '</span>');
         $("#example_url").html('<span><a href="' + data.url + '">(source)</a></span>');
+        showStar(data.starred);
+
+        starred = data.starred;
         last_question = data;
         ready = true;
     });

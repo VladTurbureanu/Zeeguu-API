@@ -34,6 +34,11 @@
             <tr>
 		    <td style="border:0px solid white;background-color:white;"></td>
                 <td><div style="width: 250px" >
+                    {% if contribution.origin.starred %}
+                        <i style="color:gold" class="icon-star"></i>
+                    {% else %}
+                        <!--<i style="color:lightgray" class="icon-star-empty"></i>-->
+                    {% endif %}
                     {{ contribution.origin.word }}
                     <br/><small>{{ contribution.text.shorten_word_context(contribution.origin.word, 42) }}
                     </small>
