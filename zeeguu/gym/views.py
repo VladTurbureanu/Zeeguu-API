@@ -121,8 +121,16 @@ def recommended_texts():
 def flash_cards():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
-    languages = model.Language.query.all()
-    return flask.render_template("flash_cards.html", languages=languages)
+    lang = model.Language.query.all()
+    return flask.render_template("flash_cards.html", languages=lang)
+
+
+@gym.route("/recognize")
+def recognize():
+    if not flask.g.user:
+        return flask.redirect(flask.url_for("gym.login"))
+    lang = model.Language.query.all()
+    return flask.render_template("recognize.html", languages=lang)
 
 
 def redisplay_card_simple(cards):
