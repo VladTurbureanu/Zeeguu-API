@@ -219,7 +219,7 @@ class Word(db.Model, util.JSONSerializable):
                              .filter(cls.language == language)
                              .one())
         except sqlalchemy.orm.exc.NoResultFound:
-            return cls(word, language)
+            return cls(word, language, False)
 
     @classmethod
     def translate(cls, from_lang, term, to_lang):
