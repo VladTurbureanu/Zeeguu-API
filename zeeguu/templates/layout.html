@@ -1,11 +1,17 @@
 <!doctype html>
+
+
+
 <html>
     <head>
+
         <title>Zeeguu</title>
+
         {% assets filters="cssmin", output="instance/style.css", "css/bootstrap.css", "css/select2.css", "css/font-awesome.css", "css/flippant.css", "css/style.css", "css/homepage.css" -%}
             <link rel="stylesheet" href="{{ ASSET_URL }}" />
         {% endassets -%}
-        {% assets filters="jsmin", output="instance/script.js", "js/jquery.js", "js/jquery.validate.js", "js/bootstrap.js", "js/flippant.js", "js/select2.js", "js/sla.js" -%}
+
+        {% assets "js/jquery.js", "js/jquery.validate.js", "js/bootstrap.js", "js/flippant.js", "js/select2.js", "js/sla.js" -%}
             <script src="{{ ASSET_URL }}"></script>
         {% endassets -%}
         <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/zeeguu/ckncjmaednfephhbpeookmknhmjjodcd">
@@ -22,14 +28,17 @@
 
                 <div class="col-md-8 meniu-titles">
                     <ul class="nav navbar-nav">
+                        <li{% if tab == "home" %} class="active"{% endif %}><a href="{{ url_for('gym.home') }}">Overview</a></li>
                     {% if g.user %}
                       <!--<li{% if tab == "history" %} class="active"{% endif %}><a href="{{ url_for('gym.history') }}">History</a></li>-->
-                      <li{% if tab == "recognize" %} class="active"{% endif %}><a href="{{ url_for('gym.recognize') }}">Level 1: Recognize</a></li>
-                      <li{% if tab == "gym" %} class="active"{% endif %}><a href="{{ url_for('gym.flash_cards') }}">Level 2: Remember</a></li>
-                      <li{% if tab == "contributions" %} class="active"{% endif %}><a href="{{ url_for('gym.contributions') }}">History</a></li>
+
+                      <li{% if tab == "contributions" %} class="active"{% endif %}><a href="{{ url_for('gym.contributions') }}">Word History</a></li>
+                      <li{% if tab == "recognize" %} class="active"{% endif %}><a href="{{ url_for('gym.recognize') }}">Easy Workout</a></li>
+                      <li{% if tab == "gym" %} class="active"{% endif %}><a href="{{ url_for('gym.flash_cards') }}">Medium Workout</a></li>
+
                       <li{% if tab == "recommended_texts" %} class="active"{% endif %}><a href="{{ url_for('gym.recommended_texts') }}">Recommended Reading</a></li>
                         {% else %}
-                      <li{% if not tab %} class="active"{% endif %}><a href="{{ url_for('gym.home') }}">Overview</a></li>
+                      <!--<li{% if not tab %} class="active"{% endif %}><a href="{{ url_for('gym.home') }}">Overview</a></li>-->
                       <!--<li{% if tab == "install" %} class="active"{% endif %}><a href="{{ url_for('gym.install') }}">Install</a></li>-->
 
                     {% endif %}

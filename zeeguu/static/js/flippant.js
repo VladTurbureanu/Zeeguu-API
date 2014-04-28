@@ -63,7 +63,7 @@ function set_styles(back, front, position) {
   back.style.position = position
   back.style.top = front.offsetTop + "px"
   back.style.left = front.offsetLeft + "px"
-  //back.style['min-height'] = front.offsetHeight + "px"
+  back.style['min-height'] = front.offsetHeight + "px"
   back.style.width = front.offsetWidth + "px"
   back.style["z-index"] = 9999
 }
@@ -76,7 +76,7 @@ function null_styles(back) {
 }
 
 function card_styles(back) {
-  //back.style.height = 'auto'
+  back.style.height = 'auto'
 }
 },{}]},{},[1])(1)
 });
