@@ -1,0 +1,26 @@
+.green-block {
+    /*background-image: url(http://www.featurepics.com/FI/Thumb300/20110518/Green-Textile-1883527.jpg); url(http://farm2.staticflickr.com/1078/1277241167_1c116778e5_o.jpg); url(http://images.fineartamerica.com/images-medium-large-5/green-abstract-frank-tschakert.jpg);*/
+    background-color: yellowgreen;
+    height: 200px;
+}
+
+
+
+.main-message {
+    padding-top: 64px;
+    font-size: 42px;
+    text-align: left;
+
+}
+
+.main-description {
+    padding-top: 64px;
+    font-size: 18px;
+    text-align: left;
+    padding-right: 40px;
+
+}
+
+.three-steps-presentation {
+    background-color: white;
+}
