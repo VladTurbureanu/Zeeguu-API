@@ -7,9 +7,10 @@
     {% if sorted_dates %}
         <p>These are the words you have encountered in your recent web wandering.</p>
 
-        <table class="table table-striped">
+        <table class="table table-striped table-no-borders">
             <tr>
                 <th>Date</th>
+                <th></th>
                 <th>Word</th>
                 <th>Translation</th>
                 <th style="text-align: right">Level</th>
@@ -31,20 +32,32 @@
 	    {% if contribution.time.day == date.day %}
 	    <!-- #small hack to make sure we don't bundle all the contribs with the same url in the same day... -->
 
-            <tr>
+            <tr id="contribution{{contribution.id}}">
 		    <td style="border:0px solid white;background-color:white;"></td>
-                <td><div style="width: 250px" >
+                <td class="word-action-buttons-td">
+                     <div class="word-action-buttons">
                     {% if contribution.origin.starred %}
                         <i style="color:gold" class="icon-star"></i>
                     {% else %}
-                        <!--<i style="color:lightgray" class="icon-star-empty"></i>-->
+                        <i style="color:lightgray" class="icon-star-empty"></i>
                     {% endif %}
+
+                    <a href="javascript:void(0);" onclick="deleteContribution({{ contribution.id }})" id="trash">
+                            <i class="icon-trash button-disabled"></i>
+                    </a>
+
+                    </div>
+
+                </td>
+                <td class="word-details-td">
+                    <div class="impression">
+
                     {{ contribution.origin.word }}
                     <br/><small>{{ contribution.text.shorten_word_context(contribution.origin.word, 42) }}
                     </small>
                     </div>
                 </td>
-                <td>{{ contribution.translation.word }}</td>
+                <td class="translation">{{ contribution.translation.word }}</td>
                 <td style="text-align: right"><small>{{ contribution.origin.importance_level_string() }}</small></td>
 
             </tr>

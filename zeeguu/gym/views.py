@@ -73,12 +73,12 @@ def contributions():
     urls_by_date = {}
     contribs_by_url = {}
     for date in dates:
-        sys.stderr.write(str(date)+"\n")
+        # sys.stderr.write(str(date)+"\n")
         for contrib in contribs[date]:
             urls_by_date.setdefault(date, set()).add(contrib.text.url)
             contribs_by_url.setdefault(contrib.text.url,[]).append(contrib)
-    sys.stderr.write(str(urls_by_date)+"\n")
-    sys.stderr.write(str(contribs_by_url)+"\n")
+    # sys.stderr.write(str(urls_by_date)+"\n")
+    # sys.stderr.write(str(contribs_by_url)+"\n")
 
 
 
@@ -240,6 +240,22 @@ def question(from_lang, to_lang):
         "reason": card.reason,
         "starred": card.contribution.origin.starred
     })
+
+
+
+@gym.route("/gym/delete/<contribution_id>", methods=("POST",))
+def delete(contribution_id):
+    session = model.db.session
+    contrib = model.Contribution.query.get(contribution_id)
+    text = model.Text.query.get(contrib.text.id)
+    url = text.url
+    session.delete(contrib)
+    session.delete(text)
+    session.commit()
+    if not url.texts:
+        # print "last text from the url deleted. now deleting the url itself"
+        session.delete(url)
+    return "OK"
 
 
 @gym.route("/gym/correct/<card_id>", methods=("POST",))
