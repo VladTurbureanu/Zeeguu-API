@@ -14,6 +14,7 @@
                 <th>Word</th>
                 <th>Translation</th>
                 <th style="text-align: right">Level</th>
+                <th style="text-align: right;"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </th>
             </tr>
 	
 	    {% for date in sorted_dates %}
@@ -41,10 +42,8 @@
                     {% else %}
                         <i style="color:lightgray" class="icon-star-empty"></i>
                     {% endif %}
+                    <br/><br/>
 
-                    <a href="javascript:void(0);" onclick="deleteContribution({{ contribution.id }})" id="trash">
-                            <i class="icon-trash button-disabled"></i>
-                    </a>
 
                     </div>
 
@@ -58,7 +57,19 @@
                     </div>
                 </td>
                 <td class="translation">{{ contribution.translation.word }}</td>
-                <td style="text-align: right"><small>{{ contribution.origin.importance_level_string() }}</small></td>
+                <td style="text-align: right">
+                    <small>{{ contribution.origin.importance_level_string() }}</small>
+                </td>
+
+                <td style="text-align: right;">
+
+                    <a href="javascript:void(0);" onclick="deleteContribution({{ contribution.id }})" id="trash">
+                            <i class="icon-trash button-disabled"></i>
+                    </a>
+
+
+                </td>
+
 
             </tr>
 	    {% endif %}
