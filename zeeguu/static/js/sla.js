@@ -142,6 +142,7 @@ function checkAnswer() {
 
 
 function deleteContribution(id) {
+    console.log("deleting " + id);
     $.post("/gym/delete/"+id);
     $("#contribution"+id).fadeOut();
     return false;
