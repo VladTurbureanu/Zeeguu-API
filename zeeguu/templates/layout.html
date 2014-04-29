@@ -16,8 +16,10 @@
         {% endassets -%}
         <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/zeeguu/ckncjmaednfephhbpeookmknhmjjodcd">
     </head>
+
+
     <body>
-        <div class="container">
+        <div class="container col-md-12 ">
             <h1><img src="/static/img/logo.png" alt="ZeeGuu" height="90" /></h1>
 
 
@@ -26,25 +28,26 @@
         <div class="navbar-inner">
             <div class="row">
 
-                <div class="col-md-8 meniu-titles">
+                <div class="col-md-12 meniu-titles">
                     <ul class="nav navbar-nav">
                         <li{% if tab == "home" %} class="active"{% endif %}><a href="{{ url_for('gym.home') }}">Overview</a></li>
                     {% if g.user %}
                       <!--<li{% if tab == "history" %} class="active"{% endif %}><a href="{{ url_for('gym.history') }}">History</a></li>-->
 
-                      <li{% if tab == "contributions" %} class="active"{% endif %}><a href="{{ url_for('gym.contributions') }}">Word History</a></li>
+                      <li{% if tab == "contributions" %} class="active"{% endif %}><a href="{{ url_for('gym.contributions') }}">My Words</a></li>
                       <li{% if tab == "recognize" %} class="active"{% endif %}><a href="{{ url_for('gym.recognize') }}">Easy Workout</a></li>
                       <li{% if tab == "gym" %} class="active"{% endif %}><a href="{{ url_for('gym.flash_cards') }}">Medium Workout</a></li>
 
-                      <li{% if tab == "recommended_texts" %} class="active"{% endif %}><a href="{{ url_for('gym.recommended_texts') }}">Recommended Reading</a></li>
+                      <li{% if tab == "recommended_texts" %} class="active"{% endif %}><a href="{{ url_for('gym.recommended_texts') }}">Suggested Texts</a></li>
                         {% else %}
                       <!--<li{% if not tab %} class="active"{% endif %}><a href="{{ url_for('gym.home') }}">Overview</a></li>-->
                       <!--<li{% if tab == "install" %} class="active"{% endif %}><a href="{{ url_for('gym.install') }}">Install</a></li>-->
 
-                    {% endif %}
+ {% endif %}
                     </ul>
-                    <ul class="nav navbar-nav ">
-                    {% if g.user %}
+
+                    <ul class="nav navbar-nav navbar-right" style="padding-right: 20px">
+                         {% if g.user %}
                           <li><a href="{{ url_for('gym.logout') }}">Logout</a></li>
                         {% else %}
                           <li><a href="{{ url_for('gym.login') }}">Login</a></li>
