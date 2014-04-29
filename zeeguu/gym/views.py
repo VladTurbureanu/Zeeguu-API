@@ -243,7 +243,7 @@ def question(from_lang, to_lang):
 
 
 
-@gym.route("/gym/delete/<contribution_id>", methods=("POST",))
+@gym.route("/gym/delete_contribution/<contribution_id>", methods=("POST",))
 def delete(contribution_id):
     session = model.db.session
     contrib = model.Contribution.query.get(contribution_id)

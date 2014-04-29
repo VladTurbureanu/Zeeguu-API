@@ -143,7 +143,7 @@ function checkAnswer() {
 
 function deleteContribution(id) {
     console.log("deleting " + id);
-    $.post("/gym/delete/"+id);
+    $.post("/gym/delete_contribution/"+id);
     $("#contribution"+id).fadeOut();
     return false;
 }
