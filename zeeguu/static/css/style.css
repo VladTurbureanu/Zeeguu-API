@@ -59,7 +59,7 @@ h1 img {
     position: relative;
 }
 
-#star {
+.starholder {
     text-align: right;
     padding-right: 8px;
     padding-top: 8px;
