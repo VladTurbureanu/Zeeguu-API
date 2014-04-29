@@ -249,12 +249,21 @@ def delete(contribution_id):
     contrib = model.Contribution.query.get(contribution_id)
     text = model.Text.query.get(contrib.text.id)
     url = text.url
+
+    # delete the associated cards
+    cards = model.Card.query.filter_by(contribution_id=contrib.id).all()
+    for card in cards:
+        session.delete(card)
+
+    # contrib goes, and so does the associated text
     session.delete(contrib)
     session.delete(text)
     session.commit()
+
+    # url only if there are no more texts for it
     if not url.texts:
-        # print "last text from the url deleted. now deleting the url itself"
         session.delete(url)
+        session.commit()
     return "OK"
 
 
