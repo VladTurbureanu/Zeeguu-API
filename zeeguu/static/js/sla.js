@@ -8,6 +8,7 @@ function showStar(starred)
 }
 
 
+
 $(function() {
     if (typeof chrome !== "undefined" && !chrome.app.isInstalled) {
         $("#install-extension").click(function() {
@@ -72,7 +73,7 @@ $(function() {
         function() {
             starred = !starred;
             showStar(starred);
-            $.post("/gym/" + (starred? "starred" : "unstarred") + "/" + last_question.id);
+            $.post("/gym/" + (starred? "starred_card" : "unstarred_card") + "/" + last_question.id);
         }
     );
 
@@ -145,6 +146,19 @@ function deleteContribution(id) {
     $("#contribution"+id).fadeOut();
     return false;
 }
+
+function unstarContribution(id) {
+    console.log("unstarring " + id)
+    $.post("/gym/unstarred_word/" + id);
+    $("#star"+id).html('<a href="javascript:void(0);" onclick="starContribution('+id+')"><i style="color:lightgray" class="icon-star-empty"></i></a>');
+}
+
+function starContribution(id) {
+    console.log("starring " + id)
+    $.post("/gym/starred_word/" + id);
+    $("#star"+id).html('<a href="javascript:void(0);" onclick="unstarContribution('+id+')"><i style="color:gold" class="icon-star"></i></a>');
+}
+
 
 
 

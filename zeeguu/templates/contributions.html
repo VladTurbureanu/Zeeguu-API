@@ -37,13 +37,20 @@
 		    <td style="border:0px solid white;background-color:white;"></td>
                 <td class="word-action-buttons-td">
                      <div class="word-action-buttons">
-                    {% if contribution.origin.starred %}
-                        <i style="color:gold" class="icon-star"></i>
-                    {% else %}
-                        <i style="color:lightgray" class="icon-star-empty"></i>
-                    {% endif %}
-                    <br/><br/>
 
+                         <div id="star{{contribution.id}}">
+                    {% if contribution.origin.starred %}
+
+                        <a href="javascript:void(0);" onclick="unstarContribution({{ contribution.id }})">
+                          <i style="color:gold" class="icon-star"></i>
+                        </a>
+
+                    {% else %}
+                        <a href="javascript:void(0);" onclick="starContribution({{ contribution.id }})">
+                            <i style="color:lightgray" class="icon-star-empty"></i>
+                        </a>
+                    {% endif %}
+                        </div>
 
                     </div>
 

@@ -283,7 +283,7 @@ def wrong(card_id):
         model.db.session.commit()
     return "OK"
 
-@gym.route("/gym/starred/<card_id>", methods=("POST",))
+@gym.route("/gym/starred_card/<card_id>", methods=("POST",))
 def starred(card_id):
     card = model.Card.query.get(card_id)
     card.contribution.origin.starred = True
@@ -291,10 +291,26 @@ def starred(card_id):
     print card.contribution.origin.starred
     return "OK"
 
-@gym.route("/gym/unstarred/<card_id>", methods=("POST",))
+@gym.route("/gym/unstarred_card/<card_id>", methods=("POST",))
 def unstarred(card_id):
     card = model.Card.query.get(card_id)
     card.contribution.origin.starred = False
     model.db.session.commit()
     print card.contribution.origin.starred
+    return "OK"
+
+@gym.route("/gym/starred_word/<word_id>", methods=("POST",))
+def starred_word(word_id):
+    word = model.Word.query.get(word_id)
+    word.starred = True
+    model.db.session.commit()
+    print word.starred
+    return "OK"
+
+@gym.route("/gym/unstarred_word/<word_id>", methods=("POST",))
+def unstarred_word(word_id):
+    word = model.Word.query.get(word_id)
+    word.starred = False
+    model.db.session.commit()
+    print word.starred
     return "OK"
