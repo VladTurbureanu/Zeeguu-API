@@ -63,6 +63,27 @@ def add_contribution(user, language, original, translation, date, the_context, t
     return
 
 
+def create_url_and_texts():
+
+    reader = model.Url("www.reader.com")
+    session.add(reader)
+    mens = model.Text("mens", de, reader)
+    homo = model.Text("homo", de, reader)
+    zeeguu.db.session.add(mens)
+    zeeguu.db.session.add(homo)
+    session.commit()
+    mensid = mens.id
+    homoid = homo.id
+    readerid = reader.id
+
+def get_url_and_texts():
+    mens = session.query(model.Text).filter_by(content="mens").first()
+    homo = session.query(model.Text).filter_by(content="homo").first()
+    reader = session.query(model.Url).filter_by(url="www.reader.com").first()
+
+    return mens, homo, reader
+
+
 
 if __name__ == "__main__":
     print("testing...")
@@ -70,7 +91,8 @@ if __name__ == "__main__":
 
     de = model.Language.find("de")
     user = model.User("user4@localhost.com", "password3", de)
-    zeeguu.db.session.add(user)
+    session = zeeguu.db.session
+    session.add(user)
     print (zeeguu.db.session.commit())
     print "user4 added"
 
@@ -78,3 +100,27 @@ if __name__ == "__main__":
     zeeguu.db.session.delete(user)
     print (zeeguu.db.session.commit())
     print "user4 removed"
+
+    create_url_and_texts()
+    t1, t2, url = get_url_and_texts()
+    print t1.content, t2.content, url.url
+
+
+    session.delete(t1)
+    session.delete(t2)
+    session.commit()
+    if not url.texts:
+        print "no more texts..."
+    session.delete(url)
+    session.commit()
+
+    print "===after delete..."
+    t1, t2, url = get_url_and_texts()
+    if t1:
+        print t1.content
+    if t2:
+        print t2.content
+    if url:
+        print url.url
+
+

@@ -6,6 +6,8 @@ function showStar(starred)
         $("#star").html('<i style="color:lightgray" class="icon-star-empty"></i>');
     }
 }
+
+
 $(function() {
     if (typeof chrome !== "undefined" && !chrome.app.isInstalled) {
         $("#install-extension").click(function() {
@@ -136,3 +138,13 @@ function checkAnswer() {
         $("#answer").val("").prop("disabled", false).focus();
     }, 3000);
 }
+
+
+function deleteContribution(id) {
+    $.post("/gym/delete/"+id);
+    $("#contribution"+id).fadeOut();
+    return false;
+}
+
+
+
