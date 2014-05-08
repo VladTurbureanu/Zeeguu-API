@@ -9,30 +9,33 @@ import zeeguu.gym.views
 import zeeguu.api.views
 
 
-# Mircea: we must define this before we use it ...
-class CrossdomainErrorFlask(flask.Flask):
+class CrossDomainApp(flask.Flask):
     """Allows cross-domain requests for all error pages"""
     def handle_user_exception(self, e):
-        rv = super(CrossdomainErrorFlask, self).handle_user_exception(e)
+        rv = super(CrossDomainApp, self).handle_user_exception(e)
         rv = self.make_response(rv)
         rv.headers['Access-Control-Allow-Origin'] = "*"
         return rv
 
+    # create the instance folder and return the path
+    def instance_path(self):
+        path = os.path.join(self.instance_path, "gen")
+        try:
+            os.makedirs(path)
+        except:
+            if not os.path.isdir(path):
+                raise
+        return path
 
-app = CrossdomainErrorFlask(__name__, instance_relative_config=True)
-app.config.from_object("zeeguu.config") #first stuff from config.py module
-app.config.from_pyfile("config.cfg", silent=True) #then load config.cfg from the instance folder
-app.config.from_envvar("ZEEGUU_CONFIG", silent=True)
+# *** Starting the App *** #
+app = CrossDomainApp(__name__, instance_relative_config=True)
 
-instance_path = os.path.join(app.instance_path, "gen")
-instance = flask.Blueprint("instance", __name__, static_folder=instance_path)
+app.config.from_object("zeeguu.default_config")
+app.config.from_pyfile("config.cfg", silent=True) #config.cfg is in the instance folder
+
+instance = flask.Blueprint("instance", __name__, static_folder=app.instance_path)
+
 app.register_blueprint(instance)
-
 app.register_blueprint(zeeguu.gym.views.gym)
 app.register_blueprint(zeeguu.api.views.api)
 
-try:
-    os.makedirs(instance_path)
-except:
-    if not os.path.isdir(instance_path):
-        raise
