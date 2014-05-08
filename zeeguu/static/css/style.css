@@ -176,3 +176,7 @@ h1 img {
 .button-disabled {
     color: lightgray;
 }
+
+.centered-content {
+    text-align: center;
+}

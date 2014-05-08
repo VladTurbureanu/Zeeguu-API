@@ -81,9 +81,11 @@
         </div>
     </div>
 
+     {% if not g.user %}
      <div class="col-md-12 info-cassette">
          <a href="{{ url_for('account.create_account') }}">Become a beta-tester!</a>
      </div>
+     {% endif %}
 
 </div>
 
