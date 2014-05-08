@@ -65,19 +65,13 @@ def contributions():
         return flask.redirect(flask.url_for("gym.login"))
 
     contribs,dates = flask.g.user.contribs_by_date()
-    # contribs_by_url = {}
-    # for contrib in contribs:
-    #     contribs_by_url.setdefault(contrib.text.url, []).append(contrib)
 
     urls_by_date = {}
     contribs_by_url = {}
     for date in dates:
-        # sys.stderr.write(str(date)+"\n")
         for contrib in contribs[date]:
             urls_by_date.setdefault(date, set()).add(contrib.text.url)
             contribs_by_url.setdefault(contrib.text.url,[]).append(contrib)
-    # sys.stderr.write(str(urls_by_date)+"\n")
-    # sys.stderr.write(str(contribs_by_url)+"\n")
 
 
 
