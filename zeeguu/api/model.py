@@ -14,6 +14,7 @@ import zeeguu
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True)
+    name = db.Column(db.String(255))
     password = db.Column(db.LargeBinary(255))
     password_salt = db.Column(db.LargeBinary(255))
     preferred_language_id = db.Column(
@@ -22,8 +23,9 @@ class User(db.Model):
     )
     preferred_language = sqlalchemy.orm.relationship("Language")
 
-    def __init__(self, email, password, preferred_language=None):
+    def __init__(self, email, name, password, preferred_language=None):
         self.email = email
+        self.name = name
         self.update_password(password)
         self.preferred_language = preferred_language or Language.default()
 
