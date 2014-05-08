@@ -55,6 +55,37 @@ $(function() {
         return $("form").valid();
     });
 
+    $("#create_account").validate({
+        rules: {
+            email: {
+                required: true,
+                email: true
+            },
+            password: {
+                required:true,
+                minlength: 4
+            },
+            name: {
+                required: true
+            }
+        },
+
+        errorClass: "help-inline",
+        errorElement: "span",
+        highlight: function(element, errorClass, validClass) {
+            $(element).parents('.control-group').removeClass('success');
+            $(element).parents('.control-group').addClass('error');
+        },
+        unhighlight: function(element, errorClass, validClass) {
+            $(element).parents('.control-group').removeClass('error');
+            $(element).parents('.control-group').addClass('success');
+        }
+    });
+
+    $("#create_account input[type=submit]").click(function() {
+        return $("form").valid();
+    });
+
 
     // Language Gym
     if ($("#question").length === 0) {
