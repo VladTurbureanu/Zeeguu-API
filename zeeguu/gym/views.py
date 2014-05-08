@@ -30,7 +30,6 @@ def install():
 @gym.route("/login", methods=("GET", "POST"))
 def login():
     form = flask.request.form
-    print "in login..."
     if flask.request.method == "POST" and form.get("login", False):
         password = form.get("password", None)
         email = form.get("email", None)
@@ -86,7 +85,8 @@ def contributions():
                                  contribs_by_url=contribs_by_url,
                                  urls_by_date=urls_by_date,
                                  sorted_dates=dates,
-                                 all_urls = flask.g.user.recommended_urls())
+                                 all_urls = flask.g.user.recommended_urls(),
+                                 user = flask.g.user)
 
 @gym.route("/recommended_texts")
 def recommended_texts():

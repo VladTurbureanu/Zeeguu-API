@@ -3,9 +3,9 @@
 {% set tab = "contributions" %}
 
 {% block body %}
-    <h2>Contributions</h2>
+    <h3>Hi, {{user.name}}!</h3>
     {% if sorted_dates %}
-        <p>These are the words you have encountered in your recent web wandering.</p>
+        <p>Here you find information about the words, that you have added to your Zeeguu word portfolio together with their contexts.</p>
 
         <table class="table table-striped table-no-borders">
             <tr>
@@ -26,7 +26,7 @@
 
          {% for url in urls_by_date.get(date) %}
 	<tr>
-		<td colspan="4" style="border:0px solid white;text-align:right; background-color:white;"><small><a href="{{ url.url }}">{{ url.url }}</a></small></td>
+		<td style="border:0px solid white;text-align:left; background-color:white;"></td><td colspan="4" style="border:0px solid white;text-align:left; background-color:white;"><small><a href="{{ url.url }}">{{ url.url }}</a></small></td>
 	</tr>
 
             {% for contribution in contribs_by_url.get(url) %}

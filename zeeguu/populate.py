@@ -75,8 +75,8 @@ if __name__ == "__main__":
     de = model.Language("de", "German")
     en = model.Language("en", "English")
 
-    user = model.User("user@localhost.com", "password", de)
-    user2 = model.User("ada@localhost.com", "password", fr)
+    user = model.User("i@mir.lu", "Mircea", "password", de)
+    user2 = model.User("ada@localhost.com", "Ada", "password", fr)
 
     zeeguu.db.session.add(user)
 
