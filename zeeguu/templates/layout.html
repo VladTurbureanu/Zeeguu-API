@@ -48,6 +48,7 @@
 
                     <ul class="nav navbar-nav navbar-right" style="padding-right: 20px">
                          {% if g.user %}
+                          <li><a href="{{ url_for('account.my_account')}}">My Account</a></li>
                           <li><a href="{{ url_for('gym.logout') }}">Logout</a></li>
                         {% else %}
                           <li><a href="{{ url_for('gym.login') }}">Login</a></li>
