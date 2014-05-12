@@ -4,5 +4,8 @@
 
 {% block body %}
   <h2>Welcome {{ user.name }}!</h2>
+  <p>
+      Your learning language is {{user.preferred_language.name}}.
+  </p>
 
 {% endblock %}
