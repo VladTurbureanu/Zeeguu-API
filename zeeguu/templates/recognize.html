@@ -5,7 +5,7 @@
 {% block body %}
     <div id="language-selection">
 
-
+        <h1>Recognize the word!</h1>
         <select id="lang1" disabled>
             {% for language in languages %}
                 <option value="{{ language.id }}"{% if "English" == language.name %} selected{% endif %}>
@@ -14,7 +14,7 @@
             {% endfor %}
         </select>
 
-        <a href="#" id="direction"><i class="icon-long-arrow-right"></i></a>
+        <i class="icon-long-arrow-right"></i>
 
         <select id="lang2" disabled>
             {% for language in languages %}
@@ -28,21 +28,21 @@
 
 
 
-    <div class="card" id="question2">
+    <div class="recognize_card" id="question2">
         <div class="starholder"><a href="#" id="star"></a></div>
-        <div id="question">
+
+        <div id="question" class="recognize_question">
             <span class="loading">Loading...</span>
-            <!--
-                The code for displaying the card is actually in website/zeeguu/static/js/sla.js:74
-            -->
-
-
+            <!-- code for displaying the card is in website/zeeguu/static/js/sla.js:74 -->
         </div>
+
+        <div class="recognize_example" id="example">
+            <span></span>
+        </div>
+
     </div>
     <input id="answer" placeholder="Translation" />
-    <div class="example" id="example">
-        <span>Loading...</span>
-    </div>
+
     <div id="example_url" class="example_url">
         <span>..--..</span>
     </div>
