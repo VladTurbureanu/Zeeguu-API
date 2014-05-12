@@ -6,7 +6,7 @@
     <div id="language-selection">
 
         <h1>Recognize the word!</h1>
-        <select id="lang1" disabled>
+        <select id="lang1" disabled style="visibility: hidden">
             {% for language in languages %}
                 <option value="{{ language.id }}"{% if "English" == language.name %} selected{% endif %}>
                     {{ language.name }}
@@ -14,9 +14,9 @@
             {% endfor %}
         </select>
 
-        <i class="icon-long-arrow-right"></i>
+        <i style="visibility: hidden" class="icon-long-arrow-right"></i>
 
-        <select id="lang2" disabled>
+        <select style="visibility: hidden" id="lang2" disabled >
             {% for language in languages %}
                  <option value="{{ language.id }}" {% if g.user.preferred_language_id == language.id %} selected {% endif %} >
                     {{ language.name }}
