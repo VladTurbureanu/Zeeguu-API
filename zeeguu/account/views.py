@@ -18,12 +18,14 @@ def setup():
     else:
         flask.g.user = None
 
+
 @account.route("/my_account", methods=["GET"])
 def my_account():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
 
     return flask.render_template("my_account.html", user=flask.g.user)
+
 
 @account.route("/create_account", methods=("GET", "POST"))
 def create_account():
@@ -33,12 +35,13 @@ def create_account():
         password = form.get("password", None)
         email = form.get("email", None)
         name = form.get("name", None)
+        language = form.get("language", None)
 
         if password is None or email is None or name is None:
             flask.flash("Please enter your name, email address, and password")
         else:
             try:
-                zeeguu.db.session.add(model.User(email, name, password))
+                zeeguu.db.session.add(model.User(email, name, password, model.Language.find(language)))
                 zeeguu.db.session.commit()
             except ValueError:
                 flask.flash("The username could not be created. Please contact us.")

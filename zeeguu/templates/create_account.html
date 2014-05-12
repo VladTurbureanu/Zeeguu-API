@@ -3,45 +3,60 @@
 {% set tab = "learning_center" %}
 
 {% block body %}
-  <div class="col-md-3"></div>
-  <div class="row col-md-6 centered-content">
-  <h3>This will be fast </h3>
-  <p>And we promise not to write nagging emails.</p>
+  <div class="col-md-4"></div>
+  <div class="row col-md-4 ">
+  <h2>Create Account</h2>
 
-  <form id="create_account" class="form-horizontal" action="" method="post">
+
+  <form id="create_account" class="form-horizontal" action="" method="post" class="input-group-lg">
       <fieldset>
 
-          <div class="control-group">
-                <input type="name" name="name" id="name" placeholder="Your Name" class="input-xlarge" rel="popover" />
+          <div class="input-group">
+                <label class="control-label">Name:</label>
+                <input type="name" name="name" id="name" placeholder="Your Name" class="form-control" rel="popover" />
           </div>
 
-          <div class="control-group">
-                  <input type="email" name="email" id="email" placeholder="Email address" class="input-xlarge" rel="popover" />
+          <div class="input-group">
+              <label>Email:</label>
+              <input type="email" name="email" id="email" placeholder="Email address" class="form-control" rel="popover" />
           </div>
 
-          <div class="control-group">
-                  <input id="password" name="password" type="password" placeholder="Password" class="input-xlarge" />
 
+          <div class="input-group">
+              <label class="control-label">Choose a Password:</label>
+              <input id="password" name="password" type="password" placeholder="Password" class="form-control" />
           </div>
+
+        <div class="input-group" >
+            <label class="control-label">The language you are learning</label>
+
+                <select autofocus id="language" required name="language" class="form-control">
+                    <option value="en">English</option>
+                    <option value="de">German</option>
+                    <option value="fr">French</option>
+                    <option value="it">Italian</option>
+                    <option value="no">Norwegian</option>
+                </select>
+
+        </div>
+
 
 
           {% if flashed_messages %}
           {% for message in flashed_messages %}
-
-          <div class="alert alert-error" id="login-error">
-            {{ message }}
-          </div>
-
+              <div class="alert alert-error" id="login-error">
+                {{ message }}
+              </div>
           {% endfor %}
           {% endif %}
 
           
           <div class="alert alert-error hide" id="register-error">
-            This email address is already in use, maybe try the login button instead.
+            This email address is already in use.
           </div>
 
           <br/>
-          <div class="control-group">
+          <div class="input-group">
               <input type="submit" name="create_account" value="Create" class="btn btn-success" />
           </div>
       </fieldset>
