@@ -55,6 +55,12 @@ class User(db.Model):
             raise ValueError("Invalid password")
         return password
 
+    @sqlalchemy.orm.validates("name")
+    def validate_name(self, col, name):
+        if name is None or len(name) == 0:
+            raise ValueError("Invalid username")
+        return name
+
     def update_password(self, password):
         self.password_salt = "".join(
             chr(random.randint(0, 255)) for i in range(32)
