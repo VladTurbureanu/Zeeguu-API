@@ -74,6 +74,8 @@ if __name__ == "__main__":
     fr = model.Language("fr", "French")
     de = model.Language("de", "German")
     en = model.Language("en", "English")
+    it = model.Language("it", "Italian")
+    no = model.Language("no", "Norwegian")
 
     user = model.User("i@mir.lu", "Mircea", "password", de)
     user2 = model.User("ada@localhost.com", "Ada", "password", fr)
@@ -83,6 +85,8 @@ if __name__ == "__main__":
     zeeguu.db.session.add(en)
     zeeguu.db.session.add(fr)
     zeeguu.db.session.add(de)
+    zeeguu.db.session.add(no)
+    zeeguu.db.session.add(it)
 
     today = datetime.date(2011,01,01)
     yes = datetime.date(2001,01,01)
