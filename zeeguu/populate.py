@@ -107,7 +107,7 @@ if __name__ == "__main__":
     }
 
     for key in today_dict:
-        add_contribution(user, de, key, today_dict[key], today, "this is a " + key, "http://url2")
+        add_contribution(user, de, key, today_dict[key], today, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung für das finanzsystem habe, sagte holder, ohne namen von banken zu nennen" + key, "http://url2")
 
 
     dict = {
@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
 
     for key in dict:
-        add_contribution(user, de, key, dict[key], yes, "this is an "+key, "http://url1")
+        add_contribution(user, de, key, dict[key], yes, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. "+key, "http://url1")
 
 
 
@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
 
     for key in dict:
-        add_contribution(user2, fr, key, dict[key], yes, "this is a " + key, "http://localhost.com")
+        add_contribution(user2, fr, key, dict[key], yes, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung für das finanzsystem habe, sagte holder, ohne namen von banken zu nennen." + key, "http://localhost.com")
 
 
     story_url = 'http://www.gutenberg.org/files/23393/23393-h/23393-h.htm'
