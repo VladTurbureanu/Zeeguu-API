@@ -81,6 +81,13 @@ def get_session(email):
     return str(session.id)
 
 
+@api.route("/learned_language", methods=["GET"])
+@cross_domain
+@with_user
+def learned_language():
+    print "---->" + flask.g.user.preferred_language_id
+    return flask.g.user.preferred_language_id
+
 @api.route("/contribs", methods=["GET"])
 @cross_domain
 @with_user
