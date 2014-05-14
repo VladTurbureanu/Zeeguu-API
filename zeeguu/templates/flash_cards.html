@@ -3,16 +3,20 @@
 {% set tab = "gym" %}
 
 {% block body %}
+
+
     <div id="language-selection">
-        <select id="lang1">
+        <div class="exercise-title">Translate with Example</div>
+
+        <select id="lang1" style="visibility: hidden">
             {% for language in languages %}
                  <option value="{{ language.id }}" {% if g.user.preferred_language_id == language.id %} selected {% endif %} >
                     {{ language.name }}
                 </option>
             {% endfor %}
         </select>
-        <a href="#" id="direction"><i class="icon-long-arrow-right"></i></a>
-        <select id="lang2">
+        <!--<a href="#" id="direction"><i class="icon-long-arrow-right"></i></a>-->
+        <select id="lang2" style="visibility: hidden">
             {% for language in languages %}
                 <option value="{{ language.id }}"{% if "English" == language.name %} selected{% endif %}>
                     {{ language.name }}
@@ -23,26 +27,26 @@
 
 
 
-    <div class="card" id="question2">
+    <div class="flash_card" id="question2">
         <div class="starholder"><a href="#" id="star"></a></div>
-        <div id="question">
+        <div class="question" id="question">
             <span class="loading">Loading...</span>
             <!--
                 The code for displaying the card is actually in website/zeeguu/static/js/sla.js:74
             -->
-
-
         </div>
+        <div class="flash_example" id="example">
+            <span>Loading...</span>
+        </div>
+        <div id="example_url" class="example_url">
+            <span>..--..</span>
+        </div>
+        <div class="reason" id="reason">
+            <span>Loading...</span>
+        </div>
+
     </div>
     <input id="answer" placeholder="Translation" />
-    <div class="example" id="example">
-        <span>Loading...</span>
-    </div>
-    <div id="example_url" class="example_url">
-        <span>..--..</span>
-    </div>
-    <div class="reason" id="reason">
-        <span>Loading...</span>
-    </div>
+
 
 {% endblock %}

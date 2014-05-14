@@ -14,26 +14,33 @@ h1 img {
     font-size: 14px;
 }
 
+.exercise-title {
+    color: darkgray;
+    padding-top: 10px;
+    font-size: x-large;
+}
+
 .card {
     text-align: center;
     margin: 0 auto;
     width: 400px;
-    height: 200px;
+    /*height: 200px;*/
     border-radius: 2px;
     box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 5px 0px;
     background: #eee;
     border: 1px solid #ddd;
     font-size: 24px;
     position: relative;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
 }
-
-.recognize_card {
+.recognize_card,.flash_card {
     text-align: center;
     margin: 0 auto;
     width: 400px;
     border-radius: 2px;
     box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 5px 0px;
-    background: lightyellow;
     border: 1px solid #ddd;
     font-size: 24px;
     position: relative;
@@ -42,15 +49,16 @@ h1 img {
     padding-bottom: 20px;
 }
 
-
-
-.recognize_question {
-    text-align: center;
-    position: relative;
-    background-color: yellowgreen;
+.recognize_card {
+    background: lightyellow;
 }
 
-.recognize_example {
+.flash_card {
+    background: #f0fde8;
+}
+
+
+.recognize_example,.flash_example {
     text-align: left;
     margin: 40 auto;
     padding-left: 10px;
@@ -61,52 +69,41 @@ h1 img {
 }
 
 
-.recognize_example_url {
+
+.recognize_question, .question {
+    text-align: center;
+    position: relative;
+    /*background-color: #b8cd9a;*/
+}
+
+.question {
+    /*background-color: white;*/
+}
+
+
+
+/*.example {*/
+    /*text-align: left;*/
+    /*width: 400px;*/
+    /*border-radius: 2px;*/
+    /*font-size: 17px;*/
+    /*position: relative;*/
+    /*background-color: pink;*/
+/*}*/
+
+.recognize_example_url, .example_url {
     text-align: center;
     font-size: 12px;
     margin-top: 20px;
 }
 
-.recognize_reason {
+.recognize_reason, .reason {
     text-align: center;
     margin: 0 auto;
     font-size: 10px;
     position: relative;
 }
 
-
-
-.example_url {
-    text-align: center;
-    margin: 0 auto;
-    margin-bottom: 10px;
-    width: 400px;
-    border-radius: 2px;
-    font-size: 12px;
-    position: relative;
-}
-
-.example {
-    text-align: center;
-    margin: 0 auto;
-    margin-top: 40px;
-    margin-bottom: 0px;
-    width: 400px;
-    border-radius: 2px;
-    font-size: 17px;
-    position: relative;
-}
-
-.reason {
-    text-align: center;
-    margin: 0 auto;
-    margin-top: 40px;
-    margin-bottom: 10px;
-    width: 400px;
-    border-radius: 2px;
-    font-size: 10px;
-    position: relative;
-}
 
 .starholder {
     text-align: right;
