@@ -62,6 +62,13 @@
 
                     {{ contribution.origin.word }}
                     <br/><small>{{ contribution.text.shorten_word_context(contribution.origin.word, 42) }}
+                    <br/>
+                        {% if contribution.card %}
+                            {% if contribution.card[0].position > 0 %}
+                                Progress: {{ contribution.card[0].position * 10 }}%
+                            {% endif %}
+                        {% endif %}
+
                     </small>
                     </div>
                 </td>

@@ -144,7 +144,7 @@ def redisplay_card_aware_of_days(cards):
 
     if interesting_cards:
         card = interesting_cards[0]
-        card.set_reason("seen on: " + card.last_seen.strftime("%d/%m/%y") + " rank: " + str(card.contribution.origin.word_rank))
+        card.set_reason("seen on: " + card.last_seen.strftime("%d/%m/%y") + " Word rank: " + str(card.contribution.origin.word_rank))
         return card
 
     cards_not_seen_today = [card for card in cards if card.last_seen.date() != date.today()]
@@ -152,7 +152,7 @@ def redisplay_card_aware_of_days(cards):
 
     if cards_not_seen_today:
         card = cards_not_seen_today[0]
-        card.set_reason("seen on: " + card.last_seen.strftime("%d/%m/%y") + " rank: " + str(card.contribution.origin.word_rank))
+        card.set_reason("seen on: " + card.last_seen.strftime("%d/%m/%y") + " Word rank: " + str(card.contribution.origin.word_rank))
         return card
 
     return None
