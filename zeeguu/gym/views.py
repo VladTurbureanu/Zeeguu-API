@@ -187,7 +187,7 @@ def question(from_lang, to_lang):
         card = model.Card(
             contributions.join(model.Word, model.Contribution.origin).order_by(model.Word.word_rank, model.Contribution.time).first()
         )
-        card.set_reason("First rehearsal. " + " rank: " + str(card.contribution.origin.word_rank))
+        card.set_reason("First rehearsal. " + " Word rank: " + str(card.contribution.origin.word_rank))
     else:
         cards = (
             model.Card.query.join(model.Contribution, model.Card.contribution)

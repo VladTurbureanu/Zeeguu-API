@@ -142,6 +142,7 @@ function newQuestion() {
         $("#example").html('<span>' + data.example+ '</span>');
         $("#reason").html('<span>' + data.reason + '</span>');
         $("#example_url").html('<span><a href="' + data.url + '">(source)</a></span>');
+        $("#position").html('<span>Completed: ' + data.position * 10+ '%</span>');
         showStar(data.starred);
 
         starred = data.starred;
