@@ -1,4 +1,4 @@
-NOTHING_MORE_TO_STUDY="There is nothing else to study for now. Go out, play!"
+NOTHING_MORE_TO_STUDY="Nothing else to study here for today..."
 function showStar(starred)
 {
     if (starred) {
@@ -116,7 +116,22 @@ $(function() {
         }
     });
 
-    newQuestion();
+    $("#translate_answer").focus().keyup(function(e) {
+        if (e.keyCode == 13) {  // Return key
+            checkTranslateAnswer();
+        }
+    });
+
+    if ($("#answer").length) {
+        newQuestion();
+    }
+    if ($("#translate_answer").length) {
+        console.log("----> setting up a new translate question...")
+        newTranslateQuestion();
+    }
+
+
+
 });
 
 var last_question = null;
@@ -134,6 +149,40 @@ function newQuestion() {
     }
     $("#question").html('<span class="loading">Loading...</span>');
     $.getJSON("/gym/question/" + from_lang + "/" + to_lang, function(data) {
+        console.log(data);
+        if (data == "NO CARDS") {
+            $("#example").hide();
+            $("#example_url").hide();
+            $("#reason").hide();
+            $("#progress").hide();
+            $("#answer").hide();
+            $("#question").html('<span class="wrong">'+NOTHING_MORE_TO_STUDY+'</span>');
+            return;
+        }
+        $("#question").html('<span>' + data.question + '</span>');
+        $("#example").html('<span>' + data.example+ '</span>');
+        $("#reason").html('<span>' + data.reason + '</span>');
+        $("#example_url").html('<span><a href="' + data.url + '">(source)</a></span>');
+        $("#progress").html('<span>Progress: ' + data.position * 10+ '%</span>');
+        showStar(data.starred);
+
+        starred = data.starred;
+        last_question = data;
+        ready = true;
+    });
+}
+
+function newTranslateQuestion() {
+    var from_lang = $("#lang1").val(),
+        to_lang = $("#lang2").val();
+    if (reverse) {
+        var swap = from_lang;
+        from_lang = to_lang;
+        to_lang = swap;
+    }
+    $("#question").html('<span class="loading">Loading...</span>');
+    url = ["/gym/question_with_min_level", 3, from_lang, to_lang].join("/");
+    $.getJSON(url, function(data) {
         console.log(data);
         if (data == "NO CARDS") {
             $("#example").hide();
@@ -175,6 +224,63 @@ function checkAnswer() {
             );
 
             newQuestion();
+            $("#answer").prop("disabled", true);
+            window.setTimeout(function() {
+                back.close();
+                $("#answer").val("").prop("disabled", false).focus();
+            }, 3000);
+
+            }
+    );
+}
+
+function checkTranslateAnswer() {
+    if (!ready) {
+        return;
+    }
+
+    //  test the correctness of the answer on the server side...
+    url = ["/gym/test_answer", $("#answer").val(), last_question.answer, last_question.id ].join("/");
+    $.post(url,
+        function(data) {
+
+            var back = flippant.flip(
+                $("#question2").get(0),
+                '<span class="'+data.toLowerCase()+'">' + last_question.answer + '</span>',
+                "card",
+                "card"
+            );
+
+            newTranslateQuestion();
+            $("#translate_answer").prop("disabled", true);
+            window.setTimeout(function() {
+                back.close();
+                $("#translate_answer").val("").prop("disabled", false).focus();
+            }, 3000);
+
+            }
+    );
+}
+
+
+function checkTranslateAnswer() {
+    if (!ready) {
+        return;
+    }
+
+    //  test the correctness of the answer on the server side...
+    url = ["/gym/test_answer", $("#answer").val(), last_question.answer, last_question.id ].join("/");
+    $.post(url,
+        function(data) {
+
+            var back = flippant.flip(
+                $("#question2").get(0),
+                '<span class="'+data.toLowerCase()+'">' + last_question.answer + '</span>',
+                "card",
+                "card"
+            );
+
+            newTranslateQuestion();
             $("#answer").prop("disabled", true);
             window.setTimeout(function() {
                 back.close();

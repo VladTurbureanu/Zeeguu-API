@@ -121,8 +121,8 @@ def translate_with_context():
     return flask.render_template("translate_with_context.html", languages=lang)
 
 
-@gym.route("/identify")
-def identify():
+@gym.route("/identify_the_word")
+def identify_the_word():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
     lang = model.Language.query.all()
@@ -160,7 +160,82 @@ def redisplay_card_aware_of_days(cards):
     return None
 
 
+@gym.route("/gym/question_with_min_level/<level>/<from_lang>/<to_lang>")
+def question_with_min_level(level, from_lang, to_lang):
+    if not flask.g.user:
+        return flask.abort(401)
 
+    from_lang = model.Language.find(from_lang)
+    to_lang = model.Language.find(to_lang)
+
+    contributions = (
+        model.Contribution.query.filter_by(user=flask.g.user)
+                                .join(model.Word, model.Contribution.origin)
+                                .join(model.WordAlias,
+                                      model.Contribution.translation)
+    )
+    forward = contributions.filter(
+        model.Word.language == from_lang,
+        model.WordAlias.language == to_lang
+    )
+    backward = contributions.filter(
+        model.Word.language == to_lang,
+        model.WordAlias.language == from_lang
+    )
+    contributions = forward.union(backward).filter_by(card=None)
+
+    # in this case we can not create cards... we can only look at cards that are at least
+    # level 3
+    if contributions.count() > 0:
+        card = model.Card(
+            contributions.join(model.Word, model.Contribution.origin).order_by(model.Word.word_rank, model.Contribution.time).first()
+        )
+        card.set_reason("First rehearsal. " + " Word rank: " + str(card.contribution.origin.word_rank))
+        return "\"NO CARDS\""
+    else:
+        cards = (
+            model.Card.query.join(model.Contribution, model.Card.contribution)
+                            .filter_by(user=flask.g.user)
+                            .join(model.Word, model.Contribution.origin)
+                            .join(model.WordAlias,
+                                  model.Contribution.translation)
+        )
+        forward = cards.filter(
+            model.Word.language == from_lang,
+            model.WordAlias.language == to_lang
+        )
+        backward = cards.filter(
+            model.Word.language == to_lang,
+            model.WordAlias.language == from_lang
+        )
+
+        cards = forward.union(backward).filter(model.Card.position > level).filter(model.Card.position < 7).all()
+        card = redisplay_card_aware_of_days(cards)
+
+
+    if card is None:
+        return "\"NO CARDS\""
+
+    card.seen()
+
+    model.db.session.commit()
+
+    question = card.contribution.origin
+    answer = card.contribution.translation
+
+    if question.language != from_lang:
+        question, answer = answer, question
+
+    return json.dumps({
+        "question": question.word,
+        "example":card.contribution.text.content,
+        "url":card.contribution.text.url.url,
+        "answer": answer.word,
+        "id": card.id,
+        "position": card.position,
+        "reason": card.reason,
+        "starred": card.contribution.origin.starred
+    })
 
 @gym.route("/gym/question/<from_lang>/<to_lang>")
 def question(from_lang, to_lang):

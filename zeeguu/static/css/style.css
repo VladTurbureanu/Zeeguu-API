@@ -132,7 +132,7 @@ h1 img {
     vertical-align: middle;
 }
 
-#answer {
+#answer, #translate_answer {
     display: block; 
     margin: 0 auto;
     width: 200px;
