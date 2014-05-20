@@ -179,7 +179,7 @@ function checkAnswer() {
             window.setTimeout(function() {
                 back.close();
                 $("#answer").val("").prop("disabled", false).focus();
-            }, 300);
+            }, 3000);
 
             }
     );
