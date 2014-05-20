@@ -240,7 +240,7 @@ function checkTranslateAnswer() {
     }
 
     //  test the correctness of the answer on the server side...
-    url = ["/gym/test_answer", $("#answer").val(), last_question.answer, last_question.id ].join("/");
+    url = ["/gym/test_answer", $("#translate_answer").val(), last_question.answer, last_question.id ].join("/");
     $.post(url,
         function(data) {
 
