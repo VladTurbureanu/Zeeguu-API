@@ -35,8 +35,8 @@
                       <!--<li{% if tab == "history" %} class="active"{% endif %}><a href="{{ url_for('gym.history') }}">History</a></li>-->
 
                       <li{% if tab == "contributions" %} class="active"{% endif %}><a href="{{ url_for('gym.contributions') }}">My Words</a></li>
-                      <li{% if tab == "recognize" %} class="active"{% endif %}><a href="{{ url_for('gym.recognize') }}">Easy Workout</a></li>
-                      <li{% if tab == "gym" %} class="active"{% endif %}><a href="{{ url_for('gym.flash_cards') }}">Medium Workout</a></li>
+                      <li{% if tab == "recognize" %} class="active"{% endif %}><a href="{{ url_for('gym.identify') }}">Easy Workout</a></li>
+                      <li{% if tab == "gym" %} class="active"{% endif %}><a href="{{ url_for('gym.translate_with_context') }}">Medium Workout</a></li>
 
                       <li{% if tab == "recommended_texts" %} class="active"{% endif %}><a href="{{ url_for('gym.recommended_texts') }}">Suggested Texts</a></li>
                         {% else %}

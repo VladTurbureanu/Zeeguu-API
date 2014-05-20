@@ -111,20 +111,22 @@ def recommended_texts():
                                  all_urls = flask.g.user.recommended_urls())
 
 
-@gym.route("/flash_cards")
-def flash_cards():
+
+
+@gym.route("/translate_with_context")
+def translate_with_context():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
     lang = model.Language.query.all()
-    return flask.render_template("flash_cards.html", languages=lang)
+    return flask.render_template("translate_with_context.html", languages=lang)
 
 
-@gym.route("/recognize")
-def recognize():
+@gym.route("/identify")
+def identify():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
     lang = model.Language.query.all()
-    return flask.render_template("recognize.html", languages=lang)
+    return flask.render_template("identify.html", languages=lang)
 
 
 def redisplay_card_simple(cards):
@@ -259,6 +261,16 @@ def delete(contribution_id):
         session.delete(url)
         session.commit()
     return "OK"
+
+
+@gym.route("/gym/test_answer/<answer>/<expected>/<question_id>", methods=["POST"])
+def submit_answer(answer, expected,question_id):
+    if answer.lower() == expected.lower():
+        correct(question_id)
+        return "CORRECT"
+    else:
+        wrong(question_id)
+        return "WRONG"
 
 
 @gym.route("/gym/correct/<card_id>", methods=("POST",))

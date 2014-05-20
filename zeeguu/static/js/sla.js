@@ -1,3 +1,4 @@
+NOTHING_MORE_TO_STUDY="There is nothing else to study for now. Go out, play!"
 function showStar(starred)
 {
     if (starred) {
@@ -135,7 +136,12 @@ function newQuestion() {
     $.getJSON("/gym/question/" + from_lang + "/" + to_lang, function(data) {
         console.log(data);
         if (data == "NO CARDS") {
-            $("#question").html('<span class="wrong">You don\'t have anything to learn.</span>');
+            $("#example").hide();
+            $("#example_url").hide();
+            $("#reason").hide();
+            $("#progress").hide();
+            $("#answer").hide();
+            $("#question").html('<span class="wrong">'+NOTHING_MORE_TO_STUDY+'</span>');
             return;
         }
         $("#question").html('<span>' + data.question + '</span>');
@@ -156,20 +162,27 @@ function checkAnswer() {
         return;
     }
 
-    var correct = $("#answer").val().toLowerCase() == last_question.answer.toLowerCase();
-    var back = flippant.flip(
-        $("#question2").get(0),
-        '<span class="' + (correct ? "correct" : "wrong") + '">' + last_question.answer + '</span>',
-        "card",
-        "card"
+    //  test the correctness of the answer on the server side...
+    url = ["/gym/test_answer", $("#answer").val(), last_question.answer, last_question.id ].join("/");
+    $.post(url,
+        function(data) {
+
+            var back = flippant.flip(
+                $("#question2").get(0),
+                '<span class="'+data.toLowerCase()+'">' + last_question.answer + '</span>',
+                "card",
+                "card"
+            );
+
+            newQuestion();
+            $("#answer").prop("disabled", true);
+            window.setTimeout(function() {
+                back.close();
+                $("#answer").val("").prop("disabled", false).focus();
+            }, 300);
+
+            }
     );
-    $.post("/gym/" + (correct ? "correct" : "wrong") + "/" + last_question.id);
-    newQuestion();
-    $("#answer").prop("disabled", true);
-    window.setTimeout(function() {
-        back.close();
-        $("#answer").val("").prop("disabled", false).focus();
-    }, 3000);
 }
 
 
