@@ -97,7 +97,7 @@ h1 img {
     margin-top: 20px;
 }
 
-.recognize_reason, .reason, .recognize_position {
+.recognize_reason, .reason, .recognize_progress, .flash_progress {
     text-align: center;
     margin: 0 auto;
     font-size: 10px;
