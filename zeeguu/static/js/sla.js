@@ -240,6 +240,7 @@ function checkTranslateAnswer() {
     }
 
     //  test the correctness of the answer on the server side...
+    console.log("this should not be nil: " + $("#translate_answer").val())
     url = ["/gym/test_answer", $("#translate_answer").val(), last_question.answer, last_question.id ].join("/");
     $.post(url,
         function(data) {
