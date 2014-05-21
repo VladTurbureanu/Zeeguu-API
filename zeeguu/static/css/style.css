@@ -34,6 +34,7 @@ h1 img {
     padding-left: 20px;
     padding-right: 20px;
     padding-bottom: 20px;
+    padding-top: 40px;
 }
 .recognize_card,.flash_card {
     text-align: center;
@@ -115,13 +116,13 @@ h1 img {
 }
 
 
-.card span {
-    position: absolute;
-    top: 80px;
-    width: 400px;
-    text-align: center;
-    left: 0;
-}
+/*.card span {*/
+    /*position: absolute;*/
+    /*top: 80px;*/
+    /*width: 400px;*/
+    /*text-align: center;*/
+    /*left: 0;*/
+/*}*/
 
 #language-selection {
     text-align: center;
@@ -145,6 +146,8 @@ h1 img {
 
 .correct {
     color: #1db52e;
+    position:absolute; top:0; bottom:0; left:0; right:0;
+			margin:auto; height:240px; width:70%;
 }
 
 .wrong {

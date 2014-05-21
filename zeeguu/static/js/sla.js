@@ -225,7 +225,12 @@ function checkAnswer() {
 
             var back = flippant.flip(
                 $("#question2").get(0),
-                '<span class="'+data.toLowerCase()+'">' + last_question.answer + '</span>',
+                    '<div class="'+data.toLowerCase()+'">' +
+                    last_question.question+ " " +
+                    "<br/>" +
+                    "=<br/>"+
+                    last_question.answer + " " +
+                    '</div>',
                 "card",
                 "card"
             );
@@ -251,13 +256,25 @@ function checkTranslateAnswer() {
     $.post(url,
         function(data) {
 
+//            var back = flippant.flip(
+//                $("#question2").get(0),
+//                '<span class="'+data.toLowerCase()+'">' + last_question.answer + '</span>',
+//                "card",
+//                "card"
+//            );
+
             var back = flippant.flip(
                 $("#question2").get(0),
-                '<span class="'+data.toLowerCase()+'">' + last_question.answer + '</span>',
+                    '<div class="'+data.toLowerCase()+'">' +
+                    last_question.question+ " " +
+                    "<br/>" +
+                    "=<br/>"+
+                    last_question.answer + " " +
+                    '</div>',
                 "card",
                 "card"
             );
-
+            
             newTranslateQuestion();
             $("#translate_answer").prop("disabled", true);
             window.setTimeout(function() {
