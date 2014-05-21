@@ -191,7 +191,7 @@ def question_with_min_level(level, from_lang, to_lang):
             contributions.join(model.Word, model.Contribution.origin).order_by(model.Word.word_rank, model.Contribution.time).first()
         )
         card.set_reason("First rehearsal. ")
-        return "\"NO CARDS\""
+        # return "\"NO CARDS\""
     else:
         cards = (
             model.Card.query.join(model.Contribution, model.Card.contribution)
