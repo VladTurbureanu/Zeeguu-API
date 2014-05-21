@@ -47,6 +47,7 @@ h1 img {
     padding-left: 20px;
     padding-right: 20px;
     padding-bottom: 20px;
+    padding-top: 10px;
 }
 
 .recognize_card {
@@ -97,11 +98,12 @@ h1 img {
     margin-top: 20px;
 }
 
-.recognize_reason, .reason, .recognize_progress, .flash_progress {
+.recognize_reason, .reason, .rank, .recognize_progress, .flash_progress {
     text-align: center;
     margin: 0 auto;
     font-size: 10px;
     position: relative;
+    color: darkgray;
 }
 
 
@@ -136,7 +138,9 @@ h1 img {
     display: block; 
     margin: 0 auto;
     width: 200px;
-    margin-top: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
 .correct {

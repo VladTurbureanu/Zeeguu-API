@@ -154,6 +154,7 @@ function newQuestion() {
             $("#example").hide();
             $("#example_url").hide();
             $("#reason").hide();
+            $("#rank").hide();
             $("#progress").hide();
             $("#answer").hide();
             $("#question").html('<span class="wrong">'+NOTHING_MORE_TO_STUDY+'</span>');
@@ -162,6 +163,7 @@ function newQuestion() {
         $("#question").html('<span>' + data.question + '</span>');
         $("#example").html('<span>' + data.example+ '</span>');
         $("#reason").html('<span>' + data.reason + '</span>');
+        $("#rank").html('<span>Rank: ' + data.rank+ '</span>');
         $("#example_url").html('<span><a href="' + data.url + '">(source)</a></span>');
         $("#progress").html('<span>Progress: ' + data.position * 10+ '%</span>');
         showStar(data.starred);
@@ -191,6 +193,7 @@ function newTranslateQuestion() {
             $("#star").hide();
             $("#example_url").hide();
             $("#reason").hide();
+            $("#rank").hide();
             $("#progress").hide();
             $("#translate_answer").hide();
             $("#question").html('<span class="wrong">'+NOTHING_MORE_TO_STUDY+'</span>');
@@ -199,6 +202,7 @@ function newTranslateQuestion() {
         $("#question").html('<span>' + data.question + '</span>');
         $("#example").html('<span>' + data.example+ '</span>');
         $("#reason").html('<span>' + data.reason + '</span>');
+        $("#rank").html('<span>' + data.rank+ '</span>');
         $("#example_url").html('<span><a href="' + data.url + '">(source)</a></span>');
         $("#progress").html('<span>Progress: ' + data.position * 10+ '%</span>');
         showStar(data.starred);
@@ -227,10 +231,10 @@ function checkAnswer() {
             );
 
             newQuestion();
-            $("#answer").prop("disabled", true);
+            $("#answer").hide();
             window.setTimeout(function() {
                 back.close();
-                $("#answer").val("").prop("disabled", false).focus();
+                $("#answer").val("").show().focus();
             }, 3000);
 
             }

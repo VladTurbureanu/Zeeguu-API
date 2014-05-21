@@ -146,7 +146,7 @@ def redisplay_card_aware_of_days(cards):
 
     if interesting_cards:
         card = interesting_cards[0]
-        card.set_reason("seen on: " + card.last_seen.strftime("%d/%m/%y") + " Word rank: " + str(card.contribution.origin.word_rank))
+        card.set_reason("seen on: " + card.last_seen.strftime("%d/%m/%y"))
         return card
 
     cards_not_seen_today = [card for card in cards if card.last_seen.date() != date.today()]
@@ -154,7 +154,7 @@ def redisplay_card_aware_of_days(cards):
 
     if cards_not_seen_today:
         card = cards_not_seen_today[0]
-        card.set_reason("seen on: " + card.last_seen.strftime("%d/%m/%y") + " Word rank: " + str(card.contribution.origin.word_rank))
+        card.set_reason("seen on: " + card.last_seen.strftime("%d/%m/%y"))
         return card
 
     return None
@@ -190,7 +190,7 @@ def question_with_min_level(level, from_lang, to_lang):
         card = model.Card(
             contributions.join(model.Word, model.Contribution.origin).order_by(model.Word.word_rank, model.Contribution.time).first()
         )
-        card.set_reason("First rehearsal. " + " Word rank: " + str(card.contribution.origin.word_rank))
+        card.set_reason("First rehearsal. ")
         return "\"NO CARDS\""
     else:
         cards = (
@@ -234,6 +234,7 @@ def question_with_min_level(level, from_lang, to_lang):
         "id": card.id,
         "position": card.position,
         "reason": card.reason,
+        "rank":card.contribution.origin.word_rank,
         "starred": card.contribution.origin.starred
     })
 
@@ -264,7 +265,7 @@ def question(from_lang, to_lang):
         card = model.Card(
             contributions.join(model.Word, model.Contribution.origin).order_by(model.Word.word_rank, model.Contribution.time).first()
         )
-        card.set_reason("First rehearsal. " + " Word rank: " + str(card.contribution.origin.word_rank))
+        card.set_reason("First rehearsal. ")
     else:
         cards = (
             model.Card.query.join(model.Contribution, model.Card.contribution)
@@ -308,6 +309,7 @@ def question(from_lang, to_lang):
         "answer": answer.word,
         "id": card.id,
         "position": card.position,
+        "rank":card.contribution.origin.word_rank,
         "reason": card.reason,
         "starred": card.contribution.origin.starred
     })
