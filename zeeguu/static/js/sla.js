@@ -240,7 +240,6 @@ function checkTranslateAnswer() {
     }
 
     //  test the correctness of the answer on the server side...
-    console.log("this should not be nil: " + $("#translate_answer").val())
     url = ["/gym/test_answer", $("#translate_answer").val(), last_question.answer, last_question.id ].join("/");
     $.post(url,
         function(data) {
@@ -257,35 +256,6 @@ function checkTranslateAnswer() {
             window.setTimeout(function() {
                 back.close();
                 $("#translate_answer").val("").prop("disabled", false).focus();
-            }, 3000);
-
-            }
-    );
-}
-
-
-function checkTranslateAnswer() {
-    if (!ready) {
-        return;
-    }
-
-    //  test the correctness of the answer on the server side...
-    url = ["/gym/test_answer", $("#answer").val(), last_question.answer, last_question.id ].join("/");
-    $.post(url,
-        function(data) {
-
-            var back = flippant.flip(
-                $("#question2").get(0),
-                '<span class="'+data.toLowerCase()+'">' + last_question.answer + '</span>',
-                "card",
-                "card"
-            );
-
-            newTranslateQuestion();
-            $("#answer").prop("disabled", true);
-            window.setTimeout(function() {
-                back.close();
-                $("#answer").val("").prop("disabled", false).focus();
             }, 3000);
 
             }
