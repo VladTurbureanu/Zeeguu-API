@@ -172,6 +172,7 @@ function newQuestion() {
     });
 }
 
+//there is a bit too much duplication between this function and newQuestion...
 function newTranslateQuestion() {
     var from_lang = $("#lang1").val(),
         to_lang = $("#lang2").val();
@@ -185,11 +186,13 @@ function newTranslateQuestion() {
     $.getJSON(url, function(data) {
         console.log(data);
         if (data == "NO CARDS") {
+//            ML: This is Ugly code...
             $("#example").hide();
+            $("#star").hide();
             $("#example_url").hide();
             $("#reason").hide();
             $("#progress").hide();
-            $("#answer").hide();
+            $("#translate_answer").hide();
             $("#question").html('<span class="wrong">'+NOTHING_MORE_TO_STUDY+'</span>');
             return;
         }
