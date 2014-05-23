@@ -236,10 +236,11 @@ function checkAnswer() {
             );
 
             newQuestion();
+            $("#answer").prop("disabled", true);
             $("#answer").hide();
             window.setTimeout(function() {
                 back.close();
-                $("#answer").val("").show().focus();
+                $("#answer").val("").show().prop("disabled", false).focus();
             }, 3000);
 
             }
