@@ -1,7 +1,9 @@
 .green-block {
     /*background-image: url(http://www.featurepics.com/FI/Thumb300/20110518/Green-Textile-1883527.jpg); url(http://farm2.staticflickr.com/1078/1277241167_1c116778e5_o.jpg); url(http://images.fineartamerica.com/images-medium-large-5/green-abstract-frank-tschakert.jpg);*/
-    background-color: #88bc34;
+    background-color: #9bce33;
     /*height: 200px;*/
+    padding: 10px;
+    margin-top: 32px;
 }
 
 
@@ -22,4 +24,9 @@
 
 .three-steps-presentation {
     background-color: white;
+}
+
+.generous-vertical-space {
+    /*background-color: indianred;*/
+    margin-bottom: 94px;
 }
