@@ -3,11 +3,12 @@
 {% set tab = "contributions" %}
 
 {% block body %}
-    <h3>My Words</h3>
+        <div class="col-md-offset-1 col-md-10">
 
+    <h3>Words</h3>
 
     {% if sorted_dates %}
-        <p> Hi {{g.user.name}}! Here you find information about the words, that you have added to your Zeeguu word portfolio together with their contexts.</p>
+        <p> {{g.user.name}}, these are the words and examples that you have added to your Zeeguu profile.</p>
 
         <table class="table table-striped table-no-borders">
             <tr>
@@ -18,7 +19,7 @@
                 <th style="text-align: right">Level</th>
                 <th style="text-align: right;"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </th>
             </tr>
-	
+
 	    {% for date in sorted_dates %}
 	<tr>
 		<td style="border:0px solid white;background-color:white;"><small>{{ date.strftime("%A %B %d, %Y") }}</small></td>
@@ -93,6 +94,8 @@
             {% endfor %}
             {% endfor %}
         </table>
+
+        </div>
     {% else %}
         <p>Hi {{g.user.name}}! You didn't look up any words yet. </p>
         <p>Make sure to
