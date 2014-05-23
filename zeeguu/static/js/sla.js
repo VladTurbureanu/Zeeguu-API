@@ -274,7 +274,7 @@ function checkTranslateAnswer() {
                 "card",
                 "card"
             );
-            
+
             newTranslateQuestion();
             $("#translate_answer").prop("disabled", true);
             window.setTimeout(function() {

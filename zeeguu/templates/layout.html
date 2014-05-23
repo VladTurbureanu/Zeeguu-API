@@ -20,8 +20,9 @@
 
     <body>
         <div class="container col-md-12 ">
-            <h1><img src="/static/img/logo.png" alt="ZeeGuu" height="90" /></h1>
 
+            <!--<h1><img src="http://www.clker.com/cliparts/o/c/9/1/7/O/yak-md.png" alt="ZeeGuu" height="90" /></h1>-->
+<br/>
 
 
     <div class="navbar navbar-default" id="menu-cassette">
@@ -30,6 +31,12 @@
 
                 <div class="col-md-12 meniu-titles">
                     <ul class="nav navbar-nav">
+                        <li>
+                            <div id="zeeguu-logo">
+                                <img src="http://www.clker.com/cliparts/g/u/K/2/K/q/yak-outline-md.png" alt="ZeeGuu" height="40" />
+                                <!--<img src="http://www.clker.com/cliparts/o/c/9/1/7/O/yak-md.png" height="60" />-->
+                            </div>
+                        </li>
                         <li{% if tab == "home" %} class="active"{% endif %}><a href="{{ url_for('gym.home') }}">Overview</a></li>
                     {% if g.user %}
                       <!--<li{% if tab == "history" %} class="active"{% endif %}><a href="{{ url_for('gym.history') }}">History</a></li>-->
