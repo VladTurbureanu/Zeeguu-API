@@ -1,6 +1,6 @@
 .green-block {
     /*background-image: url(http://www.featurepics.com/FI/Thumb300/20110518/Green-Textile-1883527.jpg); url(http://farm2.staticflickr.com/1078/1277241167_1c116778e5_o.jpg); url(http://images.fineartamerica.com/images-medium-large-5/green-abstract-frank-tschakert.jpg);*/
-    background-color: yellowgreen;
+    background-color: #88bc34;
     /*height: 200px;*/
 }
 
@@ -10,16 +10,13 @@
     color: white;
     font-size: 42px;
     text-align: center;
-
 }
 
 .main-description {
-    /*padding-top: 64px;*/
     font-size: 18px;
     text-align: center;
-    padding-right: 40px;
     color: white;
-    padding-bottom: 40px;
+    padding-bottom: 20px;
 
 }
 
