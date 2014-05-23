@@ -218,6 +218,9 @@ function checkAnswer() {
         return;
     }
 
+    if (!$("#answer").val())
+        return;
+    
     //  test the correctness of the answer on the server side...
     url = ["/gym/test_answer", $("#answer").val(), last_question.answer, last_question.id ].join("/");
     $.post(url,
@@ -237,18 +240,9 @@ function checkAnswer() {
 
             newQuestion();
             $("#answer").prop("disabled", true);
-           $("#answer").focus().keyup(function(e) {
-                if (e.keyCode == 13) {  // Return key
-                }
-            });
             $("#answer").hide();
             window.setTimeout(function() {
                 back.close();
-                   $("#answer").focus().keyup(function(e) {
-                        if (e.keyCode == 13) {  // Return key
-                            checkAnswer();
-                        }
-                    });
                 $("#answer").val("").show().prop("disabled", false).focus();
             }, 3000);
 
