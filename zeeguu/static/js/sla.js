@@ -229,7 +229,7 @@ function checkAnswer() {
                     last_question.question+ "" +
                     "<br/>" +
                     "=<br/>"+
-                    last_question.answer + " " +
+                    last_question.answer + "" +
                     '</div>',
                 "card",
                 "card"
