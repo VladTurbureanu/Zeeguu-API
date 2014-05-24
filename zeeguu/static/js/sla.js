@@ -226,7 +226,7 @@ function checkAnswer() {
             var back = flippant.flip(
                 $("#question2").get(0),
                     '<div class="'+data.toLowerCase()+'">' +
-                    last_question.question+ " " +
+                    last_question.question+ "" +
                     "<br/>" +
                     "=<br/>"+
                     last_question.answer + " " +
