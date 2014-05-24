@@ -17,6 +17,11 @@ h1 img {
     font-size: 14px;
 }
 
+.btn-lg {
+  padding: 0px 0px;
+  font-size: 18px;
+}
+
 .exercise-title {
     color: darkgray;
     padding-top: 10px;
