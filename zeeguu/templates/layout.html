@@ -30,15 +30,15 @@
                     <ul class="nav navbar-nav">
                         <li>
                             <div id="zeeguu-logo">
+                                <a href="{{ url_for('gym.home') }}">
                                 <img src="static/img/yak-outline-md.png" alt="ZeeGuu" height="40" />
+                                    </a>
                             </div>
                         </li>
 
-                        <li class="btn-lg {% if tab == "home" %}active{% endif %}"><a href="{{ url_for('gym.home') }}">Overview</a></li>
                     {% if g.user %}
-                      <!--<li{% if tab == "history" %} class="active"{% endif %}><a href="{{ url_for('gym.history') }}">History</a></li>-->
 
-                      <li class="btn-lg {% if tab == "contributions" %} active{% endif %}"><a href="{{ url_for('gym.contributions') }}">My Words</a></li>
+                    <li class="btn-lg {% if tab == "contributions" %} active{% endif %}"><a href="{{ url_for('gym.contributions') }}">My Words</a></li>
 
                     <li class="btn-lg  dropdown {% if tab == "recognize" or tab=="gym" %}active{% endif %}" >
                       <a href="#" class="dropdown-toggle" data-toggle="dropdown">
