@@ -1,4 +1,4 @@
-NOTHING_MORE_TO_STUDY="Nothing else to study here for today..."
+NOTHING_MORE_TO_STUDY="Nothing else to study here for today...";
 function showStar(starred)
 {
     if (starred) {
@@ -232,8 +232,7 @@ function checkAnswer() {
                     last_question.answer + "" +
                     '</div>',
                 "card",
-                "card"
-            );
+                "card");
 
             newQuestion();
 //            $("#answer").prop("disabled", true);
@@ -273,8 +272,7 @@ function checkTranslateAnswer() {
                     last_question.answer + " " +
                     '</div>',
                 "card",
-                "card"
-            );
+                "card");
 
             newTranslateQuestion();
             $("#translate_answer").prop("disabled", true);
