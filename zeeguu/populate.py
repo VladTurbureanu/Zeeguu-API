@@ -63,8 +63,7 @@ def add_contribution(user, language, original, translation, date, the_context, t
     return
 
 
-
-if __name__ == "__main__":
+def create_test_db():
     print("testing...")
     zeeguu.app.test_request_context().push()
 
@@ -157,3 +156,7 @@ if __name__ == "__main__":
 
 
     print (zeeguu.db.session.commit())
+
+
+if __name__ == "__main__":
+    create_test_db()
