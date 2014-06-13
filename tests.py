@@ -17,11 +17,9 @@ class FlaskrTestCase(unittest.TestCase):
         os.close(self.db_fd)
         os.unlink(zeeguu.app.config['DATABASE'])
 
-    def test_empty_db(self):
-	    print "test_empty_db"
+    def test_homepage_rendered_correctly(self):
 	    rv = self.app.get('/')
-	    print rv.data
-	    assert 'No entries here so far' in rv.data
+	    assert 'The Language Gym' in rv.data
 
 if __name__ == '__main__':
     unittest.main()
