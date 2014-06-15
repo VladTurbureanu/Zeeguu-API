@@ -179,7 +179,10 @@ def contribute_with_context(from_lang_code, term, to_lang_code, translation):
     new_text = model.Text(context, from_lang, url)
     import datetime
 
-    search.contribution = model.Contribution(word, translation, flask.g.user, new_text, datetime.datetime.now())
+    if search:
+        search.contribution = model.Contribution(word, translation, flask.g.user, new_text, datetime.datetime.now())
+    else:
+        zeeguu.db.session.add(model.Contribution(word, translation, flask.g.user, new_text, datetime.datetime.now()))
 
     zeeguu.db.session.commit()
 
