@@ -45,13 +45,13 @@ def clean_word(word):
     return match.group(1).decode("utf8")
 
 
-def add_contribution(user, language, original, translation, date, the_context, the_url):
+def add_contribution(user, original_language, original_word, translation_language, translation_word,  date, the_context, the_url):
 
     url = model.Url.find (the_url)
-    text = model.Text(the_context, en, url)
+    text = model.Text(the_context, translation_language, url)
 
-    w1 = model.Word(original, language, True)
-    w2 = model.Word(translation, en, True)
+    w1 = model.Word(original_word, original_language, True)
+    w2 = model.Word(translation_word, translation_language, True)
     zeeguu.db.session.add(url)
     zeeguu.db.session.add(text)
     zeeguu.db.session.add(w1)
@@ -63,8 +63,7 @@ def add_contribution(user, language, original, translation, date, the_context, t
     return
 
 
-
-if __name__ == "__main__":
+def create_test_db():
     print("testing...")
     zeeguu.app.test_request_context().push()
 
@@ -107,7 +106,7 @@ if __name__ == "__main__":
     }
 
     for key in today_dict:
-        add_contribution(user, de, key, today_dict[key], today, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung für das finanzsystem habe, sagte holder, ohne namen von banken zu nennen" + key, "http://url2")
+        add_contribution(user, de, key, en, today_dict[key], today, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung für das finanzsystem habe, sagte holder, ohne namen von banken zu nennen" + key, "http://url2")
 
 
     dict = {
@@ -121,7 +120,7 @@ if __name__ == "__main__":
 
 
     for key in dict:
-        add_contribution(user, de, key, dict[key], yes, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. "+key, "http://url1")
+        add_contribution(user, de, key, en, dict[key], yes, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. "+key, "http://url1")
 
 
 
@@ -133,7 +132,7 @@ if __name__ == "__main__":
 
 
     for key in dict:
-        add_contribution(user2, fr, key, dict[key], yes, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung für das finanzsystem habe, sagte holder, ohne namen von banken zu nennen." + key, "http://localhost.com")
+        add_contribution(user2, fr, key, en, dict[key], yes, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung für das finanzsystem habe, sagte holder, ohne namen von banken zu nennen." + key, "http://localhost.com")
 
 
     story_url = 'http://www.gutenberg.org/files/23393/23393-h/23393-h.htm'
@@ -151,9 +150,13 @@ if __name__ == "__main__":
     for w in japanese_story:
         if w[0] == 'recht':
             # something special
-            add_contribution(user, de, w[0],w[1],jan14, w[2],w[3])
+            add_contribution(user, de, w[0], en, w[1],jan14, w[2],w[3])
         else:
-            add_contribution(user, de, w[0],w[1],jan14, w[2],w[3])
+            add_contribution(user, de, w[0], en, w[1],jan14, w[2],w[3])
 
 
     print (zeeguu.db.session.commit())
+
+
+if __name__ == "__main__":
+    create_test_db()
