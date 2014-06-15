@@ -22,5 +22,9 @@ class FlaskrTestCase(unittest.TestCase):
 	    rv = self.app.get('/')
 	    assert 'The Language Gym' in rv.data
 
+    def test_not_logged_in(self):
+        rv = self.app.get('/identify_the_word')
+        assert 'Redirecting' in rv.data
+
 if __name__ == '__main__':
     unittest.main()
