@@ -164,7 +164,7 @@ class Word(db.Model, util.JSONSerializable):
     word_rank = db.Column(db.Integer)
     starred = db.Column(db.BOOLEAN)
 
-    IMPORTANCE_LEVEL_STEP = 500
+    IMPORTANCE_LEVEL_STEP = 1000
     IMPOSSIBLE_RANK = 1000000
     IMPOSSIBLE_IMPORTANCE_LEVEL = IMPOSSIBLE_RANK / IMPORTANCE_LEVEL_STEP
 
@@ -211,7 +211,7 @@ class Word(db.Model, util.JSONSerializable):
 
     # returns a number between
     def importance_level(self):
-        return self.rank() / Word.IMPORTANCE_LEVEL_STEP
+        return 10 - self.rank() / Word.IMPORTANCE_LEVEL_STEP
 
     # we use this in the contributions.html to show the rank.
     # for words in which there is no rank info, we don't display anything
