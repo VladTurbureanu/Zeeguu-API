@@ -64,11 +64,12 @@ def add_contribution(user, original_language, original_word, translation_languag
 
 
 def create_test_db():
-    print("testing...")
     zeeguu.app.test_request_context().push()
 
-    print (zeeguu.db.drop_all())
-    print (zeeguu.db.create_all())
+    print("dropping and creating the tables...")
+    zeeguu.db.session.commit()
+    zeeguu.db.drop_all()
+    zeeguu.db.create_all()
 
     fr = model.Language("fr", "French")
     de = model.Language("de", "German")
@@ -155,7 +156,8 @@ def create_test_db():
             add_contribution(user, de, w[0], en, w[1],jan14, w[2],w[3])
 
 
-    print (zeeguu.db.session.commit())
+    zeeguu.db.session.commit()
+    print "db created..."
 
 
 if __name__ == "__main__":
