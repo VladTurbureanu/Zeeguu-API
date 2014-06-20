@@ -164,8 +164,14 @@ def contribute(from_lang_code, term, to_lang_code, translation):
 @cross_domain
 @with_user
 def contribute_with_context(from_lang_code, term, to_lang_code, translation):
-    url = model.Url.find(str(flask.request.form['url']))
+    if 'title' in flask.request.form:
+        contributed_url_title = flask.request.form['title']
+    else:
+        contributed_url_title = ''
+    contributed_url = flask.request.form['url']
     context = flask.request.form['context']
+
+    url = model.Url.find(contributed_url, contributed_url_title)
 
     from_lang = model.Language.find(from_lang_code)
     to_lang = model.Language.find(to_lang_code)

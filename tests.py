@@ -98,9 +98,18 @@ class FlaskrTestCase(unittest.TestCase):
                 print rv.data
                 assert False
 
-
     def test_contribute(self):
-        formData = dict(url='http://mir.lu', context='somewhere over the rainboww')
+        formData = dict(
+            url='http://mir.lu',
+            context='somewhere over the rainboww',
+            title='Songs by Iz')
+        rv = self.app.post(self.in_session('/contribute_with_context/de/sondern/en/but'), data=formData)
+        assert rv.data == "OK"
+
+    def test_contribute_without_title_should_fail(self):
+        formData = dict(
+            url='http://mir.lu',
+            context='somewhere over the rainbowwwwwwwww')
         rv = self.app.post(self.in_session('/contribute_with_context/de/sondern/en/but'), data=formData)
         assert rv.data == "OK"
 

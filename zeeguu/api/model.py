@@ -243,17 +243,19 @@ WordAlias = db.aliased(Word, name="translated_word")
 class Url(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(2083))
+    title = db.Column(db.String(2083))
 
-    def __init__(self, url):
+    def __init__(self, url, title):
         self.url= url
+        self.title = title
 
     @classmethod
-    def find(cls, url):
+    def find(cls, url, title):
         try:
             return (cls.query.filter(cls.url == url)
                              .one())
         except sqlalchemy.orm.exc.NoResultFound:
-            return cls(url)
+            return cls(url, title)
 
     def render_link(self, link_text):
         if self.url != "":
