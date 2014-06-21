@@ -4,6 +4,8 @@ import unittest
 import tempfile
 import zeeguu.populate
 import urllib
+import zeeguu.model
+
 
 class FlaskrTestCase(unittest.TestCase):
 
@@ -105,6 +107,8 @@ class FlaskrTestCase(unittest.TestCase):
             title='Songs by Iz')
         rv = self.app.post(self.in_session('/contribute_with_context/de/sondern/en/but'), data=formData)
         assert rv.data == "OK"
+        t = zeeguu.model.Url.find("http://mir.lu","Songs by Iz")
+        assert t != None
 
     def test_contribute_without_title_should_fail(self):
         formData = dict(
