@@ -29,7 +29,7 @@
 
          {% for url in urls_by_date.get(date) %}
 	<tr>
-		<td style="border:0px solid white;text-align:left; background-color:white;"></td><td colspan="4" style="border:0px solid white;text-align:left; background-color:white;"><small><a href="{{ url.url }}">{{ url.url }}</a></small></td>
+		<td style="border:0px solid white;text-align:left; background-color:white;"></td><td colspan="4" style="border:0px solid white;text-align:left; background-color:white;"><small><a href="{{ url.url }}">{{ url.title_if_available() }}</a></small></td>
 	</tr>
 
             {% for contribution in contribs_by_url.get(url) %}

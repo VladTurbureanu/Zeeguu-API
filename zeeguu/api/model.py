@@ -249,6 +249,11 @@ class Url(db.Model):
         self.url= url
         self.title = title
 
+    def title_if_available(self):
+        if self.title != "":
+            return self.title
+        return self.url
+
     @classmethod
     def find(cls, url, title):
         try:
