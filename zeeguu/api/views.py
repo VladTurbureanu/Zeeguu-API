@@ -4,7 +4,7 @@ import functools
 import flask
 import urllib2
 import sqlalchemy.exc
-
+import urllib
 import zeeguu
 from zeeguu import model
 
@@ -232,15 +232,18 @@ def validate():
     return "OK"
 
 
-@api.route("/get_page", methods=("POST",))
+@api.route("/get_page/<url>", methods=["POST"])
 @cross_domain
 @with_user
-def get_page():
-    url = flask.request.form['url']
-    opener = urllib2.build_opener()
-    opener.addheaders = [('User-Agent', 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_0 like Mac OS X; en-us) AppleWebKit/532.9 (KHTML, like Gecko) Version/4.0.5 Mobile/8A293 Safari/6531.22.7')]
-    page = opener.open(url)
-    content = ""
-    for line in page:
-        content += line
-    return content
+def get_page(url):
+
+    # url = flask.request.form['url']
+    # opener = urllib2.build_opener()
+    # opener.addheaders = [('User-Agent', 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_0 like Mac OS X; en-us) AppleWebKit/532.9 (KHTML, like Gecko) Version/4.0.5 Mobile/8A293 Safari/6531.22.7')]
+    # print urllib.unquote(url)
+    # page = opener.open(urllib.unquote(url))
+    # content = ""
+    # for line in page:
+    #     content += line
+    # return content
+    return "OK"

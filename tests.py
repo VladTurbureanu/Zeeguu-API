@@ -92,7 +92,8 @@ class FlaskrTestCase(unittest.TestCase):
 
         for d in dictionaries:
             formData = dict(url=d)
-            rv = self.app.post(self.in_session('/get_page'), data=formData)
+            # rv = self.app.get(self.in_session('/get_page'), data=formData)
+            rv = self.app.post(self.in_session('/get_page/' + urllib.quote(d,"")), data=formData)
             if 'fantastic' in rv.data:
                 print "OK for " + d
             else:
