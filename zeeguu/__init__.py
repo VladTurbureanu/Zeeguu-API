@@ -12,9 +12,14 @@ from zeeguu import app
 
 
 app = app.app
-if os.environ.get("ZEEGUU_TESTING"):
-    # in case of testing, we don't want to use the real database
+
+
+if os.environ.get("ZEEGUU_TESTING") == "True":
     app.config.pop("SQLALCHEMY_DATABASE_URI", None)
+    # app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://zeeguu:sla2012@localhost/zeeguu_test"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/mir.sql"
+    print "[ Using the test DB (" + app.config["SQLALCHEMY_DATABASE_URI"] + ") ]"
+
 
 env = flask.ext.assets.Environment(app)
 env.cache = app.instance_path
