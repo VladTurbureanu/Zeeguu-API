@@ -217,8 +217,9 @@ class Word(db.Model, util.JSONSerializable):
     # for words in which there is no rank info, we don't display anything
     def importance_level_string(self):
         if self.rank() == Word.IMPOSSIBLE_RANK:
-            return ""
-        return str(self.importance_level())
+            return "|||"
+        b = "|"
+        return b * self.importance_level()
 
     @classmethod
     def find(cls, word, language):
