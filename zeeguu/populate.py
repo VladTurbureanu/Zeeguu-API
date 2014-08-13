@@ -66,7 +66,6 @@ def add_contribution(user, original_language, original_word, translation_languag
 def create_test_db():
     zeeguu.app.test_request_context().push()
 
-    print("dropping and creating the tables...")
     zeeguu.db.session.commit()
     zeeguu.db.drop_all()
     zeeguu.db.create_all()
@@ -107,7 +106,7 @@ def create_test_db():
     }
 
     for key in today_dict:
-        add_contribution(user, de, key, en, today_dict[key], today, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung für das finanzsystem habe, sagte holder, ohne namen von banken zu nennen" + key,
+        add_contribution(user, de, key, en, today_dict[key], today, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung fur das finanzsystem habe, sagte holder, ohne namen von banken zu nennen" + key,
                          "http://url2", "title of url2")
 
 
@@ -135,7 +134,7 @@ def create_test_db():
 
 
     for key in dict:
-        add_contribution(user2, fr, key, en, dict[key], yes, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung für das finanzsystem habe, sagte holder, ohne namen von banken zu nennen." + key,
+        add_contribution(user2, fr, key, en, dict[key], yes, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung fur das finanzsystem habe, sagte holder, ohne namen von banken zu nennen." + key,
                          "http://localhost.com", "title of url1")
 
 
@@ -160,7 +159,7 @@ def create_test_db():
 
 
     zeeguu.db.session.commit()
-    print "db created..."
+    # print "temp db recreated..."
 
 
 if __name__ == "__main__":
