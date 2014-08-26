@@ -22,6 +22,10 @@ class Dbtest(ZeeguuTestCase):
         mir = model.User.find("i@mir.lu")
         assert someword in mir.starred_words
 
+        mir.starred_words.remove(someword)
+        db.session.commit()
+        assert not mir.starred_words
+
 
 if __name__ == '__main__':
     unittest.main()

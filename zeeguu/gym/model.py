@@ -25,3 +25,18 @@ class Card(db.Model):
 
     def reason(self):
         return self.reason
+
+    def is_starred(self):
+        return self.contribution.user.has_starred(self.contribution.origin)
+
+    def star(self):
+        word = self.contribution.origin
+        self.contribution.user.starred_words.append(word)
+        print "starred the hell out of... " + self.contribution.origin.word
+
+    def unstar(self):
+        word = self.contribution.origin
+        self.contribution.user.starred_words.remove(word)
+        print "just unstarred ..." + self.contribution.origin.word
+
+
