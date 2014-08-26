@@ -2,13 +2,20 @@
 import re
 import random
 import datetime
+from sqlalchemy import Column, Table, ForeignKey, Integer
 
 import sqlalchemy.orm.exc
-import sys
 
 from zeeguu import db
 from zeeguu import util
 import zeeguu
+from sqlalchemy.orm import relationship
+
+
+starred_words_association_table = Table('starred_words_association', db.Model.metadata,
+    Column('user_id', Integer, ForeignKey('user.id')),
+    Column('starred_word_id', Integer, ForeignKey('word.id'))
+)
 
 
 class User(db.Model):
@@ -22,6 +29,7 @@ class User(db.Model):
         db.ForeignKey("language.id")
     )
     preferred_language = sqlalchemy.orm.relationship("Language")
+    starred_words = relationship("Word", secondary="starred_words_association")
 
     def __init__(self, email, name, password, preferred_language=None):
         self.email = email
