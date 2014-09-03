@@ -16,6 +16,7 @@ class Dbtest(ZeeguuTestCase):
         someword = model.Word.find("hauen",de)
         assert mir
         assert someword
+        # add someword to starred words
         mir.starred_words.append(someword)
         db.session.commit()
 
