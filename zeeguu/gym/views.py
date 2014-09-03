@@ -235,7 +235,7 @@ def question_with_min_level(level, from_lang, to_lang):
         "position": card.position,
         "reason": card.reason,
         "rank":card.contribution.origin.word_rank,
-        "starred": card.is_starred()
+        "starred": card.contribution.origin.starred
     })
 
 @gym.route("/gym/question/<from_lang>/<to_lang>")
@@ -311,7 +311,7 @@ def question(from_lang, to_lang):
         "position": card.position,
         "rank":card.contribution.origin.word_rank,
         "reason": card.reason,
-        "starred": card.is_starred()
+        "starred": card.contribution.origin.starred
     })
 
 
@@ -369,29 +369,31 @@ def wrong(card_id):
 @gym.route("/gym/starred_card/<card_id>", methods=("POST",))
 def starred(card_id):
     card = model.Card.query.get(card_id)
-    card.star()
+    card.contribution.origin.starred = True
     model.db.session.commit()
+    print card.contribution.origin.starred
     return "OK"
 
 @gym.route("/gym/unstarred_card/<card_id>", methods=("POST",))
 def unstarred(card_id):
     card = model.Card.query.get(card_id)
-    card.unstar()
+    card.contribution.origin.starred = False
     model.db.session.commit()
+    print card.contribution.origin.starred
     return "OK"
 
-@gym.route("/gym/starred_word/<word_id>/<user_id>", methods=("POST",))
-def starred_word(word_id,user_id):
+@gym.route("/gym/starred_word/<word_id>", methods=("POST",))
+def starred_word(word_id):
     word = model.Word.query.get(word_id)
-    user = model.User.find_by_id(user_id)
-    user.star(word)
+    word.starred = True
     model.db.session.commit()
+    print word.starred
     return "OK"
 
-@gym.route("/gym/unstarred_word/<word_id>/<user_id>", methods=("POST",))
-def unstarred_word(word_id,user_id):
+@gym.route("/gym/unstarred_word/<word_id>", methods=("POST",))
+def unstarred_word(word_id):
     word = model.Word.query.get(word_id)
-    user = model.User.find_by_id(user_id)
-    user.unstar(word)
+    word.starred = False
     model.db.session.commit()
+    print word.starred
     return "OK"

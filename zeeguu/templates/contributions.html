@@ -43,14 +43,14 @@
                      <div class="word-action-buttons">
 
                          <div id="star{{contribution.origin.id}}">
-                    {% if g.user.has_starred(contribution.origin) %}
+                    {% if contribution.origin.starred %}
 
-                        <a href="javascript:void(0);" onclick="unstarContribution({{ contribution.origin.id }},{{g.user.id}})">
+                        <a href="javascript:void(0);" onclick="unstarContribution({{ contribution.origin.id }})">
                           <i style="color:gold" class="icon-star"></i>
                         </a>
 
                     {% else %}
-                        <a href="javascript:void(0);" onclick="starContribution({{ contribution.origin.id }},{{g.user.id}})">
+                        <a href="javascript:void(0);" onclick="starContribution({{ contribution.origin.id }})">
                             <i style="color:lightgray" class="icon-star-empty"></i>
                         </a>
                     {% endif %}
