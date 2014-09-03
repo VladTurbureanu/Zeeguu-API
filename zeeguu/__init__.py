@@ -16,8 +16,7 @@ app = app.app
 
 if os.environ.get("ZEEGUU_TESTING") == "True":
     app.config.pop("SQLALCHEMY_DATABASE_URI", None)
-    # app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://zeeguu:sla2012@localhost/zeeguu_test"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/mir.sql"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://zeeguu_test:zeeguu_test@localhost/zeeguu_test"
     print "[ Using the test DB (" + app.config["SQLALCHEMY_DATABASE_URI"] + ") ]"
 
 

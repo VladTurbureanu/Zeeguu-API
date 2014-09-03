@@ -50,8 +50,8 @@ def add_contribution(user, original_language, original_word, translation_languag
     url = model.Url.find (the_url, the_url_title)
     text = model.Text(the_context, translation_language, url)
 
-    w1 = model.Word(original_word, original_language, True)
-    w2 = model.Word(translation_word, translation_language, True)
+    w1 = model.Word(original_word, original_language)
+    w2 = model.Word(translation_word, translation_language)
     zeeguu.db.session.add(url)
     zeeguu.db.session.add(text)
     zeeguu.db.session.add(w1)

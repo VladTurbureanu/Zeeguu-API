@@ -2,13 +2,20 @@
 import re
 import random
 import datetime
+from sqlalchemy import Column, Table, ForeignKey, Integer
 
 import sqlalchemy.orm.exc
-import sys
 
 from zeeguu import db
 from zeeguu import util
 import zeeguu
+from sqlalchemy.orm import relationship
+
+
+starred_words_association_table = Table('starred_words_association', db.Model.metadata,
+    Column('user_id', Integer, ForeignKey('user.id')),
+    Column('starred_word_id', Integer, ForeignKey('word.id'))
+)
 
 
 class User(db.Model):
@@ -22,6 +29,7 @@ class User(db.Model):
         db.ForeignKey("language.id")
     )
     preferred_language = sqlalchemy.orm.relationship("Language")
+    starred_words = relationship("Word", secondary="starred_words_association")
 
     def __init__(self, email, name, password, preferred_language=None):
         self.email = email
@@ -31,6 +39,13 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' % (self.email)
+
+    def has_starred(self,word):
+        return word in self.starred_words
+
+    def star(self, word):
+        self.starred_words.append(word)
+        print word.word + " is now starred for user " + self.name
 
     def read(self, text):
         if (Impression.query.filter(Impression.user == self)
@@ -42,6 +57,11 @@ class User(db.Model):
     @classmethod
     def find(cls, email):
         return User.query.filter(User.email == email).one()
+
+    @classmethod
+    def find_by_id(cls, id):
+        return User.query.filter(User.id == id).one()
+
 
     @sqlalchemy.orm.validates("email")
     def validate_email(self, col, email):
@@ -162,17 +182,15 @@ class Word(db.Model, util.JSONSerializable):
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
     word_rank = db.Column(db.Integer)
-    starred = db.Column(db.BOOLEAN)
 
     IMPORTANCE_LEVEL_STEP = 1000
     IMPOSSIBLE_RANK = 1000000
     IMPOSSIBLE_IMPORTANCE_LEVEL = IMPOSSIBLE_RANK / IMPORTANCE_LEVEL_STEP
 
-    def __init__(self, word, language, starred):
+    def __init__(self, word, language):
         self.word = word
         self.language = language
         self.word_rank = self.get_rank_from_file()
-        self.starred = starred
 
     def __repr__(self):
         return '<Word %r>' % (self.word)

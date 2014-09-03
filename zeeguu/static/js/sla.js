@@ -293,16 +293,16 @@ function deleteContribution(id) {
     return false;
 }
 
-function unstarContribution(id) {
+function unstarContribution(id, user_id) {
     console.log("unstarring " + id)
-    $.post("/gym/unstarred_word/" + id);
-    $("#star"+id).html('<a href="javascript:void(0);" onclick="starContribution('+id+')"><i style="color:lightgray" class="icon-star-empty"></i></a>');
+    $.post("/gym/unstarred_word/" + id+"/"+user_id);
+    $("#star"+id).html('<a href="javascript:void(0);" onclick="starContribution('+id+','+user_id+')"><i style="color:lightgray" class="icon-star-empty"></i></a>');
 }
 
-function starContribution(id) {
+function starContribution(id,user_id) {
     console.log("starring " + id)
-    $.post("/gym/starred_word/" + id);
-    $("#star"+id).html('<a href="javascript:void(0);" onclick="unstarContribution('+id+')"><i style="color:gold" class="icon-star"></i></a>');
+    $.post("/gym/starred_word/" + id+"/"+user_id);
+    $("#star"+id).html('<a href="javascript:void(0);" onclick="unstarContribution('+id+','+user_id+')"><i style="color:gold" class="icon-star"></i></a>');
 }
 
 
