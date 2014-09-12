@@ -31,6 +31,10 @@ class Dbtest(ZeeguuTestCase):
         mircea.star(new_word)
         db.session.commit()
 
+    def test_find_word(self):
+        deutsch = Language.find("de")
+        assert Word.find("baum", deutsch)
+
 
 
 
