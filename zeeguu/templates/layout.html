@@ -39,16 +39,20 @@
                     {% if g.user %}
 
                     <li class="{% if tab == "contributions" %} active{% endif %}"><a href="{{ url_for('gym.contributions') }}">My Words</a></li>
+                    <li class="{% if tab == "recognize" %} active{% endif %}"><a href="{{ url_for('gym.identify_the_word') }}">Recognize (easy)</a></li>
+                    <li class="{% if tab == "gym" %} active{% endif %}"><a href="{{ url_for('gym.translate_with_context') }}">Translate (hard)</a></li>
 
-                    <li class="dropdown {% if tab == "recognize" or tab=="gym" %}active{% endif %}" >
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                          Language Gym: {% if tab == "recognize" %}<span>Easy</span>{% endif %}
-                          {% if tab == "gym" %}Medium{% endif %}<b class="caret"></b></a>
-                      <ul class="dropdown-menu">
-                                  <li class="{% if tab == "recognize" %} active{% endif %}"><a href="{{ url_for('gym.identify_the_word') }}">Identify - Easy</a></li>
-                                  <li class="{% if tab == "gym" %} active{% endif %}"><a href="{{ url_for('gym.translate_with_context') }}">Translate - Medium</a></li>
-                      </ul>
-                    </li>
+
+
+                    <!--<li class="dropdown {% if tab == "recognize" or tab=="gym" %}active{% endif %}" >-->
+                      <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown">-->
+                          <!--Language Gym: {% if tab == "recognize" %}<span>Easy</span>{% endif %}-->
+                          <!--{% if tab == "gym" %}Medium{% endif %}<b class="caret"></b></a>-->
+                      <!--<ul class="dropdown-menu">-->
+                                  <!--<li class="{% if tab == "recognize" %} active{% endif %}"><a href="{{ url_for('gym.identify_the_word') }}">Identify - Easy</a></li>-->
+                                  <!--<li class="{% if tab == "gym" %} active{% endif %}"><a href="{{ url_for('gym.translate_with_context') }}">Translate - Medium</a></li>-->
+                      <!--</ul>-->
+                    <!--</li>-->
                      <!--<li{% if tab == "recommended_texts" %} class="active"{% endif %}><a href="{{ url_for('gym.recommended_texts') }}">Reading</a></li>-->
                      {% else %}
 
