@@ -8,7 +8,8 @@
     <h3>Words</h3>
 
     {% if sorted_dates %}
-        <p>This is a list of the words you are learning together with their contexts and importance.</p>
+        <p>{{ g.user.name}}, these are the <b>{{ g.user.all_contributions()|length }}</b> words you are currently learning.<br/>
+            Context and importance are also listed when available.</p>
 
         <table class="table table-striped table-no-borders">
             <tr>
