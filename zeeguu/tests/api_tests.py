@@ -10,7 +10,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_login(self):
         rv = self.login('i@mir.lu', 'password')
-        assert 'Here you find the words you are learning' in rv.data
+        assert 'This is a list of the words you are learning' in rv.data
 
     def test_logout(self):
         self.logout()
@@ -20,16 +20,20 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_contribute(self):
         formData = dict(
             url='http://mir.lu',
-            context='somewhere over the rainboww',
+            context='Somewhere over the rainbow',
             title='Songs by Iz')
         rv = self.app.post(self.in_session('/contribute_with_context/de/sondern/en/but'), data=formData)
         assert rv.data == "OK"
         t = zeeguu.model.Url.find("http://mir.lu","Songs by Iz")
+
         assert t != None
 
         rv = self.app.get('/contributions')
         assert 'hauen' in rv.data
         assert 'Songs by Iz' in rv.data
+        # This test guarantees that the capitalizatin of the contribution is
+        # saved as sent.
+        assert 'Somewhere over the rainbow' in rv.data
 
     def test_contribute_without_title_should_fail(self):
         formData = dict(
