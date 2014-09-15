@@ -7,6 +7,7 @@ from zeeguu.model import Word, Language, User
 
 class Dbtest(ZeeguuTestCase):
 
+
     def test_languages_exists(self):
         de = model.Language.find("de")
         assert de.name == "German"
@@ -22,6 +23,13 @@ class Dbtest(ZeeguuTestCase):
         mir.starred_words.append(someword)
         db.session.commit()
 
+
+    def test_user_contribution_count(self):
+        mir = model.User.find("i@mir.lu")
+        assert mir
+        assert len(mir.all_contributions()) > 0
+
+
     def test_add_new_word_to_DB(self):
         deutsch = Language.find("de")
         new_word = Word("baum", deutsch)
@@ -36,35 +44,22 @@ class Dbtest(ZeeguuTestCase):
         assert Word.find("baum", deutsch)
 
 
+    def test_preferred_words(self):
+        mir = model.User.find("i@mir.lu")
+        de = model.Language.find("de")
+        someword = model.Word.find("hauen",de)
+        assert mir
+        assert someword
+        # add someword to starred words
+        mir.starred_words.append(someword)
+        db.session.commit()
 
+        mir = model.User.find("i@mir.lu")
+        assert someword in mir.starred_words
 
-
-
-
-
-
-
-
-
-
-
-
-    # def test_preferred_words(self):
-    #     mir = model.User.find("i@mir.lu")
-    #     de = model.Language.find("de")
-    #     someword = model.Word.find("hauen",de)
-    #     assert mir
-    #     assert someword
-    #     # add someword to starred words
-    #     mir.starred_words.append(someword)
-    #     db.session.commit()
-    #
-    #     mir = model.User.find("i@mir.lu")
-    #     assert someword in mir.starred_words
-    #
-    #     mir.starred_words.remove(someword)
-    #     db.session.commit()
-    #     assert not mir.starred_words
+        mir.starred_words.remove(someword)
+        db.session.commit()
+        assert not mir.starred_words
 
 
 if __name__ == '__main__':
