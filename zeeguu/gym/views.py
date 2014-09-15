@@ -20,6 +20,8 @@ def setup():
 
 @gym.route("/")
 def home():
+    if "user" in flask.session:
+        return flask.redirect(flask.url_for("gym.contributions"))
     return flask.render_template("index.html")
 
 @gym.route("/install")
