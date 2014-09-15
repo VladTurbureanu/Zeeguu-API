@@ -121,12 +121,12 @@ def translate_with_context():
     return flask.render_template("translate_with_context.html", languages=lang)
 
 
-@gym.route("/identify_the_word")
-def identify_the_word():
+@gym.route("/recognize")
+def recognize():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
     lang = model.Language.query.all()
-    return flask.render_template("identify.html", languages=lang)
+    return flask.render_template("recognize.html", languages=lang)
 
 
 def redisplay_card_simple(cards):

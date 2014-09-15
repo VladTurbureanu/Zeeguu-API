@@ -17,10 +17,6 @@
 
 
     <body>
-        <!--<div class="container col-md-12 ">-->
-        <!--<br/>-->
-
-
 
     <div class="navbar navbar-default" id="menu-cassette">
         <div class="navbar-inner">
@@ -37,27 +33,10 @@
                         </li>
 
                     {% if g.user %}
-
-                    <li class="{% if tab == "contributions" %} active{% endif %}"><a href="{{ url_for('gym.contributions') }}">Words</a></li>
-                    <li class="{% if tab == "recognize" %} active{% endif %}"><a href="{{ url_for('gym.identify_the_word') }}">Recognize!</a></li>
-                    <li class="{% if tab == "gym" %} active{% endif %}"><a href="{{ url_for('gym.translate_with_context') }}">Translate in Context</a></li>
-
-
-
-                    <!--<li class="dropdown {% if tab == "recognize" or tab=="gym" %}active{% endif %}" >-->
-                      <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown">-->
-                          <!--Language Gym: {% if tab == "recognize" %}<span>Easy</span>{% endif %}-->
-                          <!--{% if tab == "gym" %}Medium{% endif %}<b class="caret"></b></a>-->
-                      <!--<ul class="dropdown-menu">-->
-                                  <!--<li class="{% if tab == "recognize" %} active{% endif %}"><a href="{{ url_for('gym.identify_the_word') }}">Identify - Easy</a></li>-->
-                                  <!--<li class="{% if tab == "gym" %} active{% endif %}"><a href="{{ url_for('gym.translate_with_context') }}">Translate - Medium</a></li>-->
-                      <!--</ul>-->
-                    <!--</li>-->
-                     <!--<li{% if tab == "recommended_texts" %} class="active"{% endif %}><a href="{{ url_for('gym.recommended_texts') }}">Reading</a></li>-->
-                     {% else %}
-
-
- {% endif %}
+                        <li class="{% if tab == "contributions"%} active{% endif %}"><a href="{{ url_for('gym.contributions') }}">Words</a></li>
+                        <li class="{% if tab == "recognize" %} active{% endif %}"><a href="{{ url_for('gym.recognize') }}">Recognize!</a></li>
+                        <li class="{% if tab == "translate" %} active{% endif %}"><a href="{{ url_for('gym.translate_with_context') }}">Translate in Context</a></li>
+                    {% endif %}
                     </ul>
 
                     <ul class="nav navbar-nav navbar-right" style="padding-right: 20px">

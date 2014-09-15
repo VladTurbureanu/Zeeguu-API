@@ -10,11 +10,11 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_login(self):
         rv = self.login('i@mir.lu', 'password')
-        assert 'This is a list of the words you are learning' in rv.data
+        assert 'words you are currently learning' in rv.data
 
     def test_logout(self):
         self.logout()
-        rv = self.app.get('/identify_the_word')
+        rv = self.app.get('/recognize')
         assert 'Redirecting' in rv.data
 
     def test_contribute(self):

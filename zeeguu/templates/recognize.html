@@ -4,10 +4,10 @@
 
 {% block body %}
     <div id="language-selection">
-        <div class="exercise-title">Identify the Word</div>
+        <div class="exercise-title">Recognize the Word</div>
         <select id="lang1" disabled style="visibility: hidden">
             {% for language in languages %}
-                <option value="{{ language.id }}"{% if "English" == language.name %} selected{% endif %}>
+                <option value="{{ language.id }}" {% if "English" == language.name %} selected{% endif %}>
                     {{ language.name }}
                 </option>
             {% endfor %}
