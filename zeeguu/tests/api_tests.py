@@ -20,7 +20,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_contribute(self):
         formData = dict(
             url='http://mir.lu',
-            context='Somewhere over the rainbow',
+            context='Somewhere over the Rainbow',
             title='Songs by Iz')
         rv = self.app.post(self.in_session('/contribute_with_context/de/sondern/en/but'), data=formData)
         assert rv.data == "OK"
@@ -33,7 +33,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert 'Songs by Iz' in rv.data
         # This test guarantees that the capitalizatin of the contribution is
         # saved as sent.
-        assert 'Somewhere over the rainbow' in rv.data
+        assert 'Somewhere over the Rainbow' in rv.data
 
     def test_contribute_without_title_should_fail(self):
         formData = dict(
