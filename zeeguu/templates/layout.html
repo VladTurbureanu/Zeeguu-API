@@ -38,9 +38,9 @@
 
                     {% if g.user %}
 
-                    <li class="{% if tab == "contributions" %} active{% endif %}"><a href="{{ url_for('gym.contributions') }}">My Words</a></li>
-                    <li class="{% if tab == "recognize" %} active{% endif %}"><a href="{{ url_for('gym.identify_the_word') }}">Recognize (easy)</a></li>
-                    <li class="{% if tab == "gym" %} active{% endif %}"><a href="{{ url_for('gym.translate_with_context') }}">Translate (hard)</a></li>
+                    <li class="{% if tab == "contributions" %} active{% endif %}"><a href="{{ url_for('gym.contributions') }}">Words</a></li>
+                    <li class="{% if tab == "recognize" %} active{% endif %}"><a href="{{ url_for('gym.identify_the_word') }}">Recognize!</a></li>
+                    <li class="{% if tab == "gym" %} active{% endif %}"><a href="{{ url_for('gym.translate_with_context') }}">Translate in Context</a></li>
 
 
 
