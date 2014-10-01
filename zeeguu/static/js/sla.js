@@ -224,15 +224,15 @@ function checkAnswer() {
         function(data) {
 
             var back = flippant.flip(
-                $("#question2").get(0),
-                    '<div class="'+data.toLowerCase()+'">' +
+                $("#recognize_card").get(0),
+                    '<div class="back_of_card_container"><div class="'+data.toLowerCase()+'">' +
                     last_question.question+ "" +
                     "<br/>" +
                     "=<br/>"+
                     last_question.answer + "" +
-                    '</div>',
+                    '</div></div>',
                 "card",
-                "card");
+                "flipped_card");
 
             newQuestion();
 //            $("#answer").prop("disabled", true);
@@ -264,15 +264,15 @@ function checkTranslateAnswer() {
 //            );
 
             var back = flippant.flip(
-                $("#question2").get(0),
-                    '<div class="'+data.toLowerCase()+'">' +
+                $("#translate_card").get(0),
+                    '<div class="back_of_card_container"><div class="'+data.toLowerCase()+'">' +
                     last_question.question+ " " +
                     "<br/>" +
                     "=<br/>"+
                     last_question.answer + " " +
-                    '</div>',
+                    '</div></div>',
                 "card",
-                "card");
+                "flipped_card");
 
             newTranslateQuestion();
             $("#translate_answer").prop("disabled", true);
