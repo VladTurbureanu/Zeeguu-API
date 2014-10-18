@@ -357,7 +357,7 @@ class Text(db.Model):
         word_count = len(words)
 
         if word_count <= max_word_count:
-            return self.content.capitalize()
+            return self.content
 
         for i in range(0, max_word_count):
             limited_words.append(words[i]) # lista cu primele max_length cuvinte
@@ -366,16 +366,16 @@ class Text(db.Model):
         # sometimes the given_word does not exist in the text.
         # in that case return a text containing max_length words
         if given_word not in words:
-            return shorter_text.capitalize()
+            return shorter_text
 
         if words.index(given_word) <= max_word_count:
-            return shorter_text.capitalize()
+            return shorter_text
 
         for i in range(max_word_count + 1,  words.index(given_word) + 1):
             limited_words.append(words[i])
         shorter_text = ' '.join(limited_words)
 
-        return shorter_text.capitalize()
+        return shorter_text
 
     @classmethod
     def find(cls, text, language):
