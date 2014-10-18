@@ -5,6 +5,8 @@ import zeeguu_testcase
 import unittest
 import zeeguu.populate
 import zeeguu.model
+from zeeguu.model import User
+from zeeguu import util
 
 class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
@@ -45,6 +47,17 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_get_contribs(self):
         rv = self.app.get(self.in_session('/contribs'))
         assert "Wald" in rv.data
+
+    def test_password_hash(self):
+        p1 = "test"
+        p2 = "password"
+        user = User.find("i@mir.lu")
+
+        hash1 = util.password_hash(p1,user.password_salt)
+        hash2 = util.password_hash(p2, user.password_salt)
+        assert hash1 != hash2
+
+        assert user.authorize("i@mir.lu", "password") != None
 
 
 if __name__ == '__main__':
