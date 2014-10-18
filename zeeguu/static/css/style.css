@@ -129,3 +129,12 @@ h1 img {
 .centered-content {
     text-align: center;
 }
+
+
+
+.centered-inner-div {
+    /* Centering a div inside another div */
+    /* From: http://stackoverflow.com/questions/114543/how-to-horizontally-center-a-div-in-a-div */
+    width: 50%;
+    margin: 0 auto;
+}
