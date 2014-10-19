@@ -158,6 +158,13 @@ def contribute(from_lang_code, term, to_lang_code, translation):
 
     return "OK"
 
+@api.route ("/goslate/<word>/<from_lang_code>", methods=["GET"])
+@cross_domain
+# @with_user
+def translate (word, from_lang_code):
+    import goslate
+    gs = goslate.Goslate()
+    return gs.translate(word, "en", from_lang_code)
 
 @api.route("/contribute_with_context/<from_lang_code>/<term>/<to_lang_code>/<translation>",
            methods=["POST"])
