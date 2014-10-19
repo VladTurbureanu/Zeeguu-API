@@ -42,6 +42,13 @@ class Dbtest(ZeeguuTestCase):
         assert Word.find("baum", deutsch)
 
 
+    def test_user_words(self):
+        mir = model.User.find("i@mir.lu")
+        assert mir.user_words() == map((lambda x: x.origin.word), mir.all_contributions())
+        print mir.user_words()
+
+
+
     def test_preferred_words(self):
         mir = model.User.find("i@mir.lu")
         de = model.Language.find("de")

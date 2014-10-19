@@ -100,6 +100,9 @@ class User(db.Model):
     def contribs_chronologically(self):
 	    return Contribution.query.filter_by(user_id=self.id).order_by(Contribution.time.desc()).all()
 
+    def user_words(self):
+        return map((lambda x: x.origin.word), self.all_contributions())
+
     def all_contributions(self):
         return Contribution.query.filter_by(user_id=self.id).order_by(Contribution.time.desc()).all()
 

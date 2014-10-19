@@ -112,10 +112,10 @@ def contributions():
 @api.route("/user_words", methods=["GET"])
 @cross_domain
 @with_user
-def user_words():
+def studied_words():
     import json
-
-    js = json.dumps(["der"])
+    usr = flask.g.user
+    js = json.dumps(usr.user_words())
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
