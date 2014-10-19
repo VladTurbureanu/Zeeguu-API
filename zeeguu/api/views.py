@@ -109,6 +109,17 @@ def contributions():
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
+@api.route("/user_words", methods=["GET"])
+@cross_domain
+@with_user
+def user_words():
+    import json
+
+    js = json.dumps(["der"])
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
+
+
 
 @api.route("/contribs_by_day", methods=["GET"])
 @cross_domain
