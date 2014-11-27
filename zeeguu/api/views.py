@@ -180,7 +180,7 @@ def translate (word, from_lang_code):
 @api.route ("/goslate_from_to/<word>/<from_lang_code>/<to_lang_code>", methods=["GET"])
 @cross_domain
 # @with_user
-def translate (word, from_lang_code,to_lang_code):
+def translate_from_to (word, from_lang_code,to_lang_code):
     import goslate
     gs = goslate.Goslate()
     return gs.translate(word, to_lang_code, from_lang_code)
