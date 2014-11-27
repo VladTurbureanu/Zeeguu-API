@@ -13,6 +13,11 @@ class Dbtest(ZeeguuTestCase):
         de = model.Language.find("de")
         assert de.name == "German"
 
+    def test_get_all_languages(self):
+        assert model.Language.all()
+        assert u'en' in [lan.id for lan in model.Language.all()]
+        assert u'German' in [lan.name for lan in model.Language.all()]
+
     def test_preferred_word(self):
         mir = model.User.find("i@mir.lu")
         de = model.Language.find("de")

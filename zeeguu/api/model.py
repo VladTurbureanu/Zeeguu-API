@@ -178,6 +178,10 @@ class Language(db.Model):
     def find(cls, id_):
         return cls.query.filter(Language.id == id_).one()
 
+    @classmethod
+    def all(cls):
+        return cls.query.filter().all()
+
 
 class Word(db.Model, util.JSONSerializable):
     id = db.Column(db.Integer, primary_key=True)

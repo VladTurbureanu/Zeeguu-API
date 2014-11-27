@@ -53,6 +53,9 @@ def my_account():
 @account.route("/create_account", methods=("GET", "POST"))
 def create_account():
 
+    if flask.request.method == "GET":
+        return flask.render_template("create_account.html", languages=model.Language.all(), flashed_messages=flask.get_flashed_messages())
+
     form = flask.request.form
     if flask.request.method == "POST" and form.get("create_account", False):
         password = form.get("password", None)
