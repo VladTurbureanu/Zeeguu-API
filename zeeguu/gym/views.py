@@ -5,6 +5,7 @@ import flask
 
 from zeeguu import model
 import sys
+import random
 
 
 gym = flask.Blueprint("gym", __name__)
@@ -137,7 +138,7 @@ def redisplay_card_simple(cards):
     return card
 
 
-def redisplay_card_aware_of_days(cards):
+def select_next_card_aware_of_days(cards):
 
     interesting_intervals = [1,2,7,31]
     interesting_dates = [date.today() - timedelta(days=x) for x in interesting_intervals]
@@ -159,11 +160,18 @@ def redisplay_card_aware_of_days(cards):
         card.set_reason("seen on: " + card.last_seen.strftime("%d/%m/%y"))
         return card
 
+    # All cards were seen today. Just return a random one
+    if cards:
+        card = random.choice(cards)
+        card.set_reason("random word: all others are seen today.")
+        return card
+
     return None
 
 
 @gym.route("/gym/question_with_min_level/<level>/<from_lang>/<to_lang>")
 def question_with_min_level(level, from_lang, to_lang):
+    card = None
     if not flask.g.user:
         return flask.abort(401)
 
@@ -212,8 +220,9 @@ def question_with_min_level(level, from_lang, to_lang):
         )
 
         cards = forward.union(backward).filter(model.Card.position > level).filter(model.Card.position < 7).all()
-        card = redisplay_card_aware_of_days(cards)
-
+        if not cards:
+            cards = forward.union(backward).filter(model.Card.position < 7).all()
+        card = select_next_card_aware_of_days(cards)
 
     if card is None:
         return "\"NO CARDS\""
@@ -287,7 +296,7 @@ def question(from_lang, to_lang):
 
 
         cards = forward.union(backward).filter(model.Card.position < 5).all()
-        card = redisplay_card_aware_of_days(cards)
+        card = select_next_card_aware_of_days(cards)
 
 
 
