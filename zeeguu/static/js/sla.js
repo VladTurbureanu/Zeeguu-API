@@ -93,12 +93,12 @@ $(function() {
         return;
     }
 
-    $("#lang1, #lang2").select2().change(newQuestion);
+    $("#lang1, #lang2").select2().change(newRecognizeQuestion);
 
     $("#direction").click(function() {
         reverse = !reverse;
         $(this).html('<i class="icon-long-arrow-' + (reverse ? "left" : "right") + '"></i>');
-        newQuestion();
+        newRecognizeQuestion();
     });
 
     $("#star").click(
@@ -123,11 +123,11 @@ $(function() {
     });
 
     if ($("#answer").length) {
-        newQuestion();
+        newRecognizeQuestion();
     }
     if ($("#translate_answer").length) {
-        console.log("----> setting up a new translate question...")
-        newTranslateQuestion();
+
+        newTranslateQuestion(); console.log("----> setting up a new translate question...")
     }
 
 
@@ -139,7 +139,7 @@ var reverse = false;
 var ready = false;
 var starred = false;
 
-function newQuestion() {
+function newRecognizeQuestion() {
     var from_lang = $("#lang1").val(),
         to_lang = $("#lang2").val();
     if (reverse) {
@@ -174,7 +174,7 @@ function newQuestion() {
     });
 }
 
-//there is a bit too much duplication between this function and newQuestion...
+//there is a bit too much duplication between this function and newRecognizeQuestion...
 function newTranslateQuestion() {
     var from_lang = $("#lang1").val(),
         to_lang = $("#lang2").val();
@@ -234,7 +234,7 @@ function checkAnswer() {
                 "card",
                 "flipped_card");
 
-            newQuestion();
+            newRecognizeQuestion();
 //            $("#answer").prop("disabled", true);
             $("#answer").hide();
             window.setTimeout(function() {
