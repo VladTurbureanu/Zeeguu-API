@@ -25,6 +25,12 @@ def home():
         return flask.redirect(flask.url_for("gym.contributions"))
     return flask.render_template("index.html")
 
+
+@gym.route("/test_german")
+def test_german():
+    return flask.render_template("test_german.html")
+
+
 @gym.route("/install")
 def install():
     return flask.render_template("install.html")
