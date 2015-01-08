@@ -146,9 +146,6 @@ def study_before_play():
     return flask.render_template("study_before_play.html", languages=lang)
 
 
-
-
-
 def redisplay_card_simple(cards):
     cards.sort(key=lambda x: x.last_seen)
     card = cards[1]

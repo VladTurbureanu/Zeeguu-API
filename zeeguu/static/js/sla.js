@@ -273,6 +273,7 @@ function checkAnswerBeforeFacebook() {
                 var back = flippant.flip(
                     $("#recognize_card").get(0),
                         '<div class="back_of_card_container"><div class="' + data.toLowerCase() + '">' +
+                            data + "</br></br>"+
                         last_question.question + "" +
                         "<br/>" +
                         "=<br/>" +
