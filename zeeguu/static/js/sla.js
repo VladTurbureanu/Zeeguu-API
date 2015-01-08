@@ -116,6 +116,12 @@ $(function() {
         }
     });
 
+      $("#answer_before_facebook").focus().keyup(function(e) {
+        if (e.keyCode == 13) {  // Return key
+            checkAnswerBeforeFacebook();
+        }
+    });
+
     $("#translate_answer").focus().keyup(function(e) {
         if (e.keyCode == 13) {  // Return key
             checkTranslateAnswer();
@@ -123,6 +129,10 @@ $(function() {
     });
 
     if ($("#answer").length) {
+        newRecognizeQuestion();
+    }
+
+    if ($("#answer_before_facebook").length) {
         newRecognizeQuestion();
     }
     if ($("#translate_answer").length) {
@@ -217,7 +227,7 @@ function checkAnswer() {
     if (!ready) {
         return;
     }
-
+    $("#answer").prop("disabled", true);
     //  test the correctness of the answer on the server side...
     url = ["/gym/test_answer", $("#answer").val(), last_question.answer, last_question.id ].join("/");
     $.post(url,
@@ -235,10 +245,11 @@ function checkAnswer() {
                 "flipped_card");
 
             newRecognizeQuestion();
-//            $("#answer").prop("disabled", true);
+
             $("#answer").hide();
             window.setTimeout(function() {
                 back.close();
+                $("#answer").prop("disabled", false);
                 $("#answer").val("").show().focus();
             }, 3000);
 
@@ -246,6 +257,44 @@ function checkAnswer() {
     );
 }
 
+
+
+function checkAnswerBeforeFacebook() {
+    if (!ready) {
+        return;
+    }
+
+    //  test the correctness of the answer on the server side...
+    url = ["/gym/test_answer", $("#answer_before_facebook").val(), last_question.answer, last_question.id ].join("/");
+    $.post(url,
+        function(data) {
+
+
+                var back = flippant.flip(
+                    $("#recognize_card").get(0),
+                        '<div class="back_of_card_container"><div class="' + data.toLowerCase() + '">' +
+                        last_question.question + "" +
+                        "<br/>" +
+                        "=<br/>" +
+                        last_question.answer + "" +
+                        '</div></div>',
+                    "card",
+                    "flipped_card");
+
+                $("#answer_before_facebook").hide();
+                window.setTimeout(function () {
+                    if (data == "CORRECT") {
+                        window.location = "https://www.facebook.com";
+                    } else {
+                        newRecognizeQuestion();
+                        back.close();
+                        $("#answer_before_facebook").val("").show().focus();
+                    }
+                }, 3000);
+
+        }
+    );
+}
 function checkTranslateAnswer() {
     if (!ready) {
         return;

@@ -138,6 +138,17 @@ def recognize():
     return flask.render_template("recognize.html", languages=lang)
 
 
+@gym.route("/study_before_play")
+def study_before_play():
+    if not flask.g.user:
+        return flask.redirect(flask.url_for("gym.login"))
+    lang = model.Language.query.all()
+    return flask.render_template("before_facebook.html", languages=lang)
+
+
+
+
+
 def redisplay_card_simple(cards):
     cards.sort(key=lambda x: x.last_seen)
     card = cards[1]
