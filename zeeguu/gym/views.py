@@ -143,7 +143,7 @@ def study_before_play():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
     lang = model.Language.query.all()
-    return flask.render_template("before_facebook.html", languages=lang)
+    return flask.render_template("study_before_play.html", languages=lang)
 
 
 
