@@ -76,7 +76,7 @@ def create_test_db():
     it = model.Language("it", "Italian")
     no = model.Language("no", "Norwegian")
 
-    user = model.User("i@mir.lu", "Mircea", "password", de)
+    user = model.User("i@mir.lu", "Mircea", "pass", de)
     user2 = model.User("ada@localhost.com", "Ada", "password", fr)
 
     zeeguu.db.session.add(user)

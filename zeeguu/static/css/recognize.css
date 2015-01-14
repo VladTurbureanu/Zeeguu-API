@@ -22,11 +22,17 @@
 
     font-size: 24px;
     text-align: center;
+    margin-bottom: 20px;
 }
 
-#recognize_card
+#recognize_card,
+.yellow_background
 {
     background: lightyellow;
+}
+
+.gray_text {
+    color: gray;
 }
 
 /*used to be flash_card ... but i don't think anybody yeses that */

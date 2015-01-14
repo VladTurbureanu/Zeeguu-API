@@ -285,7 +285,9 @@ function checkAnswerBeforeFacebook() {
                 $("#answer_before_facebook").hide();
                 window.setTimeout(function () {
                     if (data == "CORRECT") {
-                        window.location = "https://www.facebook.com";
+                        // The location to redirect should be now in
+                        // a div named "redirect_to_url"
+                        window.location = $("#redirect_to_url").text();
                     } else {
                         newRecognizeQuestion();
                         back.close();

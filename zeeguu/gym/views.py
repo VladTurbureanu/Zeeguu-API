@@ -137,13 +137,23 @@ def recognize():
     lang = model.Language.query.all()
     return flask.render_template("recognize.html", languages=lang)
 
-
 @gym.route("/study_before_play")
 def study_before_play():
+    def get_domain_from_url(url):
+        from urlparse import urlparse
+        parsed_uri = urlparse(url)
+        domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+        return domain
+
+    url_to_redirect_to = flask.request.args.get('to','')
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
+
     lang = model.Language.query.all()
-    return flask.render_template("study_before_play.html", languages=lang)
+    return flask.render_template("study_before_play.html",
+                                 languages=lang,
+                                 redirect_to_url=url_to_redirect_to,
+                                 redirect_to_domain=get_domain_from_url(url_to_redirect_to))
 
 
 def redisplay_card_simple(cards):
