@@ -31,8 +31,14 @@
     background: lightyellow;
 }
 
+.white_background
+{
+    background: #f5f5f5;
+}
+
 .gray_text {
     color: gray;
+    font-size: x-large;
 }
 
 /*used to be flash_card ... but i don't think anybody yeses that */

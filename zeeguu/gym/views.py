@@ -142,7 +142,7 @@ def study_before_play():
     def get_domain_from_url(url):
         from urlparse import urlparse
         parsed_uri = urlparse(url)
-        domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+        domain = '{uri.netloc}'.format(uri=parsed_uri)
         return domain
 
     url_to_redirect_to = flask.request.args.get('to','')
