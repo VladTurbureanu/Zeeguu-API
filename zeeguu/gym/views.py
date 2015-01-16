@@ -1,5 +1,6 @@
-from datetime import datetime, timedelta, date
+from datetime import timedelta, date
 import json
+from functools import wraps
 
 import flask
 
@@ -9,6 +10,23 @@ import random
 
 
 gym = flask.Blueprint("gym", __name__)
+
+
+def login_first(fun):
+    """
+    Makes sure that the user is logged_in.
+    If not, appends the intended url to the login url,
+    and redirects to login.
+    """
+    @wraps(fun)
+    def decorated_function(*args, **kwargs):
+        if flask.g.user:
+            return fun(*args, **kwargs)
+        else:
+            next_url = flask.request.url
+            login_url = '%s?next=%s' % (flask.url_for('gym.login'), next_url)
+            return flask.redirect(login_url)
+    return decorated_function
 
 
 @gym.before_request
@@ -50,7 +68,9 @@ def login():
                 flask.flash("Invalid email and password combination")
             else:
                 flask.session["user"] = user.id
-                return flask.redirect(flask.url_for("gym.contributions"))
+                flask.session.permanent = True
+                print "next page..." + str(flask.request.args.get("next"))
+                return flask.redirect(flask.request.args.get("next") or flask.url_for("gym.contributions"))
     return flask.render_template("login.html")
 
 
@@ -61,18 +81,15 @@ def logout():
 
 
 @gym.route("/history")
+@login_first
 def history():
-    if not flask.g.user:
-        return flask.redirect(flask.url_for("gym.login"))
     searches = model.Search.query.filter_by(user=flask.g.user).order_by(model.Search.id.desc()).all()
     return flask.render_template("history.html", searches=searches)
 
 
 @gym.route("/contributions")
+@login_first
 def contributions():
-    if not flask.g.user:
-        return flask.redirect(flask.url_for("gym.login"))
-
     contribs,dates = flask.g.user.contribs_by_date()
 
     urls_by_date = {}
@@ -92,27 +109,8 @@ def contributions():
                                  user = flask.g.user)
 
 @gym.route("/recommended_texts")
+@login_first
 def recommended_texts():
-    if not flask.g.user:
-        return flask.redirect(flask.url_for("gym.login"))
-
-    # contribs,dates = flask.g.user.contribs_by_date()
-    # contribs_by_url = {}
-    # for contrib in contribs:
-    #     contribs_by_url.setdefault(contrib.text.url, []).append(contrib)
-
-    # urls_by_date = {}
-    # contribs_by_url = {}
-    # for date in dates:
-    #     sys.stderr.write(str(date)+"\n")
-    #     for contrib in contribs[date]:
-    #         urls_by_date.setdefault(date, set()).add(contrib.text.url)
-    #         contribs_by_url.setdefault(contrib.text.url,[]).append(contrib)
-    # sys.stderr.write(str(urls_by_date)+"\n")
-    # sys.stderr.write(str(contribs_by_url)+"\n")
-
-
-
     return flask.render_template("recommended_texts.html",
                                  # contribs_by_url=contribs_by_url,
                                  # urls_by_date=urls_by_date,
@@ -123,17 +121,15 @@ def recommended_texts():
 
 
 @gym.route("/translate_with_context")
+@login_first
 def translate_with_context():
-    if not flask.g.user:
-        return flask.redirect(flask.url_for("gym.login"))
     lang = model.Language.query.all()
     return flask.render_template("translate_with_context.html", languages=lang)
 
 
 @gym.route("/recognize")
+@login_first
 def recognize():
-    if not flask.g.user:
-        return flask.redirect(flask.url_for("gym.login"))
     lang = model.Language.query.all()
     return flask.render_template("recognize.html", languages=lang)
 
@@ -149,11 +145,16 @@ def study_before_play():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
 
+    if not flask.g.user.has_words_to_rehearse():
+        print "not enough words to bother the user with rehearsals yet"
+        return flask.redirect(url_to_redirect_to)
+
     lang = model.Language.query.all()
     return flask.render_template("study_before_play.html",
                                  languages=lang,
                                  redirect_to_url=url_to_redirect_to,
                                  redirect_to_domain=get_domain_from_url(url_to_redirect_to))
+
 
 
 def redisplay_card_simple(cards):
