@@ -190,10 +190,9 @@ def select_next_card_aware_of_days(cards):
 
 
 @gym.route("/gym/question_with_min_level/<level>/<from_lang>/<to_lang>")
+@login_first
 def question_with_min_level(level, from_lang, to_lang):
     card = None
-    if not flask.g.user:
-        return flask.abort(401)
 
     from_lang = model.Language.find(from_lang)
     to_lang = model.Language.find(to_lang)
@@ -270,10 +269,8 @@ def question_with_min_level(level, from_lang, to_lang):
     })
 
 @gym.route("/gym/question/<from_lang>/<to_lang>")
+@login_first
 def question(from_lang, to_lang):
-    if not flask.g.user:
-        return flask.abort(401)
-
     from_lang = model.Language.find(from_lang)
     to_lang = model.Language.find(to_lang)
 
@@ -348,6 +345,7 @@ def question(from_lang, to_lang):
 
 
 @gym.route("/gym/delete_contribution/<contribution_id>", methods=("POST",))
+@login_first
 def delete(contribution_id):
     session = model.db.session
     contrib = model.Contribution.query.get(contribution_id)
