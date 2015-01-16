@@ -134,6 +134,7 @@ def recognize():
     return flask.render_template("recognize.html", languages=lang)
 
 @gym.route("/study_before_play")
+@login_first
 def study_before_play():
     def get_domain_from_url(url):
         from urlparse import urlparse
@@ -142,12 +143,6 @@ def study_before_play():
         return domain
 
     url_to_redirect_to = flask.request.args.get('to','')
-    if not flask.g.user:
-        return flask.redirect(flask.url_for("gym.login"))
-
-    if not flask.g.user.has_words_to_rehearse():
-        print "not enough words to bother the user with rehearsals yet"
-        return flask.redirect(url_to_redirect_to)
 
     lang = model.Language.query.all()
     return flask.render_template("study_before_play.html",
