@@ -15,6 +15,7 @@ import urllib2
 import sqlalchemy.exc
 import urllib
 import zeeguu
+import json
 from zeeguu import model
 
 
@@ -65,12 +66,17 @@ def cross_domain(view):
 @cross_domain
 @with_session
 def learned_language():
+
     """
     Each endpoint is defined by a function definition
     of the same form as this one.
 
     The important information for understanding the
     endpoint is in the annotations before the function
+    and in the comment immediately after the function
+    name.
+
+    Two types of annotations are important:
 
      @api.route gives you the endpoint name together
         with the expectd HTTP method
@@ -138,7 +144,10 @@ def get_session(email):
 @cross_domain
 @with_session
 def contributions():
-    #at this moment it seems nice to exchange data in json format
+    """
+    Returns a list of contributions together with their
+     translations
+    """
     contributions = flask.g.user.contribs_chronologically()
 
     words = []
@@ -148,8 +157,6 @@ def contributions():
         word['to'] = contrib.translation.word
         words.append(word)
 
-    import json
-
     js = json.dumps(words)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
@@ -158,9 +165,11 @@ def contributions():
 @cross_domain
 @with_session
 def studied_words():
-    import json
-    usr = flask.g.user
-    js = json.dumps(usr.user_words())
+    """
+    Returns a list of the words that the user is
+     currently studying.  
+    """
+    js = json.dumps(flask.g.user.user_words())
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
@@ -197,8 +206,6 @@ def contributions_by_day(return_context):
         date_entry['date'] = date.strftime("%A, %d %B")
         date_entry['contribs'] = contribs
         dates.append(date_entry)
-
-    import json
 
     js = json.dumps(dates)
     resp = flask.Response(js, status=200, mimetype='application/json')
