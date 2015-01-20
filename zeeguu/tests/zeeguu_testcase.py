@@ -8,6 +8,9 @@ os.environ["ZEEGUU_TESTING"] = "True"
 # otherwise the tests will override the actual database!
 # This is too fragile though... The moment I forget, this...
 
+TEST_PASS='pass'
+TEST_EMAIL='i@mir.lu'
+
 import zeeguu
 import unittest
 import zeeguu.populate
@@ -23,20 +26,21 @@ class ZeeguuTestCase(unittest.TestCase):
         ), follow_redirects=True)
 
     def i_login(self):
-        self.login('i@mir.lu', 'password')
+        self.login(TEST_EMAIL, TEST_PASS)
 
     def logout(self):
         return self.app.get('/logout', follow_redirects=True)
 
     def get_session(self):
         self.i_login()
-        rv = self.app.post('/session/i@mir.lu', data=dict(
-            password="password"
+        rv = self.app.post('/session/'+TEST_EMAIL, data=dict(
+            password=TEST_PASS
         ))
         return rv.data
 
     def in_session(self, url):
-        return url + "?session=" + self.session
+        url_with_session = url + "?session=" + self.session
+        return url_with_session
 
     def setUp(self):
         # zeeguu.app.config['TESTING'] = True
