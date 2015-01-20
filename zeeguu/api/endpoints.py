@@ -16,6 +16,7 @@ import sqlalchemy.exc
 import urllib
 import zeeguu
 import json
+import goslate
 from zeeguu import model
 
 
@@ -166,8 +167,7 @@ def contributions():
 @with_session
 def studied_words():
     """
-    Returns a list of the words that the user is
-     currently studying.  
+    Returns a list of the words that the user is currently studying.
     """
     js = json.dumps(flask.g.user.user_words())
     resp = flask.Response(js, status=200, mimetype='application/json')
@@ -238,7 +238,6 @@ def contribute(from_lang_code, term, to_lang_code, translation):
 @cross_domain
 # @with_user
 def translate (word, from_lang_code):
-    import goslate
     gs = goslate.Goslate()
     return gs.translate(word, "en", from_lang_code)
 
@@ -246,7 +245,6 @@ def translate (word, from_lang_code):
 @cross_domain
 # @with_user
 def translate_from_to (word, from_lang_code,to_lang_code):
-    import goslate
     gs = goslate.Goslate()
     return gs.translate(word, to_lang_code, from_lang_code)
 
