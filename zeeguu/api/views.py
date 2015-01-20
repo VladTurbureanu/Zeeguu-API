@@ -11,8 +11,15 @@ from zeeguu import model
 
 api = flask.Blueprint("api", __name__)
 
+def with_session(view):
+    """
+    Decorator checks that user is in a session.
 
-def with_user(view):
+    Every API endpoint annotated with @with_session
+     expects a session object to be passed as a GET parameter
+
+    Example: API_URL/learned_language?session=123141516
+    """
     @functools.wraps(view)
     def wrapped_view(*args, **kwargs):
         try:
@@ -25,20 +32,13 @@ def with_user(view):
         flask.g.user = session.user
         session.update_use_date()
         return view(*args, **kwargs)
-
-    return wrapped_view
-
-
-def with_user_test(view):
-    @functools.wraps(view)
-    def wrapped_view(*args, **kwargs):
-        flask.g.user = model.User.find("user@localhost.com")
-        return view(*args, **kwargs)
-
     return wrapped_view
 
 
 def cross_domain(view):
+    """
+    Decorator enables requests from any domain
+    """
     @functools.wraps(view)
     def wrapped_view(*args, **kwargs):
         response = flask.make_response(view(*args, **kwargs))
@@ -48,12 +48,19 @@ def cross_domain(view):
     return wrapped_view
 
 
+# TO DO: This function looks quite ugly here.
+# Need a better place to put it.
 def decode_word(word):
     return word.replace("+", " ")
 
 
 @api.route("/adduser/<email>", methods=["POST"])
+@cross_domain
 def add_user(email):
+    """
+    Creates user, then redirects to the get_session
+    endpoint. Returns a session
+    """
     password = flask.request.form.get("password", None)
     if password is None:
         flask.abort(400)
@@ -70,6 +77,13 @@ def add_user(email):
 @api.route("/session/<email>", methods=["POST"])
 @cross_domain
 def get_session(email):
+    """
+    If the email and password match,
+    a new sessionId is created, and returned
+    as a string. This sessionId has to be passed
+    along all the other requests that are annotated
+    with @with_user in this file
+    """
     password = flask.request.form.get("password", None)
     if password is None:
         flask.abort(400)
@@ -84,14 +98,14 @@ def get_session(email):
 
 @api.route("/learned_language", methods=["GET"])
 @cross_domain
-@with_user
+@with_session
 def learned_language():
-    print "---->" + flask.g.user.preferred_language_id
     return flask.g.user.preferred_language_id
+
 
 @api.route("/contribs", methods=["GET"])
 @cross_domain
-@with_user
+@with_session
 def contributions():
     #at this moment it seems nice to exchange data in json format
     contributions = flask.g.user.contribs_chronologically()
@@ -111,7 +125,7 @@ def contributions():
 
 @api.route("/user_words", methods=["GET"])
 @cross_domain
-@with_user
+@with_session
 def studied_words():
     import json
     usr = flask.g.user
@@ -123,7 +137,7 @@ def studied_words():
 
 @api.route("/contribs_by_day", methods=["GET"])
 @cross_domain
-@with_user
+@with_session
 def contributions_by_day():
     usr = flask.g.user
     contribs_by_date, sorted_dates = usr.contribs_by_date()
@@ -151,7 +165,7 @@ def contributions_by_day():
 @api.route("/contribute/<from_lang_code>/<term>/<to_lang_code>/<translation>",
            methods=["POST"])
 @cross_domain
-@with_user
+@with_session
 def contribute(from_lang_code, term, to_lang_code, translation):
     from_lang = model.Language.find(from_lang_code)
     to_lang = model.Language.find(to_lang_code)
@@ -189,7 +203,7 @@ def translate_from_to (word, from_lang_code,to_lang_code):
 @api.route("/contribute_with_context/<from_lang_code>/<term>/<to_lang_code>/<translation>",
            methods=["POST"])
 @cross_domain
-@with_user
+@with_session
 def contribute_with_context(from_lang_code, term, to_lang_code, translation):
     if 'title' in flask.request.form:
         contributed_url_title = flask.request.form['title']
@@ -225,7 +239,7 @@ def contribute_with_context(from_lang_code, term, to_lang_code, translation):
 
 @api.route("/lookup/<from_lang>/<term>/<to_lang>", methods=("POST",))
 @cross_domain
-@with_user
+@with_session
 def lookup(from_lang, term, to_lang):
     from_lang = model.Language.find(from_lang)
     if not isinstance(to_lang, model.Language):
@@ -247,21 +261,21 @@ def lookup(from_lang, term, to_lang):
 
 @api.route("/lookup/<from_lang>/<term>", methods=("POST",))
 @cross_domain
-@with_user
+@with_session
 def lookup_preferred(from_lang, term):
     return lookup(from_lang, term, flask.g.user.preferred_language)
 
 
 @api.route("/validate")
 @cross_domain
-@with_user
+@with_session
 def validate():
     return "OK"
 
 
 @api.route("/get_page/<path:url>", methods=["GET"])
 @cross_domain
-@with_user
+@with_session
 def get_page(url):
 
     # url = flask.request.form['url']
@@ -273,3 +287,15 @@ def get_page(url):
     for line in page:
         content += line
     return content
+
+
+
+# Things that used to be here, but not sure why anymore
+# def with_user_test(view):
+#     @functools.wraps(view)
+#     def wrapped_view(*args, **kwargs):
+#         flask.g.user = model.User.find("user@localhost.com")
+#         return view(*args, **kwargs)
+#
+#     return wrapped_view
+#
