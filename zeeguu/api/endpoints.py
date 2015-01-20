@@ -197,6 +197,7 @@ def contribute(from_lang_code, term, to_lang_code, translation):
 
     return "OK"
 
+# Todo: why is this endpoint not requiring a session? 
 @api.route ("/goslate/<word>/<from_lang_code>", methods=["GET"])
 @cross_domain
 # @with_user
