@@ -38,9 +38,12 @@ class ZeeguuTestCase(unittest.TestCase):
         ))
         return rv.data
 
-    def in_session(self, url):
+    def in_session(self, url, other_args=[]):
         url_with_session = url + "?session=" + self.session
+        for each in other_args:
+            url_with_session += "&" + each
         return url_with_session
+
 
     def setUp(self):
         # zeeguu.app.config['TESTING'] = True

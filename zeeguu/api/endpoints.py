@@ -129,7 +129,7 @@ def contributions():
 @cross_domain
 @with_session
 def studied_words():
-    random_contrib
+    import json
     usr = flask.g.user
     js = json.dumps(usr.user_words())
     resp = flask.Response(js, status=200, mimetype='application/json')
@@ -141,21 +141,31 @@ def studied_words():
 @cross_domain
 @with_session
 def contributions_by_day():
-    usr = flask.g.user
-    contribs_by_date, sorted_dates = usr.contribs_by_date()
+    """
+    If the user passes with_context=true in the url
+    then the context is also returned
+    """
+    with_context = False
+    if 'context' in flask.request.args:
+        with_context = flask.request.args ['context'] == 'true'
+
+
+    contribs_by_date, sorted_dates = flask.g.user.contribs_by_date()
 
     dates = []
     for date in sorted_dates:
-        words = []
-        for contrib in contribs_by_date[date]:
-            word = {}
-            word['id'] = contrib.id
-            word['from'] = contrib.origin.word
-            word['to'] = contrib.translation.word
-            words.append(word)
+        contribs = []
+        for c in contribs_by_date[date]:
+            contrib = {}
+            contrib['id'] = c.id
+            contrib['from'] = c.origin.word
+            contrib['to'] = c.translation.word
+            if with_context:
+                contrib['context'] = c.text.content
+            contribs.append(contrib)
         date_entry = {}
         date_entry['date'] = date.strftime("%A, %d %B")
-        date_entry['contribs'] = words
+        date_entry['contribs'] = contribs
         dates.append(date_entry)
 
     import json

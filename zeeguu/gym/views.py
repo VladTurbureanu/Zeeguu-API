@@ -69,7 +69,6 @@ def login():
             else:
                 flask.session["user"] = user.id
                 flask.session.permanent = True
-                print "next page..." + str(flask.request.args.get("next"))
                 return flask.redirect(flask.request.args.get("next") or flask.url_for("gym.contributions"))
     return flask.render_template("login.html")
 

@@ -11,10 +11,6 @@ import json
 
 class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
-    def test_login(self):
-        rv = self.login('i@mir.lu', 'password')
-        assert 'words you are currently learning' in rv.data
-
     def test_logout(self):
         self.logout()
         rv = self.app.get('/recognize')
@@ -50,32 +46,40 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.app.get(self.in_session('/contribs'))
         assert "Wald" in rv.data
 
-    def test_get_contribs_by_day(self):
-        rv = self.app.get(self.in_session('/contribs_by_day'))
 
-        json_data = json.loads(rv.data)
-        assert json_data
+    def test_get_contributions_by_date(self):
+        rv = self.app.get(self.in_session('/contribs_by_day',['context=true']))
 
-        some_date = json_data[0]
+        elements = json.loads(rv.data)
+        some_date = elements[0]
         assert some_date ["date"]
 
         some_contrib = some_date ["contribs"][0]
-        assert some_contrib["to"]
-        assert some_contrib["from"]
-        assert some_contrib["id"]
+        for key in ["from", "to", "id", "context"]:
+            assert key in some_contrib
+
+        # if we don't pass the context argument, we don't get
+        # the context
+        rv = self.app.get(self.in_session('/contribs_by_day'))
+        elements = json.loads(rv.data)
+        some_date = elements[0]
+        some_contrib = some_date ["contribs"][0]
+        assert not "context" in some_contrib
+
+
 
 
 
     def test_password_hash(self):
         p1 = "test"
-        p2 = "password"
+        p2 = "pass"
         user = User.find("i@mir.lu")
 
         hash1 = util.password_hash(p1,user.password_salt)
         hash2 = util.password_hash(p2, user.password_salt)
         assert hash1 != hash2
 
-        assert user.authorize("i@mir.lu", "password") != None
+        assert user.authorize("i@mir.lu", "pass") != None
 
 
 if __name__ == '__main__':
