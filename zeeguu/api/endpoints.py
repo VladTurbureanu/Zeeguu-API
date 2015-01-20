@@ -143,7 +143,11 @@ def studied_words():
 def contributions_by_day():
     """
     If the user passes with_context=true in the url
-    then the context is also returned
+    then the context is also returned. For example:
+
+    https://www.zeeguu.unibe.ch/contribs_by_day?session=1467847111&context=true
+    vs.
+    https://www.zeeguu.unibe.ch/contribs_by_day?session=1467847111
     """
     with_context = False
     if 'context' in flask.request.args:
