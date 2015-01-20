@@ -1,4 +1,29 @@
 # -*- coding: utf8 -*-
+
+"""
+endpoints.py
+This file defines all the Zeeguu API endpoints.
+
+Each endpoint is defined by a function definition
+of the following form:
+
+    @api.route("/learned_language", methods=["GET"])
+    @cross_domain
+    @with_session
+    def learned_language():
+        " comment "
+        return flask.g.user.preferred_language_id
+
+The important information is in the annotations before
+the function
+ @api.route gives you the endpoint name
+     it is normally appended to the API_URL (https://www.zeeguu.unibe.ch/)
+
+ @with_session means that you must submit a session
+    argument together wit your API request
+    e.g. API_URL/learned_language?session=123141516
+
+"""
 import functools
 
 import flask
@@ -10,6 +35,8 @@ from zeeguu import model
 
 
 api = flask.Blueprint("api", __name__)
+
+
 
 def with_session(view):
     """
@@ -197,7 +224,7 @@ def contribute(from_lang_code, term, to_lang_code, translation):
 
     return "OK"
 
-# Todo: why is this endpoint not requiring a session? 
+# Todo: why is this endpoint not requiring a session?
 @api.route ("/goslate/<word>/<from_lang_code>", methods=["GET"])
 @cross_domain
 # @with_user
