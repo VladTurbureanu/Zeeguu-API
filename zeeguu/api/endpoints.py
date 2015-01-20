@@ -129,7 +129,7 @@ def contributions():
 @cross_domain
 @with_session
 def studied_words():
-    import json
+    random_contrib
     usr = flask.g.user
     js = json.dumps(usr.user_words())
     resp = flask.Response(js, status=200, mimetype='application/json')

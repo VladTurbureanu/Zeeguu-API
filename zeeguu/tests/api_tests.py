@@ -7,6 +7,7 @@ import zeeguu.populate
 import zeeguu.model
 from zeeguu.model import User
 from zeeguu import util
+import json
 
 class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
@@ -44,9 +45,26 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.app.post(self.in_session('/contribute_with_context/de/sondern/en/but'), data=formData)
         assert rv.data == "OK"
 
+
     def test_get_contribs(self):
         rv = self.app.get(self.in_session('/contribs'))
         assert "Wald" in rv.data
+
+    def test_get_contribs_by_day(self):
+        rv = self.app.get(self.in_session('/contribs_by_day'))
+
+        json_data = json.loads(rv.data)
+        assert json_data
+
+        some_date = json_data[0]
+        assert some_date ["date"]
+
+        some_contrib = some_date ["contribs"][0]
+        assert some_contrib["to"]
+        assert some_contrib["from"]
+        assert some_contrib["id"]
+
+
 
     def test_password_hash(self):
         p1 = "test"
