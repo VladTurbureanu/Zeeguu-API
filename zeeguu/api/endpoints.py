@@ -137,21 +137,18 @@ def studied_words():
 
 
 
-@api.route("/contribs_by_day", methods=["GET"])
+@api.route("/contribs_by_day/<return_context>", methods=["GET"])
 @cross_domain
 @with_session
-def contributions_by_day():
+def contributions_by_day(return_context):
     """
-    If the user passes with_context=true in the url
-    then the context is also returned. For example:
+    Returns the contributions of this user organized by date
+    If <return_context> is "with_context" it also returns the
+    text where the contribution was found. If <return_context>
+    is anything else, the context is not returned.
 
-    https://www.zeeguu.unibe.ch/contribs_by_day?session=1467847111&context=true
-    vs.
-    https://www.zeeguu.unibe.ch/contribs_by_day?session=1467847111
     """
-    with_context = False
-    if 'context' in flask.request.args:
-        with_context = flask.request.args ['context'] == 'true'
+    with_context = return_context == "with_context"
 
 
     contribs_by_date, sorted_dates = flask.g.user.contribs_by_date()

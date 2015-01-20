@@ -48,7 +48,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_get_contributions_by_date(self):
-        rv = self.app.get(self.in_session('/contribs_by_day',['context=true']))
+        rv = self.app.get(self.in_session('/contribs_by_day/with_context'))
 
         elements = json.loads(rv.data)
         some_date = elements[0]
@@ -60,7 +60,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         # if we don't pass the context argument, we don't get
         # the context
-        rv = self.app.get(self.in_session('/contribs_by_day'))
+        rv = self.app.get(self.in_session('/contribs_by_day/no_context'))
         elements = json.loads(rv.data)
         some_date = elements[0]
         some_contrib = some_date ["contribs"][0]
