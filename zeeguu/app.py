@@ -6,7 +6,7 @@ import flask
 
 import zeeguu
 import zeeguu.gym.views
-import zeeguu.api.views
+import zeeguu.api.endpoints
 import zeeguu.account.views
 
 
@@ -38,6 +38,6 @@ instance = flask.Blueprint("instance", __name__, static_folder=instance_path(app
 
 app.register_blueprint(instance)
 app.register_blueprint(zeeguu.gym.views.gym)
-app.register_blueprint(zeeguu.api.views.api)
+app.register_blueprint(zeeguu.api.endpoints.api)
 app.register_blueprint(zeeguu.account.views.account)
 
