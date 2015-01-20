@@ -4,24 +4,8 @@
 endpoints.py
 This file defines all the Zeeguu API endpoints.
 
-Each endpoint is defined by a function definition
-of the following form:
-
-    @api.route("/learned_language", methods=["GET"])
-    @cross_domain
-    @with_session
-    def learned_language():
-        " comment "
-        return flask.g.user.preferred_language_id
-
-The important information is in the annotations before
-the function
- @api.route gives you the endpoint name
-     it is normally appended to the API_URL (https://www.zeeguu.unibe.ch/)
-
- @with_session means that you must submit a session
-    argument together wit your API request
-    e.g. API_URL/learned_language?session=123141516
+For an example of endpoint definition, scroll down
+to the definition of the learned_language() function.
 
 """
 import functools
@@ -77,6 +61,30 @@ def cross_domain(view):
     return wrapped_view
 
 
+@api.route("/learned_language", methods=["GET"])
+@cross_domain
+@with_session
+def learned_language():
+    """
+    Each endpoint is defined by a function definition
+    of the same form as this one.
+
+    The important information for understanding the
+    endpoint is in the annotations before the function
+
+     @api.route gives you the endpoint name together
+        with the expectd HTTP method
+        it is normally appended to the API_URL (https://www.zeeguu.unibe.ch/)
+
+     @with_session means that you must submit a session
+        argument together wit your API request
+        e.g. API_URL/learned_language?session=123141516
+    """
+
+    return flask.g.user.preferred_language_id
+
+
+
 # TO DO: This function looks quite ugly here.
 # Need a better place to put it.
 def decode_word(word):
@@ -124,12 +132,6 @@ def get_session(email):
     zeeguu.db.session.commit()
     return str(session.id)
 
-
-@api.route("/learned_language", methods=["GET"])
-@cross_domain
-@with_session
-def learned_language():
-    return flask.g.user.preferred_language_id
 
 
 @api.route("/contribs", methods=["GET"])
