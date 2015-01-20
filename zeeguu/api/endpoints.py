@@ -37,7 +37,9 @@ def with_session(view):
 
 def cross_domain(view):
     """
-    Decorator enables requests from any domain
+    Decorator enables x-origin requests from any domain.
+
+    More about Cross-Origin Resource Sharing: http://www.w3.org/TR/cors/
     """
     @functools.wraps(view)
     def wrapped_view(*args, **kwargs):
@@ -147,6 +149,7 @@ def contributions_by_day():
         words = []
         for contrib in contribs_by_date[date]:
             word = {}
+            word['id'] = contrib.id
             word['from'] = contrib.origin.word
             word['to'] = contrib.translation.word
             words.append(word)
