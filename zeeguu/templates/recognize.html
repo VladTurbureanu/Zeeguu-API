@@ -17,7 +17,7 @@
 
         <select style="visibility: hidden" id="lang2" disabled >
             {% for language in languages %}
-                 <option value="{{ language.id }}" {% if g.user.preferred_language_id == language.id %} selected {% endif %} >
+                 <option value="{{ language.id }}" {% if g.user.learned_language_id == language.id %} selected {% endif %} >
                     {{ language.name }}
                 </option>
             {% endfor %}

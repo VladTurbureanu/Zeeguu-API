@@ -87,6 +87,12 @@ class Dbtest(ZeeguuTestCase):
         assert (count_contributions > 0)
 
 
+    def test_user_set_language(self):
+        mir = model.User.find("i@mir.lu")
+        print mir.learned_language
+        mir.set_learned_language("it")
+        print mir.learned_language
+
     # User Date No_ contributions
 
 

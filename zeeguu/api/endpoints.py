@@ -88,8 +88,20 @@ def learned_language():
         e.g. API_URL/learned_language?session=123141516
     """
 
-    return flask.g.user.preferred_language_id
+    return flask.g.user.learned_language_id
 
+
+@api.route("/learned_language/<language_code>", methods=["POST"])
+@cross_domain
+@with_session
+def learned_language_set(language_code):
+    """
+    Set the larned language
+    :param language_code: one of the ISO language codes
+    :return: "OK" for success
+    """
+    flask.g.user.set_learned_language(language_code)
+    return "OK"
 
 
 # TO DO: This function looks quite ugly here.
@@ -312,7 +324,7 @@ def lookup(from_lang, term, to_lang):
 @cross_domain
 @with_session
 def lookup_preferred(from_lang, term):
-    return lookup(from_lang, term, flask.g.user.preferred_language)
+    return lookup(from_lang, term, flask.g.user.learned_language)
 
 
 @api.route("/validate")

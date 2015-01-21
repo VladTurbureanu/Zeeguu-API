@@ -24,18 +24,18 @@ class User(db.Model):
     name = db.Column(db.String(255))
     password = db.Column(db.LargeBinary(255))
     password_salt = db.Column(db.LargeBinary(255))
-    preferred_language_id = db.Column(
+    learned_language_id = db.Column(
         db.String(2),
         db.ForeignKey("language.id")
     )
-    preferred_language = sqlalchemy.orm.relationship("Language")
+    learned_language = sqlalchemy.orm.relationship("Language")
     starred_words = relationship("Word", secondary="starred_words_association")
 
-    def __init__(self, email, name, password, preferred_language=None):
+    def __init__(self, email, name, password, learned_language=None):
         self.email = email
         self.name = name
         self.update_password(password)
-        self.preferred_language = preferred_language or Language.default()
+        self.learned_language = learned_language or Language.default()
 
     def __repr__(self):
         return '<User %r>' % (self.email)
@@ -53,6 +53,11 @@ class User(db.Model):
             return
         for word in text.words():
             self.impressions.append(Impression(self, word, text))
+
+    def set_learned_language(self, code):
+        self.learned_language = Language.find(code)
+
+
 
     @classmethod
     def find(cls, email):

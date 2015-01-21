@@ -47,6 +47,14 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert "Wald" in rv.data
 
 
+    def test_set_language(self):
+        rv = self.app.post(self.in_session('/learned_language/it'))
+        assert "OK" in rv.data
+
+    def test_get_language(self):
+        rv = self.app.get(self.in_session('/learned_language'))
+        print rv.data
+
     def test_get_contributions_by_date(self):
         rv = self.app.get(self.in_session('/contribs_by_day/with_context'))
 
