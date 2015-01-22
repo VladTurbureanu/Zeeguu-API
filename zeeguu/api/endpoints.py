@@ -229,6 +229,15 @@ def contributions_by_day(return_context):
 @cross_domain
 @with_session
 def contribute(from_lang_code, term, to_lang_code, translation):
+    """
+    Save the word/translation to the user's profile.
+    This is used in the case where the client does not have context info.
+    :param from_lang_code:
+    :param term:
+    :param to_lang_code:
+    :param translation:
+    :return:
+    """
     from_lang = model.Language.find(from_lang_code)
     to_lang = model.Language.find(to_lang_code)
 
@@ -266,6 +275,15 @@ def translate_from_to (word, from_lang_code,to_lang_code):
 @cross_domain
 @with_session
 def contribute_with_context(from_lang_code, term, to_lang_code, translation):
+    """
+    The preferred way of a user saving a word/translation/context to his
+    profile.
+    :param from_lang_code:
+    :param term:
+    :param to_lang_code:
+    :param translation:
+    :return:
+    """
     if 'title' in flask.request.form:
         contributed_url_title = flask.request.form['title']
     else:
@@ -302,6 +320,17 @@ def contribute_with_context(from_lang_code, term, to_lang_code, translation):
 @cross_domain
 @with_session
 def lookup(from_lang, term, to_lang):
+    """
+    Used to log a given search.
+    TODO: See what's the relation between this and goslate,
+     that is, /goslate should already log the search...
+     also, this requires both from and to_lang, but goslate does not. 
+
+    :param from_lang:
+    :param term:
+    :param to_lang:
+    :return:
+    """
     from_lang = model.Language.find(from_lang)
     if not isinstance(to_lang, model.Language):
         to_lang = model.Language.find(to_lang)
