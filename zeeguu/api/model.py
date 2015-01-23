@@ -241,13 +241,13 @@ class Word(db.Model, util.JSONSerializable):
 
     # returns a number between
     def importance_level(self):
-        return 10 - self.rank() / Word.IMPORTANCE_LEVEL_STEP
+        return max((10 - self.rank() / Word.IMPORTANCE_LEVEL_STEP), 0)
 
     # we use this in the contributions.html to show the rank.
     # for words in which there is no rank info, we don't display anything
     def importance_level_string(self):
         if self.rank() == Word.IMPOSSIBLE_RANK:
-            return "|||"
+            return ""
         b = "|"
         return b * self.importance_level()
 

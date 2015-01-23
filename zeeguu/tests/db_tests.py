@@ -93,6 +93,19 @@ class Dbtest(ZeeguuTestCase):
         mir.set_learned_language("it")
         print mir.learned_language
 
+    def test_importance_level(self):
+        deutsch = Language.find("de")
+        new_word = Word("beschloss ", deutsch)
+        mircea = User.find("i@mir.lu")
+
+        db.session.add(new_word)
+        db.session.commit()
+
+        beschloss = Word.find("unexistantablewordindeutsch", deutsch)
+        assert beschloss
+        assert beschloss.importance_level() == 0
+
+
     # User Date No_ contributions
 
 
