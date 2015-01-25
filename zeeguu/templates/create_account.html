@@ -40,6 +40,15 @@
         </div>
 
 
+        <div class="input-group" >
+            <label class="control-label">Your base language</label>
+                <select autofocus id="base_language" required name="base_language" class="form-control">
+                    {% for l in base_languages %}
+                        <option value="{{l.id}}">{{l.name}}</option>
+                    {% endfor %}
+                </select>
+        </div>
+
 
           {% if flashed_messages %}
           {% for message in flashed_messages %}
