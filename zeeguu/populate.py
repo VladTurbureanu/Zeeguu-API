@@ -75,17 +75,21 @@ def create_test_db():
     en = model.Language("en", "English")
     it = model.Language("it", "Italian")
     no = model.Language("no", "Norwegian")
-
-    user = model.User("i@mir.lu", "Mircea", "pass", de)
-    user2 = model.User("ada@localhost.com", "Ada", "password", fr)
-
-    zeeguu.db.session.add(user)
+    ro = model.Language("ro", "Romanian")
 
     zeeguu.db.session.add(en)
     zeeguu.db.session.add(fr)
     zeeguu.db.session.add(de)
     zeeguu.db.session.add(no)
     zeeguu.db.session.add(it)
+    zeeguu.db.session.commit()
+
+
+    user = model.User("i@mir.lu", "Mircea", "pass", de, ro)
+    user2 = model.User("i@ada.lu", "Ada", "pass", fr)
+
+    zeeguu.db.session.add(user)
+
 
     jan111 = datetime.date(2011,01,01)
     ian101 = datetime.date(2001,01,01)
