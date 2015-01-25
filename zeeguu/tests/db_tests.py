@@ -50,7 +50,6 @@ class Dbtest(ZeeguuTestCase):
     def test_user_words(self):
         mir = model.User.find("i@mir.lu")
         assert mir.user_words() == map((lambda x: x.origin.word), mir.all_contributions())
-        print mir.user_words()
 
 
 
@@ -89,9 +88,9 @@ class Dbtest(ZeeguuTestCase):
 
     def test_user_set_language(self):
         mir = model.User.find("i@mir.lu")
-        print mir.learned_language
         mir.set_learned_language("it")
-        print mir.learned_language
+        assert mir.learned_language.id == "it"
+
 
     def test_importance_level(self):
         deutsch = Language.find("de")
@@ -101,9 +100,17 @@ class Dbtest(ZeeguuTestCase):
         db.session.add(new_word)
         db.session.commit()
 
-        beschloss = Word.find("unexistantablewordindeutsch", deutsch)
+        beschloss = Word.find("unexistingword", deutsch)
         assert beschloss
         assert beschloss.importance_level() == 0
+
+
+    def test_base_language(self):
+        mir = model.User.find("i@mir.lu")
+        ada = model.User.find("i@ada.lu")
+        assert mir.base_language.id == "ro"
+        assert ada.base_language.id == "en"
+
 
 
     # User Date No_ contributions
