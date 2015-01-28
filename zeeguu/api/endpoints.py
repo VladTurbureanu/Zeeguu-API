@@ -101,6 +101,7 @@ def learned_language_set(language_code):
     :return: "OK" for success
     """
     flask.g.user.set_learned_language(language_code)
+    zeeguu.db.session.commit()
     return "OK"
 
 @api.route("/native_language", methods=["GET"])
@@ -123,6 +124,7 @@ def native_language_set(language_code):
     :return: OK for success
     """
     flask.g.user.set_native_language(language_code)
+    zeeguu.db.session.commit()
     return "OK"
 
 # TO DO: This function looks quite ugly here.

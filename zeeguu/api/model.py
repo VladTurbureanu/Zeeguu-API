@@ -64,13 +64,9 @@ class User(db.Model):
 
     def set_learned_language(self, code):
         self.learned_language = Language.find(code)
-        session = sqlalchemy.orm.object_session(self)
-        session.commit()
 
     def set_native_language(self, code):
         self.native_language = Language.find(code)
-        session = sqlalchemy.orm.object_session(self)
-        session.commit()
 
 
     @classmethod
