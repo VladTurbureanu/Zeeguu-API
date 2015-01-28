@@ -28,14 +28,21 @@ class User(db.Model):
         db.String(2),
         db.ForeignKey("language.id")
     )
-    learned_language = sqlalchemy.orm.relationship("Language")
+    learned_language = sqlalchemy.orm.relationship("Language", foreign_keys=[learned_language_id])
     starred_words = relationship("Word", secondary="starred_words_association")
 
-    def __init__(self, email, name, password, learned_language=None):
+    base_language_id = db.Column(
+        db.String (2),
+        db.ForeignKey("language.id")
+    )
+    base_language = sqlalchemy.orm.relationship("Language", foreign_keys=[base_language_id])
+
+    def __init__(self, email, name, password, learned_language=None, base_language = None):
         self.email = email
         self.name = name
         self.update_password(password)
         self.learned_language = learned_language or Language.default()
+        self.base_language = base_language or Language.default_base()
 
     def __repr__(self):
         return '<User %r>' % (self.email)
@@ -62,6 +69,8 @@ class User(db.Model):
 
 
 
+    def set_base_language(self, code):
+        self.base_language = Language.find(code)
 
 
     @classmethod
@@ -181,8 +190,16 @@ class Language(db.Model):
         return '<Language %r>' % (self.id)
 
     @classmethod
-    def default(cls):
+    def default_learned(cls):
         return cls.find("de")
+
+    @classmethod
+    def default_base(cls):
+        return cls.find("en")
+
+    @classmethod
+    def base_languages(cls):
+        return [cls.find("en"), cls.find("ro")]
 
     @classmethod
     def find(cls, id_):
