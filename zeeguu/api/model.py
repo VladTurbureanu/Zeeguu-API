@@ -198,6 +198,10 @@ class Language(db.Model):
         return [cls.find("en"), cls.find("ro")]
 
     @classmethod
+    def available_languages(cls):
+        return cls.all()
+
+    @classmethod
     def find(cls, id_):
         return cls.query.filter(Language.id == id_).one()
 

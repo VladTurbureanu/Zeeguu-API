@@ -57,6 +57,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert rv.data== "fr"
 
 
+    def test_available_languages(self):
+        rv = self.app.get(self.in_session('/available_languages'))
+        print rv.data
+
     def test_get_language(self):
         rv = self.app.get(self.in_session('/learned_language'))
         print rv.data

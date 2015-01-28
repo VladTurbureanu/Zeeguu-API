@@ -63,6 +63,7 @@ def cross_domain(view):
     return wrapped_view
 
 
+
 @api.route("/learned_language", methods=["GET"])
 @cross_domain
 @with_session
@@ -126,6 +127,19 @@ def native_language_set(language_code):
     flask.g.user.set_native_language(language_code)
     zeeguu.db.session.commit()
     return "OK"
+
+@api.route("/available_languages", methods=["GET"])
+@cross_domain
+@with_session
+def available_languages():
+    """
+    :return: jason with language codes for the
+    supported languages.
+    e.g. ["en", "fr", "de", "it", "no", "ro"]
+    """
+    available_language_codes = map((lambda x: x.id), (model.Language.available_languages()))
+    return json.dumps(available_language_codes)
+
 
 # TO DO: This function looks quite ugly here.
 # Need a better place to put it.
