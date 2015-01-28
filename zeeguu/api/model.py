@@ -55,7 +55,12 @@ class User(db.Model):
             self.impressions.append(Impression(self, word, text))
 
     def set_learned_language(self, code):
+        print "new learned language will be " + str(Language.find(code))
         self.learned_language = Language.find(code)
+        session = sqlalchemy.orm.object_session(self)
+        session.commit()
+
+
 
 
 

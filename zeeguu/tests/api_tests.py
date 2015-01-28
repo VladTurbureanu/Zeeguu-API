@@ -50,6 +50,9 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_set_language(self):
         rv = self.app.post(self.in_session('/learned_language/it'))
         assert "OK" in rv.data
+        rv = self.app.get(self.in_session('/learned_language'))
+        assert rv.data== "it"
+
 
     def test_get_language(self):
         rv = self.app.get(self.in_session('/learned_language'))
