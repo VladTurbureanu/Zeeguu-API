@@ -202,9 +202,8 @@ def contributions():
 
     words = []
     for contrib in contributions:
-        word = {}
-        word['from'] = contrib.origin.word
-        word['to'] = contrib.translation.word
+        word = {'from': contrib.origin.word,
+                'to': contrib.translation.word}
         words.append(word)
 
     js = json.dumps(words)
