@@ -96,13 +96,34 @@ def learned_language():
 @with_session
 def learned_language_set(language_code):
     """
-    Set the larned language
+    Set the learned language
     :param language_code: one of the ISO language codes
     :return: "OK" for success
     """
     flask.g.user.set_learned_language(language_code)
     return "OK"
 
+@api.route("/native_language", methods=["GET"])
+@cross_domain
+@with_session
+def native_language():
+    """
+    Get the native language of the user in session
+    :return:
+    """
+    return flask.g.user.native_language_id
+
+@api.route("/native_language/<language_code>", methods=["POST"])
+@cross_domain
+@with_session
+def native_language_set(language_code):
+    """
+    set the native language of the user in session
+    :param language_code:
+    :return: OK for success
+    """
+    flask.g.user.set_native_language(language_code)
+    return "OK"
 
 # TO DO: This function looks quite ugly here.
 # Need a better place to put it.

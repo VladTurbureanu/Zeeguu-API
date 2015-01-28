@@ -56,7 +56,7 @@ def create_account():
     if flask.request.method == "GET":
         return flask.render_template("create_account.html",
                                      languages=model.Language.all(),
-                                     base_languages = model.Language.base_languages(),
+                                     native_languages = model.Language.native_languages(),
                                      flashed_messages=flask.get_flashed_messages())
 
     form = flask.request.form
@@ -65,13 +65,13 @@ def create_account():
         email = form.get("email", None)
         name = form.get("name", None)
         language = model.Language.find(form.get("language", None))
-        base_language = model.Language.find(form.get("base_language", None))
+        native_language = model.Language.find(form.get("native_language", None))
 
         if password is None or email is None or name is None:
             flask.flash("Please enter your name, email address, and password")
         else:
             try:
-                zeeguu.db.session.add(model.User(email, name, password, language, base_language))
+                zeeguu.db.session.add(model.User(email, name, password, language, native_language))
                 zeeguu.db.session.commit()
             except ValueError:
                 flask.flash("The username could not be created. Please contact us.")

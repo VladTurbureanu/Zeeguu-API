@@ -31,18 +31,18 @@ class User(db.Model):
     learned_language = sqlalchemy.orm.relationship("Language", foreign_keys=[learned_language_id])
     starred_words = relationship("Word", secondary="starred_words_association")
 
-    base_language_id = db.Column(
+    native_language_id = db.Column(
         db.String (2),
         db.ForeignKey("language.id")
     )
-    base_language = sqlalchemy.orm.relationship("Language", foreign_keys=[base_language_id])
+    native_language = sqlalchemy.orm.relationship("Language", foreign_keys=[native_language_id])
 
-    def __init__(self, email, name, password, learned_language=None, base_language = None):
+    def __init__(self, email, name, password, learned_language=None, native_language = None):
         self.email = email
         self.name = name
         self.update_password(password)
         self.learned_language = learned_language or Language.default()
-        self.base_language = base_language or Language.default_base()
+        self.native_language = native_language or Language.default_native_language()
 
     def __repr__(self):
         return '<User %r>' % (self.email)
@@ -53,6 +53,7 @@ class User(db.Model):
     def star(self, word):
         self.starred_words.append(word)
         print word.word + " is now starred for user " + self.name
+        # TODO: Does this work without a commit here? To double check.
 
     def read(self, text):
         if (Impression.query.filter(Impression.user == self)
@@ -62,15 +63,14 @@ class User(db.Model):
             self.impressions.append(Impression(self, word, text))
 
     def set_learned_language(self, code):
-        print "new learned language will be " + str(Language.find(code))
         self.learned_language = Language.find(code)
         session = sqlalchemy.orm.object_session(self)
         session.commit()
 
-
-
-    def set_base_language(self, code):
-        self.base_language = Language.find(code)
+    def set_native_language(self, code):
+        self.native_language = Language.find(code)
+        session = sqlalchemy.orm.object_session(self)
+        session.commit()
 
 
     @classmethod
@@ -194,11 +194,11 @@ class Language(db.Model):
         return cls.find("de")
 
     @classmethod
-    def default_base(cls):
+    def default_native_language(cls):
         return cls.find("en")
 
     @classmethod
-    def base_languages(cls):
+    def native_languages(cls):
         return [cls.find("en"), cls.find("ro")]
 
     @classmethod

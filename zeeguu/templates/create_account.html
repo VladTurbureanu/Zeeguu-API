@@ -42,8 +42,8 @@
 
         <div class="input-group" >
             <label class="control-label">Your base language</label>
-                <select autofocus id="base_language" required name="base_language" class="form-control">
-                    {% for l in base_languages %}
+                <select autofocus id="native_language" required name="native_language" class="form-control">
+                    {% for l in native_languages %}
                         <option value="{{l.id}}">{{l.name}}</option>
                     {% endfor %}
                 </select>

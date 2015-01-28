@@ -105,11 +105,11 @@ class Dbtest(ZeeguuTestCase):
         assert beschloss.importance_level() == 0
 
 
-    def test_base_language(self):
+    def test_native_language(self):
         mir = model.User.find("i@mir.lu")
         ada = model.User.find("i@ada.lu")
-        assert mir.base_language.id == "ro"
-        assert ada.base_language.id == "en"
+        assert mir.native_language.id == "ro"
+        assert ada.native_language.id == "en"
 
 
 
