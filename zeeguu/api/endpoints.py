@@ -125,7 +125,11 @@ def learned_and_native_language():
     """
     res = {"learned": flask.g.user.native_language_id,
                  "native": flask.g.user.learned_language_id}
-    return json.dumps(res)
+
+    js = json.dumps(res)
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
+
 
 
 
