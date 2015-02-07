@@ -123,8 +123,8 @@ def learned_and_native_language():
     Get the native language of the user in session
     :return:
     """
-    res = {"learned": flask.g.user.native_language_id,
-                 "native": flask.g.user.learned_language_id}
+    res = {"native": flask.g.user.native_language_id,
+                 "learned": flask.g.user.learned_language_id}
 
     js = json.dumps(res)
     resp = flask.Response(js, status=200, mimetype='application/json')
