@@ -115,6 +115,18 @@ def native_language():
     """
     return flask.g.user.native_language_id
 
+@api.route("/learned_and_native_language", methods=["GET"])
+@cross_domain
+@with_session
+def learned_and_native_language():
+    """
+    Get the native language of the user in session
+    :return:
+    """
+    return flask.g.user.native_language_id+flask.g.user.learned_language_id
+
+
+
 @api.route("/native_language/<language_code>", methods=["POST"])
 @cross_domain
 @with_session

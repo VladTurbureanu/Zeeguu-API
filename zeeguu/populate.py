@@ -76,12 +76,15 @@ def create_test_db():
     it = model.Language("it", "Italian")
     no = model.Language("no", "Norwegian")
     ro = model.Language("ro", "Romanian")
+    es = model.Language("es", "Spanish")
 
     zeeguu.db.session.add(en)
     zeeguu.db.session.add(fr)
     zeeguu.db.session.add(de)
     zeeguu.db.session.add(no)
     zeeguu.db.session.add(it)
+    zeeguu.db.session.add(ro)
+    zeeguu.db.session.add(es)
     zeeguu.db.session.commit()
 
 
