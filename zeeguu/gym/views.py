@@ -370,7 +370,8 @@ def delete(contribution_id):
 
 @gym.route("/gym/test_answer/<answer>/<expected>/<question_id>", methods=["POST"])
 def submit_answer(answer, expected,question_id):
-    if answer.lower() == expected.lower():
+    if answer.lower() == expected.lower() \
+            or (answer+".").lower() == expected.lower():
         correct(question_id)
         return "CORRECT"
     else:
