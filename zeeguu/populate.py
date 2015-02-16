@@ -72,6 +72,7 @@ def create_test_db():
 
     fr = model.Language("fr", "French")
     de = model.Language("de", "German")
+    dk = model.Language("dk", "Danish")
     en = model.Language("en", "English")
     it = model.Language("it", "Italian")
     no = model.Language("no", "Norwegian")
@@ -81,6 +82,7 @@ def create_test_db():
     zeeguu.db.session.add(en)
     zeeguu.db.session.add(fr)
     zeeguu.db.session.add(de)
+    zeeguu.db.session.add(dk)
     zeeguu.db.session.add(no)
     zeeguu.db.session.add(it)
     zeeguu.db.session.add(ro)
