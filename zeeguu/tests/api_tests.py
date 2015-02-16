@@ -16,23 +16,21 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.app.get('/recognize')
         assert 'Redirecting' in rv.data
 
-    def test_contribute(self):
+    def test_contribute_from_android(self):
         formData = dict(
-            url='http://mir.lu',
-            context='Somewhere over the Rainbow',
-            title='Songs by Iz')
-        rv = self.app.post(self.in_session('/contribute_with_context/de/sondern/en/but'), data=formData)
+            url='android:app',
+            context='User uploaded sentence / user uploaded picture / pre-existing Context (e.g. Harry Potter Book)!',
+            title='Zeeguu for Android')
+        rv = self.app.post(self.in_session('/contribute_with_context/de/befurchten/en/fear'), data=formData)
         assert rv.data == "OK"
-        t = zeeguu.model.Url.find("http://mir.lu","Songs by Iz")
+        t = zeeguu.model.Url.find("android:app","Songs by Iz")
 
         assert t != None
 
-        rv = self.app.get('/contributions')
-        assert 'hauen' in rv.data
-        assert 'Songs by Iz' in rv.data
-        # This test guarantees that the capitalizatin of the contribution is
-        # saved as sent.
-        assert 'Somewhere over the Rainbow' in rv.data
+        rv = self.app.get(self.in_session('/contributions'))
+        assert 'befurchten' in rv.data
+        assert 'Zeeguu for Android' in rv.data
+
 
     def test_contribute_without_title_should_fail(self):
         formData = dict(

@@ -279,35 +279,6 @@ def contributions_by_day(return_context):
     return resp
 
 
-@api.route("/contribute/<from_lang_code>/<term>/<to_lang_code>/<translation>",
-           methods=["POST"])
-@cross_domain
-@with_session
-def contribute(from_lang_code, term, to_lang_code, translation):
-    """
-    Save the word/translation to the user's profile.
-    This is used in the case where the client does not have context info.
-    :param from_lang_code:
-    :param term:
-    :param to_lang_code:
-    :param translation:
-    :return:
-    """
-    from_lang = model.Language.find(from_lang_code)
-    to_lang = model.Language.find(to_lang_code)
-
-    word = model.Word.find(decode_word(term), from_lang)
-    translation = model.Word.find(decode_word(translation), to_lang)
-    search = model.Search.query.filter_by(
-        user=flask.g.user, word=word, language=to_lang
-    ).order_by(model.Search.id.desc()).first()
-    import datetime
-
-    search.contribution = model.Contribution(word, translation, flask.g.user, datetime.datetime.now())
-
-    zeeguu.db.session.commit()
-
-    return "OK"
 
 # Todo: why is this endpoint not requiring a session?
 @api.route ("/goslate/<word>/<from_lang_code>", methods=["GET"])
@@ -339,17 +310,21 @@ def contribute_with_context(from_lang_code, term, to_lang_code, translation):
     :param translation:
     :return:
     """
+
     if 'title' in flask.request.form:
         contributed_url_title = flask.request.form['title']
     else:
         contributed_url_title = ''
+
     contributed_url = flask.request.form['url']
     context = flask.request.form['context']
+
 
     url = model.Url.find(contributed_url, contributed_url_title)
 
     from_lang = model.Language.find(from_lang_code)
     to_lang = model.Language.find(to_lang_code)
+
 
     word = model.Word.find(decode_word(term), from_lang)
     translation = model.Word.find(decode_word(translation), to_lang)
