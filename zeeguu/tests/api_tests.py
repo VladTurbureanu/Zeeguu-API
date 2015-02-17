@@ -71,7 +71,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert some_date ["date"]
 
         some_contrib = some_date ["contribs"][0]
-        for key in ["from", "to", "id", "context"]:
+        for key in ["from", "to", "id", "context", "title", "url"]:
             assert key in some_contrib
 
         # if we don't pass the context argument, we don't get

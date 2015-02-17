@@ -266,6 +266,9 @@ def contributions_by_day(return_context):
             contrib['id'] = c.id
             contrib['from'] = c.origin.word
             contrib['to'] = c.translation.word
+            contrib['title'] = c.text.url.title
+            contrib['url'] = c.text.url.url
+
             if with_context:
                 contrib['context'] = c.text.content
             contribs.append(contrib)
