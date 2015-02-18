@@ -283,13 +283,13 @@ def contributions_by_day(return_context):
 
 
 
-# # THIS API HAS BEEN RETIRED
-# @api.route ("/goslate/<word>/<from_lang_code>", methods=["GET"])
-# @cross_domain
-# # @with_user
-# def translate (word, from_lang_code):
-#     gs = goslate.Goslate()
-#     return gs.translate(word, "en", from_lang_code)
+# THIS API WILL BE RETIRED
+@api.route ("/goslate/<word>/<from_lang_code>", methods=["GET"])
+@cross_domain
+# @with_user
+def translate (word, from_lang_code):
+    gs = goslate.Goslate()
+    return gs.translate(word, "en", from_lang_code)
 
 @api.route ("/translate_from_to/<word>/<from_lang_code>/<to_lang_code>", methods=["GET"])
 @cross_domain
