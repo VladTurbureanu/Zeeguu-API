@@ -283,20 +283,39 @@ def contributions_by_day(return_context):
 
 
 
-# Todo: why is this endpoint not requiring a session?
-@api.route ("/goslate/<word>/<from_lang_code>", methods=["GET"])
-@cross_domain
-# @with_user
-def translate (word, from_lang_code):
-    gs = goslate.Goslate()
-    return gs.translate(word, "en", from_lang_code)
+# # THIS API HAS BEEN RETIRED
+# @api.route ("/goslate/<word>/<from_lang_code>", methods=["GET"])
+# @cross_domain
+# # @with_user
+# def translate (word, from_lang_code):
+#     gs = goslate.Goslate()
+#     return gs.translate(word, "en", from_lang_code)
 
-@api.route ("/goslate_from_to/<word>/<from_lang_code>/<to_lang_code>", methods=["GET"])
+@api.route ("/translate_from_to/<word>/<from_lang_code>/<to_lang_code>", methods=["GET"])
 @cross_domain
 # @with_user
 def translate_from_to (word, from_lang_code,to_lang_code):
     gs = goslate.Goslate()
     return gs.translate(word, to_lang_code, from_lang_code)
+
+
+@api.route ("/translate_with_context/<word>/<from_lang_code>/<to_lang_code>", methods=["POST"])
+@cross_domain
+# @with_user
+def translate_from_to_with_context (word, from_lang_code,to_lang_code):
+    """
+    This assumes that you pass the context and url in the post parameter
+    :param word:
+    :param from_lang_code:
+    :param to_lang_code:
+    :return:
+    """
+    context = flask.request.form['context']
+    url = flask.request.form['url']
+    gs = goslate.Goslate()
+    return gs.translate(word, to_lang_code, from_lang_code)
+
+
 
 
 @api.route("/contribute_with_context/<from_lang_code>/<term>/<to_lang_code>/<translation>",
@@ -411,14 +430,3 @@ def get_page(url):
         content += line
     return content
 
-
-
-# Things that used to be here, but not sure why anymore
-# def with_user_test(view):
-#     @functools.wraps(view)
-#     def wrapped_view(*args, **kwargs):
-#         flask.g.user = model.User.find("user@localhost.com")
-#         return view(*args, **kwargs)
-#
-#     return wrapped_view
-#

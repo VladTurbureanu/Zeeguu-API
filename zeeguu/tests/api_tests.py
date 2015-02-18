@@ -83,6 +83,16 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert not "context" in some_contrib
 
 
+    def test_translate(self):
+        rv = self.app.get(self.in_session('/translate_from_to/frauen/de/en'))
+        assert rv.data == "women"
+
+        formData = dict(
+            url='http://mir.lu',
+            context='somewhere over the rainbowwwwwwwww')
+        rv = self.app.post(self.in_session('/translate_with_context/kinder/de/en'), data=formData)
+        assert rv.data == "children"
+
 
 
 
