@@ -4,8 +4,10 @@
 {% block body %}
 
 <!-- Macros Used on this Page -->
-{% macro member(name) -%}
+{% macro member(name, position) -%}
     <div class="member">{{ name }}</div>
+    <div class="member"><small>{{ position }}</small></div>
+    <br/>
 {%- endmacro %}
 <!-- Macros Used on this Page -->
 
@@ -22,16 +24,13 @@
                         More messages:
                         Zeeguu wants to watch your words
                         The web is your textbook
-                        Zeeguu: It takes care of your words
                     -->
-                    <h2 class="main-message">Zeeguu transforms the entire web into your textbook!</h2><br>
+                    <h2 class="main-message">We transform the web into your language playground!</h2><br>
 
                 <div class="main-description">
 
                     <p>
-                        Encountering <b>an unknown word</b> on the web in the language you
-                        are learning is an <b>opportunity</b>.<br/>
-                        <b>Take advantage</b> of it.
+                        Every <b>unknown word</b> is an <b>opportunity</b>.<br/>
                     </p>
 
                     <!--<p>-->
@@ -76,7 +75,7 @@
             <p>
                 The <b>online profile</b> with all the words that you are learning is available on all your devices.
                 You can rehearse your words when you are commuting by train, or even while waiting for your friend
-                who is late again.
+                who is late again... Ah, why isn't everybody swiss?
             </p>
         </div>
 
@@ -123,17 +122,17 @@
 
             <div class="team-members">
                 <h1>Current Team</h1>
-                {{ member("Mircea Lungu, Production") }}
-                {{ member("Ada Lungu, Web Design") }}
+                {{ member("Mircea Lungu", "Production") }}
+                {{ member("Ada Lungu", "UX and Web Design") }}
 
-                {{ member("Karan Sethi, Machine Learning") }}
-                {{ member("Pascal Giehl, Android and AR") }}
-                {{ member("Linus Schwab, Android") }}
+                {{ member("Karan Sethi", "Machine Learning") }}
+                {{ member("Pascal Giehl", "Android and AR") }}
+                {{ member("Linus Schwab", "Android") }}
 
-                {{ member("Anca Lungu, Linguistics") }}
+                {{ member("Anca Lungu", "Linguistics") }}
 
                 <h1>Alumni</h1>
-                {{ member("Simon Marti, Initial API and Chrome Extension") }}
+                {{ member("Simon Marti", "Initial API and Chrome Extension") }}
 
             </div>
 
