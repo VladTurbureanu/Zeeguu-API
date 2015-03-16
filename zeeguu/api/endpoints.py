@@ -368,6 +368,44 @@ def contribute_with_context(from_lang_code, term, to_lang_code, translation):
     return "OK"
 
 
+@api.route("/delete_contribution/<contribution_id>",
+           methods=["POST"])
+@cross_domain
+@with_session
+def delete_contribution(contribution_id):
+    contribution = model.Contribution.query.filter_by(
+        id=contribution_id
+    ).order_by(model.Contribution.id.desc()).first()
+    zeeguu.db.session.delete(contribution)
+    zeeguu.db.session.commit()
+    return "OK"
+
+@api.route("/create_new_event/<outcome_id>/<source_id>/<speed>/<contribution_id>",
+           methods=["POST"])
+@cross_domain
+@with_session
+
+def create_new_event(outcome_id,source_id,speed,contribution_id):
+    contribution = model.Contribution.query.filter_by(
+        id=contribution_id
+    ).order_by(model.Contribution.id.desc()).first()
+    new_source = model.EventSource.query.filter_by(
+        id=source_id
+    ).order_by(model.EventSource.id.desc()).first()
+    new_outcome=model.EventOutcome.query.filter_by(
+        id=outcome_id
+    ).order_by(model.EventOutcome.id.desc()).first()
+    new_outcome=new_outcome.outcome
+    new_source=new_source.source
+    import datetime
+    event = model.ContributionEvent(new_outcome,new_source,speed,datetime.datetime.now())
+    contribution.add_new_event(event)
+    zeeguu.db.session.add(event)
+    zeeguu.db.session.commit()
+
+    return "OK"
+
+
 @api.route("/lookup/<from_lang>/<term>/<to_lang>", methods=("POST",))
 @cross_domain
 @with_session

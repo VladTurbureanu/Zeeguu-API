@@ -39,6 +39,14 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.app.post(self.in_session('/contribute_with_context/de/sondern/en/but'), data=formData)
         assert rv.data == "OK"
 
+    def test_delete_contribution(self):
+        rv = self.app.post(self.in_session('/delete_contribution/1'))
+        assert rv.data =="OK"
+
+
+    def test_create_new_event(self):
+        rv = self.app.post(self.in_session('/create_new_event/3/2/10000/2'))
+        assert rv.data =="OK"
 
     def test_get_contribs(self):
         rv = self.app.get(self.in_session('/contribs'))

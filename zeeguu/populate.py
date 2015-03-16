@@ -89,6 +89,27 @@ def create_test_db():
     zeeguu.db.session.add(es)
     zeeguu.db.session.commit()
 
+    print "created the langages tabele"
+
+    not_know = model.EventOutcome("Do not know")
+    retry = model.EventOutcome("Retry")
+    correct = model.EventOutcome("Correct")
+    wrong = model.EventOutcome("Wrong")
+    typo = model.EventOutcome("Typo")
+
+    recognize = model.EventSource("Recognize")
+    translate = model.EventSource("Translate")
+
+    zeeguu.db.session.add(not_know)
+    zeeguu.db.session.add(retry)
+    zeeguu.db.session.add(correct)
+    zeeguu.db.session.add(wrong)
+    zeeguu.db.session.add(typo)
+
+    zeeguu.db.session.add(recognize)
+    zeeguu.db.session.add(translate)
+
+
 
     user = model.User("i@mir.lu", "Mircea", "pass", de, ro)
     user2 = model.User("i@ada.lu", "Ada", "pass", fr)
