@@ -19,6 +19,8 @@ insert into event_outcome (id, outcome) values (2, 'Retry');
 insert into event_outcome (id, outcome) values (3, 'Correct');
 insert into event_outcome (id, outcome) values (4, 'Wrong');
 insert into event_outcome (id, outcome) values (5, 'Typo');
+insert into event_outcome (id, outcome) values (6, 'I know');
+
 
 insert into event_source (id, source) values (1, 'Recognize');
 insert into event_source (id, source) values (2, 'Translate');

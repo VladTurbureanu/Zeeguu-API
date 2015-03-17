@@ -96,6 +96,7 @@ def create_test_db():
     correct = model.EventOutcome("Correct")
     wrong = model.EventOutcome("Wrong")
     typo = model.EventOutcome("Typo")
+    i_know = model.EventOutcome("I know")
 
     recognize = model.EventSource("Recognize")
     translate = model.EventSource("Translate")
@@ -105,6 +106,7 @@ def create_test_db():
     zeeguu.db.session.add(correct)
     zeeguu.db.session.add(wrong)
     zeeguu.db.session.add(typo)
+    zeeguu.db.session.add(i_know)
 
     zeeguu.db.session.add(recognize)
     zeeguu.db.session.add(translate)
