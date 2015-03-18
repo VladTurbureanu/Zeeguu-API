@@ -375,35 +375,56 @@ def contribute_with_context(from_lang_code, term, to_lang_code, translation):
 def delete_contribution(contribution_id):
     contribution = model.Contribution.query.filter_by(
         id=contribution_id
-    ).order_by(model.Contribution.id.desc()).first()
+    ).first()
     zeeguu.db.session.delete(contribution)
     zeeguu.db.session.commit()
     return "OK"
 
-@api.route("/create_new_event/<outcome_id>/<source_id>/<speed>/<contribution_id>",
+@api.route("/create_new_event/<event_outcome>/<event_source>/<speedMilliSec>/<contribution_id>",
            methods=["POST"])
 @cross_domain
 @with_session
-
-def create_new_event(outcome_id,source_id,speed,contribution_id):
+def create_new_event(event_outcome,event_source,speedMilliSec,contribution_id):
     contribution = model.Contribution.query.filter_by(
         id=contribution_id
-    ).order_by(model.Contribution.id.desc()).first()
+    ).first()
     new_source = model.EventSource.query.filter_by(
-        id=source_id
-    ).order_by(model.EventSource.id.desc()).first()
+        source=event_source
+    ).first()
     new_outcome=model.EventOutcome.query.filter_by(
-        id=outcome_id
-    ).order_by(model.EventOutcome.id.desc()).first()
-    new_outcome=new_outcome.outcome
-    new_source=new_source.source
+        outcome=event_outcome
+    ).first()
+    new_outcome=new_outcome
+    new_source=new_source
+    if new_source is None or new_outcome is None :
+         return "FAIL"
     import datetime
-    event = model.ContributionEvent(new_outcome,new_source,speed,datetime.datetime.now())
+    event = model.LearningEvent(new_outcome,new_source,speedMilliSec,datetime.datetime.now())
     contribution.add_new_event(event)
     zeeguu.db.session.add(event)
     zeeguu.db.session.commit()
-
     return "OK"
+
+@api.route("/get_events_contribution/<contribution_id>", methods=("GET",))
+@cross_domain
+@with_session
+def get_events_contribution(contribution_id):
+    contribution = model.Contribution.query.filter_by(
+        id=contribution_id
+    ).first()
+    events = {}
+    events_list = contribution.learning_events
+    for event in events_list:        # Second Example
+         events['id'] = event.id
+         events['outcome'] = event.outcome.outcome
+         events['source'] = event.source.source
+         events['speedMilliSec'] = event.speedMilliSec
+         events['time'] = event.time.strftime('%m/%d/%Y')
+    js = json.dumps(events)
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
+
+
 
 
 @api.route("/lookup/<from_lang>/<term>/<to_lang>", methods=("POST",))

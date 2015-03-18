@@ -45,8 +45,20 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_create_new_event(self):
-        rv = self.app.post(self.in_session('/create_new_event/3/2/10000/2'))
+        rv = self.app.post(self.in_session('/create_new_event/Correct/Recognize/10000/2'))
         assert rv.data =="OK"
+        rv = self.app.post(self.in_session('/create_new_event/Correct/Recogniz/10000/3'))
+        assert rv.data =="FAIL"
+
+    def test_get_events_contribution(self):
+       rv = self.app.get(self.in_session('/get_events_contribution/3'))
+       assert "Correct" not in rv.data
+       rv = self.app.post(self.in_session('/create_new_event/Correct/Recognize/10000/3'))
+       assert rv.data =="OK"
+       rv = self.app.get(self.in_session('/get_events_contribution/3'))
+       assert "Correct" in rv.data
+
+
 
     def test_get_contribs(self):
         rv = self.app.get(self.in_session('/contribs'))

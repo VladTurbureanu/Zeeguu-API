@@ -2,7 +2,7 @@
 import re
 import random
 import datetime
-from sqlalchemy import Column, Table, ForeignKey, Integer, MetaData
+from sqlalchemy import Column, Table, ForeignKey, Integer
 
 import sqlalchemy.orm.exc
 
@@ -10,8 +10,6 @@ from zeeguu import db
 from zeeguu import util
 import zeeguu
 from sqlalchemy.orm import relationship
-
-meta = MetaData()
 
 starred_words_association_table = Table('starred_words_association', db.Model.metadata,
     Column('user_id', Integer, ForeignKey('user.id')),
@@ -339,7 +337,7 @@ class Contribution(db.Model):
 
     time = db.Column(db.DateTime)
 
-    learning_history_words = relationship("ContributionEvent", secondary="contribution_event_exercise_learning")
+    learning_events = relationship("LearningEvent", secondary="contribution_learning_event_mapping")
 
     def __init__(self, origin, translation, user, text, time):
         self.origin = origin
@@ -349,28 +347,29 @@ class Contribution(db.Model):
         self.text = text
 
     def add_new_event(self, event):
-        self.learning_history_words.append(event)
+        self.learning_events.append(event)
 
-class ContributionEvent(db.Model):
-    __tablename__ = 'contribution_event'
-
+class LearningEvent(db.Model):
+    __tablename__ = 'learning_event'
     id = db.Column(db.Integer, primary_key=True)
-    outcome= db.Column(db.String(255), ForeignKey('event_outcome.outcome'), nullable=False)
-    source=db.Column(db.String(255), ForeignKey('event_source.source'), nullable=False)
+    event_outcome_id=db.Column(db.Integer,db.ForeignKey('event_outcome.id'),nullable=False)
+    event_outcome = db.relationship ("EventOutcome", backref="learning_event")
+    event_source_id=db.Column(db.Integer,db.ForeignKey('event_source.id'), nullable=False)
+    event_source = db.relationship ("EventSource", backref="learning_event")
     speedMilliSec=db.Column(db.Integer)
-    time=db.Column(db.DateTime, nullable = False)
+    time=db.Column(db.DateTime, nullable=False)
 
-    def __init__(self,outcome,source,speedMilliSec,time):
-        self.outcome = outcome
-        self.source = source
+    def __init__(self,event_outcome,event_source,speedMilliSec,time):
+        self.event_outcome = event_outcome
+        self.event_source = event_source
         self.speedMilliSec = speedMilliSec
         self.time = time
+
 
 class EventOutcome(db.Model):
     __tablename__ = 'event_outcome'
     id = db.Column(db.Integer, primary_key=True)
-    outcome=db.Column(db.String(255),nullable=False, unique=True)
-    events = relationship("ContributionEvent", backref="event_outcome")
+    outcome=db.Column(db.String(255),nullable=False)
 
     def __init__(self,outcome):
         self.outcome = outcome
@@ -379,16 +378,15 @@ class EventOutcome(db.Model):
 class EventSource(db.Model):
     __tablename__ = 'event_source'
     id = db.Column(db.Integer, primary_key=True)
-    source=db.Column(db.String(255), nullable=False, unique=True)
-    events = relationship("ContributionEvent", backref="event_source")
+    source=db.Column(db.String(255), nullable=False)
 
     def __init__(self,source):
         self.source = source
 
 
-contribution_event_exercise_learning = Table('contribution_event_exercise_learning', db.Model.metadata,
+contribution_learning_event_mapping = Table('contribution_learning_event_mapping', db.Model.metadata,
     Column('contribution_id', Integer, ForeignKey('contribution.id')),
-    Column('contribution_event_id', Integer, ForeignKey('contribution_event.id'))
+    Column('learning_event_id', Integer, ForeignKey('learning_event.id'))
 )
 
 
