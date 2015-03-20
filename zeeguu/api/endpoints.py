@@ -17,6 +17,7 @@ import urllib
 import zeeguu
 import json
 import goslate
+import datetime
 from zeeguu import model
 
 
@@ -356,7 +357,6 @@ def contribute_with_context(from_lang_code, term, to_lang_code, translation):
 
     #create the text entity first
     new_text = model.Text(context, from_lang, url)
-    import datetime
 
     if search:
         search.contribution = model.Contribution(word, translation, flask.g.user, new_text, datetime.datetime.now())
@@ -380,47 +380,44 @@ def delete_contribution(contribution_id):
     zeeguu.db.session.commit()
     return "OK"
 
-@api.route("/create_new_event/<event_outcome>/<event_source>/<speedMilliSec>/<contribution_id>",
+@api.route("/create_new_exercise/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<contribution_id>",
            methods=["POST"])
 @cross_domain
 @with_session
-def create_new_event(event_outcome,event_source,speedMilliSec,contribution_id):
+def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,contribution_id):
     contribution = model.Contribution.query.filter_by(
         id=contribution_id
     ).first()
-    new_source = model.EventSource.query.filter_by(
-        source=event_source
+    new_source = model.ExerciseSource.query.filter_by(
+        source=exercise_source
     ).first()
-    new_outcome=model.EventOutcome.query.filter_by(
-        outcome=event_outcome
+    new_outcome=model.ExerciseOutcome.query.filter_by(
+        outcome=exercise_outcome
     ).first()
-    new_outcome=new_outcome
-    new_source=new_source
     if new_source is None or new_outcome is None :
          return "FAIL"
-    import datetime
-    event = model.LearningEvent(new_outcome,new_source,speedMilliSec,datetime.datetime.now())
-    contribution.add_new_event(event)
-    zeeguu.db.session.add(event)
+    exercise = model.Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
+    contribution.add_new_exercise(exercise)
+    zeeguu.db.session.add(exercise)
     zeeguu.db.session.commit()
     return "OK"
 
-@api.route("/get_events_contribution/<contribution_id>", methods=("GET",))
+@api.route("/get_exercise_history_for_contribution/<contribution_id>", methods=("GET",))
 @cross_domain
 @with_session
-def get_events_contribution(contribution_id):
+def get_exercise_history_for_contribution(contribution_id):
     contribution = model.Contribution.query.filter_by(
         id=contribution_id
     ).first()
-    events = {}
-    events_list = contribution.learning_events
-    for event in events_list:        # Second Example
-         events['id'] = event.id
-         events['outcome'] = event.outcome.outcome
-         events['source'] = event.source.source
-         events['speedMilliSec'] = event.speedMilliSec
-         events['time'] = event.time.strftime('%m/%d/%Y')
-    js = json.dumps(events)
+    exercise_dict = {}
+    exercise_list = contribution.exercise_history
+    for exercise in exercise_list:
+         exercise_dict['id'] = exercise.id
+         exercise_dict['outcome'] = exercise.exercise_outcome.outcome
+         exercise_dict['source'] = exercise.exercise_source.source
+         exercise_dict['exercise_solving_speed'] = exercise.exercise_solving_speed
+         exercise_dict['time'] = exercise.time.strftime('%m/%d/%Y')
+    js = json.dumps(exercise_dict)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 

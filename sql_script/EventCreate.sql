@@ -1,45 +1,45 @@
-DROP TABLE IF EXISTS contribution_learning_event_mapping,learning_event,event_source,event_outcome;
+DROP TABLE IF EXISTS contribution_exercise_mapping,exercise,exercise_source,exercise_outcome;
 
-CREATE TABLE event_outcome
+CREATE TABLE exercise_outcome
 (
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 outcome varchar(255) NOT NULL
 );
 
-CREATE TABLE event_source
+CREATE TABLE exercise_source
 (
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 source varchar(255) NOT NULL
 );
 
-insert into event_outcome (id, outcome) values (1, 'Do not know');
-insert into event_outcome (id, outcome) values (2, 'Retry');
-insert into event_outcome (id, outcome) values (3, 'Correct');
-insert into event_outcome (id, outcome) values (4, 'Wrong');
-insert into event_outcome (id, outcome) values (5, 'Typo');
-insert into event_outcome (id, outcome) values (6, 'I know');
+insert into exercise_outcome (id, outcome) values (1, 'Do not know');
+insert into exercise_outcome (id, outcome) values (2, 'Retry');
+insert into exercise_outcome (id, outcome) values (3, 'Correct');
+insert into exercise_outcome (id, outcome) values (4, 'Wrong');
+insert into exercise_outcome (id, outcome) values (5, 'Typo');
+insert into exercise_outcome (id, outcome) values (6, 'I know');
 
 
-insert into event_source (id, source) values (1, 'Recognize');
-insert into event_source (id, source) values (2, 'Translate');
+insert into exercise_source (id, source) values (1, 'Recognize');
+insert into exercise_source (id, source) values (2, 'Translate');
 
-CREATE TABLE learning_event
+CREATE TABLE exercise
 (
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-event_source_id INT NOT NULL,
-event_outcome_id INT NOT NULL,
-FOREIGN KEY (event_outcome_id) REFERENCES EVENT_OUTCOME(id),
-FOREIGN KEY (event_source_id) REFERENCES EVENT_SOURCE(id),
-speedMilliSec INT,
+exercise_source_id INT NOT NULL,
+exercise_outcome_id INT NOT NULL,
+FOREIGN KEY (exercise_outcome_id) REFERENCES EXERCISE_OUTCOME(id),
+FOREIGN KEY (exercise_source_id) REFERENCES EXERCISE_SOURCE(id),
+exercise_solving_speed INT,
 time DATETIME NOT NULL
 );
 
 
-CREATE TABLE contribution_learning_event_mapping
+CREATE TABLE contribution_exercise_mapping
 (
-learning_event_id INT NOT NULL,
+exercise_id INT NOT NULL,
 contribution_id INT NOT NULL,
-FOREIGN KEY (learning_event_id) REFERENCES LEARNING_EVENT(id),
+FOREIGN KEY (exercise_id) REFERENCES EXERCISE(id),
 FOREIGN KEY (contribution_id) REFERENCES CONTRIBUTION(id)
 );
 

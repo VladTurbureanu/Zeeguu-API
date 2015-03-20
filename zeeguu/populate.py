@@ -91,15 +91,15 @@ def create_test_db():
 
     print "created the langages tabele"
 
-    not_know = model.EventOutcome("Do not know")
-    retry = model.EventOutcome("Retry")
-    correct = model.EventOutcome("Correct")
-    wrong = model.EventOutcome("Wrong")
-    typo = model.EventOutcome("Typo")
-    i_know = model.EventOutcome("I know")
+    not_know = model.ExerciseOutcome("Do not know")
+    retry = model.ExerciseOutcome("Retry")
+    correct = model.ExerciseOutcome("Correct")
+    wrong = model.ExerciseOutcome("Wrong")
+    typo = model.ExerciseOutcome("Typo")
+    i_know = model.ExerciseOutcome("I know")
 
-    recognize = model.EventSource("Recognize")
-    translate = model.EventSource("Translate")
+    recognize = model.ExerciseSource("Recognize")
+    translate = model.ExerciseSource("Translate")
 
     zeeguu.db.session.add(not_know)
     zeeguu.db.session.add(retry)

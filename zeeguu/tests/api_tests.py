@@ -40,22 +40,30 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert rv.data == "OK"
 
     def test_delete_contribution(self):
-        rv = self.app.post(self.in_session('/delete_contribution/1'))
-        assert rv.data =="OK"
+        rv = self.app.get(self.in_session('/contribs_by_day/with_context'))
+        elements_before = json.loads(rv.data)
+        contrib_dict_before = elements_before[0]['contribs'] [0] ['id']
+        assert contrib_dict_before is not None
+        rv = self.app.post(self.in_session('/delete_contribution/'+ str(contrib_dict_before)))
+        assert rv.data == "OK"
+        rv = self.app.get(self.in_session('/contribs_by_day/with_context'))
+        elements_after = json.loads(rv.data)
+        contrib_dict_after = elements_after[0]['contribs'] [0] ['id']
+        assert contrib_dict_before != contrib_dict_after
 
 
-    def test_create_new_event(self):
-        rv = self.app.post(self.in_session('/create_new_event/Correct/Recognize/10000/2'))
+    def test_create_new_exercise(self):
+        rv = self.app.post(self.in_session('/create_new_exercise/Correct/Recognize/10000/2'))
         assert rv.data =="OK"
-        rv = self.app.post(self.in_session('/create_new_event/Correct/Recogniz/10000/3'))
+        rv = self.app.post(self.in_session('/create_new_exercise/Correct/Recogniz/10000/3'))
         assert rv.data =="FAIL"
 
-    def test_get_events_contribution(self):
-       rv = self.app.get(self.in_session('/get_events_contribution/3'))
+    def test_get_exercise_history_for_contribution(self):
+       rv = self.app.get(self.in_session('/get_exercise_history_for_contribution/3'))
        assert "Correct" not in rv.data
-       rv = self.app.post(self.in_session('/create_new_event/Correct/Recognize/10000/3'))
+       rv = self.app.post(self.in_session('/create_new_exercise/Correct/Recognize/10000/3'))
        assert rv.data =="OK"
-       rv = self.app.get(self.in_session('/get_events_contribution/3'))
+       rv = self.app.get(self.in_session('/get_exercise_history_for_contribution/3'))
        assert "Correct" in rv.data
 
 

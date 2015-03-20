@@ -337,7 +337,7 @@ class Contribution(db.Model):
 
     time = db.Column(db.DateTime)
 
-    learning_events = relationship("LearningEvent", secondary="contribution_learning_event_mapping")
+    exercise_history = relationship("Exercise", secondary="contribution_exercise_mapping")
 
     def __init__(self, origin, translation, user, text, time):
         self.origin = origin
@@ -346,28 +346,29 @@ class Contribution(db.Model):
         self.time = time
         self.text = text
 
-    def add_new_event(self, event):
-        self.learning_events.append(event)
+    def add_new_exercise(self, exercise):
+        self.exercise_history.append(exercise)
 
-class LearningEvent(db.Model):
-    __tablename__ = 'learning_event'
+
+class Exercise(db.Model):
+    __tablename__ = 'exercise'
     id = db.Column(db.Integer, primary_key=True)
-    event_outcome_id=db.Column(db.Integer,db.ForeignKey('event_outcome.id'),nullable=False)
-    event_outcome = db.relationship ("EventOutcome", backref="learning_event")
-    event_source_id=db.Column(db.Integer,db.ForeignKey('event_source.id'), nullable=False)
-    event_source = db.relationship ("EventSource", backref="learning_event")
-    speedMilliSec=db.Column(db.Integer)
+    exercise_outcome_id=db.Column(db.Integer,db.ForeignKey('exercise_outcome.id'),nullable=False)
+    exercise_outcome = db.relationship ("ExerciseOutcome", backref="exercise")
+    exercise_source_id=db.Column(db.Integer,db.ForeignKey('exercise_source.id'), nullable=False)
+    exercise_source = db.relationship ("ExerciseSource", backref="exercise")
+    exercise_solving_speed=db.Column(db.Integer)
     time=db.Column(db.DateTime, nullable=False)
 
-    def __init__(self,event_outcome,event_source,speedMilliSec,time):
-        self.event_outcome = event_outcome
-        self.event_source = event_source
-        self.speedMilliSec = speedMilliSec
+    def __init__(self,exercise_outcome,exercise_source,exercise_solving_speed,time):
+        self.exercise_outcome = exercise_outcome
+        self.exercise_source = exercise_source
+        self.exercise_solving_speed = exercise_solving_speed
         self.time = time
 
 
-class EventOutcome(db.Model):
-    __tablename__ = 'event_outcome'
+class ExerciseOutcome(db.Model):
+    __tablename__ = 'exercise_outcome'
     id = db.Column(db.Integer, primary_key=True)
     outcome=db.Column(db.String(255),nullable=False)
 
@@ -375,8 +376,8 @@ class EventOutcome(db.Model):
         self.outcome = outcome
 
 
-class EventSource(db.Model):
-    __tablename__ = 'event_source'
+class ExerciseSource(db.Model):
+    __tablename__ = 'exercise_source'
     id = db.Column(db.Integer, primary_key=True)
     source=db.Column(db.String(255), nullable=False)
 
@@ -384,9 +385,9 @@ class EventSource(db.Model):
         self.source = source
 
 
-contribution_learning_event_mapping = Table('contribution_learning_event_mapping', db.Model.metadata,
+contribution_exercise_mapping = Table('contribution_exercise_mapping', db.Model.metadata,
     Column('contribution_id', Integer, ForeignKey('contribution.id')),
-    Column('learning_event_id', Integer, ForeignKey('learning_event.id'))
+    Column('exercise_id', Integer, ForeignKey('exercise.id'))
 )
 
 
