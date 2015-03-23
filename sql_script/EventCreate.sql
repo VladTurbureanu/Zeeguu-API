@@ -26,11 +26,11 @@ insert into exercise_source (id, source) values (2, 'Translate');
 CREATE TABLE exercise
 (
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-exercise_source_id INT NOT NULL,
-exercise_outcome_id INT NOT NULL,
-FOREIGN KEY (exercise_outcome_id) REFERENCES EXERCISE_OUTCOME(id),
-FOREIGN KEY (exercise_source_id) REFERENCES EXERCISE_SOURCE(id),
-exercise_solving_speed INT,
+source_id INT NOT NULL,
+outcome_id INT NOT NULL,
+FOREIGN KEY (outcome_id) REFERENCES EXERCISE_OUTCOME(id),
+FOREIGN KEY (source_id) REFERENCES EXERCISE_SOURCE(id),
+solving_speed INT,
 time DATETIME NOT NULL
 );
 

@@ -41,16 +41,17 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_delete_contribution(self):
         rv = self.app.get(self.in_session('/contribs_by_day/with_context'))
-        elements_before = json.loads(rv.data)
-        contrib_dict_before = elements_before[0]['contribs'] [0] ['id']
-        assert contrib_dict_before is not None
-        rv = self.app.post(self.in_session('/delete_contribution/'+ str(contrib_dict_before)))
+        contribs_by_day_dict_before_delete = json.loads(rv.data)
+        contribs_on_first_date_before_delete = contribs_by_day_dict_before_delete[0]['contribs']
+        first_contrib_on_first_date_id = contribs_on_first_date_before_delete [0] ['id']
+        assert any(id['id'] == first_contrib_on_first_date_id for id in contribs_on_first_date_before_delete)
+        assert first_contrib_on_first_date_id is not None
+        rv = self.app.post(self.in_session('/delete_contribution/'+ str(first_contrib_on_first_date_id)))
         assert rv.data == "OK"
         rv = self.app.get(self.in_session('/contribs_by_day/with_context'))
-        elements_after = json.loads(rv.data)
-        contrib_dict_after = elements_after[0]['contribs'] [0] ['id']
-        assert contrib_dict_before != contrib_dict_after
-
+        contribs_by_day_dict_after_delete = json.loads(rv.data)
+        contribs_on_first_date_after_delete = contribs_by_day_dict_after_delete[0]['contribs']
+        assert not any(id['id'] == first_contrib_on_first_date_id for id in contribs_on_first_date_after_delete)
 
     def test_create_new_exercise(self):
         rv = self.app.post(self.in_session('/create_new_exercise/Correct/Recognize/10000/2'))
@@ -63,9 +64,11 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
        assert "Correct" not in rv.data
        rv = self.app.post(self.in_session('/create_new_exercise/Correct/Recognize/10000/3'))
        assert rv.data =="OK"
+       rv = self.app.post(self.in_session('/create_new_exercise/Typo/Translate/10000/3'))
+       assert rv.data =="OK"
        rv = self.app.get(self.in_session('/get_exercise_history_for_contribution/3'))
        assert "Correct" in rv.data
-
+       assert "Translate" in rv.data
 
 
     def test_get_contribs(self):

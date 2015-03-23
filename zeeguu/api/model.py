@@ -353,17 +353,17 @@ class Contribution(db.Model):
 class Exercise(db.Model):
     __tablename__ = 'exercise'
     id = db.Column(db.Integer, primary_key=True)
-    exercise_outcome_id=db.Column(db.Integer,db.ForeignKey('exercise_outcome.id'),nullable=False)
-    exercise_outcome = db.relationship ("ExerciseOutcome", backref="exercise")
-    exercise_source_id=db.Column(db.Integer,db.ForeignKey('exercise_source.id'), nullable=False)
-    exercise_source = db.relationship ("ExerciseSource", backref="exercise")
-    exercise_solving_speed=db.Column(db.Integer)
+    outcome_id=db.Column(db.Integer,db.ForeignKey('exercise_outcome.id'),nullable=False)
+    outcome = db.relationship ("ExerciseOutcome", backref="exercise")
+    source_id=db.Column(db.Integer,db.ForeignKey('exercise_source.id'), nullable=False)
+    source = db.relationship ("ExerciseSource", backref="exercise")
+    solving_speed=db.Column(db.Integer)
     time=db.Column(db.DateTime, nullable=False)
 
-    def __init__(self,exercise_outcome,exercise_source,exercise_solving_speed,time):
-        self.exercise_outcome = exercise_outcome
-        self.exercise_source = exercise_source
-        self.exercise_solving_speed = exercise_solving_speed
+    def __init__(self,outcome,source,solving_speed,time):
+        self.outcome = outcome
+        self.source = source
+        self.solving_speed = solving_speed
         self.time = time
 
 

@@ -410,14 +410,16 @@ def get_exercise_history_for_contribution(contribution_id):
         id=contribution_id
     ).first()
     exercise_dict = {}
+    exercise_dict_list = []
     exercise_list = contribution.exercise_history
     for exercise in exercise_list:
          exercise_dict['id'] = exercise.id
-         exercise_dict['outcome'] = exercise.exercise_outcome.outcome
-         exercise_dict['source'] = exercise.exercise_source.source
-         exercise_dict['exercise_solving_speed'] = exercise.exercise_solving_speed
+         exercise_dict['outcome'] = exercise.outcome.outcome
+         exercise_dict['source'] = exercise.source.source
+         exercise_dict['exercise_solving_speed'] = exercise.solving_speed
          exercise_dict['time'] = exercise.time.strftime('%m/%d/%Y')
-    js = json.dumps(exercise_dict)
+         exercise_dict_list.append(exercise_dict.copy())
+    js = json.dumps(exercise_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
