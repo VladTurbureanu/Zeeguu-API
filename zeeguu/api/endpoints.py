@@ -409,10 +409,10 @@ def get_exercise_history_for_contribution(contribution_id):
     contribution = model.Contribution.query.filter_by(
         id=contribution_id
     ).first()
-    exercise_dict = {}
     exercise_dict_list = []
     exercise_list = contribution.exercise_history
     for exercise in exercise_list:
+         exercise_dict = {}
          exercise_dict['id'] = exercise.id
          exercise_dict['outcome'] = exercise.outcome.outcome
          exercise_dict['source'] = exercise.source.source

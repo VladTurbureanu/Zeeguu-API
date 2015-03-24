@@ -50,3 +50,9 @@ class ZeeguuTestCase(unittest.TestCase):
         self.app = zeeguu.app.test_client()
         zeeguu.populate.create_test_db()
         self.session = self.get_session()
+
+    def api_get(self, test_data, formdata='None'):
+        return self.app.get(self.in_session(test_data), data = formdata)
+
+    def api_post(self, test_data, formdata='None'):
+        return self.app.post(self.in_session(test_data), data = formdata)
