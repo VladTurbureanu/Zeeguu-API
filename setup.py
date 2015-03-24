@@ -17,5 +17,5 @@ setuptools.setup(
     dependency_links=('http://github.com/zacharyvoase/cssmin/'
                       'tarball/master#egg=cssmin-0.1.4',),
     install_requires=("flask", "Flask-SQLAlchemy", "Flask-Assets",
-                      "cssmin", "jsmin", "flask-wtf", "goslate")
+                      "cssmin", "jsmin", "flask-wtf", "goslate", "MySQL-python")
 )

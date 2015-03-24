@@ -11,11 +11,11 @@ from zeeguu import util
 import zeeguu
 from sqlalchemy.orm import relationship
 
-
 starred_words_association_table = Table('starred_words_association', db.Model.metadata,
     Column('user_id', Integer, ForeignKey('user.id')),
     Column('starred_word_id', Integer, ForeignKey('word.id'))
 )
+
 
 
 class User(db.Model):
@@ -337,12 +337,58 @@ class Contribution(db.Model):
 
     time = db.Column(db.DateTime)
 
+    exercise_history = relationship("Exercise", secondary="contribution_exercise_mapping")
+
     def __init__(self, origin, translation, user, text, time):
         self.origin = origin
         self.translation = translation
         self.user = user
         self.time = time
         self.text = text
+
+    def add_new_exercise(self, exercise):
+        self.exercise_history.append(exercise)
+
+
+class Exercise(db.Model):
+    __tablename__ = 'exercise'
+    id = db.Column(db.Integer, primary_key=True)
+    outcome_id=db.Column(db.Integer,db.ForeignKey('exercise_outcome.id'),nullable=False)
+    outcome = db.relationship ("ExerciseOutcome", backref="exercise")
+    source_id=db.Column(db.Integer,db.ForeignKey('exercise_source.id'), nullable=False)
+    source = db.relationship ("ExerciseSource", backref="exercise")
+    solving_speed=db.Column(db.Integer)
+    time=db.Column(db.DateTime, nullable=False)
+
+    def __init__(self,outcome,source,solving_speed,time):
+        self.outcome = outcome
+        self.source = source
+        self.solving_speed = solving_speed
+        self.time = time
+
+
+class ExerciseOutcome(db.Model):
+    __tablename__ = 'exercise_outcome'
+    id = db.Column(db.Integer, primary_key=True)
+    outcome=db.Column(db.String(255),nullable=False)
+
+    def __init__(self,outcome):
+        self.outcome = outcome
+
+
+class ExerciseSource(db.Model):
+    __tablename__ = 'exercise_source'
+    id = db.Column(db.Integer, primary_key=True)
+    source=db.Column(db.String(255), nullable=False)
+
+    def __init__(self,source):
+        self.source = source
+
+
+contribution_exercise_mapping = Table('contribution_exercise_mapping', db.Model.metadata,
+    Column('contribution_id', Integer, ForeignKey('contribution.id')),
+    Column('exercise_id', Integer, ForeignKey('exercise.id'))
+)
 
 
 class Text(db.Model):

@@ -17,6 +17,7 @@ import urllib
 import zeeguu
 import json
 import goslate
+import datetime
 from zeeguu import model
 
 
@@ -347,7 +348,6 @@ def contribute_with_context(from_lang_code, term, to_lang_code, translation):
 
     #create the text entity first
     new_text = model.Text(context, from_lang, url)
-    import datetime
 
     if search:
         search.contribution = model.Contribution(word, translation, flask.g.user, new_text, datetime.datetime.now())
@@ -357,6 +357,64 @@ def contribute_with_context(from_lang_code, term, to_lang_code, translation):
     zeeguu.db.session.commit()
 
     return "OK"
+
+
+@api.route("/delete_contribution/<contribution_id>",
+           methods=["POST"])
+@cross_domain
+@with_session
+def delete_contribution(contribution_id):
+    contribution = model.Contribution.query.filter_by(
+        id=contribution_id
+    ).first()
+    zeeguu.db.session.delete(contribution)
+    zeeguu.db.session.commit()
+    return "OK"
+
+@api.route("/create_new_exercise/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<contribution_id>",
+           methods=["POST"])
+@cross_domain
+@with_session
+def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,contribution_id):
+    contribution = model.Contribution.query.filter_by(
+        id=contribution_id
+    ).first()
+    new_source = model.ExerciseSource.query.filter_by(
+        source=exercise_source
+    ).first()
+    new_outcome=model.ExerciseOutcome.query.filter_by(
+        outcome=exercise_outcome
+    ).first()
+    if new_source is None or new_outcome is None :
+         return "FAIL"
+    exercise = model.Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
+    contribution.add_new_exercise(exercise)
+    zeeguu.db.session.add(exercise)
+    zeeguu.db.session.commit()
+    return "OK"
+
+@api.route("/get_exercise_history_for_contribution/<contribution_id>", methods=("GET",))
+@cross_domain
+@with_session
+def get_exercise_history_for_contribution(contribution_id):
+    contribution = model.Contribution.query.filter_by(
+        id=contribution_id
+    ).first()
+    exercise_dict_list = []
+    exercise_list = contribution.exercise_history
+    for exercise in exercise_list:
+         exercise_dict = {}
+         exercise_dict['id'] = exercise.id
+         exercise_dict['outcome'] = exercise.outcome.outcome
+         exercise_dict['source'] = exercise.source.source
+         exercise_dict['exercise_solving_speed'] = exercise.solving_speed
+         exercise_dict['time'] = exercise.time.strftime('%m/%d/%Y')
+         exercise_dict_list.append(exercise_dict.copy())
+    js = json.dumps(exercise_dict_list)
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
+
+
 
 
 @api.route("/lookup/<from_lang>/<term>/<to_lang>", methods=("POST",))
