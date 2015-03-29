@@ -200,7 +200,7 @@ def question_with_min_level(level, from_lang, to_lang):
         model.Contribution.query.filter_by(user=flask.g.user)
                                 .join(model.Word, model.Contribution.origin)
                                 .join(model.WordAlias,
-                                      model.Contribution.translation)
+                                      model.Contribution.synoym_translations)
     )
     forward = contributions.filter(
         model.Word.language == from_lang,
@@ -226,7 +226,7 @@ def question_with_min_level(level, from_lang, to_lang):
                             .filter_by(user=flask.g.user)
                             .join(model.Word, model.Contribution.origin)
                             .join(model.WordAlias,
-                                  model.Contribution.translation)
+                                  model.Contribution.synoym_translations)
         )
         forward = cards.filter(
             model.Word.language == from_lang,
@@ -277,7 +277,7 @@ def question(from_lang, to_lang):
         model.Contribution.query.filter_by(user=flask.g.user)
                                 .join(model.Word, model.Contribution.origin)
                                 .join(model.WordAlias,
-                                      model.Contribution.translation)
+                                      model.Contribution.synoym_translations)
     )
     forward = contributions.filter(
         model.Word.language == from_lang,
@@ -299,7 +299,7 @@ def question(from_lang, to_lang):
                             .filter_by(user=flask.g.user)
                             .join(model.Word, model.Contribution.origin)
                             .join(model.WordAlias,
-                                  model.Contribution.translation)
+                                  model.Contribution.synoym_translations)
         )
         forward = cards.filter(
             model.Word.language == from_lang,

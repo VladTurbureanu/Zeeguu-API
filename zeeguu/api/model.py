@@ -326,9 +326,8 @@ class Contribution(db.Model):
     origin_id = db.Column(db.Integer, db.ForeignKey('word.id'))
     origin = db.relationship("Word", primaryjoin=origin_id == Word.id,
                              backref="translations")
-    translation_id = db.Column(db.Integer, db.ForeignKey('word.id'))
-    translation = db.relationship("Word",
-                                  primaryjoin=translation_id == Word.id)
+    translations_list = relationship("Word", secondary="bookmark_translation_mapping")
+
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship("User", backref="contributions")
 
@@ -341,13 +340,33 @@ class Contribution(db.Model):
 
     def __init__(self, origin, translation, user, text, time):
         self.origin = origin
-        self.translation = translation
+        self.translations_list.append(translation)
         self.user = user
         self.time = time
         self.text = text
 
     def add_new_exercise(self, exercise):
         self.exercise_history.append(exercise)
+
+    def get_rendering_translation_words(self,translations_list):
+        translation_words = ''
+        for translation in translations_list:
+            translation_words = translation_words + ', ' + translation.word
+        return translation_words
+
+    def get_translation_words_list(self,translations_list):
+        translation_words=[]
+        for translation in translations_list:
+            translation_words.append(translation.word)
+        return translation_words
+
+    def add_new_translation(self, translation):
+        self.translations_list.append(translation)
+
+bookmark_translation_mapping = Table('bookmark_translation_mapping', db.Model.metadata,
+    Column('bookmark_id', Integer, ForeignKey('contribution.id')),
+    Column('translation_id', Integer, ForeignKey('word.id'))
+)
 
 
 class Exercise(db.Model):

@@ -70,6 +70,30 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
        assert "Correct" in rv.data
        assert "Translate" in rv.data
 
+    def test_add_new_translation_to_contribution(self):
+        rv = self.api_post('/add_new_translation_to_contribution/women/1')
+        assert rv.data =="OK"
+        rv = self.api_get('/get translations_of_contribution/2')
+        translations_dict = json.loads(rv.data)
+        first_translation_word = translations_dict[0]['word']
+        rv = self.api_post('/add_new_translation_to_contribution/'+str(first_translation_word)+'/2')
+        rv.data == 'FAIL'
+
+    def test_get_translations_of_contribution(self):
+       rv = self.api_get('/get translations_of_contribution/2')
+       translations_dict_before_add = json.loads(rv.data)
+       assert len(translations_dict_before_add) ==1
+       first_translation_word = translations_dict_before_add[0]['word']
+       assert any(translation['word'] == first_translation_word for translation in translations_dict_before_add)
+       rv = self.api_post('/add_new_translation_to_contribution/women/2')
+       assert rv.data == "OK"
+       rv = self.api_get('/get translations_of_contribution/2')
+       translations_dict_after_add = json.loads(rv.data)
+       assert len(translations_dict_after_add) ==2
+       assert first_translation_word!= 'women'
+       assert any(translation['word'] == first_translation_word for translation in translations_dict_after_add)
+       assert any(translation['word'] == 'women' for translation in translations_dict_after_add)
+
 
     def test_get_contribs(self):
         rv = self.api_get('/contribs')

@@ -223,7 +223,7 @@ def contributions():
     words = []
     for contrib in contributions:
         word = {'from': contrib.origin.word,
-                'to': contrib.translation.word}
+                  'to': contrib.get_translation_words_list(contrib.translations_list)}
         words.append(word)
 
     js = json.dumps(words)
@@ -266,7 +266,7 @@ def contributions_by_day(return_context):
             contrib = {}
             contrib['id'] = c.id
             contrib['from'] = c.origin.word
-            contrib['to'] = c.translation.word
+            contrib['to'] = c.get_translation_words_list(c.translations_list)
             contrib['title'] = c.text.url.title
             contrib['url'] = c.text.url.url
 
@@ -423,6 +423,46 @@ def get_exercise_history_for_contribution(contribution_id):
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
+
+@api.route("/add_new_translation_to_contribution/<word_translation>/<contribution_id>",
+           methods=["POST"])
+@cross_domain
+@with_session
+def add_new_translation_to_contribution(word_translation, contribution_id):
+    contribution = model.Contribution.query.filter_by(
+        id=contribution_id
+    ).first()
+    translations_of_contrib = contribution.translations_list
+    for transl in translations_of_contrib:
+        if transl.word ==word_translation:
+            return 'FAIL'
+    translation = model.Word(word_translation, translations_of_contrib[0].language)
+    contribution.add_new_translation(translation)
+    zeeguu.db.session.add(translation)
+    zeeguu.db.session.commit()
+    return "OK"
+
+
+
+@api.route("/get translations_of_contribution/<contribution_id>", methods=("GET",))
+@cross_domain
+@with_session
+def get_translations_of_contribution(contribution_id):
+    contribution = model.Contribution.query.filter_by(
+        id=contribution_id
+    ).first()
+    translation_dict_list = []
+    translation_list = contribution.translations_list
+    for translation in translation_list:
+         translation_dict = {}
+         translation_dict['id'] = translation.id
+         translation_dict['word'] = translation.word
+         translation_dict['language'] = translation.language.name
+         translation_dict['word_rank'] = translation.word_rank
+         translation_dict_list.append(translation_dict.copy())
+    js = json.dumps(translation_dict_list)
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
 
 
 

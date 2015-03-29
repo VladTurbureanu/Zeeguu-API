@@ -36,6 +36,7 @@ class ZeeguuTestCase(unittest.TestCase):
         rv = self.app.post('/session/'+TEST_EMAIL, data=dict(
             password=TEST_PASS
         ))
+
         return rv.data
 
     def in_session(self, url, other_args=[]):
