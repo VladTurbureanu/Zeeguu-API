@@ -112,41 +112,41 @@ class User(db.Model):
         except sqlalchemy.orm.exc.NoResultFound:
             return None
 	
-    def contribs_chronologically(self):
-	    return Contribution.query.filter_by(user_id=self.id).order_by(Contribution.time.desc()).all()
+    def bookmarks_chronologically(self):
+	    return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
 
     def user_words(self):
-        return map((lambda x: x.origin.word), self.all_contributions())
+        return map((lambda x: x.origin.word), self.all_bookmarks())
 
-    def all_contributions(self):
-        return Contribution.query.filter_by(user_id=self.id).order_by(Contribution.time.desc()).all()
+    def all_bookmarks(self):
+        return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
 
-    def contribs_by_date(self):
-	def extract_day_from_date(contrib):
-		return (contrib, contrib.time.replace(contrib.time.year, contrib.time.month, contrib.time.day,0,0,0,0))
+    def bookmarks_by_date(self):
+	def extract_day_from_date(bookmark):
+		return (bookmark, bookmark.time.replace(bookmark.time.year, bookmark.time.month, bookmark.time.day,0,0,0,0))
 
-	contribs = self.all_contributions()
-	contribs_by_date = dict()
+	bookmarks = self.all_bookmarks()
+	bookmarks_by_date = dict()
 				                                        
-	for elem in map(extract_day_from_date, contribs):
-		contribs_by_date.setdefault(elem[1],[]).append(elem[0])
+	for elem in map(extract_day_from_date, bookmarks):
+		bookmarks_by_date.setdefault(elem[1],[]).append(elem[0])
 
-	sorted_dates = contribs_by_date.keys()
+	sorted_dates = bookmarks_by_date.keys()
 	sorted_dates.sort(reverse=True)
-	return contribs_by_date, sorted_dates
+	return bookmarks_by_date, sorted_dates
 
     def unique_urls(self):
         urls = set()
-        for c in self.all_contributions():
-            urls.add(c.text.url)
+        for b in self.all_bookmarks():
+            urls.add(b.text.url)
         return urls
 
     def recommended_urls(self):
         urls_to_words = {}
-        for contrib in self.all_contributions():
-            if contrib.text.url.url != "undefined":
-                urls_to_words.setdefault(contrib.text.url,0)
-                urls_to_words [contrib.text.url] += contrib.origin.importance_level()
+        for bookmark in self.all_bookmarks():
+            if bookmark.text.url.url != "undefined":
+                urls_to_words.setdefault(bookmark.text.url,0)
+                urls_to_words [bookmark.text.url] += bookmark.origin.importance_level()
         return sorted(urls_to_words, key=urls_to_words.get, reverse=True)
 
 
@@ -321,7 +321,7 @@ class Url(db.Model):
         else:
             return ""
 
-class Contribution(db.Model):
+class Bookmark(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     origin_id = db.Column(db.Integer, db.ForeignKey('word.id'))
     origin = db.relationship("Word", primaryjoin=origin_id == Word.id,
@@ -329,14 +329,14 @@ class Contribution(db.Model):
     translations_list = relationship("Word", secondary="bookmark_translation_mapping")
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship("User", backref="contributions")
+    user = db.relationship("User", backref="bookmarks")
 
     text_id = db.Column(db.Integer, db.ForeignKey('text.id'))
-    text = db.relationship("Text", backref="contributions")
+    text = db.relationship("Text", backref="bookmarks")
 
     time = db.Column(db.DateTime)
 
-    exercise_history = relationship("Exercise", secondary="contribution_exercise_mapping")
+    exercise_history = relationship("Exercise", secondary="bookmark_exercise_mapping")
 
     def __init__(self, origin, translation, user, text, time):
         self.origin = origin
@@ -363,10 +363,19 @@ class Contribution(db.Model):
     def add_new_translation(self, translation):
         self.translations_list.append(translation)
 
+    def remove_translation(self,translation):
+        if translation in self.translations_list:
+            self.translations_list.remove(translation)
+
+    @classmethod
+    def find_all(cls):
+        return cls.query.all()
+
 bookmark_translation_mapping = Table('bookmark_translation_mapping', db.Model.metadata,
-    Column('bookmark_id', Integer, ForeignKey('contribution.id')),
+    Column('bookmark_id', Integer, ForeignKey('bookmark.id')),
     Column('translation_id', Integer, ForeignKey('word.id'))
 )
+
 
 
 class Exercise(db.Model):
@@ -404,8 +413,8 @@ class ExerciseSource(db.Model):
         self.source = source
 
 
-contribution_exercise_mapping = Table('contribution_exercise_mapping', db.Model.metadata,
-    Column('contribution_id', Integer, ForeignKey('contribution.id')),
+bookmark_exercise_mapping = Table('bookmark_exercise_mapping', db.Model.metadata,
+    Column('bookmark_id', Integer, ForeignKey('bookmark.id')),
     Column('exercise_id', Integer, ForeignKey('exercise.id'))
 )
 
@@ -493,8 +502,8 @@ class Search(db.Model):
     language = db.relationship("Language")
     text_id = db.Column(db.Integer, db.ForeignKey("text.id"))
     text = db.relationship("Text")
-    contribution_id = db.Column(db.Integer, db.ForeignKey("contribution.id"))
-    contribution = db.relationship("Contribution", backref="search")
+    bookmark_id = db.Column(db.Integer, db.ForeignKey("bookmark.id"))
+    bookmark = db.relationship("Bookmark", backref="search")
 
     def __init__(self, user, word, language, text=None):
         self.user = user

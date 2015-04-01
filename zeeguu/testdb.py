@@ -45,7 +45,7 @@ def clean_word(word):
     return match.group(1).decode("utf8")
 
 
-def add_contribution(user, language, original, translation, date, the_context, the_url):
+def add_bookmark(user, language, original, translation, date, the_context, the_url):
 
     url = model.Url.find (the_url)
     text = model.Text(the_context, en, url)
@@ -56,7 +56,7 @@ def add_contribution(user, language, original, translation, date, the_context, t
     zeeguu.db.session.add(text)
     zeeguu.db.session.add(w1)
     zeeguu.db.session.add(w2)
-    t1= model.Contribution(w1,w2, user, text, date)
+    t1= model.Bookmark(w1,w2, user, text, date)
     zeeguu.db.session.add(t1)
 
     zeeguu.db.session.commit()

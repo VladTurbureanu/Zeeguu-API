@@ -45,7 +45,7 @@ def clean_word(word):
     return match.group(1).decode("utf8")
 
 
-def add_contribution(user, original_language, original_word, translation_language, translation_word,  date, the_context, the_url, the_url_title):
+def add_bookmark(user, original_language, original_word, translation_language, translation_word,  date, the_context, the_url, the_url_title):
 
     url = model.Url.find (the_url, the_url_title)
     text = model.Text(the_context, translation_language, url)
@@ -56,7 +56,7 @@ def add_contribution(user, original_language, original_word, translation_languag
     zeeguu.db.session.add(text)
     zeeguu.db.session.add(w1)
     zeeguu.db.session.add(w2)
-    t1= model.Contribution(w1,w2, user, text, date)
+    t1= model.Bookmark(w1,w2, user, text, date)
     zeeguu.db.session.add(t1)
 
     zeeguu.db.session.commit()
@@ -138,7 +138,7 @@ def create_test_db():
     }
 
     for key in today_dict:
-        add_contribution(user, de, key, en, today_dict[key], jan111, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung fur das finanzsystem habe, sagte holder, ohne namen von banken zu nennen" + key,
+        add_bookmark(user, de, key, en, today_dict[key], jan111, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung fur das finanzsystem habe, sagte holder, ohne namen von banken zu nennen" + key,
                          "http://url2", "title of url2")
 
 
@@ -153,7 +153,7 @@ def create_test_db():
 
 
     for key in dict:
-        add_contribution(user, de, key, en, dict[key], ian101, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. "+key,
+        add_bookmark(user, de, key, en, dict[key], ian101, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. "+key,
                          "http://url1", "title of url1")
 
 
@@ -166,7 +166,7 @@ def create_test_db():
 
 
     for key in dict:
-        add_contribution(user2, fr, key, en, dict[key], ian101, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung fur das finanzsystem habe, sagte holder, ohne namen von banken zu nennen." + key,
+        add_bookmark(user2, fr, key, en, dict[key], ian101, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung fur das finanzsystem habe, sagte holder, ohne namen von banken zu nennen." + key,
                          "http://localhost.com", "title of url1")
 
 
@@ -185,9 +185,9 @@ def create_test_db():
     for w in japanese_story:
         if w[0] == 'recht':
             # something special
-            add_contribution(user, de, w[0], en, w[1],jan14, w[2],w[3], "japanese story")
+            add_bookmark(user, de, w[0], en, w[1],jan14, w[2],w[3], "japanese story")
         else:
-            add_contribution(user, de, w[0], en, w[1],jan14, w[2],w[3], "japanese story")
+            add_bookmark(user, de, w[0], en, w[1],jan14, w[2],w[3], "japanese story")
 
 
     zeeguu.db.session.commit()

@@ -86,10 +86,10 @@ def history():
     return flask.render_template("history.html", searches=searches)
 
 
-@gym.route("/contributions")
+@gym.route("/bookmarks")
 @login_first
 def contributions():
-    contribs,dates = flask.g.user.contribs_by_date()
+    contribs,dates = flask.g.user.bookmarks_by_date()
 
     urls_by_date = {}
     contribs_by_url = {}
@@ -200,7 +200,7 @@ def question_with_min_level(level, from_lang, to_lang):
         model.Contribution.query.filter_by(user=flask.g.user)
                                 .join(model.Word, model.Contribution.origin)
                                 .join(model.WordAlias,
-                                      model.Contribution.synoym_translations)
+                                      model.Contribution.translation)
     )
     forward = contributions.filter(
         model.Word.language == from_lang,
@@ -222,11 +222,11 @@ def question_with_min_level(level, from_lang, to_lang):
         # return "\"NO CARDS\""
     else:
         cards = (
-            model.Card.query.join(model.Contribution, model.Card.contribution)
+            model.Card.query.join(model.Contribution, model.Card.bookmark)
                             .filter_by(user=flask.g.user)
                             .join(model.Word, model.Contribution.origin)
                             .join(model.WordAlias,
-                                  model.Contribution.synoym_translations)
+                                  model.Contribution.translation)
         )
         forward = cards.filter(
             model.Word.language == from_lang,
@@ -249,21 +249,21 @@ def question_with_min_level(level, from_lang, to_lang):
 
     model.db.session.commit()
 
-    question = card.contribution.origin
-    answer = card.contribution.translation
+    question = card.bookmark.origin
+    answer = card.bookmark.translation
 
     if question.language != from_lang:
         question, answer = answer, question
 
     return json.dumps({
         "question": question.word,
-        "example":card.contribution.text.content,
-        "url":card.contribution.text.url.url,
+        "example":card.bookmark.text.content,
+        "url":card.bookmark.text.url.url,
         "answer": answer.word,
         "id": card.id,
         "position": card.position,
         "reason": card.reason,
-        "rank":card.contribution.origin.word_rank,
+        "rank":card.bookmark.origin.word_rank,
         "starred": card.is_starred()
     })
 
@@ -277,7 +277,7 @@ def question(from_lang, to_lang):
         model.Contribution.query.filter_by(user=flask.g.user)
                                 .join(model.Word, model.Contribution.origin)
                                 .join(model.WordAlias,
-                                      model.Contribution.synoym_translations)
+                                      model.Contribution.translation)
     )
     forward = contributions.filter(
         model.Word.language == from_lang,
@@ -295,11 +295,11 @@ def question(from_lang, to_lang):
         card.set_reason("First rehearsal. ")
     else:
         cards = (
-            model.Card.query.join(model.Contribution, model.Card.contribution)
+            model.Card.query.join(model.Contribution, model.Card.bookmark)
                             .filter_by(user=flask.g.user)
                             .join(model.Word, model.Contribution.origin)
                             .join(model.WordAlias,
-                                  model.Contribution.synoym_translations)
+                                  model.Contribution.translation)
         )
         forward = cards.filter(
             model.Word.language == from_lang,
@@ -323,20 +323,20 @@ def question(from_lang, to_lang):
 
     model.db.session.commit()
 
-    question = card.contribution.origin
-    answer = card.contribution.translation
+    question = card.bookmark.origin
+    answer = card.bookmark.translation
 
     if question.language != from_lang:
         question, answer = answer, question
 
     return json.dumps({
         "question": question.word,
-        "example":card.contribution.text.content,
-        "url":card.contribution.text.url.url,
+        "example":card.bookmark.text.content,
+        "url":card.bookmark.text.url.url,
         "answer": answer.word,
         "id": card.id,
         "position": card.position,
-        "rank":card.contribution.origin.word_rank,
+        "rank":card.bookmark.origin.word_rank,
         "reason": card.reason,
         "starred": card.is_starred()
     })

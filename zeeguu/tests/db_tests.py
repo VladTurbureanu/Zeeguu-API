@@ -28,10 +28,10 @@ class Dbtest(ZeeguuTestCase):
         mir.starred_words.append(someword)
         db.session.commit()
 
-    def test_user_contribution_count(self):
+    def test_user_bookmark_count(self):
         mir = model.User.find("i@mir.lu")
         assert mir
-        assert len(mir.all_contributions()) > 0
+        assert len(mir.all_bookmarks()) > 0
 
     def test_add_new_word_to_DB(self):
         deutsch = Language.find("de")
@@ -49,7 +49,7 @@ class Dbtest(ZeeguuTestCase):
 
     def test_user_words(self):
         mir = model.User.find("i@mir.lu")
-        assert mir.user_words() == map((lambda x: x.origin.word), mir.all_contributions())
+        assert mir.user_words() == map((lambda x: x.origin.word), mir.all_bookmarks())
 
 
 
@@ -71,19 +71,19 @@ class Dbtest(ZeeguuTestCase):
         assert not mir.starred_words
 
 
-    def test_user_daily_contributions(self):
+    def test_user_daily_bookmarks(self):
 
         mir = model.User.find("i@mir.lu")
         date = datetime.datetime(2011,01,01)
 
-        assert len(mir.all_contributions()) > 0
+        assert len(mir.all_bookmarks()) > 0
 
-        count_contributions = 0
-        for contribution in mir.all_contributions():
-            if contribution.time == date:
-                count_contributions += 1
+        count_bookmarks = 0
+        for bookmark in mir.all_bookmarks():
+            if bookmark.time == date:
+                count_bookmarks += 1
 
-        assert (count_contributions > 0)
+        assert (count_bookmarks > 0)
 
 
     def test_user_set_language(self):
@@ -113,7 +113,7 @@ class Dbtest(ZeeguuTestCase):
 
 
 
-    # User Date No_ contributions
+    # User Date No_ bookmarks
 
 
 if __name__ == '__main__':

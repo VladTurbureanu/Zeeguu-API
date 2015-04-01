@@ -18,6 +18,7 @@ import zeeguu
 import json
 import goslate
 import datetime
+import re
 from zeeguu import model
 
 
@@ -209,27 +210,6 @@ def get_session(email):
     return str(session.id)
 
 
-
-@api.route("/contribs", methods=["GET"])
-@cross_domain
-@with_session
-def contributions():
-    """
-    Returns a list of contributions together with their
-     translations
-    """
-    contributions = flask.g.user.contribs_chronologically()
-
-    words = []
-    for contrib in contributions:
-        word = {'from': contrib.origin.word,
-                  'to': contrib.get_translation_words_list(contrib.translations_list)}
-        words.append(word)
-
-    js = json.dumps(words)
-    resp = flask.Response(js, status=200, mimetype='application/json')
-    return resp
-
 @api.route("/user_words", methods=["GET"])
 @cross_domain
 @with_session
@@ -243,39 +223,39 @@ def studied_words():
 
 
 
-@api.route("/contribs_by_day/<return_context>", methods=["GET"])
+@api.route("/bookmarks_by_day/<return_context>", methods=["GET"])
 @cross_domain
 @with_session
-def contributions_by_day(return_context):
+def bookmarks_by_day(return_context):
     """
-    Returns the contributions of this user organized by date
+    Returns the bookmarks of this user organized by date
     If <return_context> is "with_context" it also returns the
-    text where the contribution was found. If <return_context>
+    text where the bookmark was found. If <return_context>
     is anything else, the context is not returned.
 
     """
     with_context = return_context == "with_context"
 
 
-    contribs_by_date, sorted_dates = flask.g.user.contribs_by_date()
+    bookmarks_by_date, sorted_dates = flask.g.user.bookmarks_by_date()
 
     dates = []
     for date in sorted_dates:
-        contribs = []
-        for c in contribs_by_date[date]:
-            contrib = {}
-            contrib['id'] = c.id
-            contrib['from'] = c.origin.word
-            contrib['to'] = c.get_translation_words_list(c.translations_list)
-            contrib['title'] = c.text.url.title
-            contrib['url'] = c.text.url.url
+        bookmarks = []
+        for b in bookmarks_by_date[date]:
+            bookmark = {}
+            bookmark['id'] = b.id
+            bookmark['from'] = b.origin.word
+            bookmark['to'] = b.get_translation_words_list(b.translations_list)
+            bookmark['title'] = b.text.url.title
+            bookmark['url'] = b.text.url.url
 
             if with_context:
-                contrib['context'] = c.text.content
-            contribs.append(contrib)
+                bookmark['context'] = b.text.content
+            bookmarks.append(bookmark)
         date_entry = {}
         date_entry['date'] = date.strftime("%A, %d %B")
-        date_entry['contribs'] = contribs
+        date_entry['bookmarks'] = bookmarks
         dates.append(date_entry)
 
     js = json.dumps(dates)
@@ -319,11 +299,11 @@ def translate_from_to_with_context (word, from_lang_code,to_lang_code):
 
 
 
-@api.route("/contribute_with_context/<from_lang_code>/<term>/<to_lang_code>/<translation>",
+@api.route("/bookmark_with_context/<from_lang_code>/<term>/<to_lang_code>/<translation>",
            methods=["POST"])
 @cross_domain
 @with_session
-def contribute_with_context(from_lang_code, term, to_lang_code, translation):
+def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     """
     The preferred way of a user saving a word/translation/context to his
     profile.
@@ -335,15 +315,15 @@ def contribute_with_context(from_lang_code, term, to_lang_code, translation):
     """
 
     if 'title' in flask.request.form:
-        contributed_url_title = flask.request.form['title']
+        bookmarked_url_title = flask.request.form['title']
     else:
-        contributed_url_title = ''
+        bookmarked_url_title = ''
 
-    contributed_url = flask.request.form['url']
+    bookmarked_url = flask.request.form['url']
     context = flask.request.form['context']
 
 
-    url = model.Url.find(contributed_url, contributed_url_title)
+    url = model.Url.find(bookmarked_url, bookmarked_url_title)
 
     from_lang = model.Language.find(from_lang_code)
     to_lang = model.Language.find(to_lang_code)
@@ -359,34 +339,34 @@ def contribute_with_context(from_lang_code, term, to_lang_code, translation):
     new_text = model.Text(context, from_lang, url)
 
     if search:
-        search.contribution = model.Contribution(word, translation, flask.g.user, new_text, datetime.datetime.now())
+        search.bookmark = model.Bookmark(word, translation, flask.g.user, new_text, datetime.datetime.now())
     else:
-        zeeguu.db.session.add(model.Contribution(word, translation, flask.g.user, new_text, datetime.datetime.now()))
+        zeeguu.db.session.add(model.Bookmark(word, translation, flask.g.user, new_text, datetime.datetime.now()))
 
     zeeguu.db.session.commit()
 
     return "OK"
 
 
-@api.route("/delete_contribution/<contribution_id>",
+@api.route("/delete_bookmark/<bookmark_id>",
            methods=["POST"])
 @cross_domain
 @with_session
-def delete_contribution(contribution_id):
-    contribution = model.Contribution.query.filter_by(
-        id=contribution_id
+def delete_bookmark(bookmark_id):
+    bookmark = model.Bookmark.query.filter_by(
+        id=bookmark_id
     ).first()
-    zeeguu.db.session.delete(contribution)
+    zeeguu.db.session.delete(bookmark)
     zeeguu.db.session.commit()
     return "OK"
 
-@api.route("/create_new_exercise/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<contribution_id>",
+@api.route("/create_new_exercise/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<bookmark_id>",
            methods=["POST"])
 @cross_domain
 @with_session
-def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,contribution_id):
-    contribution = model.Contribution.query.filter_by(
-        id=contribution_id
+def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,bookmark_id):
+    bookmark = model.Bookmark.query.filter_by(
+        id=bookmark_id
     ).first()
     new_source = model.ExerciseSource.query.filter_by(
         source=exercise_source
@@ -397,20 +377,20 @@ def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,
     if new_source is None or new_outcome is None :
          return "FAIL"
     exercise = model.Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
-    contribution.add_new_exercise(exercise)
+    bookmark.add_new_exercise(exercise)
     zeeguu.db.session.add(exercise)
     zeeguu.db.session.commit()
     return "OK"
 
-@api.route("/get_exercise_history_for_contribution/<contribution_id>", methods=("GET",))
+@api.route("/get_exercise_history_for_bookmark/<bookmark_id>", methods=("GET",))
 @cross_domain
 @with_session
-def get_exercise_history_for_contribution(contribution_id):
-    contribution = model.Contribution.query.filter_by(
-        id=contribution_id
+def get_exercise_history_for_bookmark(bookmark_id):
+    bookmark = model.Bookmark.query.filter_by(
+        id=bookmark_id
     ).first()
     exercise_dict_list = []
-    exercise_list = contribution.exercise_history
+    exercise_list = bookmark.exercise_history
     for exercise in exercise_list:
          exercise_dict = {}
          exercise_dict['id'] = exercise.id
@@ -424,35 +404,59 @@ def get_exercise_history_for_contribution(contribution_id):
     return resp
 
 
-@api.route("/add_new_translation_to_contribution/<word_translation>/<contribution_id>",
+@api.route("/add_new_translation_to_bookmark/<word_translation>/<bookmark_id>",
            methods=["POST"])
 @cross_domain
 @with_session
-def add_new_translation_to_contribution(word_translation, contribution_id):
-    contribution = model.Contribution.query.filter_by(
-        id=contribution_id
+def add_new_translation_to_bookmark(word_translation, bookmark_id):
+    bookmark = model.Bookmark.query.filter_by(
+        id=bookmark_id
     ).first()
-    translations_of_contrib = contribution.translations_list
-    for transl in translations_of_contrib:
+    translations_of_bookmark = bookmark.translations_list
+    for transl in translations_of_bookmark:
         if transl.word ==word_translation:
             return 'FAIL'
-    translation = model.Word(word_translation, translations_of_contrib[0].language)
-    contribution.add_new_translation(translation)
+    translation = model.Word(word_translation, translations_of_bookmark[0].language)
+    bookmark.add_new_translation(translation)
     zeeguu.db.session.add(translation)
     zeeguu.db.session.commit()
     return "OK"
 
-
-
-@api.route("/get translations_of_contribution/<contribution_id>", methods=("GET",))
+@api.route("/delete_translation_of_bookmark/<bookmark_id>/<translation_word>",
+           methods=["POST"])
 @cross_domain
 @with_session
-def get_translations_of_contribution(contribution_id):
-    contribution = model.Contribution.query.filter_by(
-        id=contribution_id
+def delete_translation_of_bookmark(bookmark_id,translation_word):
+    bookmark = model.Bookmark.query.filter_by(
+        id=bookmark_id
+    ).first()
+    if len(bookmark.translations_list) == 1:
+        return 'FAIL'
+    translation_id = -1
+    for b in bookmark.translations_list:
+        if translation_word==b.word:
+            translation_id = b.id
+            break
+    if translation_id ==-1:
+        return 'FAIL'
+    translation = model.Word.query.filter_by(
+        id = translation_id
+    ).first()
+    bookmark.remove_translation(translation)
+    zeeguu.db.session.delete(translation)
+    zeeguu.db.session.commit()
+    return "OK"
+
+
+@api.route("/get_translations_of_bookmark/<bookmark_id>", methods=("GET",))
+@cross_domain
+@with_session
+def get_translations_of_bookmark(bookmark_id):
+    bookmark = model.Bookmark.query.filter_by(
+        id=bookmark_id
     ).first()
     translation_dict_list = []
-    translation_list = contribution.translations_list
+    translation_list = bookmark.translations_list
     for translation in translation_list:
          translation_dict = {}
          translation_dict['id'] = translation.id
@@ -463,6 +467,42 @@ def get_translations_of_contribution(contribution_id):
     js = json.dumps(translation_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
+
+@api.route("/get_count_asked_outcome/<outcome_exercise>", methods=("GET",))
+@cross_domain
+@with_session
+
+def get_count_asked_outcome(outcome_exercise):
+    bookmarks = model.Bookmark.find_all()
+    count_i_know = 0
+    marked_words_of_user_in_text = []
+    words_of_all_bookmarks_content = []
+    for bookmark in bookmarks:
+        for exercise in bookmark.exercise_history:
+            if exercise.outcome.outcome == 'I know':
+                count_i_know = count_i_know + 1
+                break
+        bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
+        words_of_all_bookmarks_content.extend(bookmark_content_words)
+        marked_words_of_user_in_text.append(bookmark.origin.word)
+
+    words_of_all_bookmarks_content = list(set(words_of_all_bookmarks_content))
+    marked_words_of_user_in_text = list(set(marked_words_of_user_in_text))
+    words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
+    count_total_i_know_words = count_i_know + len(words_known_from_user)
+
+
+    if outcome_exercise == 'I know':
+        return str(count_total_i_know_words)
+    elif outcome_exercise == 'Do not know':
+        return str(len(bookmarks) - count_i_know)
+    else:
+        return str(-1)
+
+
+
+
+
 
 
 
