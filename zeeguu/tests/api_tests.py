@@ -44,6 +44,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         contribs_by_day_dict_before_delete = json.loads(rv.data)
         contribs_on_first_date_before_delete = contribs_by_day_dict_before_delete[0]['contribs']
         first_contrib_on_first_date_id = contribs_on_first_date_before_delete [0] ['id']
+        assert contribs_on_first_date_before_delete[0]["from_language"]=="de"
         assert any(contrib['id'] == first_contrib_on_first_date_id for contrib in contribs_on_first_date_before_delete)
         assert first_contrib_on_first_date_id is not None
         rv = self.api_post('/delete_contribution/'+ str(first_contrib_on_first_date_id))
