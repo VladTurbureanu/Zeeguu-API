@@ -16,7 +16,10 @@ app = app.app
 
 if os.environ.get("ZEEGUU_TESTING") == "True":
     app.config.pop("SQLALCHEMY_DATABASE_URI", None)
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://zeeguu_test:zeeguu_test@127.0.0.1/zeeguu_test"
+    if os.uname()[0]=='Darwin':
+        app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://zeeguu_test:zeeguu_test@localhost/zeeguu_test"
+    else:
+        app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://zeeguu_test:zeeguu_test@127.0.0.1/zeeguu_test"
     print "[ Using the test DB (" + app.config["SQLALCHEMY_DATABASE_URI"] + ") ]"
 
 
