@@ -246,7 +246,7 @@ def bookmarks_by_day(return_context):
             bookmark = {}
             bookmark['id'] = b.id
             bookmark['from'] = b.origin.word
-            bookmark['to'] = b.get_translation_words_list(b.translations_list)
+            bookmark['to'] = b.get_translation_words_list()
             bookmark['title'] = b.text.url.title
             bookmark['url'] = b.text.url.url
 
@@ -422,11 +422,11 @@ def add_new_translation_to_bookmark(word_translation, bookmark_id):
     zeeguu.db.session.commit()
     return "OK"
 
-@api.route("/delete_translation_of_bookmark/<bookmark_id>/<translation_word>",
+@api.route("/delete_translation_from_bookmark/<bookmark_id>/<translation_word>",
            methods=["POST"])
 @cross_domain
 @with_session
-def delete_translation_of_bookmark(bookmark_id,translation_word):
+def delete_translation_from_bookmark(bookmark_id,translation_word):
     bookmark = model.Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
@@ -448,10 +448,10 @@ def delete_translation_of_bookmark(bookmark_id,translation_word):
     return "OK"
 
 
-@api.route("/get_translations_of_bookmark/<bookmark_id>", methods=("GET",))
+@api.route("/get_translations_for_bookmark/<bookmark_id>", methods=("GET",))
 @cross_domain
 @with_session
-def get_translations_of_bookmark(bookmark_id):
+def get_translations_for_bookmark(bookmark_id):
     bookmark = model.Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
@@ -468,40 +468,101 @@ def get_translations_of_bookmark(bookmark_id):
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_count_asked_outcome/<outcome_exercise>", methods=("GET",))
+
+@api.route("/get_known_bookmarks", methods=("GET",))
 @cross_domain
 @with_session
 
-def get_count_asked_outcome(outcome_exercise):
+def get_known_bookmarks():
     bookmarks = model.Bookmark.find_all()
-    count_i_know = 0
-    marked_words_of_user_in_text = []
-    words_of_all_bookmarks_content = []
+    i_know_bookmarks=[]
+    for bookmark in bookmarks:
+        for exercise in bookmark.exercise_history:
+            i_know_bookmark_dict = {}
+            if exercise.outcome.outcome == 'I know':
+                i_know_bookmark_dict['id'] = bookmark.id
+                i_know_bookmark_dict['origin'] = bookmark.origin.word
+                i_know_bookmark_dict['text']= bookmark.text.content
+                i_know_bookmark_dict['time']=bookmark.time.strftime('%m/%d/%Y')
+                i_know_bookmarks.append(i_know_bookmark_dict.copy())
+                break
+    js = json.dumps(i_know_bookmarks)
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
+
+@api.route("/get_known_words", methods=("GET",))
+@cross_domain
+@with_session
+
+def get_known_words():
+    bookmarks = model.Bookmark.find_all()
+    i_know_words=[]
+    i_know_words_dict_list =[]
     for bookmark in bookmarks:
         for exercise in bookmark.exercise_history:
             if exercise.outcome.outcome == 'I know':
-                count_i_know = count_i_know + 1
+                i_know_words.append(bookmark.origin.word)
                 break
+    i_know_words = list(set(i_know_words))
+
+    for word in i_know_words:
+        i_know_word_dict = {}
+        i_know_word_dict['word'] = word
+        i_know_words_dict_list.append(i_know_word_dict.copy())
+    js = json.dumps(i_know_words_dict_list)
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
+
+
+@api.route("/get_learned_bookmarks", methods=("GET",))
+@cross_domain
+@with_session
+def get_learned_bookmarks():
+    bookmarks = model.Bookmark.find_all()
+    i_know_bookmarks=[]
+    learned_bookmarks_dict_list =[]
+    for bookmark in bookmarks:
+        for exercise in bookmark.exercise_history:
+            if exercise.outcome.outcome == 'I know':
+                i_know_bookmarks.append(bookmark)
+                break
+
+    learned_bookmarks= [bookmark for bookmark in bookmarks if bookmark not in i_know_bookmarks]
+
+    for bookmark in learned_bookmarks:
+        learned_bookmarks_dict = {}
+        learned_bookmarks_dict ['id'] = bookmark.id
+        learned_bookmarks_dict ['origin'] = bookmark.origin.word
+        learned_bookmarks_dict['text'] = bookmark.text.content
+        learned_bookmarks_dict_list.append(learned_bookmarks_dict.copy())
+
+    js = json.dumps(learned_bookmarks_dict_list)
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
+
+@api.route("/get_estimated_user_vocabulary", methods=("GET",))
+@cross_domain
+@with_session
+def get_estimated_user_vocabulary():
+    bookmarks = model.Bookmark.find_all()
+    words_known_from_user_dict_list =[]
+    marked_words_of_user_in_text = []
+    words_of_all_bookmarks_content = []
+    for bookmark in bookmarks:
         bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
         words_of_all_bookmarks_content.extend(bookmark_content_words)
         marked_words_of_user_in_text.append(bookmark.origin.word)
-
     words_of_all_bookmarks_content = list(set(words_of_all_bookmarks_content))
     marked_words_of_user_in_text = list(set(marked_words_of_user_in_text))
     words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
-    count_total_i_know_words = count_i_know + len(words_known_from_user)
+    for word in words_known_from_user:
+        word_known_from_user_dict = {}
+        word_known_from_user_dict['word'] = word
+        words_known_from_user_dict_list.append(word_known_from_user_dict.copy())
 
-
-    if outcome_exercise == 'I know':
-        return str(count_total_i_know_words)
-    elif outcome_exercise == 'Do not know':
-        return str(len(bookmarks) - count_i_know)
-    else:
-        return str(-1)
-
-
-
-
+    js = json.dumps(words_known_from_user_dict_list)
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
 
 
 

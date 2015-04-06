@@ -348,15 +348,15 @@ class Bookmark(db.Model):
     def add_new_exercise(self, exercise):
         self.exercise_history.append(exercise)
 
-    def get_rendering_translation_words(self,translations_list):
+    def get_rendering_translation_words(self):
         translation_words = ''
-        for translation in translations_list:
-            translation_words = translation_words + ', ' + translation.word
+        for translation in self.get_translation_words_list:
+            translation_words = translation_words + ', ' + translation
         return translation_words
 
-    def get_translation_words_list(self,translations_list):
+    def get_translation_words_list(self):
         translation_words=[]
-        for translation in translations_list:
+        for translation in self.translations_list:
             translation_words.append(translation.word)
         return translation_words
 

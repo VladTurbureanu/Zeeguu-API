@@ -8,6 +8,7 @@ import zeeguu.model
 from zeeguu.model import User
 from zeeguu import util
 import json
+import re
 
 class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
@@ -73,66 +74,183 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_add_new_translation_to_bookmark(self):
         rv = self.api_post('/add_new_translation_to_bookmark/women/1')
         assert rv.data =="OK"
-        rv = self.api_get('/get_translations_of_bookmark/2')
+        rv = self.api_get('/get_translations_for_bookmark/2')
         translations_dict_of_bookmark = json.loads(rv.data)
         first_translation_word_of_bookmark = translations_dict_of_bookmark[0]['word']
         rv = self.api_post('/add_new_translation_to_bookmark/'+str(first_translation_word_of_bookmark)+'/2')
         assert rv.data == 'FAIL'
 
-    def test_delete_translation_of_bookmark(self):
-        rv = self.api_get('/get_translations_of_bookmark/2')
+    def test_delete_translation_from_bookmark(self):
+        rv = self.api_get('/get_translations_for_bookmark/2')
         translations_dict_of_bookmark = json.loads(rv.data)
         first_word_translation_of_bookmark = translations_dict_of_bookmark[0]['word']
-        rv = self.api_post('/delete_translation_of_bookmark/2/'+str(first_word_translation_of_bookmark))
+        rv = self.api_post('/delete_translation_from_bookmark/2/'+str(first_word_translation_of_bookmark))
         assert rv.data =='FAIL'
         rv = self.api_post('/add_new_translation_to_bookmark/women/2')
-        rv = self.api_get('/get_translations_of_bookmark/2')
+        rv = self.api_get('/get_translations_for_bookmark/2')
         translations_dict_of_bookmark = json.loads(rv.data)
         first_word_translation_of_bookmark = translations_dict_of_bookmark[0]['word']
         assert any (translation['word'] == first_word_translation_of_bookmark for translation in translations_dict_of_bookmark)
         assert any(translation['word'] == 'women' for translation in translations_dict_of_bookmark)
-        rv = self.api_post('/delete_translation_of_bookmark/2/wome')
+        rv = self.api_post('/delete_translation_from_bookmark/2/wome')
         assert rv.data == 'FAIL'
-        rv = self.api_post('/delete_translation_of_bookmark/2/'+str(first_word_translation_of_bookmark))
+        rv = self.api_post('/delete_translation_from_bookmark/2/'+str(first_word_translation_of_bookmark))
         assert rv.data =='OK'
-        rv = self.api_get('/get_translations_of_bookmark/2')
+        rv = self.api_get('/get_translations_for_bookmark/2')
         translations_dict_of_bookmark = json.loads(rv.data)
         assert not any(translation['word'] == first_word_translation_of_bookmark for translation in translations_dict_of_bookmark)
 
 
-    def test_get_translations_of_bookmark(self):
-       rv = self.api_get('/get_translations_of_bookmark/2')
+    def test_get_translations_for_bookmark(self):
+       rv = self.api_get('/get_translations_for_bookmark/2')
        translations_dict_bookmark_before_add = json.loads(rv.data)
        assert len(translations_dict_bookmark_before_add) ==1
        first_translation_word = translations_dict_bookmark_before_add[0]['word']
        assert any(translation['word'] == first_translation_word for translation in translations_dict_bookmark_before_add)
        rv = self.api_post('/add_new_translation_to_bookmark/women/2')
        assert rv.data == "OK"
-       rv = self.api_get('/get_translations_of_bookmark/2')
+       rv = self.api_get('/get_translations_for_bookmark/2')
        translations_dict_bookmark_after_add = json.loads(rv.data)
        assert len(translations_dict_bookmark_after_add) ==2
        assert first_translation_word!= 'women'
        assert any(translation['word'] == first_translation_word for translation in translations_dict_bookmark_after_add)
        assert any(translation['word'] == 'women' for translation in translations_dict_bookmark_after_add)
 
-    def test_get_count_asked_outcome(self):
-        rv1 = self.api_get('/get_count_asked_outcome/I know')
-        rv2 = self.api_post('/create_new_exercise/I know/Recognize/10000/2')
-        rv2 = self.api_get('/get_count_asked_outcome/I know')
-        assert int(rv1.data) +1 == int(rv2.data)
-        rv2 = self.api_get('/get_count_asked_outcome/I kno')
-        int(rv2.data)==-1
+
+    def test_get_known_bookmarks(self):
         formData = dict(
             url='http://mir.lu',
-            context='sondern machte ab')
-        rv0 = self.api_get('/get_count_asked_outcome/I know')
-        rv1 = self.api_get('/get_count_asked_outcome/Do not know')
-        rv2 = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
-        rv2 = self.api_get('/get_count_asked_outcome/Do not know')
-        assert int(rv2.data) == int(rv1.data) +1
-        rv2 = self.api_get('/get_count_asked_outcome/I know')
-        assert int(rv0.data)+2 == int(rv2.data)
+            context='somewhere over the rainbowwwwwwwww')
+        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        formData = dict(
+            url='http://mir.lu',
+            context='chilling on the streets')
+        rv = self.api_post('/bookmark_with_context/de/strassen/en/streets', formData)
+        rv = self.api_get('/bookmarks_by_day/with_context')
+        bookmarks_by_day = json.loads(rv.data)
+        assert 'chilling on the streets' == bookmarks_by_day[0]['bookmarks'][0]['context']
+        assert 'somewhere over the rainbowwwwwwwww' == bookmarks_by_day[0]['bookmarks'][1]['context']
+        latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][0]['id']
+        second_latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][1]['id']
+        rv = self.api_get('/get_exercise_history_for_bookmark/'+str(latest_bookmark_id))
+        'I know' not in rv.data
+        rv = self.api_get('/get_exercise_history_for_bookmark/'+str(second_latest_bookmark_id))
+        'I know' not in rv.data
+        rv = self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(latest_bookmark_id))
+        rv = self.api_get('/get_known_bookmarks')
+        known_bookmarks_before = json.loads(rv.data)
+        assert any(bookmark['id'] == latest_bookmark_id for bookmark in known_bookmarks_before)
+        assert not any(bookmark['id'] == second_latest_bookmark_id for bookmark in known_bookmarks_before)
+        rv = self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(second_latest_bookmark_id))
+        rv = self.api_get('/get_known_bookmarks')
+        known_bookmarks_after = json.loads(rv.data)
+        assert any(bookmark['id'] == latest_bookmark_id for bookmark in known_bookmarks_after)
+        assert any(bookmark['id'] == second_latest_bookmark_id for bookmark in known_bookmarks_after)
 
+    def test_get_known_words(self):
+        formData = dict(
+            url='http://mir.lu',
+            context='somewhere over the rainbowwwwwwwww')
+        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        formData = dict(
+            url='http://mir.lu',
+            context='saying hi to girls')
+        rv = self.api_post('/bookmark_with_context/de/maedchen/en/girls', formData)
+        formData = dict(
+            url='http://mir.lu',
+            context='chilling with the girls')
+        rv = self.api_post('/bookmark_with_context/de/maedchen/en/girls', formData)
+        rv = self.api_get('/bookmarks_by_day/with_context')
+        bookmarks_by_day = json.loads(rv.data)
+        latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][0]['id']
+        second_latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][1]['id']
+        third_latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][2]['id']
+        latest_bookmark_word = bookmarks_by_day[0]['bookmarks'][0]['from']
+        second_latest_bookmark_word = bookmarks_by_day[0]['bookmarks'][1]['from']
+        third_latest_bookmark_word = bookmarks_by_day[0]['bookmarks'][2]['from']
+        rv = self.api_get('/get_known_words')
+        known_words = json.loads(rv.data)
+        known_words_count_before = len(known_words)
+        assert not any(word['from'] == latest_bookmark_word for word in known_words)
+        rv = self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(latest_bookmark_id))
+        rv = self.api_get('/get_known_words')
+        known_words = json.loads(rv.data)
+        assert any(word['word'] == latest_bookmark_word for word in known_words)
+        assert known_words_count_before +1 == len(known_words)
+        rv = self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(second_latest_bookmark_id))
+        rv = self.api_get('/get_known_words')
+        known_words = json.loads(rv.data)
+        assert any(word['word'] == latest_bookmark_word for word in known_words)
+        assert any(word['word'] == second_latest_bookmark_word for word in known_words)
+        assert known_words_count_before +1 == len(known_words)
+        rv = self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(third_latest_bookmark_id))
+        rv = self.api_get('/get_known_words')
+        known_words = json.loads(rv.data)
+        assert known_words_count_before +2 == len(known_words)
+        assert any(word['word'] == latest_bookmark_word for word in known_words)
+        assert any(word['word'] == third_latest_bookmark_word for word in known_words)
+
+    def test_get_learned_bookmarks(self):
+        formData = dict(
+            url='http://mir.lu',
+            context='somewhere over the rainbowwwwwwwww')
+        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        rv = self.api_get('/bookmarks_by_day/with_context')
+        bookmarks_by_day = json.loads(rv.data)
+        latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][0]['id']
+        rv = self.api_get('/get_learned_bookmarks')
+        learned_bookmarks = json.loads(rv.data)
+        assert any(bookmark['id'] == latest_bookmark_id for bookmark in learned_bookmarks)
+        learned_bookmarks_count = len(learned_bookmarks)
+        formData = dict(
+            url='http://mir.lu',
+            context='chilling on the streets')
+        rv = self.api_post('/bookmark_with_context/de/strassen/en/streets', formData)
+        rv = self.api_get('/bookmarks_by_day/with_context')
+        bookmarks_by_day = json.loads(rv.data)
+        new_latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][1]['id']
+        rv = self.api_get('/get_learned_bookmarks')
+        learned_bookmarks = json.loads(rv.data)
+        assert learned_bookmarks_count +1 == len(learned_bookmarks)
+        assert any(bookmark['id'] == latest_bookmark_id for bookmark in learned_bookmarks)
+        assert any(bookmark['id'] == new_latest_bookmark_id for bookmark in learned_bookmarks)
+        rv = self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(latest_bookmark_id))
+        rv = self.api_get('/get_learned_bookmarks')
+        learned_bookmarks = json.loads(rv.data)
+        assert learned_bookmarks_count== len(learned_bookmarks)
+        rv = self.api_post('/create_new_exercise/Do not know/Recognize/10000/'+ str(latest_bookmark_id))
+        rv = self.api_get('/get_learned_bookmarks')
+        learned_bookmarks = json.loads(rv.data)
+        assert learned_bookmarks_count== len(learned_bookmarks)
+
+    def test_get_estimated_user_vocabulary(self):
+        rv = self.api_get('/bookmarks_by_day/with_context')
+        bookmarks_by_day = []
+        bookmarks_by_day_with_date = json.loads(rv.data)
+        rv = self.api_get('/get_estimated_user_vocabulary')
+        estimated_user_voc_before = json.loads(rv.data)
+        assert not any (bookmark['word'] == 'Solche' for bookmark in estimated_user_voc_before)
+        assert not any (bookmark['word'] == 'mal' for bookmark in estimated_user_voc_before)
+        assert not any (bookmark['word'] == 'etwas' for bookmark in estimated_user_voc_before)
+        for i in range(0, len(bookmarks_by_day_with_date)):
+            for j in range (0, len(bookmarks_by_day_with_date[i]['bookmarks'])):
+                bookmarks_by_day.append(bookmarks_by_day_with_date[i]['bookmarks'][j]['context'])
+                # print bookmarks_by_day_with_date[i]['bookmarks'][0]['context']
+        for bookmark in bookmarks_by_day:
+            bookmark_content_words = re.sub("[^\w]", " ",  bookmark).split()
+        assert not 'Sage' in bookmark_content_words
+        assert not 'mal' in bookmark_content_words
+        assert not 'etwas' in bookmark_content_words
+        formData = dict(
+            url='http://mir.lu',
+            context='Sage mal etwas')
+        rv = self.api_post('/bookmark_with_context/de/etwas/en/something', formData)
+        rv = self.api_get('/get_estimated_user_vocabulary')
+        estimated_user_voc_after = json.loads(rv.data)
+        assert len(estimated_user_voc_after)==len(estimated_user_voc_before)+2
+        assert any (bookmark['word'] == 'Sage' for bookmark in estimated_user_voc_after)
+        assert any (bookmark['word'] == 'mal' for bookmark in estimated_user_voc_after)
+        assert not any (bookmark['word'] == 'etwas' for bookmark in estimated_user_voc_after)
 
 
     def test_set_language(self):
