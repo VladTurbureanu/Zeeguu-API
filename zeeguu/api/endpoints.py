@@ -360,46 +360,46 @@ def delete_bookmark(bookmark_id):
     zeeguu.db.session.commit()
     return "OK"
 
-@api.route("/create_new_exercise/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<bookmark_id>",
+@api.route("/create_new_exercise_log/<exercise_log_outcome>/<exercise_log_source>/<exercise_log_solving_speed>/<bookmark_id>",
            methods=["POST"])
 @cross_domain
 @with_session
-def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,bookmark_id):
+def create_new_exercise_log(exercise_log_outcome,exercise_log_source,exercise_log_solving_speed,bookmark_id):
     bookmark = model.Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
-    new_source = model.ExerciseSource.query.filter_by(
-        source=exercise_source
+    new_source = model.ExerciseLogSource.query.filter_by(
+        source=exercise_log_source
     ).first()
-    new_outcome=model.ExerciseOutcome.query.filter_by(
-        outcome=exercise_outcome
+    new_outcome=model.ExerciseLogOutcome.query.filter_by(
+        outcome=exercise_log_outcome
     ).first()
     if new_source is None or new_outcome is None :
          return "FAIL"
-    exercise = model.Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
-    bookmark.add_new_exercise(exercise)
-    zeeguu.db.session.add(exercise)
+    exercise_log = model.ExerciseLog(new_outcome,new_source,exercise_log_solving_speed,datetime.datetime.now())
+    bookmark.add_new_exercise_log(exercise_log)
+    zeeguu.db.session.add(exercise_log)
     zeeguu.db.session.commit()
     return "OK"
 
-@api.route("/get_exercise_history_for_bookmark/<bookmark_id>", methods=("GET",))
+@api.route("/get_exercise_log_history_for_bookmark/<bookmark_id>", methods=("GET",))
 @cross_domain
 @with_session
-def get_exercise_history_for_bookmark(bookmark_id):
+def get_exercise_log_history_for_bookmark(bookmark_id):
     bookmark = model.Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
-    exercise_dict_list = []
-    exercise_list = bookmark.exercise_history
-    for exercise in exercise_list:
-         exercise_dict = {}
-         exercise_dict['id'] = exercise.id
-         exercise_dict['outcome'] = exercise.outcome.outcome
-         exercise_dict['source'] = exercise.source.source
-         exercise_dict['exercise_solving_speed'] = exercise.solving_speed
-         exercise_dict['time'] = exercise.time.strftime('%m/%d/%Y')
-         exercise_dict_list.append(exercise_dict.copy())
-    js = json.dumps(exercise_dict_list)
+    exercise_log_dict_list = []
+    exercise_log_list = bookmark.exercise_log_history
+    for exercise_log in exercise_log_list:
+         exercise_log_dict = {}
+         exercise_log_dict['id'] = exercise_log.id
+         exercise_log_dict['outcome'] = exercise_log.outcome.outcome
+         exercise_log_dict['source'] = exercise_log.source.source
+         exercise_log_dict['exercise_log_solving_speed'] = exercise_log.solving_speed
+         exercise_log_dict['time'] = exercise_log.time.strftime('%m/%d/%Y')
+         exercise_log_dict_list.append(exercise_log_dict.copy())
+    js = json.dumps(exercise_log_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
@@ -443,7 +443,6 @@ def delete_translation_from_bookmark(bookmark_id,translation_word):
         id = translation_id
     ).first()
     bookmark.remove_translation(translation)
-    zeeguu.db.session.delete(translation)
     zeeguu.db.session.commit()
     return "OK"
 
@@ -477,15 +476,15 @@ def get_known_bookmarks():
     bookmarks = model.Bookmark.find_all()
     i_know_bookmarks=[]
     for bookmark in bookmarks:
-        for exercise in bookmark.exercise_history:
-            i_know_bookmark_dict = {}
-            if exercise.outcome.outcome == 'I know':
+        sorted_exercise_log_history_after_date=sorted(bookmark.exercise_log_history, key=lambda x: x.time, reverse=True)
+        if sorted_exercise_log_history_after_date:
+            if sorted_exercise_log_history_after_date[0].outcome.outcome == 'I know':
+                i_know_bookmark_dict = {}
                 i_know_bookmark_dict['id'] = bookmark.id
                 i_know_bookmark_dict['origin'] = bookmark.origin.word
                 i_know_bookmark_dict['text']= bookmark.text.content
                 i_know_bookmark_dict['time']=bookmark.time.strftime('%m/%d/%Y')
                 i_know_bookmarks.append(i_know_bookmark_dict.copy())
-                break
     js = json.dumps(i_know_bookmarks)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
@@ -497,19 +496,26 @@ def get_known_bookmarks():
 def get_known_words():
     bookmarks = model.Bookmark.find_all()
     i_know_words=[]
-    i_know_words_dict_list =[]
+    filtered_i_know_words_from_user = []
+    filtered_i_know_words_dict_list =[]
     for bookmark in bookmarks:
-        for exercise in bookmark.exercise_history:
-            if exercise.outcome.outcome == 'I know':
+        sorted_exercise_log_history_after_date=sorted(bookmark.exercise_log_history, key=lambda x: x.time, reverse=True)
+        if sorted_exercise_log_history_after_date:
+            if sorted_exercise_log_history_after_date[0].outcome.outcome == 'I know':
                 i_know_words.append(bookmark.origin.word)
+    words_known_from_user = [word.encode('utf-8') for word in i_know_words]
+    for word_known in words_known_from_user:
+        for word in model.Word.getImportantWords('de'):
+            if word_known.lower() == word.lower():
+                filtered_i_know_words_from_user.append(word)
                 break
-    i_know_words = list(set(i_know_words))
+    filtered_i_know_words_from_user = list(set(i_know_words))
 
-    for word in i_know_words:
-        i_know_word_dict = {}
-        i_know_word_dict['word'] = word
-        i_know_words_dict_list.append(i_know_word_dict.copy())
-    js = json.dumps(i_know_words_dict_list)
+    for word in filtered_i_know_words_from_user:
+        filtered_i_know_word_dict = {}
+        filtered_i_know_word_dict['word'] = word
+        filtered_i_know_words_dict_list.append(filtered_i_know_word_dict.copy())
+    js = json.dumps(filtered_i_know_words_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
@@ -522,10 +528,10 @@ def get_learned_bookmarks():
     i_know_bookmarks=[]
     learned_bookmarks_dict_list =[]
     for bookmark in bookmarks:
-        for exercise in bookmark.exercise_history:
-            if exercise.outcome.outcome == 'I know':
+        sorted_exercise_log_history_after_date=sorted(bookmark.exercise_log_history, key=lambda x: x.time, reverse=True)
+        if sorted_exercise_log_history_after_date:
+            if sorted_exercise_log_history_after_date[0].outcome.outcome == 'I know':
                 i_know_bookmarks.append(bookmark)
-                break
 
     learned_bookmarks= [bookmark for bookmark in bookmarks if bookmark not in i_know_bookmarks]
 
@@ -545,22 +551,28 @@ def get_learned_bookmarks():
 @with_session
 def get_estimated_user_vocabulary():
     bookmarks = model.Bookmark.find_all()
-    words_known_from_user_dict_list =[]
+    filtered_words_known_from_user_dict_list =[]
     marked_words_of_user_in_text = []
     words_of_all_bookmarks_content = []
+    filtered_words_known_from_user = []
     for bookmark in bookmarks:
         bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
         words_of_all_bookmarks_content.extend(bookmark_content_words)
         marked_words_of_user_in_text.append(bookmark.origin.word)
-    words_of_all_bookmarks_content = list(set(words_of_all_bookmarks_content))
-    marked_words_of_user_in_text = list(set(marked_words_of_user_in_text))
     words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
-    for word in words_known_from_user:
-        word_known_from_user_dict = {}
-        word_known_from_user_dict['word'] = word
-        words_known_from_user_dict_list.append(word_known_from_user_dict.copy())
+    words_known_from_user = [x.encode('utf-8') for x in words_known_from_user]
+    for word_known in words_known_from_user:
+        for word in model.Word.getImportantWords('de'):
+            if word_known.lower() == word.lower():
+                filtered_words_known_from_user.append(word)
+                break
+    filtered_words_known_from_user = list(set(filtered_words_known_from_user))
+    for word in filtered_words_known_from_user:
+        filtered_word_known_from_user_dict = {}
+        filtered_word_known_from_user_dict['word'] = word
+        filtered_words_known_from_user_dict_list.append(filtered_word_known_from_user_dict.copy())
 
-    js = json.dumps(words_known_from_user_dict_list)
+    js = json.dumps(filtered_words_known_from_user_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 

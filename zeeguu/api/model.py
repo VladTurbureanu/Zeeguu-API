@@ -2,6 +2,7 @@
 import re
 import random
 import datetime
+import codecs
 from sqlalchemy import Column, Table, ForeignKey, Integer
 
 import sqlalchemy.orm.exc
@@ -234,7 +235,6 @@ class Word(db.Model, util.JSONSerializable):
 
     # if the word is not found, we assume a rank of 1000000
     def get_rank_from_file(self):
-        import codecs
         try:
             f=codecs.open(zeeguu.app.config.get("LANGUAGES_FOLDER").decode('utf-8')+self.language.id+".txt", encoding="iso-8859-1")
 
@@ -290,6 +290,14 @@ class Word(db.Model, util.JSONSerializable):
                          .filter(WordAlias.language == from_lang)
                          .all())
 
+    @classmethod
+    def getImportantWords(cls,language_code):
+        words_file = open("../../languages/"+str(language_code)+".txt")
+        # with codecs.open("../../languages/"+str(language_code)+".txt",'r',encoding='utf8') as words_file:
+        words_list = words_file.read().splitlines()
+        # words_list = [x.decode('utf-8') for x in words_list]
+        return words_list
+
 
 WordAlias = db.aliased(Word, name="translated_word")
 
@@ -336,7 +344,7 @@ class Bookmark(db.Model):
 
     time = db.Column(db.DateTime)
 
-    exercise_history = relationship("Exercise", secondary="bookmark_exercise_mapping")
+    exercise_log_history = relationship("ExerciseLog", secondary="bookmark_exercise_log_mapping")
 
     def __init__(self, origin, translation, user, text, time):
         self.origin = origin
@@ -345,8 +353,8 @@ class Bookmark(db.Model):
         self.time = time
         self.text = text
 
-    def add_new_exercise(self, exercise):
-        self.exercise_history.append(exercise)
+    def add_new_exercise_log(self, exercise_log):
+        self.exercise_log_history.append(exercise_log)
 
     def get_rendering_translation_words(self):
         translation_words = ''
@@ -378,13 +386,13 @@ bookmark_translation_mapping = Table('bookmark_translation_mapping', db.Model.me
 
 
 
-class Exercise(db.Model):
-    __tablename__ = 'exercise'
+class ExerciseLog(db.Model):
+    __tablename__ = 'exercise_log'
     id = db.Column(db.Integer, primary_key=True)
-    outcome_id=db.Column(db.Integer,db.ForeignKey('exercise_outcome.id'),nullable=False)
-    outcome = db.relationship ("ExerciseOutcome", backref="exercise")
-    source_id=db.Column(db.Integer,db.ForeignKey('exercise_source.id'), nullable=False)
-    source = db.relationship ("ExerciseSource", backref="exercise")
+    outcome_id=db.Column(db.Integer,db.ForeignKey('exercise_log_outcome.id'),nullable=False)
+    outcome = db.relationship ("ExerciseLogOutcome", backref="exercise_log")
+    source_id=db.Column(db.Integer,db.ForeignKey('exercise_log_source.id'), nullable=False)
+    source = db.relationship ("ExerciseLogSource", backref="exercise_log")
     solving_speed=db.Column(db.Integer)
     time=db.Column(db.DateTime, nullable=False)
 
@@ -395,8 +403,8 @@ class Exercise(db.Model):
         self.time = time
 
 
-class ExerciseOutcome(db.Model):
-    __tablename__ = 'exercise_outcome'
+class ExerciseLogOutcome(db.Model):
+    __tablename__ = 'exercise_log_outcome'
     id = db.Column(db.Integer, primary_key=True)
     outcome=db.Column(db.String(255),nullable=False)
 
@@ -404,8 +412,8 @@ class ExerciseOutcome(db.Model):
         self.outcome = outcome
 
 
-class ExerciseSource(db.Model):
-    __tablename__ = 'exercise_source'
+class ExerciseLogSource(db.Model):
+    __tablename__ = 'exercise_log_source'
     id = db.Column(db.Integer, primary_key=True)
     source=db.Column(db.String(255), nullable=False)
 
@@ -413,9 +421,9 @@ class ExerciseSource(db.Model):
         self.source = source
 
 
-bookmark_exercise_mapping = Table('bookmark_exercise_mapping', db.Model.metadata,
+bookmark_exercise_log_mapping = Table('bookmark_exercise_log_mapping', db.Model.metadata,
     Column('bookmark_id', Integer, ForeignKey('bookmark.id')),
-    Column('exercise_id', Integer, ForeignKey('exercise.id'))
+    Column('exercise_log_id', Integer, ForeignKey('exercise_log.id'))
 )
 
 

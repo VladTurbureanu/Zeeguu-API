@@ -89,17 +89,15 @@ def create_test_db():
     zeeguu.db.session.add(es)
     zeeguu.db.session.commit()
 
-    print "created the langages tabele"
+    not_know = model.ExerciseLogOutcome("Do not know")
+    retry = model.ExerciseLogOutcome("Retry")
+    correct = model.ExerciseLogOutcome("Correct")
+    wrong = model.ExerciseLogOutcome("Wrong")
+    typo = model.ExerciseLogOutcome("Typo")
+    i_know = model.ExerciseLogOutcome("I know")
 
-    not_know = model.ExerciseOutcome("Do not know")
-    retry = model.ExerciseOutcome("Retry")
-    correct = model.ExerciseOutcome("Correct")
-    wrong = model.ExerciseOutcome("Wrong")
-    typo = model.ExerciseOutcome("Typo")
-    i_know = model.ExerciseOutcome("I know")
-
-    recognize = model.ExerciseSource("Recognize")
-    translate = model.ExerciseSource("Translate")
+    recognize = model.ExerciseLogSource("Recognize")
+    translate = model.ExerciseLogSource("Translate")
 
     zeeguu.db.session.add(not_know)
     zeeguu.db.session.add(retry)

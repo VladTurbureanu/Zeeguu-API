@@ -1,16 +1,11 @@
-DROP TABLE IF EXISTS bookmark_translation_mapping;
 
-CREATE TABLE bookmark_translation_mapping
-(
-bookmark_id INT NOT NULL,
-translation_id INT NOT NULL,
-FOREIGN KEY (bookmark_id) REFERENCES bookmark(id),
-FOREIGN KEY (translation_id) REFERENCES word(id)
-);
+RENAME TABLE exercise TO exercise_log;
 
-RENAME TABLE contribution TO bookmark;
+RENAME TABLE exercise_source TO exercise_log_source;
 
-RENAME TABLE contribution_exercise_mapping TO bookmark_exercise_mapping
+RENAME TABLE exercise_outcome TO exercise_log_outcome;
+
+RENAME TABLE bookmark_exercise_mapping TO bookmark_exercise_log_mapping
 
 
 
