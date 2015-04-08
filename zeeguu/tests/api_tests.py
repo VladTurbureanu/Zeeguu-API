@@ -116,14 +116,14 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_translate(self):
-        rv = self.api_get('/translate_from_to/frauen/de/en')
-        assert rv.data == "women"
+        rv = self.api_get('/translate_from_to/Z%C3%B6llner/de/en')
+        assert rv.data == "Publican"
 
         formData = dict(
             url='http://mir.lu',
             context='somewhere over the rainbowwwwwwwww')
-        rv = self.api_post('/translate_with_context/kinder/de/en', formData)
-        assert rv.data == "children"
+        rv = self.api_post('/translate_with_context/Kinder/de/en', formData)
+        assert rv.data == "Children"
 
 
 
