@@ -289,9 +289,12 @@ def contributions_by_day(return_context):
 @cross_domain
 # @with_user
 def translate_from_to (word, from_lang_code,to_lang_code):
-    gs = goslate.Goslate()
-    return gs.translate(word, to_lang_code, from_lang_code)
-
+    # gs = goslate.Goslate()
+    # return gs.translate(word, to_lang_code, from_lang_code)
+    TRANSLATE_URL = "https://www.googleapis.com/language/translate/v2"
+    TRANSLATE_API_KEY = zeeguu.app.config.get("TRANSLATE_API_KEY")
+    result=json.loads(urllib2.urlopen(TRANSLATE_URL+"?q="+word+"&target="+to_lang_code+"&format=text&source="+from_lang_code+"&key="+TRANSLATE_API_KEY).read())
+    return result['data']['translations'][0]['translatedText']
 
 @api.route ("/translate_with_context/<word>/<from_lang_code>/<to_lang_code>", methods=["POST"])
 @cross_domain
@@ -306,8 +309,7 @@ def translate_from_to_with_context (word, from_lang_code,to_lang_code):
     """
     context = flask.request.form['context']
     url = flask.request.form['url']
-    gs = goslate.Goslate()
-    return gs.translate(word, to_lang_code, from_lang_code)
+    return translate_from_to(word, from_lang_code, to_lang_code)
 
 
 
