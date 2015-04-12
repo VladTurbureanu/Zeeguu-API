@@ -246,7 +246,7 @@ def bookmarks_by_day(return_context):
             bookmark = {}
             bookmark['id'] = b.id
             bookmark['from'] = b.origin.word
-            bookmark['to'] = b.get_translation_words_list()
+            bookmark['to'] = b.translation_words_list()
             bookmark['title'] = b.text.url.title
             bookmark['url'] = b.text.url.url
 
@@ -337,15 +337,15 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
 
     #create the text entity first
     new_text = model.Text(context, from_lang, url)
-
+    bookmark = model.Bookmark(word, translation, flask.g.user, new_text, datetime.datetime.now())
     if search:
-        search.bookmark = model.Bookmark(word, translation, flask.g.user, new_text, datetime.datetime.now())
+        search.bookmark = bookmark
     else:
-        zeeguu.db.session.add(model.Bookmark(word, translation, flask.g.user, new_text, datetime.datetime.now()))
+        zeeguu.db.session.add(bookmark)
 
     zeeguu.db.session.commit()
 
-    return "OK"
+    return str(bookmark.id)
 
 
 @api.route("/delete_bookmark/<bookmark_id>",
@@ -360,46 +360,46 @@ def delete_bookmark(bookmark_id):
     zeeguu.db.session.commit()
     return "OK"
 
-@api.route("/create_new_exercise_log/<exercise_log_outcome>/<exercise_log_source>/<exercise_log_solving_speed>/<bookmark_id>",
+@api.route("/create_new_exercise/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<bookmark_id>",
            methods=["POST"])
 @cross_domain
 @with_session
-def create_new_exercise_log(exercise_log_outcome,exercise_log_source,exercise_log_solving_speed,bookmark_id):
+def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,bookmark_id):
     bookmark = model.Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
-    new_source = model.ExerciseLogSource.query.filter_by(
-        source=exercise_log_source
+    new_source = model.ExerciseSource.query.filter_by(
+        source=exercise_source
     ).first()
-    new_outcome=model.ExerciseLogOutcome.query.filter_by(
-        outcome=exercise_log_outcome
+    new_outcome=model.ExerciseOutcome.query.filter_by(
+        outcome=exercise_outcome
     ).first()
     if new_source is None or new_outcome is None :
          return "FAIL"
-    exercise_log = model.ExerciseLog(new_outcome,new_source,exercise_log_solving_speed,datetime.datetime.now())
-    bookmark.add_new_exercise_log(exercise_log)
-    zeeguu.db.session.add(exercise_log)
+    exercise = model.Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
+    bookmark.add_new_exercise(exercise)
+    zeeguu.db.session.add(exercise)
     zeeguu.db.session.commit()
     return "OK"
 
-@api.route("/get_exercise_log_history_for_bookmark/<bookmark_id>", methods=("GET",))
+@api.route("/get_exercise_log_for_bookmark/<bookmark_id>", methods=("GET",))
 @cross_domain
 @with_session
-def get_exercise_log_history_for_bookmark(bookmark_id):
+def get_exercise_log_for_bookmark(bookmark_id):
     bookmark = model.Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
-    exercise_log_dict_list = []
-    exercise_log_list = bookmark.exercise_log_history
-    for exercise_log in exercise_log_list:
-         exercise_log_dict = {}
-         exercise_log_dict['id'] = exercise_log.id
-         exercise_log_dict['outcome'] = exercise_log.outcome.outcome
-         exercise_log_dict['source'] = exercise_log.source.source
-         exercise_log_dict['exercise_log_solving_speed'] = exercise_log.solving_speed
-         exercise_log_dict['time'] = exercise_log.time.strftime('%m/%d/%Y')
-         exercise_log_dict_list.append(exercise_log_dict.copy())
-    js = json.dumps(exercise_log_dict_list)
+    exercise_log_dict = []
+    exercise_log = bookmark.exercise_log
+    for exercise in exercise_log:
+         exercise_dict = {}
+         exercise_dict['id'] = exercise.id
+         exercise_dict['outcome'] = exercise.outcome.outcome
+         exercise_dict['source'] = exercise.source.source
+         exercise_dict['exercise_log_solving_speed'] = exercise.solving_speed
+         exercise_dict['time'] = exercise.time.strftime('%m/%d/%Y')
+         exercise_log_dict.append(exercise_dict.copy())
+    js = json.dumps(exercise_log_dict)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
@@ -471,14 +471,11 @@ def get_translations_for_bookmark(bookmark_id):
 @api.route("/get_known_bookmarks", methods=("GET",))
 @cross_domain
 @with_session
-
 def get_known_bookmarks():
-    bookmarks = model.Bookmark.find_all()
+    bookmarks = model.Bookmark.find_all_filtered_by_user()
     i_know_bookmarks=[]
     for bookmark in bookmarks:
-        sorted_exercise_log_history_after_date=sorted(bookmark.exercise_log_history, key=lambda x: x.time, reverse=True)
-        if sorted_exercise_log_history_after_date:
-            if sorted_exercise_log_history_after_date[0].outcome.outcome == 'I know':
+        if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
                 i_know_bookmark_dict = {}
                 i_know_bookmark_dict['id'] = bookmark.id
                 i_know_bookmark_dict['origin'] = bookmark.origin.word
@@ -492,16 +489,13 @@ def get_known_bookmarks():
 @api.route("/get_known_words", methods=("GET",))
 @cross_domain
 @with_session
-
 def get_known_words():
-    bookmarks = model.Bookmark.find_all()
+    bookmarks = model.Bookmark.find_all_filtered_by_user()
     i_know_words=[]
     filtered_i_know_words_from_user = []
     filtered_i_know_words_dict_list =[]
     for bookmark in bookmarks:
-        sorted_exercise_log_history_after_date=sorted(bookmark.exercise_log_history, key=lambda x: x.time, reverse=True)
-        if sorted_exercise_log_history_after_date:
-            if sorted_exercise_log_history_after_date[0].outcome.outcome == 'I know':
+        if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
                 i_know_words.append(bookmark.origin.word)
     words_known_from_user = [word.encode('utf-8') for word in i_know_words]
     for word_known in words_known_from_user:
@@ -524,17 +518,13 @@ def get_known_words():
 @cross_domain
 @with_session
 def get_learned_bookmarks():
-    bookmarks = model.Bookmark.find_all()
+    bookmarks = model.Bookmark.find_all_filtered_by_user()
     i_know_bookmarks=[]
     learned_bookmarks_dict_list =[]
     for bookmark in bookmarks:
-        sorted_exercise_log_history_after_date=sorted(bookmark.exercise_log_history, key=lambda x: x.time, reverse=True)
-        if sorted_exercise_log_history_after_date:
-            if sorted_exercise_log_history_after_date[0].outcome.outcome == 'I know':
+        if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
                 i_know_bookmarks.append(bookmark)
-
     learned_bookmarks= [bookmark for bookmark in bookmarks if bookmark not in i_know_bookmarks]
-
     for bookmark in learned_bookmarks:
         learned_bookmarks_dict = {}
         learned_bookmarks_dict ['id'] = bookmark.id
@@ -550,7 +540,7 @@ def get_learned_bookmarks():
 @cross_domain
 @with_session
 def get_estimated_user_vocabulary():
-    bookmarks = model.Bookmark.find_all()
+    bookmarks = model.Bookmark.find_all_filtered_by_user()
     filtered_words_known_from_user_dict_list =[]
     marked_words_of_user_in_text = []
     words_of_all_bookmarks_content = []

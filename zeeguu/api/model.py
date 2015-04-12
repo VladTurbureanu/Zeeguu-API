@@ -3,6 +3,7 @@ import re
 import random
 import datetime
 import codecs
+import flask
 from sqlalchemy import Column, Table, ForeignKey, Integer
 
 import sqlalchemy.orm.exc
@@ -344,7 +345,7 @@ class Bookmark(db.Model):
 
     time = db.Column(db.DateTime)
 
-    exercise_log_history = relationship("ExerciseLog", secondary="bookmark_exercise_log_mapping")
+    exercise_log = relationship("Exercise", secondary="bookmark_exercise_mapping")
 
     def __init__(self, origin, translation, user, text, time):
         self.origin = origin
@@ -353,16 +354,16 @@ class Bookmark(db.Model):
         self.time = time
         self.text = text
 
-    def add_new_exercise_log(self, exercise_log):
-        self.exercise_log_history.append(exercise_log)
+    def add_new_exercise(self, exercise):
+        self.exercise_log.append(exercise)
 
-    def get_rendering_translation_words(self):
+    def translations_rendered_as_text(self):
         translation_words = ''
-        for translation in self.get_translation_words_list:
+        for translation in self.translation_words_list:
             translation_words = translation_words + ', ' + translation
         return translation_words
 
-    def get_translation_words_list(self):
+    def translation_words_list(self):
         translation_words=[]
         for translation in self.translations_list:
             translation_words.append(translation.word)
@@ -376,8 +377,18 @@ class Bookmark(db.Model):
             self.translations_list.remove(translation)
 
     @classmethod
-    def find_all(cls):
-        return cls.query.all()
+    def find_all_filtered_by_user(cls):
+        return cls.query.filter_by(
+            user= flask.g.user
+        ).all()
+
+    @classmethod
+    def is_sorted_exercise_log_after_date_outcome(cls,outcome, bookmark):
+        sorted_exercise_log_after_date=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=True)
+        if sorted_exercise_log_after_date:
+            if sorted_exercise_log_after_date[0].outcome.outcome == outcome:
+                return True
+        return False
 
 bookmark_translation_mapping = Table('bookmark_translation_mapping', db.Model.metadata,
     Column('bookmark_id', Integer, ForeignKey('bookmark.id')),
@@ -386,13 +397,13 @@ bookmark_translation_mapping = Table('bookmark_translation_mapping', db.Model.me
 
 
 
-class ExerciseLog(db.Model):
-    __tablename__ = 'exercise_log'
+class Exercise(db.Model):
+    __tablename__ = 'exercise'
     id = db.Column(db.Integer, primary_key=True)
-    outcome_id=db.Column(db.Integer,db.ForeignKey('exercise_log_outcome.id'),nullable=False)
-    outcome = db.relationship ("ExerciseLogOutcome", backref="exercise_log")
-    source_id=db.Column(db.Integer,db.ForeignKey('exercise_log_source.id'), nullable=False)
-    source = db.relationship ("ExerciseLogSource", backref="exercise_log")
+    outcome_id=db.Column(db.Integer,db.ForeignKey('exercise_outcome.id'),nullable=False)
+    outcome = db.relationship ("ExerciseOutcome", backref="exercise")
+    source_id=db.Column(db.Integer,db.ForeignKey('exercise_source.id'), nullable=False)
+    source = db.relationship ("ExerciseSource", backref="exercise")
     solving_speed=db.Column(db.Integer)
     time=db.Column(db.DateTime, nullable=False)
 
@@ -403,17 +414,20 @@ class ExerciseLog(db.Model):
         self.time = time
 
 
-class ExerciseLogOutcome(db.Model):
-    __tablename__ = 'exercise_log_outcome'
+class ExerciseOutcome(db.Model):
+    __tablename__ = 'exercise_outcome'
     id = db.Column(db.Integer, primary_key=True)
     outcome=db.Column(db.String(255),nullable=False)
+
+    IKNOW = 'I know'
+    NOT_KNOW = 'Do not know'
 
     def __init__(self,outcome):
         self.outcome = outcome
 
 
-class ExerciseLogSource(db.Model):
-    __tablename__ = 'exercise_log_source'
+class ExerciseSource(db.Model):
+    __tablename__ = 'exercise_source'
     id = db.Column(db.Integer, primary_key=True)
     source=db.Column(db.String(255), nullable=False)
 
@@ -421,9 +435,9 @@ class ExerciseLogSource(db.Model):
         self.source = source
 
 
-bookmark_exercise_log_mapping = Table('bookmark_exercise_log_mapping', db.Model.metadata,
+bookmark_exercise_mapping = Table('bookmark_exercise_mapping', db.Model.metadata,
     Column('bookmark_id', Integer, ForeignKey('bookmark.id')),
-    Column('exercise_log_id', Integer, ForeignKey('exercise_log.id'))
+    Column('exercise_id', Integer, ForeignKey('exercise.id'))
 )
 
 
