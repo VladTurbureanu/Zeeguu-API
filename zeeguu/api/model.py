@@ -37,11 +37,11 @@ class User(db.Model):
     )
     native_language = sqlalchemy.orm.relationship("Language", foreign_keys=[native_language_id])
 
-    def __init__(self, email, name, password, learned_language=None, native_language = None):
+    def __init__(self, email, username, password, learned_language=None, native_language = None):
         self.email = email
-        self.name = name
+        self.name = username
         self.update_password(password)
-        self.learned_language = learned_language or Language.default()
+        self.learned_language = learned_language or Language.default_learned()
         self.native_language = native_language or Language.default_native_language()
 
     def __repr__(self):
