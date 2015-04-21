@@ -289,11 +289,17 @@ def contributions_by_day(return_context):
 @cross_domain
 # @with_user
 def translate_from_to (word, from_lang_code,to_lang_code):
-    # gs = goslate.Goslate()
-    # return gs.translate(word, to_lang_code, from_lang_code)
-    TRANSLATE_URL = "https://www.googleapis.com/language/translate/v2"
-    TRANSLATE_API_KEY = zeeguu.app.config.get("TRANSLATE_API_KEY")
-    url = TRANSLATE_URL + "?q="+ word.encode('utf-8') +"&target="+to_lang_code.encode('utf-8')+"&format=text&source="+from_lang_code.encode('utf-8')+"&key="+TRANSLATE_API_KEY
+    translate_url = "https://www.googleapis.com/language/translate/v2"
+    api_key = zeeguu.app.config.get("TRANSLATE_API_KEY")
+
+    # Note, that there is quote and quote_plus. The Google API prefers quote_plus,
+    # since this seems to be the convention for info submitted from forms via GET.
+    url = translate_url + \
+            "?q="+ urllib.quote_plus(word.encode('utf-8')) +\
+            "&target="+to_lang_code.encode('utf-8')+\
+            "&format=text&source="+from_lang_code.encode('utf-8')+\
+            "&key="+api_key
+
     result=json.loads(urllib2.urlopen(url).read())
     return result['data']['translations'][0]['translatedText']
 

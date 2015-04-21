@@ -116,8 +116,8 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_translate(self):
-        rv = self.api_get('/translate_from_to/Z%C3%B6llner/de/en')
-        assert rv.data == "Publican"
+        rv = self.api_get('/translate_from_to/%C3%BCbrigens, ja!/de/en')
+        assert rv.data== "by the way, yes!"
 
         formData = dict(
             url='http://mir.lu',
