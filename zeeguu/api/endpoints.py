@@ -167,7 +167,7 @@ def decode_word(word):
     return word.replace("+", " ")
 
 
-@api.route("/adduser/<email>", methods=["POST"])
+@api.route("/add_user/<email>", methods=["POST"])
 @cross_domain
 def add_user(email):
     """
@@ -175,10 +175,11 @@ def add_user(email):
     endpoint. Returns a session
     """
     password = flask.request.form.get("password", None)
+    username = flask.request.form.get("username", None)
     if password is None:
         flask.abort(400)
     try:
-        zeeguu.db.session.add(model.User(email, password))
+        zeeguu.db.session.add(model.User(email, username, password))
         zeeguu.db.session.commit()
     except ValueError:
         flask.abort(400)

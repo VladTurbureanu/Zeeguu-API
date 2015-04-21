@@ -91,6 +91,17 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.api_get('/available_languages')
         print rv.data
 
+
+    def test_create_user(self):
+        formData = dict(
+            username= "gigi",
+            password= "lala"
+        )
+        rv = self.api_post('/add_user/i@i.la',formData)
+        print rv.data
+        assert rv.data > 1
+
+
     def test_get_language(self):
         rv = self.api_get('/learned_language')
         print rv.data
