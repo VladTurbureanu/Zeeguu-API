@@ -19,6 +19,7 @@ import json
 import goslate
 import datetime
 from zeeguu import model
+import re
 
 
 api = flask.Blueprint("api", __name__)
@@ -285,29 +286,27 @@ def contributions_by_day(return_context):
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-
-@api.route ("/translate_from_to/<word>/<from_lang_code>/<to_lang_code>", methods=["GET"])
-@cross_domain
-# @with_user
 def translate_from_to (word, from_lang_code,to_lang_code):
-    translate_url = "https://www.googleapis.com/language/translate/v2"
-    api_key = zeeguu.app.config.get("TRANSLATE_API_KEY")
+	translate_url = "https://www.googleapis.com/language/translate/v2"
+	api_key = zeeguu.app.config.get("TRANSLATE_API_KEY")
 
-    # Note, that there is quote and quote_plus. The Google API prefers quote_plus,
-    # since this seems to be the convention for info submitted from forms via GET.
-    url = translate_url + \
-            "?q="+ urllib.quote_plus(word.encode('utf-8')) +\
-            "&target="+to_lang_code.encode('utf-8')+\
-            "&format=text&source="+from_lang_code.encode('utf-8')+\
-            "&key="+api_key
+	# Note, that there is quote and quote_plus. The Google API prefers quote_plus,
+	# This seems to be the convention for info submitted from forms via GET.
+	url = translate_url + \
+		"?q="+ word +\
+		"&target="+to_lang_code.encode('utf8')+\
+		"&format=text".encode('utf8')+\
+		"&source="+from_lang_code.encode('utf8')+\
+		"&key="+api_key
+	print url
+	result=json.loads(urllib2.urlopen(url).read())
+	translation = result['data']['translations'][0]['translatedText']
+	return translation
 
-    result=json.loads(urllib2.urlopen(url).read())
-    return result['data']['translations'][0]['translatedText']
-
-@api.route ("/translate_with_context/<word>/<from_lang_code>/<to_lang_code>", methods=["POST"])
+@api.route ("/translate/<from_lang_code>/<to_lang_code>", methods=["POST"])
 @cross_domain
 # @with_user
-def translate_from_to_with_context (word, from_lang_code,to_lang_code):
+def translate(from_lang_code,to_lang_code):
     """
     This assumes that you pass the context and url in the post parameter
     :param word:
@@ -315,8 +314,10 @@ def translate_from_to_with_context (word, from_lang_code,to_lang_code):
     :param to_lang_code:
     :return:
     """
-    context = flask.request.form['context']
-    url = flask.request.form['url']
+    context = flask.request.form.get('context', '')
+    url = flask.request.form.get('url','')
+    word = flask.request.form['word']
+    word = re.sub(r'%20', "+", word)
     return translate_from_to(word, from_lang_code, to_lang_code)
 
 
