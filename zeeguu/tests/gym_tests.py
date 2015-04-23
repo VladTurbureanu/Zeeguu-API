@@ -11,5 +11,11 @@ class Gym_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.app.get('/contributions')
         assert 'hauen' in rv.data
 
+    def test_next_question_is_not_the_same_as_current(self):
+        r1 = self.app.get('/gym/question/de/en')
+        r2 = self.app.get('/gym/question/de/en')
+        assert r1.data != r2.data
+
+
 if __name__ == '__main__':
     unittest.main()
