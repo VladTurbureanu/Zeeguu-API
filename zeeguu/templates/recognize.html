@@ -5,7 +5,7 @@
 {% block body %}
     <div id="language-selection">
         <div class="exercise-title">Recognize the Word</div>
-        <select id="lang1" disabled style="visibility: hidden">
+        <select id="lang1">
             {% for language in languages %}
                 <option value="{{ language.id }}" {% if "English" == language.name %} selected{% endif %}>
                     {{ language.name }}
@@ -15,7 +15,7 @@
 
         <i style="visibility: hidden" class="icon-long-arrow-right"></i>
 
-        <select style="visibility: hidden" id="lang2" disabled >
+        <select id="lang2" >
             {% for language in languages %}
                  <option value="{{ language.id }}" {% if g.user.learned_language_id == language.id %} selected {% endif %} >
                     {{ language.name }}
