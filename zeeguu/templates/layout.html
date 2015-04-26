@@ -1,11 +1,9 @@
-<!doctype html>
-
 <html>
     <head>
 
         <title>Zeeguu</title>
 
-        {% assets filters="cssmin", output="instance/style.css", "css/bootstrap.css", "css/select2.css", "css/font-awesome.css", "css/flippant.css", "css/style.css", "css/homepage.css", "css/recognize.css" -%}
+        {% assets filters="cssmin", output="instance/style.css", "css/bootstrap.css", "css/select2.css", "css/font-awesome.css", "css/special-fonts.css", "css/flippant.css", "css/style.css",  "css/homepage.css", "css/recognize.css" -%}
             <link rel="stylesheet" href="{{ ASSET_URL }}" />
         {% endassets -%}
 
@@ -19,15 +17,17 @@
     <body>
 
     <div class="navbar navbar-default" id="menu-cassette">
-        <div class="navbar-inner">
+        <!--<div class="navbar-inner">-->
             <div class="row">
-
-                <div class="col-md-12 meniu-titles">
+                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 meniu-titles">
                     <ul class="nav navbar-nav">
                         <li>
                             <div id="zeeguu-logo">
                                 <a href="{{ url_for('gym.home') }}">
-                                <img src="static/img/yak-orange.png" alt="ZeeGuu" height="40" />
+                                <!--<img src="static/img/yak-orange.png" alt="ZeeGuu" height="40" />-->
+                                <!--<img src="static/img/yak-orange.png" alt="ZeeGuu" height="80" />-->
+                                    <!--<img src="static/img/elephantu.png" alt="ZeeGuu" height="160">-->
+
                                     </a>
                             </div>
                         </li>
@@ -51,7 +51,7 @@
                             </li>
 
                         {% else %}
-                          <li><a href="{{ url_for('gym.login') }}">Login</a></li>
+                          <li id="login"><a href="{{ url_for('gym.login') }}">LOGIN</a></li>
                     {% endif %}
                     </ul>
 
