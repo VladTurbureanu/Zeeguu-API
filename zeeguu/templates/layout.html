@@ -19,21 +19,21 @@
     <div class="navbar navbar-default" id="menu-cassette">
         <!--<div class="navbar-inner">-->
             <div class="row">
-                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 meniu-titles">
+                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 menu-titles">
                     <ul class="nav navbar-nav">
                         <li>
+                            {% if tab != "home" %}
                             <div id="zeeguu-logo">
                                 <a href="{{ url_for('gym.home') }}">
-                                <!--<img src="static/img/yak-orange.png" alt="ZeeGuu" height="40" />-->
-                                <!--<img src="static/img/yak-orange.png" alt="ZeeGuu" height="80" />-->
-                                    <!--<img src="static/img/elephantu.png" alt="ZeeGuu" height="160">-->
-
-                                    </a>
+                                    <!--<img src="../static/img/Zeeguu-logo-red.png" alt="ZeeGuu" height="170" />-->
+                                </a>
                             </div>
+                            {% endif %}
+
                         </li>
 
                     {% if g.user %}
-                        <li class="{% if tab == "contributions"%} active{% endif %}"><a href="{{ url_for('gym.contributions') }}">Words</a></li>
+                        <li class="{% if tab == "contributions"%}active {% endif %}"><a href="{{ url_for('gym.contributions') }}">Words</a></li>
                         <li class="{% if tab == "recognize" %} active{% endif %}"><a href="{{ url_for('gym.recognize') }}">Recognize!</a></li>
                         <li class="{% if tab == "translate" %} active{% endif %}"><a href="{{ url_for('gym.translate_with_context') }}">Translate in Context</a></li>
                     {% endif %}
@@ -46,7 +46,7 @@
                                   {{ g.user.name }}<b class="caret"></b></a>
                               <ul class="dropdown-menu">
                                           <li class="{% if tab == "my_account" %}active{% endif %}"><a href="{{ url_for('account.my_account') }}">My Account</a></li>
-                                            <li class=""><a href="{{ url_for('gym.logout') }}">Logout</a></li>
+                                          <li class=""><a href="{{ url_for('gym.logout') }}">Logout</a></li>
                               </ul>
                             </li>
 

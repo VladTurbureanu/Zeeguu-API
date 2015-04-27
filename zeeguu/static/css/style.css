@@ -39,35 +39,6 @@ h1 img {
     height: 40px;
 }
 
-/*#zeeguu-logo {*/
-    /*padding: 4px;*/
-    /*padding-left: 140px;*/
-    /*padding-bottom: 10px;*/
-/*}*/
-
-#login {
-   margin-top: 10px;
-   color: #ffffff;
-   font-size: 18px;
-   font-family: "Myriad Pro";
-   /*padding-right: 25px;*/
-   /*padding-top:5px;*/
-   /*display: inline-block;*/
-   /*vertical-align: middle;*/
-    /*float: none;*/
-}
-
-#login .controls {
-    margin-left: 0;
-}
-
-#login .help-inline {
-    name: 14px;
-}
-
-#login a {
-    color: #ffffff;
-}
 
 .btn-lg {
   padding: 0px 0px;
