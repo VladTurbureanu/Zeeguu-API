@@ -31,19 +31,12 @@ body {
 }
 
 
-
 body h1 {
     font-family: "Myriad Pro Squezed";
 }
 
 h1 img {
     height: 40px;
-}
-
-#menu-cassette {
-   background-color:rgb(80, 91, 103);
-   /*#6E6E6E #808080;*/
-   height:70px;
 }
 
 /*#zeeguu-logo {*/
