@@ -8,15 +8,17 @@
     <div id="language-selection">
         <div class="exercise-title">Translate with Context</div>
 
-        <select id="lang1" style="visibility: hidden">
+        <select id="lang1">
             {% for language in languages %}
                  <option value="{{ language.id }}" {% if g.user.learned_language_id == language.id %} selected {% endif %} >
                     {{ language.name }}
                 </option>
             {% endfor %}
         </select>
-        <!--<a href="#" id="direction"><i class="icon-long-arrow-right"></i></a>-->
-        <select id="lang2" style="visibility: hidden">
+        <!--<a href="#" id="direction">-->
+            <i style="visibility: hidden" class="icon-long-arrow-right"></i>
+        <!--</a>-->
+        <select id="lang2">
             {% for language in languages %}
                 <option value="{{ language.id }}"{% if "English" == language.name %} selected{% endif %}>
                     {{ language.name }}
