@@ -1,27 +1,50 @@
 #menu-cassette {
   background-color: #505b67;
-  height: 70px; }
+  height: 80px; }
 
 #zeeguu-logo {
-  padding: 4px;
-  padding-left: 140px;
-  padding-bottom: 10px; }
+  padding-left: 110px;
+  margin-top: -10px;
+  padding-right: 20px; }
 
-.navbar-nav li a {
-  line-height: 22 px; }
+.menu-title-container {
+  height: 80px; }
 
-.navbar-nav li a:link {
+.menu-titles li {
+  margin-top: 15px; }
+
+ul.menu-titles li a:link {
   text-decoration: none;
   color: #ffffff; }
 
-.navbar-nav li a:visited {
+ul.menu-titles li a:visited {
   text-decoration: none;
   color: #ffffff; }
 
-.navbar-nav li a:hover {
+ul.menu-titles li a:hover {
   text-decoration: none;
-  color: lightgrey; }
+  color: red;
+  background-color: greenyellow; }
 
+ul.navbar-right li a:link {
+  color: #ffffff; }
+
+ul.navbar-right li a:hover {
+  color: slategrey; }
+
+ul.navbar-right li a:visited {
+  color: slategrey; }
+
+@media screen and (max-width: 1200px) {
+  .menu-title-container li {
+    font-size: 20px; }
+
+  .navbar-right li {
+    font-size: 20px; } }
+@media screen and (max-width: 992px) {
+  .menu-title-container li {
+    font-size: 24px;
+    font-size: 24px; } }
 #login {
   margin-top: 10px;
   color: #ffffff;

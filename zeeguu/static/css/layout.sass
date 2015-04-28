@@ -1,38 +1,68 @@
-$menu-bar-height: 70px
+$menu-bar-height: 80px
 
 
 #menu-cassette
   background-color: rgb(80, 91, 103)
   height: $menu-bar-height
 
-//.navbar-nav li
+//.menu-titles li
 //  height: $menu-bar-height
 
 
 #zeeguu-logo
-  padding: 4px
-  padding-left: 140px
-  padding-bottom: 10px
+  //padding: 4px
+  padding-left: 110px
+  margin-top: -10px
+  padding-right: 20px
+  //padding-bottom: 10px
+
+.menu-title-container
+  height: $menu-bar-height
+  //background-color: red
+
+.menu-titles li
+  margin-top: 15px
 
 
-.navbar-nav li a
-  //background-color:
-  line-height: 22 px
-
-
-.navbar-nav li a:link
+ul.menu-titles li a:link
   text-decoration: none
   color: #ffffff
 
 
-.navbar-nav li a:visited
+ul.menu-titles li a:visited
   text-decoration: none
   color: #ffffff
 
 
-.navbar-nav li a:hover
+ul.menu-titles li a:hover
   text-decoration: none
-  color: lightgrey
+  color: red
+  background-color: greenyellow
+
+ul.navbar-right li a:link
+  color: #ffffff
+
+ul.navbar-right li a:hover
+  color: slategrey
+
+ul.navbar-right li a:visited
+  color: slategrey
+
+
+@media screen and (max-width: 1200px)
+  .menu-title-container li
+    font-size: 20px
+
+  .navbar-right li
+    font-size: 20px
+
+
+@media screen and (max-width: 992px)
+  .menu-title-container li
+    font-size: 24px
+
+    .navbar-right li
+    font-size: 24px
 
 
 #login
@@ -45,7 +75,6 @@ $menu-bar-height: 70px
 /*display: inline-block;*/
 /*vertical-align: middle;*/
  /*float: none;*/
-
 
 #login .controls
   margin-left: 0

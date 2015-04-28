@@ -3,22 +3,24 @@
 {% set tab = "learning_center" %}
 
 {% block body %}
-  <h2>Welcome {{ user.name }}!</h2>
-  <p>
 
-      You are a beta-tester, <br/>
-      &nbsp;&nbsp;&nbsp;&nbsp;and we are thankful for your understanding and feedback.<br/><br/>
+<div class="container welcome-message">
+    <h2>Welcome {{ user.name }}!</h2>
+    <p>
+
+      You are an important beta-tester for us, <br/>
+      and we are thankful for your understanding and feedback.<br/><br/>
       Your learning language is currently <b>{{user.learned_language.name}}</b>.<br/>
       Your native language is currently <b>{{user.native_language.name}}</b>
-  </p>
+    </p>
 
         <hr/>
-<small>
+    <small>
         <p>If you find the Zeeguu plugin useful,
             <a href="https://chrome.google.com/webstore/detail/zeeguu/ckncjmaednfephhbpeookmknhmjjodcd">
                 rate it</a> in the Chrome Store.
         </p>
-</small>
-
+    </small>
+</div>
 
 {% endblock %}

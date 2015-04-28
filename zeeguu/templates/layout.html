@@ -18,14 +18,14 @@
 
     <div class="navbar navbar-default" id="menu-cassette">
         <!--<div class="navbar-inner">-->
-            <div class="row">
-                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 menu-titles">
-                    <ul class="nav navbar-nav">
+            <!--<div class="row ">-->
+                <!--<div class="col-xs-12 menu-titles">-->
+                    <ul class="nav navbar-nav menu-title-container ">
                         <li>
                             {% if tab != "home" %}
                             <div id="zeeguu-logo">
                                 <a href="{{ url_for('gym.home') }}">
-                                    <!--<img src="../static/img/Zeeguu-logo-red.png" alt="ZeeGuu" height="170" />-->
+                                    <img src="../static/img/elephlogo-alone.png" alt="ZeeGuu" height="70" />
                                 </a>
                             </div>
                             {% endif %}
@@ -54,9 +54,8 @@
                           <li id="login"><a href="{{ url_for('gym.login') }}">LOGIN</a></li>
                     {% endif %}
                     </ul>
-
-                 </div>
-            </div>
+                 <!--</div>-->
+            <!--</div>-->
         </div>
     </div>
     <!--</div>-->
