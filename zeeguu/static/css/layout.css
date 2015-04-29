@@ -1,68 +1,73 @@
-#menu-cassette {
-  background-color: #505b67;
-  height: 65px; }
-
 #zeeguu-logo {
-  padding-left: 110px;
-  margin-top: -10px;
-  padding-right: 20px; }
-
-.menu-title-container {
-  height: 65px; }
-
-.menu-titles li {
-  margin-top: 15px; }
-
-.menu-titles li a:link {
-  text-decoration: none;
-  color: #ffffff; }
-
-.menu-titles li a:visited {
-  text-decoration: none;
-  color: #ffffff; }
-
-.menu-titles li a:hover {
-  text-decoration: none;
-  color: red;
-  background-color: greenyellow; }
-
-ul.navbar-right li a:link {
-  color: #ffffff; }
-
-ul.navbar-right li a:hover {
-  color: slategrey; }
-
-ul.navbar-right li a:visited {
-  color: slategrey; }
+  height: 65px;
+  margin-left: -20px; }
 
 @media screen and (max-width: 1200px) {
-  .menu-title-container li {
+  .navbar-nav li {
     font-size: 20px; }
 
   .navbar-right li {
     font-size: 20px; } }
 @media screen and (max-width: 992px) {
-  .menu-title-container li {
-    font-size: 24px;
+  .navbar-nav li {
+    font-size: 24px; }
+
+  .navbar-right li {
     font-size: 24px; } }
-#login {
-  margin-top: 10px;
-  color: #ffffff;
-  font-size: 18px;
-  font-family: "Myriad Pro"; }
+.navbar-brand, .navbar-nav li a, .navbar-nav li a:visited, .navbar-nav li a:hover {
+  line-height: 65px;
+  height: 65px;
+  padding-top: 0px; }
 
-/*padding-right: 25px; */
-/*padding-top:5px; */
-/*display: inline-block; */
-/*vertical-align: middle;*/
- * /*float: none; */
-#login .controls {
-  margin-left: 0; }
+.navbar-default {
+  background-color: #505a64;
+  border-color: rgba(255, 255, 255, 0.2); }
+  .navbar-default .navbar-brand {
+    color: white; }
+    .navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
+      color: white; }
+  .navbar-default .navbar-text {
+    color: white; }
+  .navbar-default .navbar-nav > li > a {
+    color: white; }
+    .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+      color: white; }
+  .navbar-default .navbar-nav > li > .dropdown-menu {
+    background-color: #505a64; }
+    .navbar-default .navbar-nav > li > .dropdown-menu > li > a {
+      color: white; }
+      .navbar-default .navbar-nav > li > .dropdown-menu > li > a:hover, .navbar-default .navbar-nav > li > .dropdown-menu > li > a:focus {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.2); }
+    .navbar-default .navbar-nav > li > .dropdown-menu .divider {
+      background-color: rgba(255, 255, 255, 0.2); }
+  .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2); }
+  .navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2); }
+  .navbar-default .navbar-toggle {
+    border-color: rgba(255, 255, 255, 0.2); }
+    .navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+      background-color: rgba(255, 255, 255, 0.2); }
+    .navbar-default .navbar-toggle .icon-bar {
+      background-color: white; }
+  .navbar-default .navbar-collapse,
+  .navbar-default .navbar-form {
+    border-color: white; }
+  .navbar-default .navbar-link {
+    color: white; }
+    .navbar-default .navbar-link:hover {
+      color: white; }
 
-#login .help-inline {
-  name: 14px; }
-
-#login a {
-  color: #ffffff; }
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: white; }
+    .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+      color: white; }
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2); } }
 
 /*# sourceMappingURL=layout.css.map */

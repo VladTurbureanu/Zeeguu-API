@@ -1,56 +1,12 @@
 $menu-bar-height: 65px
 
-
-#menu-cassette
-  background-color: rgb(80, 91, 103)
-  height: $menu-bar-height
-
-//.menu-titles li
-//  height: $menu-bar-height
-
-
 #zeeguu-logo
-  //padding: 4px
-  padding-left: 110px
-  margin-top: -10px
-  padding-right: 20px
-  //padding-bottom: 10px
+  height: 65px
+  margin-left: -20px
 
-.menu-title-container
-  height: $menu-bar-height
-  //background-color: red
-
-.menu-titles li
-  margin-top: 15px
-
-
-.menu-titles li a:link
-  text-decoration: none
-  color: #ffffff
-
-
-.menu-titles li a:visited
-  text-decoration: none
-  color: #ffffff
-
-
-.menu-titles li a:hover
-  text-decoration: none
-  color: red
-  background-color: greenyellow
-
-ul.navbar-right li a:link
-  color: #ffffff
-
-ul.navbar-right li a:hover
-  color: slategrey
-
-ul.navbar-right li a:visited
-  color: slategrey
-
-
+  
 @media screen and (max-width: 1200px)
-  .menu-title-container li
+  .navbar-nav li
     font-size: 20px
 
   .navbar-right li
@@ -58,32 +14,85 @@ ul.navbar-right li a:visited
 
 
 @media screen and (max-width: 992px)
-  .menu-title-container li
+  .navbar-nav li
     font-size: 24px
 
-    .navbar-right li
+  .navbar-right li
     font-size: 24px
 
 
-#login
-  margin-top: 10px
-  color: #ffffff
-  font-size: 18px
-  font-family: "Myriad Pro"
-/*padding-right: 25px;*/
-/*padding-top:5px;*/
-/*display: inline-block;*/
-/*vertical-align: middle;*/
- /*float: none;*/
+// Custom Height
+// http://stackoverflow.com/questions/19837444/custom-height-bootstraps-navbar
+.navbar-brand, .navbar-nav li a, .navbar-nav li a:visited, .navbar-nav li a:hover
+  line-height: $menu-bar-height
+  height: $menu-bar-height
+  padding-top: 0px
 
-#login .controls
-  margin-left: 0
+// Generated from:
+// http://work.smarchal.com/twbscolor/
+$bgDefault      : rgb(80, 90, 100)
+$bgHighlight    : rgba(255, 255, 255, 0.2)
+$colDefault     : white
+$colHighlight   : white
+$dropDown       : true
+.navbar-default
+  background-color: $bgDefault
+  border-color: $bgHighlight
+  .navbar-brand
+    color: $colDefault
+    &:hover, &:focus
+      color: $colHighlight
+  .navbar-text
+    color: $colDefault
+  .navbar-nav
+    > li
+      > a
+        color: $colDefault
+        &:hover, &:focus
+          color: $colHighlight
+      @if $dropDown
+        > .dropdown-menu
+          background-color: $bgDefault
+          > li > a
+            color: $colDefault
+            &:hover, &:focus
+              color: $colHighlight
+              background-color: $bgHighlight
+          .divider
+            background-color: $bgHighlight
+    > .active
+      > a, > a:hover, > a:focus
+        color: $colHighlight
+        background-color: $bgHighlight
+    > .open
+      > a, > a:hover, > a:focus
+        color: $colHighlight
+        background-color: $bgHighlight
+  .navbar-toggle
+    border-color: $bgHighlight
+    &:hover, &:focus
+      background-color: $bgHighlight
+    .icon-bar
+      background-color: $colDefault
+  .navbar-collapse,
+  .navbar-form
+    border-color: $colDefault
+  .navbar-link
+    color: $colDefault
+    &:hover
+      color: $colHighlight
+@media (max-width: 767px)
+  .navbar-default .navbar-nav .open .dropdown-menu
+    > li > a
+      color: $colDefault
+      &:hover, &:focus
+        color: $colHighlight
+    > .active
+      > a, > a:hover, > a:focus
+        color: $colHighlight
+        background-color: $bgHighlight
 
 
-#login .help-inline
-  name: 14px
 
 
-#login a
-  color: #ffffff
 
