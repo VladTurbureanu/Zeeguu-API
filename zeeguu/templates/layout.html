@@ -20,7 +20,7 @@
         <!--<div class="navbar-inner">-->
             <!--<div class="row ">-->
                 <!--<div class="col-xs-12 menu-titles">-->
-                    <ul class="nav navbar-nav menu-title-container ">
+                    <ul class="nav navbar-nav menu-title-container">
                         <li>
                             {% if tab != "home" %}
                             <div id="zeeguu-logo">
@@ -50,9 +50,9 @@
                               </ul>
                             </li>
 
-                        {% else %}
-                          <li id="login"><a href="{{ url_for('gym.login') }}">LOGIN</a></li>
-                    {% endif %}
+                        {% elif tab != "login"  %}
+                            <li id="login"><a href="{{ url_for('gym.login') }}">LOGIN</a></li>
+                        {% endif %}
                     </ul>
                  <!--</div>-->
             <!--</div>-->

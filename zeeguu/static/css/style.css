@@ -154,8 +154,12 @@ h1 img {
 .centered-inner-div {
     /* Centering a div inside another div */
     /* From: http://stackoverflow.com/questions/114543/how-to-horizontally-center-a-div-in-a-div */
+    margin-top: 100px;
     width: 50%;
-    margin: 0 auto;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #DEDEDE;
+    padding: 15px;
 }
 
 a:link {
@@ -189,7 +193,23 @@ a:hover {
 }
 
 
-/*recognize*/
+/*recognize page*/
 
 .recognize {
+}
+
+/*login page*/
+
+#sign-in-title {
+    margin-bottom: 50px;
+    /*width: 50%;*/
+    /*margin-left: auto;*/
+    /*margin-right: auto;*/
+    /*background-color: lightgrey;*/
+    /*border: 1px solid #808080;*/
+}
+
+.form-group {
+    color: #4A4A4A;
+    margin-bottom: 10px;
 }
