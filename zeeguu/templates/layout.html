@@ -1,8 +1,31 @@
+<!------------------------------------>
+<!-- Jinja Macros Used on this Page -->
+<!------------------------------------>
+
+    {% macro menu_item(tab_name, url, text) -%}
+        <li class="{% if tab == tab_name %} active {% endif %}"><a href="{{ url_for(url) }}">{{ text }}</a></li>
+    {%- endmacro %}
+
+    {% macro flash_messages() -%}
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning">
+        <button class="close" data-dismiss="alert">×</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {%- endmacro %}
+
+<!------------------------------------>
+<!-- Macros Used on this Page       -->
+<!------------------------------------>
+
 <html>
     <head>
-
         <title>Zeeguu</title>
-
         {% assets filters="cssmin", output="instance/style.css", "css/bootstrap.css", "css/select2.css", "css/font-awesome.css", "css/special-fonts.css", "css/flippant.css", "css/style.css",  "css/homepage.css", "css/recognize.css", "css/layout.css" -%}
             <link rel="stylesheet" href="{{ ASSET_URL }}" />
         {% endassets -%}
@@ -13,66 +36,51 @@
         <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/zeeguu/ckncjmaednfephhbpeookmknhmjjodcd">
     </head>
 
-
     <body>
 
-    <div class="navbar navbar-default" id="menu-cassette">
-        <!--<div class="navbar-inner">-->
-            <div class="row">
-                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 menu-titles">
-                    <ul class="nav navbar-nav">
-                        <li>
-                            {% if tab != "home" %}
-                            <div id="zeeguu-logo">
-                                <a href="{{ url_for('gym.home') }}">
-                                    <!--<img src="../static/img/Zeeguu-logo-red.png" alt="ZeeGuu" height="170" />-->
-                                </a>
-                            </div>
-                            {% endif %}
 
-                        </li>
+    <nav class="navbar navbar-default menu-cassette">
+            <div class="container-fluid col-md-offset-1">
+
+                <!-- The Menu Options on the Left -->
+                <ul class="nav navbar-nav">
+
+                    <!-- The Icon -->
+                    {% if tab != "home" %}
+                        <li><a href="{{ url_for('account.my_account') }}"><img id="zeeguu-logo" src="../static/img/elephlogo-alone.png" alt="ZeeGuu" /></a></li>
+                    {% endif %}
 
                     {% if g.user %}
-                        <li class="{% if tab == "contributions"%}active {% endif %}"><a href="{{ url_for('gym.contributions') }}">Words</a></li>
-                        <li class="{% if tab == "recognize" %} active{% endif %}"><a href="{{ url_for('gym.recognize') }}">Recognize!</a></li>
-                        <li class="{% if tab == "translate" %} active{% endif %}"><a href="{{ url_for('gym.translate_with_context') }}">Translate in Context</a></li>
+                        {{ menu_item ("contributions", "gym.contributions", "My Words") }}
+                        {{ menu_item ("recognize", "gym.recognize", "Exercises") }}
+                        <!--{{ menu_item ("translate", "gym.translate_with_context", "Translate") }}-->
                     {% endif %}
-                    </ul>
 
-                    <ul class="nav navbar-nav navbar-right" style="padding-right: 20px">
-                         {% if g.user %}
-                            <li class="dropdown" >
-                              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                  {{ g.user.name }}<b class="caret"></b></a>
-                              <ul class="dropdown-menu">
-                                          <li class="{% if tab == "my_account" %}active{% endif %}"><a href="{{ url_for('account.my_account') }}">My Account</a></li>
-                                          <li class=""><a href="{{ url_for('gym.logout') }}">Logout</a></li>
-                              </ul>
-                            </li>
+                </ul>
 
-                        {% else %}
-                          <li id="login"><a href="{{ url_for('gym.login') }}">LOGIN</a></li>
+                <!-- The menu options on the right... -->
+                <ul class="nav navbar-nav navbar-right" >
+
+                    {% if g.user %}
+                        <!-- When user logged in, show the dropdown -->
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ g.user.name }}<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{{ url_for('account.my_account') }}">My Account</a></li>
+                                <li><a href="{{ url_for('gym.logout') }}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% elif tab != "login"  %}
+                        <!-- Don't show login on the login page :) -->
+                        <li id="login"><a href="{{ url_for('gym.login') }}">LOGIN</a></li>
                     {% endif %}
-                    </ul>
+                </ul>
 
-                 </div>
             </div>
-        </div>
-    </div>
-    <!--</div>-->
+    </nav>
 
-        {% macro flash_messages() -%}
-            {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-warning">
-                      <button class="close" data-dismiss="alert">×</button>
-                      {{ message }}
-                </div>
-                {% endfor %}
-              {% endif %}
-            {% endwith %}
-        {%- endmacro %}
+
+
 
             {% block body %}{% endblock %}
 

@@ -1,60 +1,98 @@
-$menu-bar-height: 70px
-
-
-#menu-cassette
-  background-color: rgb(80, 91, 103)
-  height: $menu-bar-height
-
-//.navbar-nav li
-//  height: $menu-bar-height
-
+$menu-bar-height: 65px
 
 #zeeguu-logo
-  padding: 4px
-  padding-left: 140px
-  padding-bottom: 10px
+  height: 65px
+  margin-left: -20px
+
+  
+@media screen and (max-width: 1200px)
+  .navbar-nav li
+    font-size: 20px
+
+  .navbar-right li
+    font-size: 20px
 
 
-.navbar-nav li a
-  //background-color:
-  line-height: 22 px
+@media screen and (max-width: 992px)
+  .navbar-nav li
+    font-size: 24px
+
+  .navbar-right li
+    font-size: 24px
 
 
-.navbar-nav li a:link
-  text-decoration: none
-  color: #ffffff
+// Custom Height
+// http://stackoverflow.com/questions/19837444/custom-height-bootstraps-navbar
+.navbar-brand, .navbar-nav li a, .navbar-nav li a:visited, .navbar-nav li a:hover
+  line-height: $menu-bar-height
+  height: $menu-bar-height
+  padding-top: 0px
+
+// Generated from:
+// http://work.smarchal.com/twbscolor/
+$bgDefault      : rgb(80, 90, 100)
+$bgHighlight    : rgba(255, 255, 255, 0.2)
+$colDefault     : white
+$colHighlight   : white
+$dropDown       : true
+.navbar-default
+  background-color: $bgDefault
+  border-color: $bgHighlight
+  .navbar-brand
+    color: $colDefault
+    &:hover, &:focus
+      color: $colHighlight
+  .navbar-text
+    color: $colDefault
+  .navbar-nav
+    > li
+      > a
+        color: $colDefault
+        &:hover, &:focus
+          color: $colHighlight
+      @if $dropDown
+        > .dropdown-menu
+          background-color: $bgDefault
+          > li > a
+            color: $colDefault
+            &:hover, &:focus
+              color: $colHighlight
+              background-color: $bgHighlight
+          .divider
+            background-color: $bgHighlight
+    > .active
+      > a, > a:hover, > a:focus
+        color: $colHighlight
+        background-color: $bgHighlight
+    > .open
+      > a, > a:hover, > a:focus
+        color: $colHighlight
+        background-color: $bgHighlight
+  .navbar-toggle
+    border-color: $bgHighlight
+    &:hover, &:focus
+      background-color: $bgHighlight
+    .icon-bar
+      background-color: $colDefault
+  .navbar-collapse,
+  .navbar-form
+    border-color: $colDefault
+  .navbar-link
+    color: $colDefault
+    &:hover
+      color: $colHighlight
+@media (max-width: 767px)
+  .navbar-default .navbar-nav .open .dropdown-menu
+    > li > a
+      color: $colDefault
+      &:hover, &:focus
+        color: $colHighlight
+    > .active
+      > a, > a:hover, > a:focus
+        color: $colHighlight
+        background-color: $bgHighlight
 
 
-.navbar-nav li a:visited
-  text-decoration: none
-  color: #ffffff
 
 
-.navbar-nav li a:hover
-  text-decoration: none
-  color: lightgrey
-
-
-#login
-  margin-top: 10px
-  color: #ffffff
-  font-size: 18px
-  font-family: "Myriad Pro"
-/*padding-right: 25px;*/
-/*padding-top:5px;*/
-/*display: inline-block;*/
-/*vertical-align: middle;*/
- /*float: none;*/
-
-
-#login .controls
-  margin-left: 0
-
-
-#login .help-inline
-  name: 14px
-
-
-#login a
-  color: #ffffff
 

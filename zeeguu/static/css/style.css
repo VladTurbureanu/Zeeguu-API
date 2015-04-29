@@ -47,7 +47,9 @@ h1 img {
 
 .exercise-title {
     color: green;
-    padding-top: 10px;
+    font-weight: bold;
+    padding-bottom: 30px;
+    padding-top: 40px;
     font-size: x-large;
 }
 
@@ -152,8 +154,12 @@ h1 img {
 .centered-inner-div {
     /* Centering a div inside another div */
     /* From: http://stackoverflow.com/questions/114543/how-to-horizontally-center-a-div-in-a-div */
+    margin-top: 100px;
     width: 50%;
-    margin: 0 auto;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #DEDEDE;
+    padding: 15px;
 }
 
 a:link {
@@ -164,3 +170,46 @@ a:hover {
     text-decoration: none;
 }
 
+
+/*my_account page*/
+.welcome-message {
+    text-align: left;
+}
+
+.welcome-message h2 {
+    margin-bottom: 40px;
+}
+
+@media screen and (max-width: 1200px) {
+    .welcome-message {
+        font-size: 20px;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .welcome-message {
+        font-size: 24px;
+    }
+}
+
+
+/*recognize page*/
+
+.recognize {
+}
+
+/*login page*/
+
+#sign-in-title {
+    margin-bottom: 50px;
+    /*width: 50%;*/
+    /*margin-left: auto;*/
+    /*margin-right: auto;*/
+    /*background-color: lightgrey;*/
+    /*border: 1px solid #808080;*/
+}
+
+.form-group {
+    color: #4A4A4A;
+    margin-bottom: 10px;
+}
