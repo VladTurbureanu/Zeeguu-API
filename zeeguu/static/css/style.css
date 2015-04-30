@@ -151,16 +151,6 @@ h1 img {
     text-align: center;
 }
 
-.centered-inner-div {
-    /* Centering a div inside another div */
-    /* From: http://stackoverflow.com/questions/114543/how-to-horizontally-center-a-div-in-a-div */
-    margin-top: 100px;
-    width: 50%;
-    margin-left: auto;
-    margin-right: auto;
-    border: 1px solid #DEDEDE;
-    padding: 15px;
-}
 
 a:link {
     text-decoration: none;
@@ -200,6 +190,17 @@ a:hover {
 
 /*login page*/
 
+.centered-inner-div {
+    /* Centering a div inside another div */
+    /* From: http://stackoverflow.com/questions/114543/how-to-horizontally-center-a-div-in-a-div */
+    margin-top: 100px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #DEDEDE;
+    padding: 15px;
+}
+
 #sign-in-title {
     margin-bottom: 50px;
     /*width: 50%;*/
@@ -212,4 +213,51 @@ a:hover {
 .form-group {
     color: #4A4A4A;
     margin-bottom: 10px;
+}
+
+@media screen and (max-width: 1200px) {
+    .login-block {
+        font-size: 20px;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .login-block {
+        font-size: 36px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .login-block {
+        font-size: 36px;
+    }
+}
+
+/*create_account page*/
+
+.outer-center {
+    width: 100%; }
+
+.inner-center {
+    display: block;
+    margin: 0px auto; }
+
+.create-account-block {
+    display: table-cell;
+    vertical-align: middle; }
+
+.create-account-block {
+    font-size: 24px;
+}
+
+@media screen and (max-width: 1200px) {
+    .create-account-block {
+        font-size: 20px;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .create-account-block {
+        font-size: 24px;
+    }
 }
