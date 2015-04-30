@@ -67,12 +67,12 @@
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ g.user.name }}<b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 <li><a href="{{ url_for('account.my_account') }}">My Account</a></li>
-                                <li><a href="{{ url_for('gym.logout') }}">Logout</a></li>
+                                <li><a href="{{ url_for('gym.logout') }}">Sign Out</a></li>
                             </ul>
                         </li>
-                    {% elif tab != "login"  %}
-                        <!-- Don't show login on the login page :) -->
-                        <li id="login"><a href="{{ url_for('gym.login') }}">LOGIN</a></li>
+                    {% elif tab != "login" and tab != "create_account" %}
+                        <!-- Don't show login on the login and create_account page :) -->
+                        <li id="login"><a href="{{ url_for('gym.login') }}">SIGN IN</a></li>
                     {% endif %}
                 </ul>
 
