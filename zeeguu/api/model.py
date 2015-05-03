@@ -212,8 +212,9 @@ class UserWord(db.Model, util.JSONSerializable):
     word = db.relationship("Words",backref = "user_words")
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language",backref = "user_words")
-    rank_id = db.Column(db.Integer, db.ForeignKey("word_ranks.id"))
+    rank_id = db.Column(db.Integer, db.ForeignKey("word_ranks.id"), nullable=True)
     rank = db.relationship("WordRank",backref = "user_words")
+    db.UniqueConstraint(word_id, language_id)
 
     IMPORTANCE_LEVEL_STEP = 1000
     IMPOSSIBLE_RANK = 1000000
@@ -286,6 +287,7 @@ class WordRank(db.Model, util.JSONSerializable):
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
     rank = db.Column(db.Integer)
+    db.UniqueConstraint(word_id, language_id)
 
 
     def __init__(self, word, language, rank):
@@ -321,7 +323,7 @@ class WordRank(db.Model, util.JSONSerializable):
 class Words(db.Model, util.JSONSerializable):
     __tablename__ = 'words'
     id = db.Column(db.Integer, primary_key=True)
-    word = db.Column(db.String(255), nullable=False)
+    word = db.Column(db.String(255), nullable=False, unique = True, index = True)
 
     def __init__(self, word):
         self.word = word
