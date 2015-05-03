@@ -15,7 +15,7 @@ from sqlalchemy.orm import relationship
 
 starred_words_association_table = Table('starred_words_association', db.Model.metadata,
     Column('user_id', Integer, ForeignKey('user.id')),
-    Column('starred_word_id', Integer, ForeignKey('word.id'))
+    Column('starred_word_id', Integer, ForeignKey('user_words.id'))
 )
 
 
@@ -31,7 +31,7 @@ class User(db.Model):
         db.ForeignKey("language.id")
     )
     learned_language = sqlalchemy.orm.relationship("Language", foreign_keys=[learned_language_id])
-    starred_words = relationship("Word", secondary="starred_words_association")
+    starred_words = relationship("UserWord", secondary="starred_words_association")
 
     native_language_id = db.Column(
         db.String (2),
@@ -54,15 +54,9 @@ class User(db.Model):
 
     def star(self, word):
         self.starred_words.append(word)
-        print word.word + " is now starred for user " + self.name
+        print word.word.word + " is now starred for user " + self.name
         # TODO: Does this work without a commit here? To double check.
 
-    def read(self, text):
-        if (Impression.query.filter(Impression.user == self)
-                            .filter(Impression.text == text).count()) > 0:
-            return
-        for word in text.words():
-            self.impressions.append(Impression(self, word, text))
 
     def set_learned_language(self, code):
         self.learned_language = Language.find(code)
@@ -118,7 +112,7 @@ class User(db.Model):
 	    return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
 
     def user_words(self):
-        return map((lambda x: x.origin.word), self.all_bookmarks())
+        return map((lambda x: x.origin.word.word), self.all_bookmarks())
 
     def all_bookmarks(self):
         return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
@@ -211,68 +205,94 @@ class Language(db.Model):
     def all(cls):
         return cls.query.filter().all()
 
-
-class Word(db.Model, util.JSONSerializable):
+class UserWord(db.Model, util.JSONSerializable):
+    __tablename__ = 'user_words'
     id = db.Column(db.Integer, primary_key=True)
-    word = db.Column(db.String(255))
+    word_id = db.Column(db.Integer, db.ForeignKey("words.id"))
+    word = db.relationship("Words",backref = "user_words")
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
-    language = db.relationship("Language")
-    word_rank = db.Column(db.Integer)
+    language = db.relationship("Language",backref = "user_words")
+    rank_id = db.Column(db.Integer, db.ForeignKey("word_ranks.id"))
+    rank = db.relationship("WordRank",backref = "user_words")
 
     IMPORTANCE_LEVEL_STEP = 1000
     IMPOSSIBLE_RANK = 1000000
     IMPOSSIBLE_IMPORTANCE_LEVEL = IMPOSSIBLE_RANK / IMPORTANCE_LEVEL_STEP
 
-    def __init__(self, word, language):
+    def __init__(self, word, language, rank):
         self.word = word
         self.language = language
-        self.word_rank = self.get_rank_from_file()
+        self.rank = rank
 
     def __repr__(self):
-        return '<Word %r>' % (self.word)
+        return '<UserWord %r>' % (self.word)
 
     def serialize(self):
         return self.word
 
-    # if the word is not found, we assume a rank of 1000000
-    def get_rank_from_file(self):
-        try:
-            f=codecs.open(zeeguu.app.config.get("LANGUAGES_FOLDER").decode('utf-8')+self.language.id+".txt", encoding="iso-8859-1")
 
-            all_words = f.readlines()
-            all_words_without_space = []
-            for each_word in all_words:
-                each_word_without_space = each_word[:-1]
-                all_words_without_space.append(each_word_without_space)
-
-            def importance_range(the_word, frequency_list):
-                if the_word in frequency_list:
-                    position = frequency_list.index(the_word)
-                    return position
-                else:
-                    return Word.IMPOSSIBLE_RANK
-            return importance_range(self.word, all_words_without_space)
-        except:
-            return Word.IMPOSSIBLE_RANK
-
-    def rank(self):
-        if self.word_rank == None:
-            self.word_rank = self.get_rank_from_file()
-            session = sqlalchemy.orm.object_session(self)
-            session.commit()
-        return self.word_rank
 
     # returns a number between
     def importance_level(self):
-        return max((10 - self.rank() / Word.IMPORTANCE_LEVEL_STEP), 0)
+        if self.rank is not None:
+            return max((10 - self.rank / UserWord.IMPORTANCE_LEVEL_STEP), 0)
+        else:
+            return  0
 
     # we use this in the contributions.html to show the rank.
     # for words in which there is no rank info, we don't display anything
     def importance_level_string(self):
-        if self.rank() == Word.IMPOSSIBLE_RANK:
+        if self.rank == None:
             return ""
         b = "|"
         return b * self.importance_level()
+
+    @classmethod
+    def find(cls, word, language,rank):
+        try:
+            return (cls.query.filter(cls.word == word)
+                             .filter(cls.language == language)
+                             .one())
+        except sqlalchemy.orm.exc.NoResultFound:
+            return cls(word, language,rank)
+
+    @classmethod
+    def find_rank(cls, word, language):
+        return WordRank.find(word, language)
+
+    @classmethod
+    def find_all(cls):
+        return cls.query.all()
+
+
+
+#     @classmethod
+#     def translate(cls, from_lang, term, to_lang):
+#         return (cls.query.join(WordAlias, cls.translation_of)
+#                          .filter(WordAlias.word.word == term.lower())
+#                          .filter(cls.language == to_lang)
+#                          .filter(WordAlias.language == from_lang)
+#                          .all())
+#
+#
+#
+# WordAlias = db.aliased(UserWord, name="translated_word")
+
+class WordRank(db.Model, util.JSONSerializable):
+    __tablename__ = 'word_ranks'
+    id = db.Column(db.Integer, primary_key=True)
+    word_id = db.Column(db.Integer, db.ForeignKey('words.id'))
+    word = db.relationship("Words", backref="word_ranks")
+    language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
+    language = db.relationship("Language")
+    rank = db.Column(db.Integer)
+
+
+    def __init__(self, word, language, rank):
+        self.word = word
+        self.language = language
+        self.rank = rank
+
 
     @classmethod
     def find(cls, word, language):
@@ -280,27 +300,43 @@ class Word(db.Model, util.JSONSerializable):
             return (cls.query.filter(cls.word == word)
                              .filter(cls.language == language)
                              .one())
+            return w
         except sqlalchemy.orm.exc.NoResultFound:
-            return cls(word, language)
+            return None
 
     @classmethod
-    def translate(cls, from_lang, term, to_lang):
-        return (cls.query.join(WordAlias, cls.translation_of)
-                         .filter(WordAlias.word == term.lower())
-                         .filter(cls.language == to_lang)
-                         .filter(WordAlias.language == from_lang)
-                         .all())
+    def find_all(cls,language):
+        return cls.query.filter(cls.language == language
+        ).all()
+
+
 
     @classmethod
-    def getImportantWords(cls,language_code):
-        words_file = open("../../languages/"+str(language_code)+".txt")
-        # with codecs.open("../../languages/"+str(language_code)+".txt",'r',encoding='utf8') as words_file:
-        words_list = words_file.read().splitlines()
-        # words_list = [x.decode('utf-8') for x in words_list]
+    def words_list(cls):
+        words_list = []
+        for word in cls.find_all():
+             words_list.append(word.word)
         return words_list
 
+class Words(db.Model, util.JSONSerializable):
+    __tablename__ = 'words'
+    id = db.Column(db.Integer, primary_key=True)
+    word = db.Column(db.String(255), nullable=False)
 
-WordAlias = db.aliased(Word, name="translated_word")
+    def __init__(self, word):
+        self.word = word
+
+    @classmethod
+    def find(cls, word):
+        try:
+            return (cls.query.filter(cls.word == word)
+                             .one())
+        except sqlalchemy.orm.exc.NoResultFound:
+            return cls(word)
+
+    @classmethod
+    def find_all(cls):
+         return cls.query.all()
 
 class Url(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -330,12 +366,14 @@ class Url(db.Model):
         else:
             return ""
 
+
+
 class Bookmark(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    origin_id = db.Column(db.Integer, db.ForeignKey('word.id'))
-    origin = db.relationship("Word", primaryjoin=origin_id == Word.id,
+    origin_id = db.Column(db.Integer, db.ForeignKey('user_words.id'))
+    origin = db.relationship("UserWord", primaryjoin=origin_id == UserWord.id,
                              backref="translations")
-    translations_list = relationship("Word", secondary="bookmark_translation_mapping")
+    translations_list = relationship("UserWord", secondary="bookmark_translation_mapping")
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship("User", backref="bookmarks")
@@ -366,7 +404,7 @@ class Bookmark(db.Model):
     def translation_words_list(self):
         translation_words=[]
         for translation in self.translations_list:
-            translation_words.append(translation.word)
+            translation_words.append(translation.word.word)
         return translation_words
 
     def add_new_translation(self, translation):
@@ -392,7 +430,7 @@ class Bookmark(db.Model):
 
 bookmark_translation_mapping = Table('bookmark_translation_mapping', db.Model.metadata,
     Column('bookmark_id', Integer, ForeignKey('bookmark.id')),
-    Column('translation_id', Integer, ForeignKey('word.id'))
+    Column('translation_id', Integer, ForeignKey('user_words.id'))
 )
 
 
@@ -464,7 +502,7 @@ class Text(db.Model):
 
     def words(self):
         for word in re.split(re.compile(u"[^\\w]+", re.U), self.content):
-            yield Word.find(word, self.language)
+            yield UserWord.find(word, self.language)
 
 
     def shorten_word_context(self, given_word, max_word_count):
@@ -518,8 +556,8 @@ class Search(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     user = db.relationship("User", backref="searches")
-    word_id = db.Column(db.Integer, db.ForeignKey("word.id"))
-    word = db.relationship("Word")
+    word_id = db.Column(db.Integer, db.ForeignKey("user_words.id"))
+    word = db.relationship("UserWord")
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
     text_id = db.Column(db.Integer, db.ForeignKey("text.id"))
@@ -536,23 +574,3 @@ class Search(db.Model):
     def __repr__(self):
         return '<Search %r>' % (self.word.word)
 
-
-class Impression(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    user = db.relationship("User", backref="impressions")
-    word_id = db.Column(db.Integer, db.ForeignKey("word.id"))
-    word = db.relationship("Word")
-    text_id = db.Column(db.Integer, db.ForeignKey("text.id"))
-    text = db.relationship("Text")
-    count = db.Column(db.Integer)
-    last_search_id = db.Column(db.Integer, db.ForeignKey("search.id"))
-    last_search = db.relationship("Search")
-
-    def __init__(self, user, word, text=None):
-        self.user = user
-        self.word = word
-        self.text = text
-
-    def __repr__(self):
-        return '<Impression %r>' % (self.word.word)

@@ -2,7 +2,7 @@ __author__ = 'mircea'
 from zeeguu_testcase import ZeeguuTestCase
 import unittest
 from zeeguu import model, db
-from zeeguu.model import Word, Language, User
+from zeeguu.model import UserWord, Language, User
 import datetime
 
 
@@ -21,7 +21,9 @@ class Dbtest(ZeeguuTestCase):
     def test_preferred_word(self):
         mir = model.User.find("i@mir.lu")
         de = model.Language.find("de")
-        someword = model.Word.find("hauen", de)
+        word = model.Words.find("hauen")
+        rank = model.UserWord.find_rank(word, de)
+        someword = model.UserWord.find(word, de, rank)
         assert mir
         assert someword
 
@@ -35,7 +37,9 @@ class Dbtest(ZeeguuTestCase):
 
     def test_add_new_word_to_DB(self):
         deutsch = Language.find("de")
-        new_word = Word("baum", deutsch)
+        word = model.Words.find("baum")
+        rank = model.UserWord.find_rank(word, deutsch)
+        new_word = UserWord("baum", deutsch,rank)
         mircea = User.find("i@mir.lu")
 
         db.session.add(new_word)
@@ -44,7 +48,9 @@ class Dbtest(ZeeguuTestCase):
 
     def test_find_word(self):
         deutsch = Language.find("de")
-        assert Word.find("baum", deutsch)
+        word = model.Words.find("baum")
+        rank = model.UserWord.find_rank(word, deutsch)
+        assert UserWord.find(word, deutsch, rank)
 
 
     def test_user_words(self):
@@ -56,7 +62,9 @@ class Dbtest(ZeeguuTestCase):
     def test_preferred_words(self):
         mir = model.User.find("i@mir.lu")
         de = model.Language.find("de")
-        someword = model.Word.find("hauen",de)
+        word = model.Words("hauen")
+        rank = model.UserWord.find_rank(word, de)
+        someword = model.UserWord.find(word,de,rank)
         assert mir
         assert someword
         # add someword to starred words
@@ -94,13 +102,17 @@ class Dbtest(ZeeguuTestCase):
 
     def test_importance_level(self):
         deutsch = Language.find("de")
-        new_word = Word("beschloss ", deutsch)
+        word = model.Words.find("beschloss")
+        rank = model.UserWord.find_rank(word, deutsch)
+        new_word = UserWord(word, deutsch, rank)
         mircea = User.find("i@mir.lu")
 
         db.session.add(new_word)
         db.session.commit()
 
-        beschloss = Word.find("unexistingword", deutsch)
+        word = model.Words.find("unexistingword")
+        rank = model.UserWord.find_rank(word, deutsch)
+        beschloss = UserWord.find(word, deutsch, rank)
         assert beschloss
         assert beschloss.importance_level() == 0
 

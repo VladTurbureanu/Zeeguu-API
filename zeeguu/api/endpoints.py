@@ -245,7 +245,7 @@ def bookmarks_by_day(return_context):
         for b in bookmarks_by_date[date]:
             bookmark = {}
             bookmark['id'] = b.id
-            bookmark['from'] = b.origin.word
+            bookmark['from'] = b.origin.word.word
             bookmark['to'] = b.translation_words_list()
             bookmark['title'] = b.text.url.title
             bookmark['url'] = b.text.url.url
@@ -328,16 +328,19 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     from_lang = model.Language.find(from_lang_code)
     to_lang = model.Language.find(to_lang_code)
 
-
-    word = model.Word.find(decode_word(term), from_lang)
-    translation = model.Word.find(decode_word(translation), to_lang)
+    word = model.Words.find(decode_word(term))
+    rank = model.UserWord.find_rank(word,from_lang)
+    user_word = model.UserWord.find(word,from_lang,rank)
+    translation = model.Words.find(decode_word(translation))
+    rank = model.UserWord.find_rank(word,to_lang)
+    translation_user_word = model.UserWord.find(translation,to_lang,rank)
     search = model.Search.query.filter_by(
-        user=flask.g.user, word=word, language=to_lang
+        user=flask.g.user, word=user_word, language=to_lang
     ).order_by(model.Search.id.desc()).first()
 
     #create the text entity first
     new_text = model.Text(context, from_lang, url)
-    bookmark = model.Bookmark(word, translation, flask.g.user, new_text, datetime.datetime.now())
+    bookmark = model.Bookmark(user_word, translation_user_word, flask.g.user, new_text, datetime.datetime.now())
     if search:
         search.bookmark = bookmark
     else:
@@ -414,11 +417,14 @@ def add_new_translation_to_bookmark(word_translation, bookmark_id):
     ).first()
     translations_of_bookmark = bookmark.translations_list
     for transl in translations_of_bookmark:
-        if transl.word ==word_translation:
+        if transl.word.word ==word_translation:
             return 'FAIL'
-    translation = model.Word(word_translation, translations_of_bookmark[0].language)
-    bookmark.add_new_translation(translation)
-    zeeguu.db.session.add(translation)
+
+    translation_word = model.Words.find(word_translation)
+    rank = model.UserWord.find_rank(translation_word, translations_of_bookmark[0].language)
+    translation_user_word = model.UserWord.find(translation_word,translations_of_bookmark[0].language,rank)
+    bookmark.add_new_translation(translation_user_word)
+    zeeguu.db.session.add(translation_user_word)
     zeeguu.db.session.commit()
     return "OK"
 
@@ -434,12 +440,12 @@ def delete_translation_from_bookmark(bookmark_id,translation_word):
         return 'FAIL'
     translation_id = -1
     for b in bookmark.translations_list:
-        if translation_word==b.word:
+        if translation_word==b.word.word:
             translation_id = b.id
             break
     if translation_id ==-1:
         return 'FAIL'
-    translation = model.Word.query.filter_by(
+    translation = model.UserWord.query.filter_by(
         id = translation_id
     ).first()
     bookmark.remove_translation(translation)
@@ -459,9 +465,9 @@ def get_translations_for_bookmark(bookmark_id):
     for translation in translation_list:
          translation_dict = {}
          translation_dict['id'] = translation.id
-         translation_dict['word'] = translation.word
+         translation_dict['word'] = translation.word.word
          translation_dict['language'] = translation.language.name
-         translation_dict['word_rank'] = translation.word_rank
+         translation_dict['word_rank'] = translation.rank
          translation_dict_list.append(translation_dict.copy())
     js = json.dumps(translation_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
@@ -478,7 +484,7 @@ def get_known_bookmarks():
         if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
                 i_know_bookmark_dict = {}
                 i_know_bookmark_dict['id'] = bookmark.id
-                i_know_bookmark_dict['origin'] = bookmark.origin.word
+                i_know_bookmark_dict['origin'] = bookmark.origin.word.word
                 i_know_bookmark_dict['text']= bookmark.text.content
                 i_know_bookmark_dict['time']=bookmark.time.strftime('%m/%d/%Y')
                 i_know_bookmarks.append(i_know_bookmark_dict.copy())
@@ -486,24 +492,22 @@ def get_known_bookmarks():
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_known_words", methods=("GET",))
+@api.route("/get_known_words/<from_lang>", methods=("GET",))
 @cross_domain
 @with_session
-def get_known_words():
+def get_known_words(from_lang):
+    from_lang = model.Language.find(from_lang)
     bookmarks = model.Bookmark.find_all_filtered_by_user()
     i_know_words=[]
     filtered_i_know_words_from_user = []
     filtered_i_know_words_dict_list =[]
     for bookmark in bookmarks:
         if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
-                i_know_words.append(bookmark.origin.word)
-    words_known_from_user = [word.encode('utf-8') for word in i_know_words]
-    for word_known in words_known_from_user:
-        for word in model.Word.getImportantWords('de'):
-            if word_known.lower() == word.lower():
-                filtered_i_know_words_from_user.append(word)
-                break
-    filtered_i_know_words_from_user = list(set(i_know_words))
+                i_know_words.append(bookmark.origin)
+    for word_known in i_know_words:
+        if word_known.rank is not None & word_known.language is from_lang:
+            filtered_i_know_words_from_user.append(word_known.word.word)
+    filtered_i_know_words_from_user = list(set(filtered_i_know_words_from_user))
 
     for word in filtered_i_know_words_from_user:
         filtered_i_know_word_dict = {}
@@ -528,7 +532,7 @@ def get_learned_bookmarks():
     for bookmark in learned_bookmarks:
         learned_bookmarks_dict = {}
         learned_bookmarks_dict ['id'] = bookmark.id
-        learned_bookmarks_dict ['origin'] = bookmark.origin.word
+        learned_bookmarks_dict ['origin'] = bookmark.origin.word.word
         learned_bookmarks_dict['text'] = bookmark.text.content
         learned_bookmarks_dict_list.append(learned_bookmarks_dict.copy())
 
@@ -536,10 +540,11 @@ def get_learned_bookmarks():
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_estimated_user_vocabulary", methods=("GET",))
+@api.route("/get_estimated_user_vocabulary/<from_lang>", methods=("GET",))
 @cross_domain
 @with_session
-def get_estimated_user_vocabulary():
+def get_estimated_user_vocabulary(from_lang):
+    from_lang = model.Language.find(from_lang)
     bookmarks = model.Bookmark.find_all_filtered_by_user()
     filtered_words_known_from_user_dict_list =[]
     marked_words_of_user_in_text = []
@@ -548,11 +553,11 @@ def get_estimated_user_vocabulary():
     for bookmark in bookmarks:
         bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
         words_of_all_bookmarks_content.extend(bookmark_content_words)
-        marked_words_of_user_in_text.append(bookmark.origin.word)
+        marked_words_of_user_in_text.append(bookmark.origin.word.word)
     words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
-    words_known_from_user = [x.encode('utf-8') for x in words_known_from_user]
+    # words_known_from_user = [x.encode('utf-8') for x in words_known_from_user]
     for word_known in words_known_from_user:
-        for word in model.Word.getImportantWords('de'):
+        for word in model.WordRank.find_all(from_lang):
             if word_known.lower() == word.lower():
                 filtered_words_known_from_user.append(word)
                 break
@@ -594,8 +599,10 @@ def lookup(from_lang, term, to_lang):
         user.read(text)
     else:
         text = None
+    word = model.Words.find(decode_word(term))
+    rank = model.UserWord.find_rank(decode_word(term), to_lang)
     user.searches.append(
-        model.Search(user, model.Word.find(decode_word(term), from_lang),
+        model.Search(user, model.UserWord.find(word, from_lang,rank),
                      to_lang, text)
     )
     zeeguu.db.session.commit()

@@ -16,7 +16,7 @@ class WordCache(object):
     def __getitem__(self, args):
         word = self.cache.get(args, None)
         if word is None:
-            word = model.Word(*args)
+            word = model.UserWord(*args)
             zeeguu.db.session.add(word)
             self.cache[args] = word
         return word
@@ -47,11 +47,15 @@ def clean_word(word):
 
 def add_bookmark(user, language, original, translation, date, the_context, the_url):
 
+    en = model.Language.find("en")
     url = model.Url.find (the_url)
     text = model.Text(the_context, en, url)
-
-    w1 = model.Word(original, language)
-    w2 = model.Word(translation, en)
+    word1 = model.Words.find(original)
+    word2 = model.Words.find(translation)
+    rank1 = model.UserWord.find_rank(word1, language)
+    rank2 = model.UserWord.find_rank(word2, en)
+    w1 = model.UserWord(word1, language,rank1)
+    w2 = model.UserWord(word2, en,rank2)
     zeeguu.db.session.add(url)
     zeeguu.db.session.add(text)
     zeeguu.db.session.add(w1)

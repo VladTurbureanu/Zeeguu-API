@@ -181,30 +181,30 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         latest_bookmark_word = bookmarks_by_day[0]['bookmarks'][0]['from']
         second_latest_bookmark_word = bookmarks_by_day[0]['bookmarks'][1]['from']
         third_latest_bookmark_word = bookmarks_by_day[0]['bookmarks'][2]['from']
-        rv = self.api_get('/get_known_words')
+        rv = self.api_get('/get_known_words/de')
         known_words = json.loads(rv.data)
         known_words_count_before = len(known_words)
         assert not any(word['from'] == latest_bookmark_word for word in known_words)
         rv = self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(latest_bookmark_id))
-        rv = self.api_get('/get_known_words')
+        rv = self.api_get('/get_known_words/de')
         known_words = json.loads(rv.data)
         assert any(word['word'] == latest_bookmark_word for word in known_words)
         assert known_words_count_before +1 == len(known_words)
         rv = self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(second_latest_bookmark_id))
-        rv = self.api_get('/get_known_words')
+        rv = self.api_get('/get_known_words/de')
         known_words = json.loads(rv.data)
         assert any(word['word'] == latest_bookmark_word for word in known_words)
         assert any(word['word'] == second_latest_bookmark_word for word in known_words)
         assert known_words_count_before +1 == len(known_words)
         rv = self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(third_latest_bookmark_id))
-        rv = self.api_get('/get_known_words')
+        rv = self.api_get('/get_known_words/de')
         known_words = json.loads(rv.data)
         assert known_words_count_before +2 == len(known_words)
         assert any(word['word'] == latest_bookmark_word for word in known_words)
         assert any(word['word'] == third_latest_bookmark_word for word in known_words)
         time.sleep(5) # delays for 5 seconds
         rv = self.api_post('/create_new_exercise/Do not know/Recognize/10000/'+ str(third_latest_bookmark_id))
-        rv = self.api_get('/get_known_words')
+        rv = self.api_get('/get_known_words/de')
         known_words = json.loads(rv.data)
         assert not any(word['word'] == third_latest_bookmark_word for word in known_words)
 
@@ -249,7 +249,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.api_get('/bookmarks_by_day/with_context')
         bookmarks_by_day = []
         bookmarks_by_day_with_date = json.loads(rv.data)
-        rv = self.api_get('/get_estimated_user_vocabulary')
+        rv = self.api_get('/get_estimated_user_vocabulary/de')
         estimated_user_voc_before = json.loads(rv.data)
         assert not any (bookmark['word'] == 'Solche' for bookmark in estimated_user_voc_before)
         assert not any (bookmark['word'] == 'mal' for bookmark in estimated_user_voc_before)
@@ -267,7 +267,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             url='http://mir.lu',
             context='Sage mal etwas')
         rv = self.api_post('/bookmark_with_context/de/etwas/en/something', formData)
-        rv = self.api_get('/get_estimated_user_vocabulary')
+        rv = self.api_get('/get_estimated_user_vocabulary/de')
         estimated_user_voc_after = json.loads(rv.data)
         assert len(estimated_user_voc_after)==len(estimated_user_voc_before)+2
         assert any (bookmark['word'] == 'sage' for bookmark in estimated_user_voc_after)

@@ -16,7 +16,7 @@ class WordCache(object):
     def __getitem__(self, args):
         word = self.cache.get(args, None)
         if word is None:
-            word = model.Word(*args)
+            word = model.UserWord(*args)
             zeeguu.db.session.add(word)
             self.cache[args] = word
         return word
@@ -50,8 +50,12 @@ def add_bookmark(user, original_language, original_word, translation_language, t
     url = model.Url.find (the_url, the_url_title)
     text = model.Text(the_context, translation_language, url)
 
-    w1 = model.Word(original_word, original_language)
-    w2 = model.Word(translation_word, translation_language)
+    word1 = model.Words.find(original_word)
+    word2 = model.Words.find(original_word)
+    rank1 = model.UserWord.find_rank(word1, original_language)
+    rank2 = model.UserWord.find_rank(word2, translation_language)
+    w1 = model.UserWord(word1, original_language,rank1)
+    w2 = model.UserWord(word2, translation_language,rank2)
     zeeguu.db.session.add(url)
     zeeguu.db.session.add(text)
     zeeguu.db.session.add(w1)
@@ -127,14 +131,14 @@ def create_test_db():
         'sperren':'to lock, to close',
         'Gitter':'grates',
         'erfahren':'to experience',
-        'Betroffen':'affected',
+        'treffen':'hit',
         'jeweils':'always',
         'Darstellung':'presentation',
         'Vertreter':'representative',
         'Knecht':'servant',
         'besteht':'smtg. exists'
     }
-
+    initial_rank =1
     for key in today_dict:
         add_bookmark(user, de, key, en, today_dict[key], jan111, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung fur das finanzsystem habe, sagte holder, ohne namen von banken zu nennen" + key,
                          "http://url2", "title of url2")
