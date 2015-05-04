@@ -64,10 +64,11 @@ def create_account():
         password = form.get("password", None)
         email = form.get("email", None)
         name = form.get("name", None)
+        hobby = form.get("hobby", None)
         language = model.Language.find(form.get("language", None))
         native_language = model.Language.find(form.get("native_language", None))
 
-        if password is None or email is None or name is None:
+        if password is None or email is None or name is None or hobby is None:
             flask.flash("Please enter your name, email address, and password")
         else:
             try:

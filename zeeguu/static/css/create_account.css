@@ -1,0 +1,64 @@
+/*create_account page */
+.create-account-block {
+  width: 100%;
+  background-color: #f4f4f4;
+  margin-top: 70px; }
+
+#create-account-title {
+  margin-bottom: 60px;
+  font-size: 38px; }
+
+.inner-center {
+  display: block;
+  margin: 0px auto;
+  padding-top: 20px;
+  padding-bottom: 20px; }
+
+.select2-active p {
+  font-size: 40px;
+  font-weight: bold; }
+
+.create-account-block-width {
+  width: 500px;
+  background-color: #f4f4f4; }
+
+.btn-success {
+  margin-bottom: 20px;
+  font-size: 24px; }
+
+.input-group-lg {
+  margin-bottom: 40px; }
+
+.input-lg {
+  height: 50px !important;
+  font-size: 24px !important; }
+
+.input-group-lg label {
+  font-size: 28px; }
+
+@media screen and (max-width: 992px) {
+  #create-account-title {
+    font-size: 32px; }
+
+  .input-group-lg label {
+    font-size: 22px; }
+
+  .input-lg {
+    font-size: 18px !important; }
+
+  .btn-success {
+    font-size: 18px; } }
+@media screen and (max-width: 768px) {
+  #create-account-title {
+    font-size: 42px; }
+
+  .input-group-lg label {
+    font-size: 34px; }
+
+  .input-lg {
+    font-size: 30px !important; }
+
+  .btn-success {
+    font-size: 30px; } }
+
+/*# sourceMappingURL=create_account.css.map */
