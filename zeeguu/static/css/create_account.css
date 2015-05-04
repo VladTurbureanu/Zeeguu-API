@@ -2,21 +2,25 @@
 .create-account-block {
   width: 100%;
   background-color: #f4f4f4;
-  margin-top: 70px; }
+  margin-top: 75px; }
+
+.color-block {
+  background-color: #7e8b98;
+  height: 60px;
+  padding: 2px;
+  padding-left: 320px;
+  color: #ffffff;
+  margin-bottom: 60px; }
 
 #create-account-title {
   margin-bottom: 60px;
-  font-size: 38px; }
+  font-size: 36px; }
 
 .inner-center {
   display: block;
   margin: 0px auto;
   padding-top: 20px;
   padding-bottom: 20px; }
-
-.select2-active p {
-  font-size: 40px;
-  font-weight: bold; }
 
 .create-account-block-width {
   width: 500px;

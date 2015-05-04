@@ -1,35 +1,63 @@
 /*login page */
-.centered-inner-div {
-  /* Centering a div inside another div */
-  /* From: http://stackoverflow.com/questions/114543/how-to-horizontally-center-a-div-in-a-div */
-  margin-top: 100px;
+.login-block {
   width: 100%;
+  background-color: #f4f4f4;
+  margin-top: 70px; }
+
+.inner-center {
+  /* Centering a div inside another div */
+  display: block;
   margin-left: auto;
   margin-right: auto;
-  border: 1px solid #DEDEDE;
-  padding: 15px; }
+  margin-top: 100px;
+  padding-top: 20px;
+  padding-bottom: 20px; }
+
+.login-block-width {
+  width: 500px;
+  background-color: #f4f4f4; }
 
 #sign-in-title {
-  margin-bottom: 50px; }
+  margin-bottom: 60px;
+  font-size: 38px; }
 
-/*width: 50% */
-/*margin-left: auto */
-/*margin-right: auto */
-/*background-color: lightgrey */
-/*border: 1px solid #808080 */
-.form-group {
-  color: #4A4A4A;
-  margin-bottom: 10px; }
+.btn-success {
+  margin-bottom: 20px;
+  font-size: 24px; }
 
-.login-block {
-  font-size: 20px;
-  background-color: lightskyblue; }
+.input-group-lg {
+  margin-bottom: 40px; }
 
-.login-block, .create-account-block {
-  font-size: 32px; }
+.input-lg {
+  height: 50px !important;
+  font-size: 24px !important; }
 
-.login-block, .create-account-block {
-  font-size: 36px;
-  background-color: lightcoral; }
+.input-group-lg label {
+  font-size: 28px; }
+
+@media screen and (max-width: 992px) {
+  #sign-in-title {
+    font-size: 32px; }
+
+  .input-group-lg label {
+    font-size: 22px; }
+
+  .input-lg {
+    font-size: 18px !important; }
+
+  .btn-success {
+    font-size: 18px; } }
+@media screen and (max-width: 768px) {
+  #sign-in-title {
+    font-size: 42px; }
+
+  .input-group-lg label {
+    font-size: 34px; }
+
+  .input-lg {
+    font-size: 30px !important; }
+
+  .btn-success {
+    font-size: 30px; } }
 
 /*# sourceMappingURL=login.css.map */
