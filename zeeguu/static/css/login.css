@@ -1,0 +1,35 @@
+/*login page */
+.centered-inner-div {
+  /* Centering a div inside another div */
+  /* From: http://stackoverflow.com/questions/114543/how-to-horizontally-center-a-div-in-a-div */
+  margin-top: 100px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid #DEDEDE;
+  padding: 15px; }
+
+#sign-in-title {
+  margin-bottom: 50px; }
+
+/*width: 50% */
+/*margin-left: auto */
+/*margin-right: auto */
+/*background-color: lightgrey */
+/*border: 1px solid #808080 */
+.form-group {
+  color: #4A4A4A;
+  margin-bottom: 10px; }
+
+.login-block {
+  font-size: 20px;
+  background-color: lightskyblue; }
+
+.login-block, .create-account-block {
+  font-size: 32px; }
+
+.login-block, .create-account-block {
+  font-size: 36px;
+  background-color: lightcoral; }
+
+/*# sourceMappingURL=login.css.map */

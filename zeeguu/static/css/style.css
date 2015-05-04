@@ -41,8 +41,8 @@ h1 img {
 
 
 .btn-lg {
-  padding: 0px 0px;
-  font-size: 18px;
+    padding: 0px 0px;
+    font-size: 18px;
 }
 
 .exercise-title {
@@ -66,7 +66,7 @@ h1 img {
 }
 
 #answer, #translate_answer {
-    display: block; 
+    display: block;
     margin: 0 auto;
     width: 200px;
     margin-top: 20px;
@@ -80,136 +80,7 @@ h1 img {
 }
 
 .white-cell {
-	border: 0px solid white;
-	background-color:white;
+    border: 0px solid white;
+    background-color:white;
 }
 
-/*styles from ada*/
-
-/*.three-steps-presentation {*/
-    /*background-color: lightgoldenrodyellow;*/
-    /*margin-top: 36px;*/
-    /*border-width: 0px;*/
-    /*border-style: solid;*/
-    /*border-color:dimgrey;*/
-/*}*/
-
-/*.three-steps-presentation img {*/
-    /*width: 260px;*/
-    /*padding-top: 30px;*/
-    /*padding-bottom: 40px;*/
-    /*margin-left: -20px;*/
-/*}*/
-
-/*.info-cassette {*/
-    /*text-align: center;*/
-    /*padding: 30px;*/
-/*}*/
-
-/*.info-cassette p {*/
-    /*font-size:30px;*/
-    /*color: dimgrey;*/
-    /*text-align: center;*/
-/*}*/
-
-/*.info-cassette h3 {*/
-    /*font-weight: bold;*/
-    /*text-align: left;*/
-/*}*/
-
-
-/* styles for contributions page */
-.word-action-buttons-td {
-    padding-right: 0px;
-    margin-right: 0px;
-    width: 16px;
-}
-
-.word-details-td {
-    width: 360px;
-}
-.word-action-buttons {
-    width: 16px;
-    padding: 0px;
-    padding-left: 4px;
-}
-
-.table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
-    padding-right: 4px;
-    padding-left: 0px;
-}
-
-.translation {
-    padding-left: 10px;
-}
-
-.button-disabled {
-    color: lightgray;
-}
-
-.centered-content {
-    text-align: center;
-}
-
-.centered-inner-div {
-    /* Centering a div inside another div */
-    /* From: http://stackoverflow.com/questions/114543/how-to-horizontally-center-a-div-in-a-div */
-    margin-top: 100px;
-    width: 50%;
-    margin-left: auto;
-    margin-right: auto;
-    border: 1px solid #DEDEDE;
-    padding: 15px;
-}
-
-a:link {
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: none;
-}
-
-
-/*my_account page*/
-.welcome-message {
-    text-align: left;
-}
-
-.welcome-message h2 {
-    margin-bottom: 40px;
-}
-
-@media screen and (max-width: 1200px) {
-    .welcome-message {
-        font-size: 20px;
-    }
-}
-
-@media screen and (max-width: 992px) {
-    .welcome-message {
-        font-size: 24px;
-    }
-}
-
-
-/*recognize page*/
-
-.recognize {
-}
-
-/*login page*/
-
-#sign-in-title {
-    margin-bottom: 50px;
-    /*width: 50%;*/
-    /*margin-left: auto;*/
-    /*margin-right: auto;*/
-    /*background-color: lightgrey;*/
-    /*border: 1px solid #808080;*/
-}
-
-.form-group {
-    color: #4A4A4A;
-    margin-bottom: 10px;
-}
