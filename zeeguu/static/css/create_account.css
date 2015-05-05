@@ -1,49 +1,39 @@
 /*create_account page */
-.create-account-block {
-  width: 100%;
+.grey-block {
   background-color: #f4f4f4;
-  margin-top: 75px; }
+  margin-top: 20pxx;
+  padding-top: 20px;
+  padding-bottom: 20px; }
 
-.color-block {
-  background-color: #7e8b98;
-  height: 60px;
-  padding: 2px;
-  padding-left: 320px;
-  color: #ffffff;
-  margin-bottom: 60px; }
+.create-account-block {
+  width: 100%; }
 
 #create-account-title {
-  margin-bottom: 60px;
-  font-size: 36px; }
+  margin-bottom: 20px;
+  font-size: 30px; }
 
 .inner-center {
   display: block;
   margin: 0px auto; }
 
 .create-account-block-width {
-  width: 500px;
-  padding-top: 20px;
-  padding-bottom: 20px; }
+  width: 500px; }
 
 .btn-success {
-  margin-bottom: 20px;
-  font-size: 24px; }
-
-.input-group-lg {
-  margin-bottom: 40px; }
+  font-size: 16px; }
 
 .input-lg {
-  height: 50px !important;
-  font-size: 24px !important; }
+  height: 45px !important;
+  font-size: 16px !important; }
 
-.input-group-lg label {
-  font-size: 28px; }
+.input-group label {
+  font-size: 16px; }
 
 @media screen and (max-width: 992px) {
   #create-account-title {
     font-size: 32px; }
 
-  .input-group-lg label {
+  .input-group label {
     font-size: 22px; }
 
   .input-lg {
@@ -55,7 +45,7 @@
   #create-account-title {
     font-size: 42px; }
 
-  .input-group-lg label {
+  .input-group label {
     font-size: 34px; }
 
   .input-lg {
