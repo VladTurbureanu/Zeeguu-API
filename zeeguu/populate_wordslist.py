@@ -47,7 +47,7 @@ def add_words_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
     for word in filter_word_list(word_list(lang_code)):
-        w = model.Words.find(word.decode('utf-8'))
+        w = model.Word.find(word.decode('utf-8'))
         zeeguu.db.session.add(w)
     print 'karan the best'
     zeeguu.db.session.commit()
@@ -58,7 +58,7 @@ def add_word_ranks_to_db(lang_code):
     from_lang = model.Language.find(lang_code)
     initial_line_number = 1
     for word in filter_word_list(word_list(lang_code)):
-        w = model.Words.find(word.decode('utf-8'))
+        w = model.Word.find(word.decode('utf-8'))
         zeeguu.db.session.add(w)
         r = model.WordRank(w, from_lang,initial_line_number)
         zeeguu.db.session.add(r)

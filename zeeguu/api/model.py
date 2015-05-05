@@ -205,15 +205,86 @@ class Language(db.Model):
     def all(cls):
         return cls.query.filter().all()
 
+class Word(db.Model, util.JSONSerializable):
+    __tablename__ = 'words'
+    id = db.Column(db.Integer, primary_key=True)
+    word = db.Column(db.String(255), nullable=False, unique = True, index = True)
+
+    def __init__(self, word):
+        self.word = word
+
+    @classmethod
+    def find(cls, word):
+        try:
+            return (cls.query.filter(cls.word == word)
+                             .one())
+        except sqlalchemy.orm.exc.NoResultFound:
+            return cls(word)
+
+    @classmethod
+    def find_all(cls):
+         return cls.query.all()
+
+
+
+class WordRank(db.Model, util.JSONSerializable):
+    __tablename__ = 'word_ranks'
+    id = db.Column(db.Integer, primary_key=True)
+    word_id = db.Column(db.Integer, db.ForeignKey('words.id'))
+    word = db.relationship("Word", backref="word_ranks")
+    language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
+    language = db.relationship("Language")
+    rank = db.Column(db.Integer)
+    db.UniqueConstraint(word_id, language_id)
+
+
+    def __init__(self, word, language, rank):
+        self.word = word
+        self.language = language
+        self.rank = rank
+
+
+    @classmethod
+    def find(cls, word, language):
+        try:
+            return (cls.query.filter(cls.word == word)
+                             .filter(cls.language == language)
+                             .one())
+            return w
+        except sqlalchemy.orm.exc.NoResultFound:
+            return None
+
+    @classmethod
+    def find_all(cls,language):
+        return cls.query.filter(cls.language == language
+        ).all()
+
+    @classmethod
+    def exists(cls, word_id):
+        try:
+            (cls.query.filter(cls.word_id == word_id)
+                             .one())
+            return True
+        except sqlalchemy.orm.exc.NoResultFound:
+            return False
+
+
+    @classmethod
+    def words_list(cls):
+        words_list = []
+        for word in cls.find_all():
+             words_list.append(word.word)
+        return words_list
+
 class UserWord(db.Model, util.JSONSerializable):
     __tablename__ = 'user_words'
     id = db.Column(db.Integer, primary_key=True)
     word_id = db.Column(db.Integer, db.ForeignKey("words.id"))
-    word = db.relationship("Words",backref = "user_words")
+    word = db.relationship("Word")
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
-    language = db.relationship("Language",backref = "user_words")
+    language = db.relationship("Language")
     rank_id = db.Column(db.Integer, db.ForeignKey("word_ranks.id"), nullable=True)
-    rank = db.relationship("WordRank",backref = "user_words")
+    rank = db.relationship("WordRank")
     db.UniqueConstraint(word_id, language_id)
 
     IMPORTANCE_LEVEL_STEP = 1000
@@ -284,76 +355,7 @@ class UserWord(db.Model, util.JSONSerializable):
 #
 #
 #
-# WordAlias = db.aliased(UserWord, name="translated_word")
-
-class WordRank(db.Model, util.JSONSerializable):
-    __tablename__ = 'word_ranks'
-    id = db.Column(db.Integer, primary_key=True)
-    word_id = db.Column(db.Integer, db.ForeignKey('words.id'))
-    word = db.relationship("Words", backref="word_ranks")
-    language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
-    language = db.relationship("Language")
-    rank = db.Column(db.Integer)
-    db.UniqueConstraint(word_id, language_id)
-
-
-    def __init__(self, word, language, rank):
-        self.word = word
-        self.language = language
-        self.rank = rank
-
-
-    @classmethod
-    def find(cls, word, language):
-        try:
-            return (cls.query.filter(cls.word == word)
-                             .filter(cls.language == language)
-                             .one())
-            return w
-        except sqlalchemy.orm.exc.NoResultFound:
-            return None
-
-    @classmethod
-    def find_all(cls,language):
-        return cls.query.filter(cls.language == language
-        ).all()
-
-    @classmethod
-    def exists(cls, word_id):
-        try:
-            (cls.query.filter(cls.word_id == word_id)
-                             .one())
-            return True
-        except sqlalchemy.orm.exc.NoResultFound:
-            return False
-
-
-    @classmethod
-    def words_list(cls):
-        words_list = []
-        for word in cls.find_all():
-             words_list.append(word.word)
-        return words_list
-
-class Words(db.Model, util.JSONSerializable):
-    __tablename__ = 'words'
-    id = db.Column(db.Integer, primary_key=True)
-    word = db.Column(db.String(255), nullable=False, unique = True, index = True)
-
-    def __init__(self, word):
-        self.word = word
-
-    @classmethod
-    def find(cls, word):
-        try:
-            return (cls.query.filter(cls.word == word)
-                             .one())
-        except sqlalchemy.orm.exc.NoResultFound:
-            return cls(word)
-
-    @classmethod
-    def find_all(cls):
-         return cls.query.all()
+WordAlias = db.aliased(UserWord, name="translated_word")
 
 class Url(db.Model):
     id = db.Column(db.Integer, primary_key=True)

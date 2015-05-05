@@ -13,7 +13,7 @@ TEST_EMAIL='i@mir.lu'
 
 import zeeguu
 import unittest
-import zeeguu.populate
+import zeeguu.populate_without_rank
 import zeeguu.model
 
 class ZeeguuTestCase(unittest.TestCase):
@@ -49,7 +49,7 @@ class ZeeguuTestCase(unittest.TestCase):
     def setUp(self):
         # zeeguu.app.config['TESTING'] = True
         self.app = zeeguu.app.test_client()
-        zeeguu.populate.create_test_db()
+        zeeguu.populate_without_rank.create_test_db()
         self.session = self.get_session()
 
     def api_get(self, test_data, formdata='None'):

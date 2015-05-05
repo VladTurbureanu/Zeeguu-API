@@ -77,7 +77,7 @@ def add_words_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
     for word in filter_word_list(word_list(lang_code)):
-        w = model.Words.find(word.decode('utf-8'))
+        w = model.Word.find(word.decode('utf-8'))
         zeeguu.db.session.add(w)
     print 'karan the best'
     zeeguu.db.session.commit()
@@ -88,7 +88,7 @@ def add_word_ranks_to_db(lang_code):
     from_lang = model.Language.find(lang_code)
     initial_line_number = 1
     for word in filter_word_list(word_list(lang_code)):
-        w = model.Words.find(word.decode('utf-8'))
+        w = model.Word.find(word.decode('utf-8'))
         zeeguu.db.session.add(w)
         r = model.WordRank(w, from_lang,initial_line_number)
         zeeguu.db.session.add(r)
@@ -104,8 +104,8 @@ def clean_word(word):
     return match.group(1).decode("utf8")
 
 def add_words(original_word, translation_word):
-    word1 = model.Words.find(original_word)
-    word2 = model.Words.find(translation_word)
+    word1 = model.Word.find(original_word)
+    word2 = model.Word.find(translation_word)
     zeeguu.db.session.add(word1)
     zeeguu.db.session.add(word2)
     zeeguu.db.session.commit()
@@ -116,8 +116,8 @@ def add_bookmark(user, original_language, original_word, translation_language, t
     url = model.Url.find (the_url, the_url_title)
     text = model.Text(the_context, translation_language, url)
 
-    word1 = model.Words.find(original_word)
-    word2 = model.Words.find(translation_word)
+    word1 = model.Word.find(original_word)
+    word2 = model.Word.find(translation_word)
     if model.WordRank.exists(word1.id):
         rank1 = model.UserWord.find_rank(word1, original_language)
         w1 = model.UserWord(word1, original_language,rank1)

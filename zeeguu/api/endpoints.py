@@ -328,9 +328,9 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     from_lang = model.Language.find(from_lang_code)
     to_lang = model.Language.find(to_lang_code)
 
-    word = model.Words.find(decode_word(term))
+    word = model.Word.find(decode_word(term))
     zeeguu.db.session.add(word)
-    translation_word = model.Words.find(decode_word(translation))
+    translation_word = model.Word.find(decode_word(translation))
     zeeguu.db.session.add(translation_word)
     if model.WordRank.exists(word.id):
         rank = model.UserWord.find_rank(word,from_lang)
@@ -429,7 +429,7 @@ def add_new_translation_to_bookmark(word_translation, bookmark_id):
         if transl.word.word ==word_translation:
             return 'FAIL'
 
-    translation_word = model.Words.find(word_translation)
+    translation_word = model.Word.find(word_translation)
     rank = model.UserWord.find_rank(translation_word, translations_of_bookmark[0].language)
     translation_user_word = model.UserWord.find(translation_word,translations_of_bookmark[0].language,rank)
     bookmark.add_new_translation(translation_user_word)
@@ -619,7 +619,7 @@ def lookup(from_lang, term, to_lang):
         user.read(text)
     else:
         text = None
-    word = model.Words.find(decode_word(term))
+    word = model.Word.find(decode_word(term))
     rank = model.UserWord.find_rank(decode_word(term), to_lang)
     user.searches.append(
         model.Search(user, model.UserWord.find(word, from_lang,rank),

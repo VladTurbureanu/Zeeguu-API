@@ -50,8 +50,8 @@ def add_bookmark(user, original_language, original_word, translation_language, t
     url = model.Url.find (the_url, the_url_title)
     text = model.Text(the_context, translation_language, url)
 
-    word1 = model.Words.find(original_word)
-    word2 = model.Words.find(translation_word)
+    word1 = model.Word.find(original_word)
+    word2 = model.Word.find(translation_word)
     w1 = model.UserWord(word1, original_language,None)
     w2 = model.UserWord(word2, translation_language,None)
     zeeguu.db.session.add(url)
@@ -71,9 +71,9 @@ def create_test_db():
     zeeguu.app.test_request_context().push()
 
     zeeguu.db.session.commit()
-    zeeguu.db.drop_all()
+    # model.Exercise.__table__.drop(zeeguu.db.engine)
+    zeeguu.db.drop_all(["user"])
     zeeguu.db.create_all()
-
     fr = model.Language("fr", "French")
     de = model.Language("de", "German")
     dk = model.Language("dk", "Danish")

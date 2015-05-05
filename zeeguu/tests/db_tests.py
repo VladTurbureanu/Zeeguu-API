@@ -21,7 +21,7 @@ class Dbtest(ZeeguuTestCase):
     def test_preferred_word(self):
         mir = model.User.find("i@mir.lu")
         de = model.Language.find("de")
-        word = model.Words.find("hauen")
+        word = model.Word.find("hauen")
         rank = model.UserWord.find_rank(word, de)
         someword = model.UserWord.find(word, de, rank)
         assert mir
@@ -37,7 +37,7 @@ class Dbtest(ZeeguuTestCase):
 
     def test_add_new_word_to_DB(self):
         deutsch = Language.find("de")
-        word = model.Words.find("baum")
+        word = model.Word.find("baum")
         rank = model.UserWord.find_rank(word, deutsch)
         new_word = UserWord(word, deutsch,rank)
         mircea = User.find("i@mir.lu")
@@ -48,21 +48,21 @@ class Dbtest(ZeeguuTestCase):
 
     def test_find_word(self):
         deutsch = Language.find("de")
-        word = model.Words.find("baum")
+        word = model.Word.find("baum")
         rank = model.UserWord.find_rank(word, deutsch)
         assert UserWord.find(word, deutsch, rank)
 
 
     def test_user_words(self):
         mir = model.User.find("i@mir.lu")
-        assert mir.user_words() == map((lambda x: x.origin.word), mir.all_bookmarks())
+        assert mir.user_words() == map((lambda x: x.origin.word.word), mir.all_bookmarks())
 
 
 
     def test_preferred_words(self):
         mir = model.User.find("i@mir.lu")
         de = model.Language.find("de")
-        word = model.Words("hauen")
+        word = model.Word.find("hauen")
         if(model.WordRank.exists(word.id)):
             rank = model.UserWord.find_rank(word, de)
             someword = model.UserWord.find(word,de,rank)
@@ -105,7 +105,7 @@ class Dbtest(ZeeguuTestCase):
 
     def test_importance_level(self):
         deutsch = Language.find("de")
-        word = model.Words.find("beschloss")
+        word = model.Word.find("beschloss")
         if(model.WordRank.exists(word.id)):
             rank = model.UserWord.find_rank(word, deutsch)
             new_word = model.UserWord.find(word,deutsch,rank)
@@ -116,7 +116,7 @@ class Dbtest(ZeeguuTestCase):
         db.session.add(new_word)
         db.session.commit()
 
-        word = model.Words.find("unexistingword")
+        word = model.Word.find("unexistingword")
         beschloss = UserWord.find(word, deutsch, None)
         assert beschloss
         assert beschloss.importance_level() == 0
