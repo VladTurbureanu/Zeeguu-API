@@ -40,47 +40,43 @@
 
 
     <nav class="navbar navbar-default menu-cassette">
-            <div class="container-fluid">
-                <!-- The Menu Options on the Left -->
-                <ul class="nav navbar-nav">
+        <div class="container-fluid">
+            <!-- The Menu Options on the Left -->
+            <ul class="nav navbar-nav">
+                <!-- The Icon -->
+                {% if tab != "home" %}
+                    <li><a href="{{ url_for('account.my_account') }}"><img id="zeeguu-logo" src="../static/img/elephlogo-alone.png" alt="ZeeGuu" /></a></li>
+                {% endif %}
 
-                    <!-- The Icon -->
-                    {% if tab != "home" %}
-                            <li><a href="{{ url_for('account.my_account') }}"><img id="zeeguu-logo" src="../static/img/elephlogo-alone.png" alt="ZeeGuu" /></a></li>
-                    {% endif %}
+                {% if g.user %}
+                    {{ menu_item ("contributions", "gym.contributions", "My Words") }}
+                    {{ menu_item ("recognize", "gym.recognize", "Exercises") }}
+                    <!--{{ menu_item ("translate", "gym.translate_with_context", "Translate") }}-->
+                {% endif %}
 
-                    {% if g.user %}
-                        {{ menu_item ("contributions", "gym.contributions", "My Words") }}
-                        {{ menu_item ("recognize", "gym.recognize", "Exercises") }}
-                        <!--{{ menu_item ("translate", "gym.translate_with_context", "Translate") }}-->
-                    {% endif %}
+            </ul>
 
-                </ul>
-
-                <!-- The menu options on the right... -->
-                <ul class="nav navbar-nav navbar-right" >
-
-                    {% if g.user %}
-                        <!-- When user logged in, show the dropdown -->
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ g.user.name }}<b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{{ url_for('account.my_account') }}">My Account</a></li>
-                                <li><a href="{{ url_for('gym.logout') }}">Sign Out</a></li>
-                            </ul>
-                        </li>
-                    {% elif tab != "login" and tab != "create_account" %}
-                        <!-- Don't show login on the login and create_account page :) -->
-                        <li id="login"><a href="{{ url_for('gym.login') }}">SIGN IN</a></li>
-                    {% endif %}
-                </ul>
-            </div>
+            <!-- The menu options on the right... -->
+            <ul class="nav navbar-nav navbar-right" >
+                {% if g.user %}
+                    <!-- When user logged in, show the dropdown -->
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ g.user.name }}<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('account.my_account') }}">My Account</a></li>
+                            <li><a href="{{ url_for('gym.logout') }}">Sign Out</a></li>
+                        </ul>
+                    </li>
+                {% elif tab != "login" and tab != "create_account" %}
+                    <!-- Don't show login on the login and create_account page :) -->
+                    <li id="login"><a href="{{ url_for('gym.login') }}">Sign In</a></li>
+                {% endif %}
+            </ul>
+        </div>
     </nav>
 
 
-
-
-            {% block body %}{% endblock %}
+        {% block body %}{% endblock %}
 
     </body>
 </html>

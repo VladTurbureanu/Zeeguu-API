@@ -18,13 +18,12 @@
 
 .inner-center {
   display: block;
-  margin: 0px auto;
-  padding-top: 20px;
-  padding-bottom: 20px; }
+  margin: 0px auto; }
 
 .create-account-block-width {
   width: 500px;
-  background-color: #f4f4f4; }
+  padding-top: 20px;
+  padding-bottom: 20px; }
 
 .btn-success {
   margin-bottom: 20px;

@@ -13,7 +13,7 @@
                     <p id="create-account-title">Create Account</p>
                 </div>
 
-                <div class="inner-center create-account-block-width select2-active">
+                <div class="inner-center create-account-block-width">
 
                     <!--<p id="create-account-title">Create Account</p>-->
 
@@ -41,7 +41,6 @@
                             </select>
                     </div>
 
-
                     <div class="input-group-lg" >
                         <label class="control-label">Your base language</label>
                             <select autofocus id="native_language" required name="native_language" class="form-control input-lg">
@@ -52,26 +51,25 @@
                     </div>
 
 
-                      {% if flashed_messages %}
-                      {% for message in flashed_messages %}
-                          <div class="alert alert-error" id="login-error">
-                            {{ message }}
-                          </div>
-                      {% endfor %}
-                      {% endif %}
+                    {% if flashed_messages %}
+                    {% for message in flashed_messages %}
+                    <div class="alert alert-error" id="login-error">
+                    {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
 
 
-                      <div class="alert alert-error hide" id="register-error">
-                        This email address is already in use.
-                      </div>
+                    <div class="alert alert-error hide" id="register-error">
+                    This email address is already in use.
+                    </div>
 
-                      <br/>
-                      <div class="input-group-lg">
-                          <input type="submit" name="create_account" value="Create" class="btn btn-success" />
-                      </div>
+                    <br/>
+                    <div class="input-group-lg">
+                        <input type="submit" name="create_account" value="Create" class="btn btn-success" />
+                    </div>
 
                 </div>
-
             </div>
 
         <!--</fieldset>-->
