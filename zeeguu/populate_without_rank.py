@@ -72,7 +72,7 @@ def create_test_db():
 
     zeeguu.db.session.commit()
     # model.Exercise.__table__.drop(zeeguu.db.engine)
-    zeeguu.db.drop_all(["user"])
+    zeeguu.db.drop_all()
     zeeguu.db.create_all()
     fr = model.Language("fr", "French")
     de = model.Language("de", "German")
