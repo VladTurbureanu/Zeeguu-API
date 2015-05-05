@@ -198,16 +198,16 @@ def question_with_min_level(level, from_lang, to_lang):
 
     contributions = (
         model.Contribution.query.filter_by(user=flask.g.user)
-                                .join(model.Word, model.Contribution.origin)
+                                .join(model.UserWord, model.Contribution.origin)
                                 .join(model.WordAlias,
                                       model.Contribution.translation)
     )
     forward = contributions.filter(
-        model.Word.language == from_lang,
+        model.UserWord.language == from_lang,
         model.WordAlias.language == to_lang
     )
     backward = contributions.filter(
-        model.Word.language == to_lang,
+        model.UserWord.language == to_lang,
         model.WordAlias.language == from_lang
     )
     contributions = forward.union(backward).filter_by(card=None)
@@ -216,7 +216,7 @@ def question_with_min_level(level, from_lang, to_lang):
     # level 3
     if contributions.count() > 0:
         card = model.Card(
-            contributions.join(model.Word, model.Contribution.origin).order_by(model.Word.word_rank, model.Contribution.time).first()
+            contributions.join(model.UserWord, model.Contribution.origin).order_by(model.UserWord.word_rank, model.Contribution.time).first()
         )
         card.set_reason("First rehearsal. ")
         # return "\"NO CARDS\""
@@ -224,16 +224,16 @@ def question_with_min_level(level, from_lang, to_lang):
         cards = (
             model.Card.query.join(model.Contribution, model.Card.bookmark)
                             .filter_by(user=flask.g.user)
-                            .join(model.Word, model.Contribution.origin)
+                            .join(model.UserWord, model.Contribution.origin)
                             .join(model.WordAlias,
                                   model.Contribution.translation)
         )
         forward = cards.filter(
-            model.Word.language == from_lang,
+            model.UserWord.language == from_lang,
             model.WordAlias.language == to_lang
         )
         backward = cards.filter(
-            model.Word.language == to_lang,
+            model.UserWord.language == to_lang,
             model.WordAlias.language == from_lang
         )
 
@@ -275,38 +275,38 @@ def question(from_lang, to_lang):
 
     contributions = (
         model.Contribution.query.filter_by(user=flask.g.user)
-                                .join(model.Word, model.Contribution.origin)
+                                .join(model.UserWord, model.Contribution.origin)
                                 .join(model.WordAlias,
                                       model.Contribution.translation)
     )
     forward = contributions.filter(
-        model.Word.language == from_lang,
+        model.UserWord.language == from_lang,
         model.WordAlias.language == to_lang
     )
     backward = contributions.filter(
-        model.Word.language == to_lang,
+        model.UserWord.language == to_lang,
         model.WordAlias.language == from_lang
     )
     contributions = forward.union(backward).filter_by(card=None)
     if contributions.count() > 0:
         card = model.Card(
-            contributions.join(model.Word, model.Contribution.origin).order_by(model.Word.word_rank, model.Contribution.time).first()
+            contributions.join(model.UserWord, model.Contribution.origin).order_by(model.UserWord.word_rank, model.Contribution.time).first()
         )
         card.set_reason("First rehearsal. ")
     else:
         cards = (
             model.Card.query.join(model.Contribution, model.Card.bookmark)
                             .filter_by(user=flask.g.user)
-                            .join(model.Word, model.Contribution.origin)
+                            .join(model.UserWord, model.Contribution.origin)
                             .join(model.WordAlias,
                                   model.Contribution.translation)
         )
         forward = cards.filter(
-            model.Word.language == from_lang,
+            model.UserWord.language == from_lang,
             model.WordAlias.language == to_lang
         )
         backward = cards.filter(
-            model.Word.language == to_lang,
+            model.UserWord.language == to_lang,
             model.WordAlias.language == from_lang
         )
 
@@ -411,7 +411,7 @@ def unstarred(card_id):
 
 @gym.route("/gym/starred_word/<word_id>/<user_id>", methods=("POST",))
 def starred_word(word_id,user_id):
-    word = model.Word.query.get(word_id)
+    word = model.UserWord.query.get(word_id)
     user = model.User.find_by_id(user_id)
     user.star(word)
     model.db.session.commit()
@@ -419,7 +419,7 @@ def starred_word(word_id,user_id):
 
 @gym.route("/gym/unstarred_word/<word_id>/<user_id>", methods=("POST",))
 def unstarred_word(word_id,user_id):
-    word = model.Word.query.get(word_id)
+    word = model.UserWord.query.get(word_id)
     user = model.User.find_by_id(user_id)
     user.starred_words.remove(word)
     model.db.session.commit()

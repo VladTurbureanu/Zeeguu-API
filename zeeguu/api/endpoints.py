@@ -329,18 +329,27 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     to_lang = model.Language.find(to_lang_code)
 
     word = model.Words.find(decode_word(term))
-    rank = model.UserWord.find_rank(word,from_lang)
-    user_word = model.UserWord.find(word,from_lang,rank)
-    translation = model.Words.find(decode_word(translation))
-    rank = model.UserWord.find_rank(word,to_lang)
-    translation_user_word = model.UserWord.find(translation,to_lang,rank)
+    zeeguu.db.session.add(word)
+    translation_word = model.Words.find(decode_word(translation))
+    zeeguu.db.session.add(translation_word)
+    if model.WordRank.exists(word.id):
+        rank = model.UserWord.find_rank(word,from_lang)
+        user_word = model.UserWord.find(word,from_lang,rank)
+    else:
+        user_word = model.UserWord.find(word,from_lang,None)
+    if model.WordRank.exists(translation_word.id):
+        rank = model.UserWord.find_rank(translation_word,to_lang)
+        translation = model.UserWord.find(translation_word,to_lang,rank)
+    else:
+        translation = model.UserWord.find(word,from_lang,None)
+
     search = model.Search.query.filter_by(
         user=flask.g.user, word=user_word, language=to_lang
     ).order_by(model.Search.id.desc()).first()
 
     #create the text entity first
     new_text = model.Text(context, from_lang, url)
-    bookmark = model.Bookmark(user_word, translation_user_word, flask.g.user, new_text, datetime.datetime.now())
+    bookmark = model.Bookmark(user_word, translation, flask.g.user, new_text, datetime.datetime.now())
     if search:
         search.bookmark = bookmark
     else:
@@ -503,12 +512,18 @@ def get_known_words(from_lang):
     filtered_i_know_words_dict_list =[]
     for bookmark in bookmarks:
         if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
-                i_know_words.append(bookmark.origin)
-    for word_known in i_know_words:
-        if word_known.rank is not None & word_known.language is from_lang:
-            filtered_i_know_words_from_user.append(word_known.word.word)
-    filtered_i_know_words_from_user = list(set(filtered_i_know_words_from_user))
-
+                i_know_words.append(bookmark.origin.word.word)
+    words_known_from_user = [word.encode('utf-8') for word in i_know_words]
+    for word_known in words_known_from_user:
+        for word in model.UserWord.getImportantWords('de'):
+            if word_known.lower() == word.lower():
+                filtered_i_know_words_from_user.append(word)
+                break
+    filtered_i_know_words_from_user = list(set(i_know_words))
+    # for word_known in i_know_words:
+    #     if not word_known.rank.id is None and word_known.language.id == from_lang.id:
+    #         filtered_i_know_words_from_user.append(word_known.word.word)
+    # filtered_i_know_words_from_user = list(set(filtered_i_know_words_from_user))
     for word in filtered_i_know_words_from_user:
         filtered_i_know_word_dict = {}
         filtered_i_know_word_dict['word'] = word
@@ -555,12 +570,17 @@ def get_estimated_user_vocabulary(from_lang):
         words_of_all_bookmarks_content.extend(bookmark_content_words)
         marked_words_of_user_in_text.append(bookmark.origin.word.word)
     words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
-    # words_known_from_user = [x.encode('utf-8') for x in words_known_from_user]
+    words_known_from_user = [x.encode('utf-8') for x in words_known_from_user]
     for word_known in words_known_from_user:
-        for word in model.WordRank.find_all(from_lang):
+        for word in model.UserWord.getImportantWords('de'):
             if word_known.lower() == word.lower():
                 filtered_words_known_from_user.append(word)
                 break
+    # for word_known in words_known_from_user:
+    #     for word in model.WordRank.find_all(from_lang):
+    #         if word_known.lower() == word.word.word.lower():
+    #             filtered_words_known_from_user.append(word)
+    #             break
     filtered_words_known_from_user = list(set(filtered_words_known_from_user))
     for word in filtered_words_known_from_user:
         filtered_word_known_from_user_dict = {}

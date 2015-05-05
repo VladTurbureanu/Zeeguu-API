@@ -39,7 +39,7 @@ class Dbtest(ZeeguuTestCase):
         deutsch = Language.find("de")
         word = model.Words.find("baum")
         rank = model.UserWord.find_rank(word, deutsch)
-        new_word = UserWord("baum", deutsch,rank)
+        new_word = UserWord(word, deutsch,rank)
         mircea = User.find("i@mir.lu")
 
         db.session.add(new_word)
@@ -63,8 +63,11 @@ class Dbtest(ZeeguuTestCase):
         mir = model.User.find("i@mir.lu")
         de = model.Language.find("de")
         word = model.Words("hauen")
-        rank = model.UserWord.find_rank(word, de)
-        someword = model.UserWord.find(word,de,rank)
+        if(model.WordRank.exists(word.id)):
+            rank = model.UserWord.find_rank(word, de)
+            someword = model.UserWord.find(word,de,rank)
+        else:
+            someword = model.UserWord.find(word,de,None)
         assert mir
         assert someword
         # add someword to starred words
@@ -103,16 +106,18 @@ class Dbtest(ZeeguuTestCase):
     def test_importance_level(self):
         deutsch = Language.find("de")
         word = model.Words.find("beschloss")
-        rank = model.UserWord.find_rank(word, deutsch)
-        new_word = UserWord(word, deutsch, rank)
+        if(model.WordRank.exists(word.id)):
+            rank = model.UserWord.find_rank(word, deutsch)
+            new_word = model.UserWord.find(word,deutsch,rank)
+        else:
+            new_word = model.UserWord.find(word,deutsch,None)
         mircea = User.find("i@mir.lu")
 
         db.session.add(new_word)
         db.session.commit()
 
         word = model.Words.find("unexistingword")
-        rank = model.UserWord.find_rank(word, deutsch)
-        beschloss = UserWord.find(word, deutsch, rank)
+        beschloss = UserWord.find(word, deutsch, None)
         assert beschloss
         assert beschloss.importance_level() == 0
 

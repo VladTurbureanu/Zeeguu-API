@@ -1,12 +1,13 @@
 CREATE TABLE words
 (
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-word varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL UNIQUE
+word varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL UNIQUE,
+INDEX word_index  (word)
 );
 
 
 INSERT INTO words (word)
-SELECT DISTINCT word
+SELECT word
 FROM word;
 
 

@@ -236,7 +236,7 @@ class UserWord(db.Model, util.JSONSerializable):
     # returns a number between
     def importance_level(self):
         if self.rank is not None:
-            return max((10 - self.rank / UserWord.IMPORTANCE_LEVEL_STEP), 0)
+            return max((10 - self.rank.rank / UserWord.IMPORTANCE_LEVEL_STEP), 0)
         else:
             return  0
 
@@ -266,6 +266,13 @@ class UserWord(db.Model, util.JSONSerializable):
         return cls.query.all()
 
 
+    @classmethod
+    def getImportantWords(cls,language_code):
+        words_file = open("../../languages/"+str(language_code)+".txt")
+        # with codecs.open("../../languages/"+str(language_code)+".txt",'r',encoding='utf8') as words_file:
+        words_list = words_file.read().splitlines()
+        # words_list = [x.decode('utf-8') for x in words_list]
+        return words_list
 
 #     @classmethod
 #     def translate(cls, from_lang, term, to_lang):
@@ -311,6 +318,14 @@ class WordRank(db.Model, util.JSONSerializable):
         return cls.query.filter(cls.language == language
         ).all()
 
+    @classmethod
+    def exists(cls, word_id):
+        try:
+            (cls.query.filter(cls.word_id == word_id)
+                             .one())
+            return True
+        except sqlalchemy.orm.exc.NoResultFound:
+            return False
 
 
     @classmethod
