@@ -49,7 +49,7 @@ class ZeeguuTestCase(unittest.TestCase):
     def setUp(self):
         # zeeguu.app.config['TESTING'] = True
         self.app = zeeguu.app.test_client()
-        zeeguu.populate_without_rank.create_test_db()
+        zeeguu.populate.create_test_db()
         self.session = self.get_session()
 
     def api_get(self, test_data, formdata='None'):

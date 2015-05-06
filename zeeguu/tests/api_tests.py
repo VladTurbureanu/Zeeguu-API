@@ -239,7 +239,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         learned_bookmarks = json.loads(rv.data)
         assert not any(bookmark['id'] == latest_bookmark_id for bookmark in learned_bookmarks)
         assert learned_bookmarks_count== len(learned_bookmarks)
-        time.sleep(5) # delays for 5 seconds
+        time.sleep(5)
         rv = self.api_post('/create_new_exercise/Do not know/Recognize/10000/'+ str(latest_bookmark_id))
         rv = self.api_get('/get_learned_bookmarks')
         learned_bookmarks = json.loads(rv.data)
@@ -252,28 +252,27 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         bookmarks_by_day_with_date = json.loads(rv.data)
         rv = self.api_get('/get_estimated_user_vocabulary/de')
         estimated_user_voc_before = json.loads(rv.data)
-        assert not any (bookmark['word'] == 'Solche' for bookmark in estimated_user_voc_before)
-        assert not any (bookmark['word'] == 'mal' for bookmark in estimated_user_voc_before)
-        assert not any (bookmark['word'] == 'etwas' for bookmark in estimated_user_voc_before)
+        assert not any (bookmark['word'] == 'es' for bookmark in estimated_user_voc_before)
+        assert not any (bookmark['word'] == 'an' for bookmark in estimated_user_voc_before)
+        assert not any (bookmark['word'] == 'auch' for bookmark in estimated_user_voc_before)
         for i in range(0, len(bookmarks_by_day_with_date)):
             for j in range (0, len(bookmarks_by_day_with_date[i]['bookmarks'])):
                 bookmarks_by_day.append(bookmarks_by_day_with_date[i]['bookmarks'][j]['context'])
-                # print bookmarks_by_day_with_date[i]['bookmarks'][0]['context']
         for bookmark in bookmarks_by_day:
             bookmark_content_words = re.sub("[^\w]", " ",  bookmark).split()
-        assert not 'Sage' in bookmark_content_words
-        assert not 'mal' in bookmark_content_words
-        assert not 'etwas' in bookmark_content_words
+        assert not 'es' in bookmark_content_words
+        assert not 'an' in bookmark_content_words
+        assert not 'auch' in bookmark_content_words
         formData = dict(
             url='http://mir.lu',
-            context='Sage mal etwas')
-        rv = self.api_post('/bookmark_with_context/de/etwas/en/something', formData)
+            context='es an auch')
+        rv = self.api_post('/bookmark_with_context/de/auch/en/also', formData)
         rv = self.api_get('/get_estimated_user_vocabulary/de')
         estimated_user_voc_after = json.loads(rv.data)
         assert len(estimated_user_voc_after)==len(estimated_user_voc_before)+2
-        assert any (bookmark['word'] == 'sage' for bookmark in estimated_user_voc_after)
-        assert any (bookmark['word'] == 'mal' for bookmark in estimated_user_voc_after)
-        assert not any (bookmark['word'] == 'etwas' for bookmark in estimated_user_voc_after)
+        assert any (bookmark['word'] == 'es' for bookmark in estimated_user_voc_after)
+        assert any (bookmark['word'] == 'an' for bookmark in estimated_user_voc_after)
+        assert not any (bookmark['word'] == 'auch' for bookmark in estimated_user_voc_after)
 
 
     def test_set_language(self):

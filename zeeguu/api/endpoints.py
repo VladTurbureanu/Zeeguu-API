@@ -512,18 +512,11 @@ def get_known_words(from_lang):
     filtered_i_know_words_dict_list =[]
     for bookmark in bookmarks:
         if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
-                i_know_words.append(bookmark.origin.word.word)
-    words_known_from_user = [word.encode('utf-8') for word in i_know_words]
-    for word_known in words_known_from_user:
-        for word in model.UserWord.getImportantWords('de'):
-            if word_known.lower() == word.lower():
-                filtered_i_know_words_from_user.append(word)
-                break
-    filtered_i_know_words_from_user = list(set(i_know_words))
-    # for word_known in i_know_words:
-    #     if not word_known.rank.id is None and word_known.language.id == from_lang.id:
-    #         filtered_i_know_words_from_user.append(word_known.word.word)
-    # filtered_i_know_words_from_user = list(set(filtered_i_know_words_from_user))
+                i_know_words.append(bookmark.origin.word)
+    for word_known in i_know_words:
+        if model.WordRank.exists(word_known.id):
+            filtered_i_know_words_from_user.append(word_known.word)
+    filtered_i_know_words_from_user = list(set(filtered_i_know_words_from_user))
     for word in filtered_i_know_words_from_user:
         filtered_i_know_word_dict = {}
         filtered_i_know_word_dict['word'] = word
@@ -570,23 +563,18 @@ def get_estimated_user_vocabulary(from_lang):
         words_of_all_bookmarks_content.extend(bookmark_content_words)
         marked_words_of_user_in_text.append(bookmark.origin.word.word)
     words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
-    words_known_from_user = [x.encode('utf-8') for x in words_known_from_user]
     for word_known in words_known_from_user:
-        for word in model.UserWord.getImportantWords('de'):
-            if word_known.lower() == word.lower():
-                filtered_words_known_from_user.append(word)
-                break
-    # for word_known in words_known_from_user:
-    #     for word in model.WordRank.find_all(from_lang):
-    #         if word_known.lower() == word.word.word.lower():
-    #             filtered_words_known_from_user.append(word)
-    #             break
+        word = model.Word.find(word_known)
+        zeeguu.db.session.add(word)
+        if model.WordRank.exists(word.id):
+            filtered_words_known_from_user.append(word_known)
     filtered_words_known_from_user = list(set(filtered_words_known_from_user))
+    print filtered_words_known_from_user
     for word in filtered_words_known_from_user:
         filtered_word_known_from_user_dict = {}
         filtered_word_known_from_user_dict['word'] = word
         filtered_words_known_from_user_dict_list.append(filtered_word_known_from_user_dict.copy())
-
+    zeeguu.db.session.commit()
     js = json.dumps(filtered_words_known_from_user_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
