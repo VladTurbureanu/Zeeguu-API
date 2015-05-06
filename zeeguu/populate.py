@@ -99,7 +99,7 @@ def add_word_ranks_to_db(lang_code):
 def clean_word(word):
     match = re.match(WORD_PATTERN, word)
     if match is None:
-        print word
+        # print word
         return word.decode("utf8")
     return match.group(1).decode("utf8")
 
@@ -118,6 +118,7 @@ def add_bookmark(user, original_language, original_word, translation_language, t
 
     word1 = model.Word.find(original_word)
     word2 = model.Word.find(translation_word)
+
     if model.WordRank.exists(word1.id):
         rank1 = model.UserWord.find_rank(word1, original_language)
         w1 = model.UserWord(word1, original_language,rank1)
@@ -192,6 +193,7 @@ def create_test_db():
     user2 = model.User("i@ada.lu", "Ada", "pass", fr)
 
     zeeguu.db.session.add(user)
+    zeeguu.db.session.add(user2)
 
 
     jan111 = datetime.date(2011,01,01)

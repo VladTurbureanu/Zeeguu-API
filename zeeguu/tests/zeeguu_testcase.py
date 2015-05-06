@@ -13,7 +13,8 @@ TEST_EMAIL='i@mir.lu'
 
 import zeeguu
 import unittest
-import zeeguu.populate_without_rank
+import zeeguu.populate
+# _without_rank
 import zeeguu.model
 
 class ZeeguuTestCase(unittest.TestCase):

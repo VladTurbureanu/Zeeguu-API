@@ -160,6 +160,17 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         known_bookmarks_after = json.loads(rv.data)
         assert not any(bookmark['id'] == second_latest_bookmark_id for bookmark in known_bookmarks_after)
 
+    def test_user_words_are_added_only_once(self):
+        formData = dict(
+            url='http://mir.lu',
+            context='somewhere over the rainbowwwwwwwww')
+        rv = self.api_post('/bookmark_with_context/de/lala/en/lala', formData)
+        formData = dict(
+            url='http://mir.lu',
+            context='saying hi to girls')
+        rv = self.api_post('/bookmark_with_context/fr/lala/it/lala', formData)
+
+
 
     def test_get_known_words(self):
         formData = dict(
@@ -311,18 +322,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         some_date = elements[0]
         some_bookmark = some_date ["bookmarks"][0]
         assert not "context" in some_bookmark
-
-
-    def test_translate(self):
-        rv = self.api_get('/translate_from_to/frauen/de/en')
-        assert rv.data == "women"
-
-        formData = dict(
-            url='http://mir.lu',
-            context='somewhere over the rainbowwwwwwwww')
-        rv = self.api_post('/translate_with_context/kinder/de/en', formData)
-        assert rv.data == "children"
-
 
 
 

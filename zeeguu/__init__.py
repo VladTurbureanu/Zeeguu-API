@@ -18,6 +18,10 @@ if os.environ.get("ZEEGUU_TESTING") == "True":
     app.config.pop("SQLALCHEMY_DATABASE_URI", None)
     app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://zeeguu_test:zeeguu_test@127.0.0.1/zeeguu_test"
     print "[ Using the test DB (" + app.config["SQLALCHEMY_DATABASE_URI"] + ") ]"
+else:
+    if not "SQLALCHEMY_DATABASE_URI" in app.config:
+        print "seems like you have no config file..."
+        exit()
 
 
 env = flask.ext.assets.Environment(app)

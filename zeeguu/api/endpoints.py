@@ -330,18 +330,24 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
 
     word = model.Word.find(decode_word(term))
     zeeguu.db.session.add(word)
+    zeeguu.db.session.commit()
+
     translation_word = model.Word.find(decode_word(translation))
     zeeguu.db.session.add(translation_word)
+    zeeguu.db.session.commit()
+
     if model.WordRank.exists(word.id):
         rank = model.UserWord.find_rank(word,from_lang)
         user_word = model.UserWord.find(word,from_lang,rank)
     else:
         user_word = model.UserWord.find(word,from_lang,None)
+
+
     if model.WordRank.exists(translation_word.id):
         rank = model.UserWord.find_rank(translation_word,to_lang)
         translation = model.UserWord.find(translation_word,to_lang,rank)
     else:
-        translation = model.UserWord.find(word,from_lang,None)
+        translation = model.UserWord.find(translation_word,to_lang,None)
 
     search = model.Search.query.filter_by(
         user=flask.g.user, word=user_word, language=to_lang
@@ -568,13 +574,14 @@ def get_estimated_user_vocabulary(from_lang):
         zeeguu.db.session.add(word)
         if model.WordRank.exists(word.id):
             filtered_words_known_from_user.append(word_known)
+        zeeguu.db.session.commit()
+
     filtered_words_known_from_user = list(set(filtered_words_known_from_user))
     print filtered_words_known_from_user
     for word in filtered_words_known_from_user:
         filtered_word_known_from_user_dict = {}
         filtered_word_known_from_user_dict['word'] = word
         filtered_words_known_from_user_dict_list.append(filtered_word_known_from_user_dict.copy())
-    zeeguu.db.session.commit()
     js = json.dumps(filtered_words_known_from_user_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp

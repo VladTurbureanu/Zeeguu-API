@@ -33,7 +33,7 @@
                         </li>
 
                     {% if g.user %}
-                        <li class="{% if tab == "contributions"%} active{% endif %}"><a href="{{ url_for('gym.contributions') }}">Words</a></li>
+                        <li class="{% if tab == "bookmarks"%} active{% endif %}"><a href="{{ url_for('gym.bookmarks') }}">Words</a></li>
                         <li class="{% if tab == "recognize" %} active{% endif %}"><a href="{{ url_for('gym.recognize') }}">Recognize!</a></li>
                         <li class="{% if tab == "translate" %} active{% endif %}"><a href="{{ url_for('gym.translate_with_context') }}">Translate in Context</a></li>
                     {% endif %}

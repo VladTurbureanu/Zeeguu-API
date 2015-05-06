@@ -1,4 +1,11 @@
+
+
+# Always must be imported first
+# it sets the test DB
+
 __author__ = 'mircea'
+import zeeguu_testcase
+
 from zeeguu_testcase import ZeeguuTestCase
 import unittest
 from zeeguu import model, db

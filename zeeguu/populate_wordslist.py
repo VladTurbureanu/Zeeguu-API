@@ -46,6 +46,7 @@ def word_list(lang_code):
 def add_words_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
+
     for word in filter_word_list(word_list(lang_code)):
         w = model.Word.find(word.decode('utf-8'))
         zeeguu.db.session.add(w)
@@ -76,11 +77,9 @@ def change_db(lang_code):
 
 
 
-
-
-
-
-
 if __name__ == "__main__":
+    # with zeeguu.app.app_context():
+    #     print zeeguu.db
+    #     print model.Language.find("en")
     change_db('de')
 

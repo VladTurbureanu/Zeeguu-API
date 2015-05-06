@@ -40,7 +40,7 @@ def setup():
 @gym.route("/")
 def home():
     if "user" in flask.session:
-        return flask.redirect(flask.url_for("gym.contributions"))
+        return flask.redirect(flask.url_for("gym.bookmarks"))
     return flask.render_template("index.html")
 
 
@@ -69,7 +69,7 @@ def login():
             else:
                 flask.session["user"] = user.id
                 flask.session.permanent = True
-                return flask.redirect(flask.request.args.get("next") or flask.url_for("gym.contributions"))
+                return flask.redirect(flask.request.args.get("next") or flask.url_for("gym.bookmarks"))
     return flask.render_template("login.html")
 
 
@@ -88,20 +88,20 @@ def history():
 
 @gym.route("/bookmarks")
 @login_first
-def contributions():
-    contribs,dates = flask.g.user.bookmarks_by_date()
+def bookmarks():
+    bookmarks,dates = flask.g.user.bookmarks_by_date()
 
     urls_by_date = {}
-    contribs_by_url = {}
+    bookmarks_by_url = {}
     for date in dates:
-        for contrib in contribs[date]:
-            urls_by_date.setdefault(date, set()).add(contrib.text.url)
-            contribs_by_url.setdefault(contrib.text.url,[]).append(contrib)
+        for bookmark in bookmarks[date]:
+            urls_by_date.setdefault(date, set()).add(bookmark.text.url)
+            bookmarks_by_url.setdefault(bookmark.text.url,[]).append(bookmark)
 
 
 
     return flask.render_template("contributions.html",
-                                 contribs_by_url=contribs_by_url,
+                                 bookmarks_by_url=bookmarks_by_url,
                                  urls_by_date=urls_by_date,
                                  sorted_dates=dates,
                                  all_urls = flask.g.user.recommended_urls(),

@@ -199,6 +199,7 @@ class Language(db.Model):
 
     @classmethod
     def find(cls, id_):
+        print id_
         return cls.query.filter(Language.id == id_).one()
 
     @classmethod
@@ -207,6 +208,8 @@ class Language(db.Model):
 
 class Word(db.Model, util.JSONSerializable):
     __tablename__ = 'words'
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(255), nullable=False, unique = True, index = True)
 
@@ -325,6 +328,8 @@ class UserWord(db.Model, util.JSONSerializable):
             return (cls.query.filter(cls.word == word)
                              .filter(cls.language == language)
                              .one())
+        except sqlalchemy.orm.exc.MultipleResultsFound:
+            print str(word) + "was found multiple times!!"
         except sqlalchemy.orm.exc.NoResultFound:
             return cls(word, language,rank)
 
@@ -415,10 +420,7 @@ class Bookmark(db.Model):
         self.exercise_log.append(exercise)
 
     def translations_rendered_as_text(self):
-        translation_words = ''
-        for translation in self.translation_words_list:
-            translation_words = translation_words + ', ' + translation
-        return translation_words
+        return ", ".join(self.translation_words_list())
 
     def translation_words_list(self):
         translation_words=[]
