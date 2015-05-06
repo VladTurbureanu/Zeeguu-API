@@ -419,6 +419,9 @@ class Bookmark(db.Model):
     def add_new_exercise(self, exercise):
         self.exercise_log.append(exercise)
 
+    def translation(self):
+        return self.translations_list[0]
+
     def translations_rendered_as_text(self):
         return ", ".join(self.translation_words_list())
 

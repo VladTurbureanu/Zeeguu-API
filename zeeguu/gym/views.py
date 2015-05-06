@@ -164,7 +164,7 @@ def select_next_card_aware_of_days(cards):
 
 
     interesting_cards = [card for card in cards if card.last_seen.date() in interesting_dates]
-    interesting_cards.sort(key=lambda card: card.contribution.origin.word_rank)
+    interesting_cards.sort(key=lambda card: card.bookmark.origin.importance_level())
 
     if interesting_cards:
         card = interesting_cards[0]
@@ -172,7 +172,7 @@ def select_next_card_aware_of_days(cards):
         return card
 
     cards_not_seen_today = [card for card in cards if card.last_seen.date() != date.today()]
-    cards_not_seen_today.sort(key=lambda card: card.contribution.origin.word_rank)
+    cards_not_seen_today.sort(key=lambda card: card.bookmark.origin.importance_level())
 
     if cards_not_seen_today:
         card = cards_not_seen_today[0]
@@ -274,10 +274,8 @@ def question(from_lang, to_lang):
     to_lang = model.Language.find(to_lang)
 
     contributions = (
-        model.Contribution.query.filter_by(user=flask.g.user)
-                                .join(model.UserWord, model.Contribution.origin)
-                                .join(model.WordAlias,
-                                      model.Contribution.translation)
+        model.Bookmark.query.filter_by(user=flask.g.user)
+                                .join(model.UserWord, model.Bookmark.origin)
     )
     forward = contributions.filter(
         model.UserWord.language == from_lang,
@@ -290,16 +288,14 @@ def question(from_lang, to_lang):
     contributions = forward.union(backward).filter_by(card=None)
     if contributions.count() > 0:
         card = model.Card(
-            contributions.join(model.UserWord, model.Contribution.origin).order_by(model.UserWord.word_rank, model.Contribution.time).first()
+            contributions.join(model.UserWord, model.Bookmark.origin).order_by(model.UserWord.word_rank, model.Bookmark.time).first()
         )
         card.set_reason("First rehearsal. ")
     else:
         cards = (
-            model.Card.query.join(model.Contribution, model.Card.bookmark)
+            model.Card.query.join(model.Bookmark, model.Card.bookmark)
                             .filter_by(user=flask.g.user)
-                            .join(model.UserWord, model.Contribution.origin)
-                            .join(model.WordAlias,
-                                  model.Contribution.translation)
+                            .join(model.UserWord, model.Bookmark.origin)
         )
         forward = cards.filter(
             model.UserWord.language == from_lang,
@@ -324,19 +320,19 @@ def question(from_lang, to_lang):
     model.db.session.commit()
 
     question = card.bookmark.origin
-    answer = card.bookmark.translation
+    answer = card.bookmark.translation()
 
     if question.language != from_lang:
         question, answer = answer, question
 
     return json.dumps({
-        "question": question.word,
+        "question": question.word.word,
         "example":card.bookmark.text.content,
         "url":card.bookmark.text.url.url,
-        "answer": answer.word,
+        "answer": answer.word.word,
         "id": card.id,
         "position": card.position,
-        "rank":card.bookmark.origin.word_rank,
+        "rank":card.bookmark.origin.importance_level(),
         "reason": card.reason,
         "starred": card.is_starred()
     })
