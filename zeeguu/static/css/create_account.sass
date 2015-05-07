@@ -1,12 +1,9 @@
 /*create_account page*/
 
-.grey-block
-  background-color: rgb(244,244,244)
-  //margin-top: 75px
-  margin-top: 20pxx
-  padding-top: 20px
-  padding-bottom: 20px
+@import common-authentication
 
+$XSMALL_SCREEN:768px
+$SMALL_SCREEN: 992px
 
 .create-account-block 
   width: 100%
@@ -54,7 +51,7 @@
   font-size: 16px
 
 
-@media screen and (max-width: 992px)
+@media screen and (max-width: $SMALL_SCREEN)
   //.create-account-block
   //  background-color: greenyellow
 
@@ -71,7 +68,7 @@
     font-size: 18px
 
 
-@media screen and (max-width: 768px)
+@media screen and (max-width: $XSMALL_SCREEN)
   //.create-account-block
   //  background-color: pink
 
