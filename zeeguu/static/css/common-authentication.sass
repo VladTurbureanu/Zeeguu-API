@@ -1,6 +1,90 @@
+@import "variables"
+
+
+//.color-block
+//  background-color: rgb(126,139,152)
+//  height: 60px
+//  padding: 2px
+//  padding-left: 320px
+//  color: #ffffff
+//  margin-bottom: 60px
+
 .grey-block
   background-color: rgb(244,244,244)
   //margin-top: 75px
   margin-top: 20px
   padding-top: 20px
   padding-bottom: 20px
+
+
+.inner-center
+  display: block
+  margin: 0px auto
+
+.outer-block
+  width: 100%
+
+#authentification-box-title
+  margin-bottom: 20px
+  font-size: 30px
+
+
+.authentification-box
+  width: 500px
+
+  .green-button
+  //margin-bottom: 20px
+  font-size: 16px
+
+
+.input-group
+  margin-bottom: 10px
+
+
+.input-lg
+  height: 45px !important
+  //line-height: 50px !important
+  //padding: 11px 19px !important
+  font-size: 16px !important
+
+
+.input-group label
+  font-size: 16px
+
+.green-button
+  font-size: 16px
+  margin-top: 30px
+
+
+@media screen and (max-width: $SMALL_SCREEN)
+  //.create-account-block
+  //  background-color: greenyellow
+
+  #authentification-box-title
+    font-size: $sm-title-size
+
+  .input-group label
+    font-size: 22px
+
+  .input-lg
+    font-size: $sm-paragraph-size !important
+
+  .green-button
+    font-size: $sm-paragraph-size
+
+
+@media screen and (max-width: $XSMALL_SCREEN)
+  //.create-account-block
+  //  background-color: pink
+
+  #authentification-box-title
+    font-size: $xs-title-size
+
+  .input-group label
+    font-size: 34px
+
+  .input-lg
+    font-size: $xs-paragraph-size !important
+
+  .green-button
+    font-size: $xs-paragraph-size

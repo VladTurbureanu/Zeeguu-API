@@ -5,26 +5,20 @@
   padding-top: 20px;
   padding-bottom: 20px; }
 
-.login-block {
+.inner-center {
+  display: block;
+  margin: 0px auto; }
+
+.outer-block {
   width: 100%; }
 
-.inner-center {
-  /* Centering a div inside another div */
-  display: block;
-  margin: 0 auto; }
-
-.login-block-width {
-  width: 500px; }
-
-#sign-in-title {
+#authentification-box-title {
   margin-bottom: 20px;
   font-size: 30px; }
 
-.btn-success {
+.authentification-box {
+  width: 500px;
   font-size: 16px; }
-
-.sign-in-button {
-  margin-top: 30px; }
 
 .input-group {
   margin-bottom: 10px; }
@@ -36,8 +30,12 @@
 .input-group label {
   font-size: 16px; }
 
+.green-button {
+  font-size: 16px;
+  margin-top: 30px; }
+
 @media screen and (max-width: 992px) {
-  #sign-in-title {
+  #authentification-box-title {
     font-size: 32px; }
 
   .input-group label {
@@ -46,11 +44,11 @@
   .input-lg {
     font-size: 18px !important; }
 
-  .btn-success {
+  .green-button {
     font-size: 18px; } }
 @media screen and (max-width: 768px) {
-  #sign-in-title {
-    font-size: 44px; }
+  #authentification-box-title {
+    font-size: 42px; }
 
   .input-group label {
     font-size: 34px; }
@@ -58,7 +56,7 @@
   .input-lg {
     font-size: 30px !important; }
 
-  .btn-success {
+  .green-button {
     font-size: 30px; } }
 
 /*# sourceMappingURL=login.css.map */

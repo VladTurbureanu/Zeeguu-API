@@ -5,22 +5,23 @@
   padding-top: 20px;
   padding-bottom: 20px; }
 
-.create-account-block {
-  width: 100%; }
-
-#create-account-title {
-  margin-bottom: 20px;
-  font-size: 30px; }
-
 .inner-center {
   display: block;
   margin: 0px auto; }
 
-.create-account-block-width {
-  width: 500px; }
+.outer-block {
+  width: 100%; }
 
-.btn-success {
+#authentification-box-title {
+  margin-bottom: 20px;
+  font-size: 30px; }
+
+.authentification-box {
+  width: 500px;
   font-size: 16px; }
+
+.input-group {
+  margin-bottom: 10px; }
 
 .input-lg {
   height: 45px !important;
@@ -29,8 +30,12 @@
 .input-group label {
   font-size: 16px; }
 
+.green-button {
+  font-size: 16px;
+  margin-top: 30px; }
+
 @media screen and (max-width: 992px) {
-  #create-account-title {
+  #authentification-box-title {
     font-size: 32px; }
 
   .input-group label {
@@ -39,10 +44,10 @@
   .input-lg {
     font-size: 18px !important; }
 
-  .btn-success {
+  .green-button {
     font-size: 18px; } }
 @media screen and (max-width: 768px) {
-  #create-account-title {
+  #authentification-box-title {
     font-size: 42px; }
 
   .input-group label {
@@ -51,7 +56,7 @@
   .input-lg {
     font-size: 30px !important; }
 
-  .btn-success {
+  .green-button {
     font-size: 30px; } }
 
 /*# sourceMappingURL=create_account.css.map */
