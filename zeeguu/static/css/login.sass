@@ -1,44 +1,77 @@
 /*login page*/
 
-.centered-inner-div 
-  /* Centering a div inside another div */
-  /* From: http://stackoverflow.com/questions/114543/how-to-horizontally-center-a-div-in-a-div */
-  margin-top: 100px
+@import common-authentication
+
+.login-block
   width: 100%
-  margin-left: auto
-  margin-right: auto
-  border: 1px solid #DEDEDE
-  padding: 15px
 
 
-#sign-in-title 
-  margin-bottom: 50px
-/*width: 50%*/
-/*margin-left: auto*/
-/*margin-right: auto*/
-/*background-color: lightgrey*/
-/*border: 1px solid #808080*/
+.inner-center
+  /* Centering a div inside another div */
+  display: block
+  margin: 0 auto
 
 
-.form-group 
-  color: #4A4A4A
+.login-block-width
+  width: 500px
+
+
+#sign-in-title
+  margin-bottom: 20px
+  font-size: 30px
+
+
+.btn-success
+  //margin-bottom: 20px
+  font-size: 16px
+
+
+.sign-in-button
+  margin-top: 30px
+
+
+.input-group
   margin-bottom: 10px
 
 
-@media screen and (max-width: 1200px) 
-.login-block 
-  font-size: 20px
-  background-color: lightskyblue
+.input-lg
+  height: 45px !important
+  //line-height: 50px !important
+  //padding: 11px 19px !important
+  font-size: 16px !important
 
 
-@media screen and (max-width: 992px) 
-.login-block, .create-account-block 
-  font-size: 32px
+.input-group label
+  font-size: 16px
 
 
-@media screen and (max-width: 768px) 
-.login-block,.create-account-block 
-  font-size: 36px
-  background-color: lightcoral
+@media screen and (max-width: 992px)
+
+  #sign-in-title
+    font-size: 32px
+
+  .input-group label
+    font-size: 22px
+
+  .input-lg
+    font-size: 18px !important
+
+  .btn-success
+    font-size: 18px
 
 
+@media screen and (max-width: 768px)
+  //.login-block
+  //  background-color: pink
+
+  #sign-in-title
+    font-size: 44px
+
+  .input-group label
+    font-size: 34px
+
+  .input-lg
+    font-size: 30px !important
+
+  .btn-success
+    font-size: 30px
