@@ -6,16 +6,12 @@ import zeeguu
 from zeeguu import model
 
 def delete_duplicates(seq, current=None):
-   # order preserving
    if current is None:
        def current(x): return x
    seen = {}
    result = []
    for item in seq:
        marker = current(item)
-       # in old Python versions:
-       # if seen.has_key(marker)
-       # but in new ones:
        if marker in seen: continue
        seen[marker] = 1
        result.append(item)
@@ -78,8 +74,5 @@ def change_db(lang_code):
 
 
 if __name__ == "__main__":
-    # with zeeguu.app.app_context():
-    #     print zeeguu.db
-    #     print model.Language.find("en")
     change_db('de')
 

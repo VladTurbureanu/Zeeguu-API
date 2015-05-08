@@ -263,9 +263,10 @@ class WordRank(db.Model, util.JSONSerializable):
         ).all()
 
     @classmethod
-    def exists(cls, word_id):
+    def exists(cls, word_id, language_id):
         try:
             (cls.query.filter(cls.word_id == word_id)
+                             .filter(cls.language == language_id)
                              .one())
             return True
         except sqlalchemy.orm.exc.NoResultFound:

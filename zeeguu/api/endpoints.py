@@ -336,14 +336,14 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     zeeguu.db.session.add(translation_word)
     zeeguu.db.session.commit()
 
-    if model.WordRank.exists(word.id):
+    if model.WordRank.exists(word.id, from_lang):
         rank = model.UserWord.find_rank(word,from_lang)
         user_word = model.UserWord.find(word,from_lang,rank)
     else:
         user_word = model.UserWord.find(word,from_lang,None)
 
 
-    if model.WordRank.exists(translation_word.id):
+    if model.WordRank.exists(translation_word.id, to_lang):
         rank = model.UserWord.find_rank(translation_word,to_lang)
         translation = model.UserWord.find(translation_word,to_lang,rank)
     else:
@@ -507,11 +507,11 @@ def get_known_bookmarks():
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_known_words/<from_lang>", methods=("GET",))
+@api.route("/get_known_words/<lang_code>", methods=("GET",))
 @cross_domain
 @with_session
-def get_known_words(from_lang):
-    from_lang = model.Language.find(from_lang)
+def get_known_words(lang_code):
+    lang_id = model.Language.find(lang_code)
     bookmarks = model.Bookmark.find_all_filtered_by_user()
     i_know_words=[]
     filtered_i_know_words_from_user = []
@@ -520,7 +520,7 @@ def get_known_words(from_lang):
         if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
                 i_know_words.append(bookmark.origin.word)
     for word_known in i_know_words:
-        if model.WordRank.exists(word_known.id):
+        if model.WordRank.exists(word_known.id, lang_id):
             filtered_i_know_words_from_user.append(word_known.word)
             zeeguu.db.session.commit()
     filtered_i_know_words_from_user = list(set(filtered_i_know_words_from_user))
@@ -555,11 +555,11 @@ def get_learned_bookmarks():
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_estimated_user_vocabulary/<from_lang>", methods=("GET",))
+@api.route("/get_estimated_user_vocabulary/<lang_code>", methods=("GET",))
 @cross_domain
 @with_session
-def get_estimated_user_vocabulary(from_lang):
-    from_lang = model.Language.find(from_lang)
+def get_estimated_user_vocabulary(lang_code):
+    lang_code = model.Language.find(lang_code)
     bookmarks = model.Bookmark.find_all_filtered_by_user()
     filtered_words_known_from_user_dict_list =[]
     marked_words_of_user_in_text = []
@@ -573,7 +573,7 @@ def get_estimated_user_vocabulary(from_lang):
     for word_known in words_known_from_user:
         word = model.Word.find(word_known)
         zeeguu.db.session.add(word)
-        if model.WordRank.exists(word.id):
+        if model.WordRank.exists(word.id, lang_code):
             filtered_words_known_from_user.append(word_known)
         zeeguu.db.session.commit()
 

@@ -116,12 +116,12 @@ def add_bookmark(user, original_language, original_word, translation_language, t
     word1 = model.Word.find(original_word)
     word2 = model.Word.find(translation_word)
 
-    if model.WordRank.exists(word1.id):
+    if model.WordRank.exists(word1.id, original_language):
         rank1 = model.UserWord.find_rank(word1, original_language)
         w1 = model.UserWord(word1, original_language,rank1)
     else:
         w1  = model.UserWord(word1, original_language,None)
-    if model.WordRank.exists(word2.id):
+    if model.WordRank.exists(word2.id, translation_language):
         rank2 = model.UserWord.find_rank(word2, translation_language)
         w2 = model.UserWord(word2, translation_language,rank2)
     else:
