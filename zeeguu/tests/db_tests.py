@@ -1,8 +1,15 @@
+
+
+# Always must be imported first
+# it sets the test DB
+
 __author__ = 'mircea'
+import zeeguu_testcase
+
 from zeeguu_testcase import ZeeguuTestCase
 import unittest
 from zeeguu import model, db
-from zeeguu.model import Word, Language, User
+from zeeguu.model import UserWord, Language, User
 import datetime
 
 
@@ -21,21 +28,25 @@ class Dbtest(ZeeguuTestCase):
     def test_preferred_word(self):
         mir = model.User.find("i@mir.lu")
         de = model.Language.find("de")
-        someword = model.Word.find("hauen", de)
+        word = model.Word.find("hauen")
+        rank = model.UserWord.find_rank(word, de)
+        someword = model.UserWord.find(word, de, rank)
         assert mir
         assert someword
 
         mir.starred_words.append(someword)
         db.session.commit()
 
-    def test_user_contribution_count(self):
+    def test_user_bookmark_count(self):
         mir = model.User.find("i@mir.lu")
         assert mir
-        assert len(mir.all_contributions()) > 0
+        assert len(mir.all_bookmarks()) > 0
 
     def test_add_new_word_to_DB(self):
         deutsch = Language.find("de")
-        new_word = Word("baum", deutsch)
+        word = model.Word.find("baum")
+        rank = model.UserWord.find_rank(word, deutsch)
+        new_word = UserWord(word, deutsch,rank)
         mircea = User.find("i@mir.lu")
 
         db.session.add(new_word)
@@ -44,19 +55,26 @@ class Dbtest(ZeeguuTestCase):
 
     def test_find_word(self):
         deutsch = Language.find("de")
-        assert Word.find("baum", deutsch)
+        word = model.Word.find("baum")
+        rank = model.UserWord.find_rank(word, deutsch)
+        assert UserWord.find(word, deutsch, rank)
 
 
     def test_user_words(self):
         mir = model.User.find("i@mir.lu")
-        assert mir.user_words() == map((lambda x: x.origin.word), mir.all_contributions())
+        assert mir.user_words() == map((lambda x: x.origin.word.word), mir.all_bookmarks())
 
 
 
     def test_preferred_words(self):
         mir = model.User.find("i@mir.lu")
         de = model.Language.find("de")
-        someword = model.Word.find("hauen",de)
+        word = model.Word.find("hauen")
+        if(model.WordRank.exists(word.id, de)):
+            rank = model.UserWord.find_rank(word, de)
+            someword = model.UserWord.find(word,de,rank)
+        else:
+            someword = model.UserWord.find(word,de,None)
         assert mir
         assert someword
         # add someword to starred words
@@ -71,19 +89,19 @@ class Dbtest(ZeeguuTestCase):
         assert not mir.starred_words
 
 
-    def test_user_daily_contributions(self):
+    def test_user_daily_bookmarks(self):
 
         mir = model.User.find("i@mir.lu")
         date = datetime.datetime(2011,01,01)
 
-        assert len(mir.all_contributions()) > 0
+        assert len(mir.all_bookmarks()) > 0
 
-        count_contributions = 0
-        for contribution in mir.all_contributions():
-            if contribution.time == date:
-                count_contributions += 1
+        count_bookmarks = 0
+        for bookmark in mir.all_bookmarks():
+            if bookmark.time == date:
+                count_bookmarks += 1
 
-        assert (count_contributions > 0)
+        assert (count_bookmarks > 0)
 
 
     def test_user_set_language(self):
@@ -94,13 +112,19 @@ class Dbtest(ZeeguuTestCase):
 
     def test_importance_level(self):
         deutsch = Language.find("de")
-        new_word = Word("beschloss ", deutsch)
+        word = model.Word.find("beschloss")
+        if(model.WordRank.exists(word.id, deutsch)):
+            rank = model.UserWord.find_rank(word, deutsch)
+            new_word = model.UserWord.find(word,deutsch,rank)
+        else:
+            new_word = model.UserWord.find(word,deutsch,None)
         mircea = User.find("i@mir.lu")
 
         db.session.add(new_word)
         db.session.commit()
 
-        beschloss = Word.find("unexistingword", deutsch)
+        word = model.Word.find("unexistingword")
+        beschloss = UserWord.find(word, deutsch, None)
         assert beschloss
         assert beschloss.importance_level() == 0
 
@@ -113,7 +137,7 @@ class Dbtest(ZeeguuTestCase):
 
 
 
-    # User Date No_ contributions
+    # User Date No_ bookmarks
 
 
 if __name__ == '__main__':

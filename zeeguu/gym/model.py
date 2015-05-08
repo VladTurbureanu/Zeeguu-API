@@ -7,12 +7,12 @@ from zeeguu import db
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     position = db.Column(db.Integer)
-    contribution_id = db.Column(db.Integer, db.ForeignKey('contribution.id'))
-    contribution = db.relationship("Contribution", backref="card")
+    bookmark_id = db.Column(db.Integer, db.ForeignKey('bookmark.id'))
+    bookmark = db.relationship("Bookmark", backref="card")
     last_seen = db.Column(db.DateTime)
 
-    def __init__(self, contribution):
-        self.contribution = contribution
+    def __init__(self, bookmark):
+        self.bookmark = bookmark
         self.position = 0
         self.reason = ""
         self.seen()
@@ -27,16 +27,14 @@ class Card(db.Model):
         return self.reason
 
     def is_starred(self):
-        return self.contribution.user.has_starred(self.contribution.origin)
+        return self.bookmark.user.has_starred(self.bookmark.origin)
 
     def star(self):
-        word = self.contribution.origin
-        self.contribution.user.starred_words.append(word)
-        print "starred the hell out of... " + self.contribution.origin.word
+        word = self.bookmark.origin
+        self.bookmark.user.starred_words.append(word)
+        print "starred the hell out of... " + self.bookmark.origin.word
 
     def unstar(self):
-        word = self.contribution.origin
-        self.contribution.user.starred_words.remove(word)
-        print "just unstarred ..." + self.contribution.origin.word
-
-
+        word = self.bookmark.origin
+        self.bookmark.user.starred_words.remove(word)
+        print "just unstarred ..." + self.bookmark.origin.word
