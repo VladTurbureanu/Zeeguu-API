@@ -79,7 +79,6 @@ def add_words_to_db(lang_code):
     for word in filter_word_list(word_list(lang_code)):
         w = model.Word.find(word.decode('utf-8'))
         zeeguu.db.session.add(w)
-    print 'karan the best'
     zeeguu.db.session.commit()
 
 def add_word_ranks_to_db(lang_code):
@@ -93,13 +92,11 @@ def add_word_ranks_to_db(lang_code):
         r = model.WordRank(w, from_lang,initial_line_number)
         zeeguu.db.session.add(r)
         initial_line_number+=1
-    print 'karan the worst'
     zeeguu.db.session.commit()
 
 def clean_word(word):
     match = re.match(WORD_PATTERN, word)
     if match is None:
-        # print word
         return word.decode("utf8")
     return match.group(1).decode("utf8")
 
@@ -123,7 +120,7 @@ def add_bookmark(user, original_language, original_word, translation_language, t
         rank1 = model.UserWord.find_rank(word1, original_language)
         w1 = model.UserWord(word1, original_language,rank1)
     else:
-        w1  = model.UserWord(word1, translation_language,None)
+        w1  = model.UserWord(word1, original_language,None)
     if model.WordRank.exists(word2.id):
         rank2 = model.UserWord.find_rank(word2, translation_language)
         w2 = model.UserWord(word2, translation_language,rank2)
@@ -286,7 +283,6 @@ def create_test_db():
 
 
     zeeguu.db.session.commit()
-    # print "temp db recreated..."
 
 
 if __name__ == "__main__":

@@ -522,6 +522,7 @@ def get_known_words(from_lang):
     for word_known in i_know_words:
         if model.WordRank.exists(word_known.id):
             filtered_i_know_words_from_user.append(word_known.word)
+            zeeguu.db.session.commit()
     filtered_i_know_words_from_user = list(set(filtered_i_know_words_from_user))
     for word in filtered_i_know_words_from_user:
         filtered_i_know_word_dict = {}
@@ -577,7 +578,6 @@ def get_estimated_user_vocabulary(from_lang):
         zeeguu.db.session.commit()
 
     filtered_words_known_from_user = list(set(filtered_words_known_from_user))
-    print filtered_words_known_from_user
     for word in filtered_words_known_from_user:
         filtered_word_known_from_user_dict = {}
         filtered_word_known_from_user_dict['word'] = word

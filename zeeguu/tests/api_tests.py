@@ -29,7 +29,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert t != None
 
         rv = self.api_get('/bookmarks')
-        print rv.data
         assert 'befurchten' in rv.data
         assert 'Zeeguu for Android' in rv.data
 
