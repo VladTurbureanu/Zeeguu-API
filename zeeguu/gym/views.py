@@ -40,7 +40,7 @@ def setup():
 @gym.route("/")
 def home():
     if "user" in flask.session:
-        return flask.redirect(flask.url_for("gym.contributions"))
+        return flask.redirect(flask.url_for("gym.bookmarks"))
     return flask.render_template("index.html")
 
 
@@ -69,7 +69,7 @@ def login():
             else:
                 flask.session["user"] = user.id
                 flask.session.permanent = True
-                return flask.redirect(flask.request.args.get("next") or flask.url_for("gym.contributions"))
+                return flask.redirect(flask.request.args.get("next") or flask.url_for("gym.bookmarks"))
     return flask.render_template("login.html")
 
 
@@ -86,22 +86,22 @@ def history():
     return flask.render_template("history.html", searches=searches)
 
 
-@gym.route("/contributions")
+@gym.route("/bookmarks")
 @login_first
-def contributions():
-    contribs,dates = flask.g.user.contribs_by_date()
+def bookmarks():
+    bookmarks,dates = flask.g.user.bookmarks_by_date()
 
     urls_by_date = {}
-    contribs_by_url = {}
+    bookmarks_by_url = {}
     for date in dates:
-        for contrib in contribs[date]:
-            urls_by_date.setdefault(date, set()).add(contrib.text.url)
-            contribs_by_url.setdefault(contrib.text.url,[]).append(contrib)
+        for bookmark in bookmarks[date]:
+            urls_by_date.setdefault(date, set()).add(bookmark.text.url)
+            bookmarks_by_url.setdefault(bookmark.text.url,[]).append(bookmark)
 
 
 
     return flask.render_template("contributions.html",
-                                 contribs_by_url=contribs_by_url,
+                                 bookmarks_by_url=bookmarks_by_url,
                                  urls_by_date=urls_by_date,
                                  sorted_dates=dates,
                                  all_urls = flask.g.user.recommended_urls(),
@@ -119,11 +119,11 @@ def recommended_texts():
 
 
 
-@gym.route("/translate_with_context")
-@login_first
-def translate_with_context():
-    lang = model.Language.query.all()
-    return flask.render_template("translate_with_context.html", languages=lang)
+# @gym.route("/translate_with_context")
+# @login_first
+# def translate_with_context():
+#     lang = model.Language.query.all()
+#     return flask.render_template("translate_with_context.html", languages=lang)
 
 
 @gym.route("/recognize")
@@ -164,7 +164,7 @@ def select_next_card_aware_of_days(cards):
 
 
     interesting_cards = [card for card in cards if card.last_seen.date() in interesting_dates]
-    interesting_cards.sort(key=lambda card: card.contribution.origin.word_rank)
+    interesting_cards.sort(key=lambda card: card.bookmark.origin.importance_level())
 
     if interesting_cards:
         card = interesting_cards[0]
@@ -172,7 +172,7 @@ def select_next_card_aware_of_days(cards):
         return card
 
     cards_not_seen_today = [card for card in cards if card.last_seen.date() != date.today()]
-    cards_not_seen_today.sort(key=lambda card: card.contribution.origin.word_rank)
+    cards_not_seen_today.sort(key=lambda card: card.bookmark.origin.importance_level())
 
     if cards_not_seen_today:
         card = cards_not_seen_today[0]
@@ -188,125 +188,43 @@ def select_next_card_aware_of_days(cards):
     return None
 
 
-@gym.route("/gym/question_with_min_level/<level>/<from_lang>/<to_lang>")
-@login_first
-def question_with_min_level(level, from_lang, to_lang):
-    card = None
-
-    from_lang = model.Language.find(from_lang)
-    to_lang = model.Language.find(to_lang)
-
-    contributions = (
-        model.Contribution.query.filter_by(user=flask.g.user)
-                                .join(model.Word, model.Contribution.origin)
-                                .join(model.WordAlias,
-                                      model.Contribution.translation)
-    )
-    forward = contributions.filter(
-        model.Word.language == from_lang,
-        model.WordAlias.language == to_lang
-    )
-    backward = contributions.filter(
-        model.Word.language == to_lang,
-        model.WordAlias.language == from_lang
-    )
-    contributions = forward.union(backward).filter_by(card=None)
-
-    # in this case we can not create cards... we can only look at cards that are at least
-    # level 3
-    if contributions.count() > 0:
-        card = model.Card(
-            contributions.join(model.Word, model.Contribution.origin).order_by(model.Word.word_rank, model.Contribution.time).first()
-        )
-        card.set_reason("First rehearsal. ")
-        # return "\"NO CARDS\""
-    else:
-        cards = (
-            model.Card.query.join(model.Contribution, model.Card.contribution)
-                            .filter_by(user=flask.g.user)
-                            .join(model.Word, model.Contribution.origin)
-                            .join(model.WordAlias,
-                                  model.Contribution.translation)
-        )
-        forward = cards.filter(
-            model.Word.language == from_lang,
-            model.WordAlias.language == to_lang
-        )
-        backward = cards.filter(
-            model.Word.language == to_lang,
-            model.WordAlias.language == from_lang
-        )
-
-        cards = forward.union(backward).filter(model.Card.position > level).filter(model.Card.position < 7).all()
-        if not cards:
-            cards = forward.union(backward).filter(model.Card.position < 7).all()
-        card = select_next_card_aware_of_days(cards)
-
-    if card is None:
-        return "\"NO CARDS\""
-
-    card.seen()
-
-    model.db.session.commit()
-
-    question = card.contribution.origin
-    answer = card.contribution.translation
-
-    if question.language != from_lang:
-        question, answer = answer, question
-
-    return json.dumps({
-        "question": question.word,
-        "example":card.contribution.text.content,
-        "url":card.contribution.text.url.url,
-        "answer": answer.word,
-        "id": card.id,
-        "position": card.position,
-        "reason": card.reason,
-        "rank":card.contribution.origin.word_rank,
-        "starred": card.is_starred()
-    })
-
 @gym.route("/gym/question/<from_lang>/<to_lang>")
 @login_first
 def question(from_lang, to_lang):
     from_lang = model.Language.find(from_lang)
     to_lang = model.Language.find(to_lang)
 
-    contributions = (
-        model.Contribution.query.filter_by(user=flask.g.user)
-                                .join(model.Word, model.Contribution.origin)
-                                .join(model.WordAlias,
-                                      model.Contribution.translation)
+    bookmarks = (
+        model.Bookmark.query.filter_by(user=flask.g.user)
+                                .join(model.UserWord, model.Bookmark.origin)
     )
-    forward = contributions.filter(
-        model.Word.language == from_lang,
+    forward = bookmarks.filter(
+        model.UserWord.language == from_lang,
         model.WordAlias.language == to_lang
     )
-    backward = contributions.filter(
-        model.Word.language == to_lang,
+    backward = bookmarks.filter(
+        model.UserWord.language == to_lang,
         model.WordAlias.language == from_lang
     )
-    contributions = forward.union(backward).filter_by(card=None)
-    if contributions.count() > 0:
+    bookmarks = forward.union(backward).filter_by(card=None)
+    if bookmarks.count() > 0:
         card = model.Card(
-            contributions.join(model.Word, model.Contribution.origin).order_by(model.Word.word_rank, model.Contribution.time).first()
+            bookmarks.join(model.UserWord, model.Bookmark.origin).
+            order_by(model.Bookmark.time).first()
         )
         card.set_reason("First rehearsal. ")
     else:
         cards = (
-            model.Card.query.join(model.Contribution, model.Card.contribution)
+            model.Card.query.join(model.Bookmark, model.Card.bookmark)
                             .filter_by(user=flask.g.user)
-                            .join(model.Word, model.Contribution.origin)
-                            .join(model.WordAlias,
-                                  model.Contribution.translation)
+                            .join(model.UserWord, model.Bookmark.origin)
         )
         forward = cards.filter(
-            model.Word.language == from_lang,
+            model.UserWord.language == from_lang,
             model.WordAlias.language == to_lang
         )
         backward = cards.filter(
-            model.Word.language == to_lang,
+            model.UserWord.language == to_lang,
             model.WordAlias.language == from_lang
         )
 
@@ -323,20 +241,20 @@ def question(from_lang, to_lang):
 
     model.db.session.commit()
 
-    question = card.contribution.origin
-    answer = card.contribution.translation
+    question = card.bookmark.origin
+    answer = card.bookmark.translation()
 
     if question.language != from_lang:
         question, answer = answer, question
 
     return json.dumps({
-        "question": question.word,
-        "example":card.contribution.text.content,
-        "url":card.contribution.text.url.url,
-        "answer": answer.word,
+        "question": question.word.word,
+        "example":card.bookmark.text.content,
+        "url":card.bookmark.text.url.url,
+        "answer": answer.word.word,
         "id": card.id,
         "position": card.position,
-        "rank":card.contribution.origin.word_rank,
+        "rank":card.bookmark.origin.importance_level(),
         "reason": card.reason,
         "starred": card.is_starred()
     })
@@ -411,7 +329,7 @@ def unstarred(card_id):
 
 @gym.route("/gym/starred_word/<word_id>/<user_id>", methods=("POST",))
 def starred_word(word_id,user_id):
-    word = model.Word.query.get(word_id)
+    word = model.UserWord.query.get(word_id)
     user = model.User.find_by_id(user_id)
     user.star(word)
     model.db.session.commit()
@@ -419,7 +337,7 @@ def starred_word(word_id,user_id):
 
 @gym.route("/gym/unstarred_word/<word_id>/<user_id>", methods=("POST",))
 def unstarred_word(word_id,user_id):
-    word = model.Word.query.get(word_id)
+    word = model.UserWord.query.get(word_id)
     user = model.User.find_by_id(user_id)
     user.starred_words.remove(word)
     model.db.session.commit()

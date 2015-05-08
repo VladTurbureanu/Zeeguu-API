@@ -338,23 +338,23 @@ function checkTranslateAnswer() {
 }
 
 
-function deleteContribution(id) {
+function deleteBookmark(id) {
     console.log("deleting " + id);
-    $.post("/gym/delete_contribution/"+id);
-    $("#contribution"+id).fadeOut();
+    $.post("/gym/delete_bookmark/"+id);
+    $("#bookmark"+id).fadeOut();
     return false;
 }
 
-function unstarContribution(id, user_id) {
+function unstarBookmark(id, user_id) {
     console.log("unstarring " + id)
     $.post("/gym/unstarred_word/" + id+"/"+user_id);
-    $("#star"+id).html('<a href="javascript:void(0);" onclick="starContribution('+id+','+user_id+')"><i style="color:lightgray" class="icon-star-empty"></i></a>');
+    $("#star"+id).html('<a href="javascript:void(0);" onclick="starBookmark('+id+','+user_id+')"><i style="color:lightgray" class="icon-star-empty"></i></a>');
 }
 
-function starContribution(id,user_id) {
+function starBookmark(id,user_id) {
     console.log("starring " + id)
     $.post("/gym/starred_word/" + id+"/"+user_id);
-    $("#star"+id).html('<a href="javascript:void(0);" onclick="unstarContribution('+id+','+user_id+')"><i style="color:gold" class="icon-star"></i></a>');
+    $("#star"+id).html('<a href="javascript:void(0);" onclick="unstarBookmark('+id+','+user_id+')"><i style="color:gold" class="icon-star"></i></a>');
 }
 
 
