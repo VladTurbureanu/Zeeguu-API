@@ -65,8 +65,8 @@ def filter_word_list(word_list):
                 break
     return filtered_word_list
 
-def word_list(lang_code):
-    words_file = open("../../languages/"+lang_code+".txt")
+def test_word_list(lang_code):
+    words_file = open("../../languages/"+lang_code+"-test.txt")
     words_list = words_file.read().splitlines()
     return words_list
 
@@ -76,7 +76,7 @@ def word_list(lang_code):
 def add_words_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
-    for word in filter_word_list(word_list(lang_code)):
+    for word in filter_word_list(test_word_list(lang_code)):
         w = model.Word.find(word.decode('utf-8'))
         zeeguu.db.session.add(w)
     zeeguu.db.session.commit()
@@ -86,7 +86,7 @@ def add_word_ranks_to_db(lang_code):
     zeeguu.db.session.commit()
     from_lang = model.Language.find(lang_code)
     initial_line_number = 1
-    for word in filter_word_list(word_list(lang_code)):
+    for word in filter_word_list(test_word_list(lang_code)):
         w = model.Word.find(word.decode('utf-8'))
         zeeguu.db.session.add(w)
         r = model.WordRank(w, from_lang,initial_line_number)
@@ -271,11 +271,7 @@ def create_test_db():
         add_bookmark(user, de, key, en, dict[key], ian101, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. "+key,
                          "http://url1", "title of url1")
     for w in japanese_story:
-        if w[0] == 'recht':
-            # something special
-            add_bookmark(user, de, w[0], en, w[1],jan14, w[2],w[3], "japanese story")
-        else:
-            add_bookmark(user, de, w[0], en, w[1],jan14, w[2],w[3], "japanese story")
+        add_bookmark(user, de, w[0], en, w[1],jan14, w[2],w[3], "japanese story")
 
 
 
