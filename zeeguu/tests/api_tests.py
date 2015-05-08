@@ -11,6 +11,17 @@ import json
 import re
 import time
 
+
+sondernExampleData = dict(
+    url='http://mir.lu/examples_with_karan',
+    context='Wir arbeiten nicht sondern schlafen')
+
+strassenExampleFormData = dict(
+    url='http://mir.lu',
+    context='chilling on the streets')
+
+
+
 class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_logout(self):
@@ -125,57 +136,43 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_get_known_bookmarks(self):
-        formData = dict(
-            url='http://mir.lu',
-            context='somewhere over the rainbowwwwwwwww')
-        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
-        formData = dict(
-            url='http://mir.lu',
-            context='chilling on the streets')
-        rv = self.api_post('/bookmark_with_context/de/strassen/en/streets', formData)
+        self.api_post('/bookmark_with_context/de/sondern/en/but rather', sondernExampleData)
+        self.api_post('/bookmark_with_context/de/strassen/en/streets', strassenExampleFormData)
+
         rv = self.api_get('/bookmarks_by_day/with_context')
         bookmarks_by_day = json.loads(rv.data)
+
         assert 'chilling on the streets' == bookmarks_by_day[0]['bookmarks'][0]['context']
-        assert 'somewhere over the rainbowwwwwwwww' == bookmarks_by_day[0]['bookmarks'][1]['context']
+        assert sondernExampleData["context"] == bookmarks_by_day[0]['bookmarks'][1]['context']
+
         latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][0]['id']
         second_latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][1]['id']
         rv = self.api_get('/get_exercise_log_for_bookmark/'+str(latest_bookmark_id))
         'I know' not in rv.data
         rv = self.api_get('/get_exercise_log_for_bookmark/'+str(second_latest_bookmark_id))
         'I know' not in rv.data
-        rv = self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(latest_bookmark_id))
+        self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(latest_bookmark_id))
         rv = self.api_get('/get_known_bookmarks')
         known_bookmarks_before = json.loads(rv.data)
         assert any(bookmark['id'] == latest_bookmark_id for bookmark in known_bookmarks_before)
         assert not any(bookmark['id'] == second_latest_bookmark_id for bookmark in known_bookmarks_before)
-        rv = self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(second_latest_bookmark_id))
-        rv = self.api_get('/get_known_bookmarks')
-        known_bookmarks_after = json.loads(rv.data)
+        self.api_post('/create_new_exercise/I know/Recognize/10000/'+ str(second_latest_bookmark_id))
+        rv3 = self.api_get('/get_known_bookmarks')
+        known_bookmarks_after = json.loads(rv3.data)
         assert any(bookmark['id'] == latest_bookmark_id for bookmark in known_bookmarks_after)
         assert any(bookmark['id'] == second_latest_bookmark_id for bookmark in known_bookmarks_after)
-        time.sleep(5) # delays for 5 seconds
-        rv = self.api_post('/create_new_exercise/Do not know/Recognize/10000/'+ str(second_latest_bookmark_id))
-        rv = self.api_get('/get_known_bookmarks')
-        known_bookmarks_after = json.loads(rv.data)
+
+        time.sleep(2) # delays for 5 seconds
+        self.api_post('/create_new_exercise/Do not know/Recognize/10000/'+ str(second_latest_bookmark_id))
+        rv4 = self.api_get('/get_known_bookmarks')
+        known_bookmarks_after = json.loads(rv4.data)
         assert not any(bookmark['id'] == second_latest_bookmark_id for bookmark in known_bookmarks_after)
 
-    def test_user_words_are_added_only_once(self):
-        formData = dict(
-            url='http://mir.lu',
-            context='somewhere over the rainbowwwwwwwww')
-        rv = self.api_post('/bookmark_with_context/de/lala/en/lala', formData)
-        formData = dict(
-            url='http://mir.lu',
-            context='saying hi to girls')
-        rv = self.api_post('/bookmark_with_context/fr/lala/it/lala', formData)
 
 
 
     def test_get_known_words(self):
-        formData = dict(
-            url='http://mir.lu',
-            context='somewhere over the rainbowwwwwwwww')
-        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', sondernExampleData)
         formData = dict(
             url='http://mir.lu',
             context='saying hi to girls')

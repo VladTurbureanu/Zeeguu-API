@@ -199,7 +199,6 @@ class Language(db.Model):
 
     @classmethod
     def find(cls, id_):
-        print id_
         return cls.query.filter(Language.id == id_).one()
 
     @classmethod
@@ -329,8 +328,6 @@ class UserWord(db.Model, util.JSONSerializable):
             return (cls.query.filter(cls.word == word)
                              .filter(cls.language == language)
                              .one())
-        except sqlalchemy.orm.exc.MultipleResultsFound:
-            print str(word) + "was found multiple times!!"
         except sqlalchemy.orm.exc.NoResultFound:
             return cls(word, language,rank)
 

@@ -119,11 +119,11 @@ def recommended_texts():
 
 
 
-@gym.route("/translate_with_context")
-@login_first
-def translate_with_context():
-    lang = model.Language.query.all()
-    return flask.render_template("translate_with_context.html", languages=lang)
+# @gym.route("/translate_with_context")
+# @login_first
+# def translate_with_context():
+#     lang = model.Language.query.all()
+#     return flask.render_template("translate_with_context.html", languages=lang)
 
 
 @gym.route("/recognize")

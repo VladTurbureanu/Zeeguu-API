@@ -11,5 +11,7 @@ class Gym_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.app.get('/bookmarks')
         assert 'hauen' in rv.data
 
+
+
 if __name__ == '__main__':
     unittest.main()

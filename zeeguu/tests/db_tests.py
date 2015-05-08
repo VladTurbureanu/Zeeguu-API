@@ -70,7 +70,7 @@ class Dbtest(ZeeguuTestCase):
         mir = model.User.find("i@mir.lu")
         de = model.Language.find("de")
         word = model.Word.find("hauen")
-        if(model.WordRank.exists(word.id)):
+        if(model.WordRank.exists(word.id, de)):
             rank = model.UserWord.find_rank(word, de)
             someword = model.UserWord.find(word,de,rank)
         else:
@@ -113,7 +113,7 @@ class Dbtest(ZeeguuTestCase):
     def test_importance_level(self):
         deutsch = Language.find("de")
         word = model.Word.find("beschloss")
-        if(model.WordRank.exists(word.id)):
+        if(model.WordRank.exists(word.id, deutsch)):
             rank = model.UserWord.find_rank(word, deutsch)
             new_word = model.UserWord.find(word,deutsch,rank)
         else:
