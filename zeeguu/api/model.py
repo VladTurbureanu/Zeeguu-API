@@ -54,7 +54,7 @@ class User(db.Model):
 
     def star(self, word):
         self.starred_words.append(word)
-        print word.word.word + " is now starred for user " + self.name
+        print word.word + " is now starred for user " + self.name
         # TODO: Does this work without a commit here? To double check.
 
 
@@ -112,7 +112,7 @@ class User(db.Model):
 	    return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
 
     def user_words(self):
-        return map((lambda x: x.origin.word.word), self.all_bookmarks())
+        return map((lambda x: x.origin.word), self.all_bookmarks())
 
     def all_bookmarks(self):
         return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
@@ -205,39 +205,16 @@ class Language(db.Model):
     def all(cls):
         return cls.query.filter().all()
 
-class Word(db.Model, util.JSONSerializable):
-    __tablename__ = 'words'
-    __table_args__ = {'mysql_collate': 'utf8_bin'}
-
-    id = db.Column(db.Integer, primary_key=True)
-    word = db.Column(db.String(255), nullable=False, unique = True, index = True)
-
-    def __init__(self, word):
-        self.word = word
-
-    @classmethod
-    def find(cls, word):
-        try:
-            return (cls.query.filter(cls.word == word)
-                             .one())
-        except sqlalchemy.orm.exc.NoResultFound:
-            return cls(word)
-
-    @classmethod
-    def find_all(cls):
-         return cls.query.all()
-
 
 
 class WordRank(db.Model, util.JSONSerializable):
     __tablename__ = 'word_ranks'
     id = db.Column(db.Integer, primary_key=True)
-    word_id = db.Column(db.Integer, db.ForeignKey('words.id'))
-    word = db.relationship("Word", backref="word_ranks")
+    word = db.Column(db.String(255), nullable =False, unique = True, index = True)
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
     rank = db.Column(db.Integer)
-    db.UniqueConstraint(word_id, language_id)
+    db.UniqueConstraint(word, language_id)
 
 
     def __init__(self, word, language, rank):
@@ -262,9 +239,9 @@ class WordRank(db.Model, util.JSONSerializable):
         ).all()
 
     @classmethod
-    def exists(cls, word_id, language_id):
+    def exists(cls, word, language_id):
         try:
-            (cls.query.filter(cls.word_id == word_id)
+            (cls.query.filter(cls.word == word)
                              .filter(cls.language == language_id)
                              .one())
             return True
@@ -282,13 +259,12 @@ class WordRank(db.Model, util.JSONSerializable):
 class UserWord(db.Model, util.JSONSerializable):
     __tablename__ = 'user_words'
     id = db.Column(db.Integer, primary_key=True)
-    word_id = db.Column(db.Integer, db.ForeignKey("words.id"))
-    word = db.relationship("Word")
+    word = db.Column(db.String(255), nullable =False, unique = True)
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
     rank_id = db.Column(db.Integer, db.ForeignKey("word_ranks.id"), nullable=True)
     rank = db.relationship("WordRank")
-    db.UniqueConstraint(word_id, language_id)
+    db.UniqueConstraint(word, language_id)
 
     IMPORTANCE_LEVEL_STEP = 1000
     IMPOSSIBLE_RANK = 1000000
@@ -340,24 +316,6 @@ class UserWord(db.Model, util.JSONSerializable):
         return cls.query.all()
 
 
-    @classmethod
-    def getImportantWords(cls,language_code):
-        words_file = open("../../languages/"+str(language_code)+".txt")
-        # with codecs.open("../../languages/"+str(language_code)+".txt",'r',encoding='utf8') as words_file:
-        words_list = words_file.read().splitlines()
-        # words_list = [x.decode('utf-8') for x in words_list]
-        return words_list
-
-#     @classmethod
-#     def translate(cls, from_lang, term, to_lang):
-#         return (cls.query.join(WordAlias, cls.translation_of)
-#                          .filter(WordAlias.word.word == term.lower())
-#                          .filter(cls.language == to_lang)
-#                          .filter(WordAlias.language == from_lang)
-#                          .all())
-#
-#
-#
 WordAlias = db.aliased(UserWord, name="translated_word")
 
 class Url(db.Model):
@@ -426,7 +384,7 @@ class Bookmark(db.Model):
     def translation_words_list(self):
         translation_words=[]
         for translation in self.translations_list:
-            translation_words.append(translation.word.word)
+            translation_words.append(translation.word)
         return translation_words
 
     def add_new_translation(self, translation):

@@ -245,7 +245,7 @@ def bookmarks_by_day(return_context):
         for b in bookmarks_by_date[date]:
             bookmark = {}
             bookmark['id'] = b.id
-            bookmark['from'] = b.origin.word.word
+            bookmark['from'] = b.origin.word
             bookmark['to'] = b.translation_words_list()
             bookmark['title'] = b.text.url.title
             bookmark['url'] = b.text.url.url
@@ -328,23 +328,19 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     from_lang = model.Language.find(from_lang_code)
     to_lang = model.Language.find(to_lang_code)
 
-    word = model.Word.find(decode_word(term))
-    zeeguu.db.session.add(word)
-    zeeguu.db.session.commit()
+    word = (decode_word(term))
+    translation_word = decode_word(translation)
 
-    translation_word = model.Word.find(decode_word(translation))
-    zeeguu.db.session.add(translation_word)
-    zeeguu.db.session.commit()
 
-    if model.WordRank.exists(word.id, from_lang):
-        rank = model.UserWord.find_rank(word,from_lang)
+    if model.WordRank.exists(word.lower(), from_lang):
+        rank = model.UserWord.find_rank(word.lower(),from_lang)
         user_word = model.UserWord.find(word,from_lang,rank)
     else:
         user_word = model.UserWord.find(word,from_lang,None)
 
 
-    if model.WordRank.exists(translation_word.id, to_lang):
-        rank = model.UserWord.find_rank(translation_word,to_lang)
+    if model.WordRank.exists(translation_word.lower(), to_lang):
+        rank = model.UserWord.find_rank(translation_word.lower(),to_lang)
         translation = model.UserWord.find(translation_word,to_lang,rank)
     else:
         translation = model.UserWord.find(translation_word,to_lang,None)
@@ -432,12 +428,12 @@ def add_new_translation_to_bookmark(word_translation, bookmark_id):
     ).first()
     translations_of_bookmark = bookmark.translations_list
     for transl in translations_of_bookmark:
-        if transl.word.word ==word_translation:
+        if transl.word ==word_translation:
             return 'FAIL'
 
-    translation_word = model.Word.find(word_translation)
-    rank = model.UserWord.find_rank(translation_word, translations_of_bookmark[0].language)
-    translation_user_word = model.UserWord.find(translation_word,translations_of_bookmark[0].language,rank)
+
+    rank = model.UserWord.find_rank(word_translation, translations_of_bookmark[0].language)
+    translation_user_word = model.UserWord.find(word_translation,translations_of_bookmark[0].language,rank)
     bookmark.add_new_translation(translation_user_word)
     zeeguu.db.session.add(translation_user_word)
     zeeguu.db.session.commit()
@@ -455,7 +451,7 @@ def delete_translation_from_bookmark(bookmark_id,translation_word):
         return 'FAIL'
     translation_id = -1
     for b in bookmark.translations_list:
-        if translation_word==b.word.word:
+        if translation_word==b.word:
             translation_id = b.id
             break
     if translation_id ==-1:
@@ -480,7 +476,7 @@ def get_translations_for_bookmark(bookmark_id):
     for translation in translation_list:
          translation_dict = {}
          translation_dict['id'] = translation.id
-         translation_dict['word'] = translation.word.word
+         translation_dict['word'] = translation.word
          translation_dict['language'] = translation.language.name
          translation_dict['word_rank'] = translation.rank
          translation_dict_list.append(translation_dict.copy())
@@ -499,7 +495,7 @@ def get_known_bookmarks():
         if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
                 i_know_bookmark_dict = {}
                 i_know_bookmark_dict['id'] = bookmark.id
-                i_know_bookmark_dict['origin'] = bookmark.origin.word.word
+                i_know_bookmark_dict['origin'] = bookmark.origin.word
                 i_know_bookmark_dict['text']= bookmark.text.content
                 i_know_bookmark_dict['time']=bookmark.time.strftime('%m/%d/%Y')
                 i_know_bookmarks.append(i_know_bookmark_dict.copy())
@@ -520,8 +516,8 @@ def get_known_words(lang_code):
         if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
                 i_know_words.append(bookmark.origin.word)
     for word_known in i_know_words:
-        if model.WordRank.exists(word_known.id, lang_id):
-            filtered_i_know_words_from_user.append(word_known.word)
+        if model.WordRank.exists(word_known.lower(), lang_id):
+            filtered_i_know_words_from_user.append(word_known)
             zeeguu.db.session.commit()
     filtered_i_know_words_from_user = list(set(filtered_i_know_words_from_user))
     for word in filtered_i_know_words_from_user:
@@ -547,7 +543,7 @@ def get_learned_bookmarks():
     for bookmark in learned_bookmarks:
         learned_bookmarks_dict = {}
         learned_bookmarks_dict ['id'] = bookmark.id
-        learned_bookmarks_dict ['origin'] = bookmark.origin.word.word
+        learned_bookmarks_dict ['origin'] = bookmark.origin.word
         learned_bookmarks_dict['text'] = bookmark.text.content
         learned_bookmarks_dict_list.append(learned_bookmarks_dict.copy())
 
@@ -568,12 +564,10 @@ def get_estimated_user_vocabulary(lang_code):
     for bookmark in bookmarks:
         bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
         words_of_all_bookmarks_content.extend(bookmark_content_words)
-        marked_words_of_user_in_text.append(bookmark.origin.word.word)
+        marked_words_of_user_in_text.append(bookmark.origin.word)
     words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
     for word_known in words_known_from_user:
-        word = model.Word.find(word_known)
-        zeeguu.db.session.add(word)
-        if model.WordRank.exists(word.id, lang_code):
+        if model.WordRank.exists(word_known.lower(), lang_code):
             filtered_words_known_from_user.append(word_known)
         zeeguu.db.session.commit()
 
@@ -614,8 +608,8 @@ def lookup(from_lang, term, to_lang):
         user.read(text)
     else:
         text = None
-    word = model.Word.find(decode_word(term))
-    rank = model.UserWord.find_rank(decode_word(term), to_lang)
+    word = decode_word(term)
+    rank = model.UserWord.find_rank(word, to_lang)
     user.searches.append(
         model.Search(user, model.UserWord.find(word, from_lang,rank),
                      to_lang, text)

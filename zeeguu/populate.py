@@ -35,32 +35,18 @@ def populate(from_, to, dict_file):
             trans = cache[clean_word(parts[1]), to]
             if trans not in orig.translations:
                 orig.translations.append(trans)
-def delete_duplicates(seq, current=None):
-   # order preserving
-   if current is None:
-       def current(x): return x
-   seen = {}
-   result = []
-   for item in seq:
-       marker = current(item)
-       # in old Python versions:
-       # if seen.has_key(marker)
-       # but in new ones:
-       if marker in seen: continue
-       seen[marker] = 1
-       result.append(item)
-   return result
+
 
 
 def filter_word_list(word_list):
     filtered_word_list = []
     lowercase_word_list = []
     for word in word_list:
-        lowercase_word_list.append(word.lower)
-    lowercase_word_list = delete_duplicates(lowercase_word_list)
+         if word.lower() not in lowercase_word_list:
+            lowercase_word_list.append(word.lower())
     for lc_word in lowercase_word_list:
         for word in word_list:
-            if word.lower  == lc_word:
+            if word.lower()  == lc_word:
                 filtered_word_list.append(word)
                 break
     return filtered_word_list
@@ -73,13 +59,6 @@ def word_list(lang_code):
 
 
 
-def add_words_to_db(lang_code):
-    zeeguu.app.test_request_context().push()
-    zeeguu.db.session.commit()
-    for word in filter_word_list(word_list(lang_code)):
-        w = model.Word.find(word.decode('utf-8'))
-        zeeguu.db.session.add(w)
-    zeeguu.db.session.commit()
 
 def add_word_ranks_to_db(lang_code):
     zeeguu.app.test_request_context().push()
@@ -87,9 +66,7 @@ def add_word_ranks_to_db(lang_code):
     from_lang = model.Language.find(lang_code)
     initial_line_number = 1
     for word in filter_word_list(word_list(lang_code)):
-        w = model.Word.find(word.decode('utf-8'))
-        zeeguu.db.session.add(w)
-        r = model.WordRank(w, from_lang,initial_line_number)
+        r = model.WordRank(word.lower(), from_lang,initial_line_number)
         zeeguu.db.session.add(r)
         initial_line_number+=1
     zeeguu.db.session.commit()
@@ -100,12 +77,6 @@ def clean_word(word):
         return word.decode("utf8")
     return match.group(1).decode("utf8")
 
-def add_words(original_word, translation_word):
-    word1 = model.Word.find(original_word)
-    word2 = model.Word.find(translation_word)
-    zeeguu.db.session.add(word1)
-    zeeguu.db.session.add(word2)
-    zeeguu.db.session.commit()
 
 
 def add_bookmark(user, original_language, original_word, translation_language, translation_word,  date, the_context, the_url, the_url_title):
@@ -113,19 +84,18 @@ def add_bookmark(user, original_language, original_word, translation_language, t
     url = model.Url.find (the_url, the_url_title)
     text = model.Text(the_context, translation_language, url)
 
-    word1 = model.Word.find(original_word)
-    word2 = model.Word.find(translation_word)
 
-    if model.WordRank.exists(word1.id, original_language):
-        rank1 = model.UserWord.find_rank(word1, original_language)
-        w1 = model.UserWord(word1, original_language,rank1)
+
+    if model.WordRank.exists(original_word.lower(), original_language):
+        rank1 = model.UserWord.find_rank(original_word.lower(), original_language)
+        w1 = model.UserWord(original_word, original_language,rank1)
     else:
-        w1  = model.UserWord(word1, original_language,None)
-    if model.WordRank.exists(word2.id, translation_language):
-        rank2 = model.UserWord.find_rank(word2, translation_language)
-        w2 = model.UserWord(word2, translation_language,rank2)
+        w1  = model.UserWord(original_word, original_language,None)
+    if model.WordRank.exists(translation_word.lower(), translation_language):
+        rank2 = model.UserWord.find_rank(translation_word.lower(), translation_language)
+        w2 = model.UserWord(translation_word, translation_language,rank2)
     else:
-        w2  = model.UserWord(word2, translation_language,None)
+        w2  = model.UserWord(translation_word, translation_language,None)
 
     zeeguu.db.session.add(url)
     zeeguu.db.session.add(text)
@@ -210,9 +180,7 @@ def create_test_db():
         'Knecht':'servant',
         'besteht':'smtg. exists'
     }
-    initial_rank =1
-    for key in today_dict:
-        add_words(key, today_dict[key])
+
 
     dict = {
             u'Spaß': 'fun',
@@ -224,8 +192,7 @@ def create_test_db():
             }
 
 
-    for key in dict:
-        add_words(key, dict[key])
+
 
 
 
@@ -235,9 +202,6 @@ def create_test_db():
         'et':'and'
             }
 
-
-    for key in french_dict:
-        add_words(key, french_dict[key])
 
 
     story_url = 'http://www.gutenberg.org/files/23393/23393-h/23393-h.htm'
@@ -252,11 +216,8 @@ def create_test_db():
             ['Entsetzen','horror','Entsetzt starrte Teramichi auf die Wolke',story_url]
         ]
 
-    for w in japanese_story:
-        add_words(w[0], w[1])
 
 
-    add_words_to_db('de')
     add_word_ranks_to_db('de')
 
     for key in today_dict:
@@ -267,15 +228,12 @@ def create_test_db():
         add_bookmark(user, de, key, en, dict[key], ian101, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. "+key,
                          "http://url1", "title of url1")
 
-    for key in dict:
-        add_bookmark(user, de, key, en, dict[key], ian101, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. "+key,
+    for key in french_dict:
+        add_bookmark(user, de, key, en, french_dict[key], ian101, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. "+key,
                          "http://url1", "title of url1")
     for w in japanese_story:
-        if w[0] == 'recht':
-            # something special
-            add_bookmark(user, de, w[0], en, w[1],jan14, w[2],w[3], "japanese story")
-        else:
-            add_bookmark(user, de, w[0], en, w[1],jan14, w[2],w[3], "japanese story")
+        add_bookmark(user, de, w[0], en, w[1],jan14, w[2],w[3], "japanese story")
+
 
 
 
