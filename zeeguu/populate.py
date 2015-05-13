@@ -65,11 +65,13 @@ def add_word_ranks_to_db(lang_code):
     zeeguu.db.session.commit()
     from_lang = model.Language.find(lang_code)
     initial_line_number = 1
+
     for word in filter_word_list(word_list(lang_code)):
         r = model.WordRank(word.lower(), from_lang,initial_line_number)
+        print word.lower()
         zeeguu.db.session.add(r)
+        zeeguu.db.session.commit()
         initial_line_number+=1
-    zeeguu.db.session.commit()
 
 def clean_word(word):
     match = re.match(WORD_PATTERN, word)

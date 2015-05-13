@@ -65,6 +65,14 @@ class Dbtest(ZeeguuTestCase):
         assert mir.user_words() == map((lambda x: x.origin.word), mir.all_bookmarks())
 
 
+    def test_search_1(self):
+        mir = model.User.find("i@mir.lu")
+        de = model.Language.find("de")
+        word = UserWord.find("hauen345", de)
+        s = model.Search(mir, word, de)
+        db.session.add(s)
+        db.session.commit()
+
 
     def test_preferred_words(self):
         mir = model.User.find("i@mir.lu")
