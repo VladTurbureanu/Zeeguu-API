@@ -3,8 +3,8 @@
 import re
 
 import zeeguu
+import datetime
 from zeeguu import model
-
 
 
 def filter_word_list(word_list):
@@ -38,18 +38,10 @@ def add_word_ranks_to_db(lang_code):
         r = model.WordRank(word.lower(), from_lang,initial_line_number)
         zeeguu.db.session.add(r)
         initial_line_number+=1
-    print 'karan the worst'
     zeeguu.db.session.commit()
-
-def change_db(lang_code):
-    add_word_ranks_to_db(lang_code)
-
-
-
 
 
 
 
 if __name__ == "__main__":
-    change_db('de')
-
+    add_word_ranks_to_db('fr')
