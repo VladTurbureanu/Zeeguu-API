@@ -3,7 +3,7 @@
 import re
 
 import zeeguu
-import datetime
+import sys
 from zeeguu import model
 
 
@@ -44,4 +44,7 @@ def add_word_ranks_to_db(lang_code):
 
 
 if __name__ == "__main__":
-    add_word_ranks_to_db('fr')
+    try:
+        add_word_ranks_to_db(sys.argv[1])
+    except :
+        print "Usage: add_word_ranks <language_code>"
