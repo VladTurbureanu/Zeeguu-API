@@ -248,10 +248,10 @@ def question(from_lang, to_lang):
         question, answer = answer, question
 
     return json.dumps({
-        "question": question.word.word,
+        "question": question.word,
         "example":card.bookmark.text.content,
         "url":card.bookmark.text.url.url,
-        "answer": answer.word.word,
+        "answer": answer.word,
         "id": card.id,
         "position": card.position,
         "rank":card.bookmark.origin.importance_level(),
@@ -341,5 +341,5 @@ def unstarred_word(word_id,user_id):
     user = model.User.find_by_id(user_id)
     user.starred_words.remove(word)
     model.db.session.commit()
-    print word.word + " is now *unstarred* for user " + user.name
+    print word + " is now *unstarred* for user " + user.name
     return "OK"
