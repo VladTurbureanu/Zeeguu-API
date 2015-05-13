@@ -21,6 +21,8 @@ starred_words_association_table = Table('starred_words_association', db.Model.me
 
 
 class User(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True)
     name = db.Column(db.String(255))
@@ -171,6 +173,8 @@ class Session(db.Model):
 
 
 class Language(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
     id = db.Column(db.String(2), primary_key=True)
     name = db.Column(db.String(255), unique=True)
 
@@ -209,8 +213,11 @@ class Language(db.Model):
 
 class WordRank(db.Model, util.JSONSerializable):
     __tablename__ = 'word_ranks'
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(255), nullable =False, unique = True, index = True)
+
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
     rank = db.Column(db.Integer)
@@ -258,6 +265,8 @@ class WordRank(db.Model, util.JSONSerializable):
 
 class UserWord(db.Model, util.JSONSerializable):
     __tablename__ = 'user_words'
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(255), nullable =False, unique = True)
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
@@ -270,7 +279,7 @@ class UserWord(db.Model, util.JSONSerializable):
     IMPOSSIBLE_RANK = 1000000
     IMPOSSIBLE_IMPORTANCE_LEVEL = IMPOSSIBLE_RANK / IMPORTANCE_LEVEL_STEP
 
-    def __init__(self, word, language, rank):
+    def __init__(self, word, language, rank = None):
         self.word = word
         self.language = language
         self.rank = rank
@@ -280,8 +289,6 @@ class UserWord(db.Model, util.JSONSerializable):
 
     def serialize(self):
         return self.word
-
-
 
     # returns a number between
     def importance_level(self):
@@ -299,7 +306,7 @@ class UserWord(db.Model, util.JSONSerializable):
         return b * self.importance_level()
 
     @classmethod
-    def find(cls, word, language,rank):
+    def find(cls, word, language,rank = None):
         try:
             return (cls.query.filter(cls.word == word)
                              .filter(cls.language == language)
@@ -460,6 +467,8 @@ bookmark_exercise_mapping = Table('bookmark_exercise_mapping', db.Model.metadata
 
 
 class Text(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(10000))
 
@@ -533,11 +542,13 @@ class Text(db.Model):
 
 
 class Search(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     user = db.relationship("User", backref="searches")
-    word_id = db.Column(db.Integer, db.ForeignKey("user_words.id"))
-    word = db.relationship("UserWord")
+    user_word_id = db.Column(db.Integer, db.ForeignKey("user_words.id"))
+    user_word = db.relationship("UserWord")
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
     text_id = db.Column(db.Integer, db.ForeignKey("text.id"))
@@ -547,10 +558,10 @@ class Search(db.Model):
 
     def __init__(self, user, word, language, text=None):
         self.user = user
-        self.word = word
+        self.user_word = word
         self.language = language
         self.text = text
 
     def __repr__(self):
-        return '<Search %r>' % (self.word.word)
+        return '<Search %r>' % (self.user_word.word)
 
