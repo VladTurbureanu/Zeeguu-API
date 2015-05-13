@@ -1,3 +1,5 @@
+SET SQL_SAFE_UPDATES=0;
+
 update user_words t1
 inner JOIN
 	(
@@ -7,4 +9,6 @@ inner JOIN
 		on lower(uw.word) = lower(wr.word) and uw.language_id = wr.language_id
 		) t2
 	on t1.id = t2.user_words_id
-	set t1.`rank_id` = t2.word_rank_rank
+	set t1.`rank_id` = t2.word_rank_rank;
+
+SET SQL_SAFE_UPDATES=1;
