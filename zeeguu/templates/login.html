@@ -4,14 +4,16 @@
 
 {% block body %}
 
+{% assets filters="cssmin", output="instance/login.css", "css/login.css"-%}
+    <link rel="stylesheet" href="{{ ASSET_URL }}" />
+{% endassets -%}
+
 
 <div class="container">
 
     <form id="login" class="form-horizontal" action="" method="post" role="form" >
-        <div class="grey-block col-xs-10 col-xs-offset-1 col-sm-10 col-sm-offset-1 col-md-6 col-md-offset-3">
             <div class="outer-block">
                 <div class="inner-center authentification-box">
-                    {{ flash_messages() }}
 
                     <p id="authentification-box-title">Sign In</p>
 
@@ -21,18 +23,19 @@
                         <input type="email" class="form-control input-lg" id="email" name="email" placeholder="Email">
                     </div>
 
-
                     <div class="input-group">
                         <label>Password</label>
                         <input type="password" class="form-control input-lg" id="password" name="password" placeholder="Password">
                     </div>
 
+                    {{ flash_messages() }}
+
                     <div class="input-group">
                         <button type="submit" name="login" value="Login" class="btn btn-success green-button sign-in-button"> Sign In </button>
                     </div>
+
                 </div>
             </div>
-        </div>
     </form>
 </div>
 
