@@ -1,30 +1,20 @@
 /*login page */
-.grey-block {
-  background-color: #f4f4f4;
-  margin-top: 20px;
-  padding-top: 20px;
-  padding-bottom: 20px; }
+.inner-center {
+  display: block;
+  margin: 0px auto; }
 
-.login-block {
+.outer-block {
   width: 100%; }
 
-.inner-center {
-  /* Centering a div inside another div */
-  display: block;
-  margin: 0 auto; }
-
-.login-block-width {
-  width: 500px; }
-
-#sign-in-title {
+#authentification-box-title {
   margin-bottom: 20px;
   font-size: 30px; }
 
-.btn-success {
-  font-size: 16px; }
-
-.sign-in-button {
-  margin-top: 30px; }
+.authentification-box {
+  background-color: #fafafa;
+  padding: 30px 40px;
+  margin-top: 45px;
+  border: 1px solid #e6f0e6; }
 
 .input-group {
   margin-bottom: 10px; }
@@ -36,29 +26,29 @@
 .input-group label {
   font-size: 16px; }
 
+.green-button {
+  font-size: 16px;
+  margin-top: 30px; }
+
 @media screen and (max-width: 992px) {
-  #sign-in-title {
-    font-size: 32px; }
+  #authentification-box-title {
+    font-size: 42px; }
 
   .input-group label {
-    font-size: 22px; }
+    font-size: 30px; }
+
+  .green-button {
+    font-size: 30px;
+    padding: 20px 40px; }
 
   .input-lg {
-    font-size: 18px !important; }
+    height: 70px !important;
+    font-size: 30px !important; } }
+.authentification-box {
+  width: 400px; }
 
-  .btn-success {
-    font-size: 18px; } }
-@media screen and (max-width: 768px) {
-  #sign-in-title {
-    font-size: 44px; }
-
-  .input-group label {
-    font-size: 34px; }
-
-  .input-lg {
-    font-size: 30px !important; }
-
-  .btn-success {
-    font-size: 30px; } }
+@media screen and (max-width: 992px) {
+  .authentification-box {
+    width: 600px; } }
 
 /*# sourceMappingURL=login.css.map */

@@ -1,26 +1,23 @@
 /*create_account page */
-.grey-block {
-  background-color: #f4f4f4;
-  margin-top: 20px;
-  padding-top: 20px;
-  padding-bottom: 20px; }
-
-.create-account-block {
-  width: 100%; }
-
-#create-account-title {
-  margin-bottom: 20px;
-  font-size: 30px; }
-
 .inner-center {
   display: block;
   margin: 0px auto; }
 
-.create-account-block-width {
-  width: 500px; }
+.outer-block {
+  width: 100%; }
 
-.btn-success {
-  font-size: 16px; }
+#authentification-box-title {
+  margin-bottom: 20px;
+  font-size: 30px; }
+
+.authentification-box {
+  background-color: #fafafa;
+  padding: 30px 40px;
+  margin-top: 45px;
+  border: 1px solid #e6f0e6; }
+
+.input-group {
+  margin-bottom: 10px; }
 
 .input-lg {
   height: 45px !important;
@@ -29,29 +26,30 @@
 .input-group label {
   font-size: 16px; }
 
+.green-button {
+  font-size: 16px;
+  margin-top: 30px; }
+
 @media screen and (max-width: 992px) {
-  #create-account-title {
-    font-size: 32px; }
-
-  .input-group label {
-    font-size: 22px; }
-
-  .input-lg {
-    font-size: 18px !important; }
-
-  .btn-success {
-    font-size: 18px; } }
-@media screen and (max-width: 768px) {
-  #create-account-title {
+  #authentification-box-title {
     font-size: 42px; }
 
   .input-group label {
-    font-size: 34px; }
+    font-size: 30px; }
+
+  .green-button {
+    font-size: 30px;
+    padding: 20px 40px; }
 
   .input-lg {
-    font-size: 30px !important; }
+    height: 70px !important;
+    font-size: 30px !important; } }
+.authentification-box {
+  width: 450px;
+  margin-top: 35px; }
 
-  .btn-success {
-    font-size: 30px; } }
+@media screen and (max-width: 992px) {
+  .authentification-box {
+    width: 700px; } }
 
 /*# sourceMappingURL=create_account.css.map */
