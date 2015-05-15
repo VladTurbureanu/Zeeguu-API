@@ -25,11 +25,6 @@
         speed & fun up vocabulary learning in a new language
     </h2>
 
-    <!--<h3 id="main-description" class="inner-center">-->
-        <!--A research project designed to</br></br>-->
-        <!--speed & fun up vocabulary learning in a new language-->
-    <!--</h3>-->
-
     {% if not g.user %}
         <h3 id="extra-button" class="inner-center">
             <a href="{{url_for('account.create_account')}}">Become a Beta Tester</a>
@@ -50,8 +45,7 @@
         </h1>
 
         <div class="row feature">
-
-            <div class="col-sm-10 col-sm-offset-1 col-md-offset-3 col-md-6 info-cassette">
+            <div class="col-xs-10 col-xs-offset-1 col-sm-12 col-sm-offset-0 col-md-offset-3 col-md-6 info-cassette">
                 <h3>Only Read The Stuff You Like</h3>
                 <p>Unlike traditional learning materials based on pre-defined,
                     and usually boring texts, we think that you should read only the stuff you love:
@@ -61,7 +55,7 @@
                 </p>
             </div>
 
-            <div class="col-sm-6 col-sm-offset-3 col-md-offset-0 col-md-3 ">
+            <div class=" col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 col-md-offset-0 col-md-3 ">
                 <img id="eleph-booklover" src="../static/img/eleph-reader-lover.png" />
             </div>
 
@@ -74,7 +68,7 @@
                 <img id="eleph-carrier" src="../static/img/eleph-carrier-words.png">
             </div>
 
-            <div class="col-sm-10 col-sm-offset-1 col-md-6 col-md-offset-0 info-cassette">
+            <div class="col-xs-10 col-xs-offset-1 col-sm-12 col-sm-offset-0 col-md-6 col-md-offset-0 info-cassette">
                 <h3>Have Your Words Everywhere With You</h3>
                 <p>Words that you have once translated, should be available to you always
                     (read as “from any of your devices”). Together with the words and their
@@ -84,7 +78,7 @@
                 </p>
             </div>
 
-            <div class="visible-sm visible-xs col-sm-6 col-sm-offset-3">
+            <div class="visible-sm visible-xs col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3">
                 <img id="eleph-carrier" src="../static/img/eleph-carrier-words.png">
             </div>
 
@@ -93,7 +87,7 @@
 
         <div class="row feature">
 
-            <div class="col-sm-10 col-sm-offset-1 col-md-offset-3 col-md-6 info-cassette">
+            <div class="col-xs-10 col-xs-offset-1 col-sm-12 col-sm-offset-0 col-md-offset-3 col-md-6 info-cassette">
                 <h3>Practice with Personalized Exercices</h3>
                 <p>Based on the texts you read, the words you translate, and known word frequencies,
                     Zeeguu will use machine learning to build a model of your current vocabulary in
@@ -103,12 +97,10 @@
             </div>
 
 
-            <div class="col-sm-6 col-sm-offset-3 col-md-offset-0 col-md-3">
+            <div class="col-xs-8 col-xs-offset-2 col-sm-6 col-sm-offset-3 col-md-offset-0 col-md-3">
                 <img id="eleph-redpants" src="../static/img/eleph-sport-dessert.png"/>
             </div>
 
-            <!--<div class="col-sm-0 col-md-2">-->
-            <!--</div>-->
 
         </div>
 
@@ -136,17 +128,17 @@
                     <!--</div>-->
 
                     <!--<div class="col-sm-6 col-md-4">-->
-                        <!--&lt;!&ndash;<img id="foot2" src ="../static/img/foot2.png">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<img id="foot4" src ="../static/img/foot4.png">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<img id="foot5" src ="../static/img/foot5.png">&ndash;&gt;-->
+                        <!--<!--<img id="foot2" src ="../static/img/foot2.png">-->
+                        <!--<!--<img id="foot4" src ="../static/img/foot4.png">-->
+                        <!--<!--<img id="foot5" src ="../static/img/foot5.png">-->
                     <!--</div>-->
                 <!--</div>-->
 
 
                 <!--<div class="row step2">-->
                     <!--<div class="col-sm-offset-2 col-sm-2 col-md-offset-2 col-md-2">-->
-                        <!--&lt;!&ndash;<img id="foot6" src ="../static/img/foot5.png">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<img id="foot7" src ="../static/img/foot6.png">&ndash;&gt;-->
+                        <!--<!--<img id="foot6" src ="../static/img/foot5.png">-->
+                        <!--<!--<img id="foot7" src ="../static/img/foot6.png">-->
                     <!--</div>-->
 
 
@@ -160,8 +152,8 @@
 
                 <!--<div class="row step3">-->
                     <!--<div class="col-sm-offset-1 col-sm-5 col-md-offset-4 col-md-4">-->
-                        <!--&lt;!&ndash;<img id="foot8" src ="../static/img/foot8.png">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<img id="foot9" src ="../static/img/foot9.png">&ndash;&gt;-->
+                        <!--<!--<img id="foot8" src ="../static/img/foot8.png">-->
+                        <!--<!--<img id="foot9" src ="../static/img/foot9.png">-->
                     <!--</div>-->
 
                     <!--<div class="col-sm-6 col-md-4">-->
@@ -211,26 +203,24 @@
         <div class="row">
             <h1 class="section-title">Contributors</h1>
 
-            <div class="col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
+            <div class="col-sm-4 col-sm-offset-2 col-md-3 col-md-offset-3">
                 {{ member("Mircea Lungu", "Production") }}
                 {{ member("Karan Sethi", "Machine Learning") }}
                 {{ member("Pascal Giehl", "Augmented Reality and Android") }}
-                {{ member("Ada Lungu", "UX and Web Design") }}
             </div>
 
-            <div class="col-sm-3 col-md-3">
+            <div class="col-sm-4 col-md-3">
 
                 {{ member("Linus Schwab", "Android RSS Feed Reader") }}
                 {{ member("Anca Lungu", "Linguistics") }}
                 {{ member("Simon Marti", "Initial API and Chrome Extension") }}
 
             </div>
+        </div>
+
+        {{ member("Ada Lungu", "UX and Web Design") }}
             <!--<div class="col-sm-offset-4 col-sm-4" style="text-align: center">-->
             <!--</div>-->
-
-
-
-        </div>
 
     </div>
 </div>

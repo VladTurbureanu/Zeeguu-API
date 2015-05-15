@@ -9,11 +9,21 @@
   font-size: 20px; }
 
 @media screen and (max-width: 992px) {
+  .menu-cassette {
+    height: 85px; }
+
   .navbar-nav li {
     font-size: 24px; }
 
   .navbar-right li {
-    font-size: 24px; } }
+    font-size: 24px; }
+
+  #zeeguu-logo {
+    height: 80px;
+    margin-left: 20px; }
+
+  #login {
+    font-size: 35px; } }
 .navbar-brand, .navbar-nav li a, .navbar-nav li a:visited, .navbar-nav li a:hover {
   line-height: 75px;
   height: 75px;
