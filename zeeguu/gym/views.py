@@ -220,7 +220,7 @@ def question(from_lang, to_lang):
 
 
 
-@gym.route("/delete_bookmark/<bookmark_id>", methods=("POST",))
+@gym.route("/gym/delete_bookmark/<bookmark_id>", methods=("POST",))
 @login_first
 def delete(bookmark_id):
     session = model.db.session
