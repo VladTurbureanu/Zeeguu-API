@@ -114,6 +114,15 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert not any(translation['word'] == first_word_translation_of_bookmark for translation in translations_dict_of_bookmark)
 
 
+
+    def test_delete_bookmark(self):
+        rv = self.api_post('/delete_bookmark/2')
+        assert rv.data =='OK'
+        rv = self.api_post('/delete_bookmark/2')
+        assert rv.data == "Not found"
+
+
+
     def test_get_translations_for_bookmark(self):
        rv = self.api_get('/get_translations_for_bookmark/2')
        translations_dict_bookmark_before_add = json.loads(rv.data)

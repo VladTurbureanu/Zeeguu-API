@@ -198,84 +198,46 @@ def question(from_lang, to_lang):
         model.Bookmark.query.filter_by(user=flask.g.user)
                                 .join(model.UserWord, model.Bookmark.origin)
     )
-    forward = bookmarks.filter(
-        model.UserWord.language == from_lang,
-        model.WordAlias.language == to_lang
-    )
-    backward = bookmarks.filter(
-        model.UserWord.language == to_lang,
-        model.WordAlias.language == from_lang
-    )
-    bookmarks = forward.union(backward).filter_by(card=None)
-    if bookmarks.count() > 0:
-        card = model.Card(
-            bookmarks.join(model.UserWord, model.Bookmark.origin).
-            order_by(model.Bookmark.time).first()
-        )
-        card.set_reason("First rehearsal. ")
-    else:
-        cards = (
-            model.Card.query.join(model.Bookmark, model.Card.bookmark)
-                            .filter_by(user=flask.g.user)
-                            .join(model.UserWord, model.Bookmark.origin)
-        )
-        forward = cards.filter(
-            model.UserWord.language == from_lang,
-            model.WordAlias.language == to_lang
-        )
-        backward = cards.filter(
-            model.UserWord.language == to_lang,
-            model.WordAlias.language == from_lang
-        )
 
+    bookmark = random.choice(bookmarks)
 
-        cards = forward.union(backward).filter(model.Card.position < 5).all()
-        card = select_next_card_aware_of_days(cards)
-
-
-
-    if card is None:
-        return "\"NO CARDS\""
-
-    card.seen()
-
-    model.db.session.commit()
-
-    question = card.bookmark.origin
-    answer = card.bookmark.translation()
+    question = bookmark.origin
+    answer = bookmark.translation()
 
     if question.language != from_lang:
         question, answer = answer, question
 
     return json.dumps({
         "question": question.word,
-        "example":card.bookmark.text.content,
-        "url":card.bookmark.text.url.url,
+        "example":bookmark.text.content,
+        "url":bookmark.text.url.url,
         "answer": answer.word,
-        "id": card.id,
-        "position": card.position,
-        "rank":card.bookmark.origin.importance_level(),
-        "reason": card.reason,
-        "starred": card.is_starred()
+        "id": bookmark.id,
+        "rank": bookmark.origin.importance_level(),
+        "reason": "-",
+        "starred": True
     })
 
 
 
-@gym.route("/gym/delete_contribution/<contribution_id>", methods=("POST",))
+@gym.route("/delete_bookmark/<bookmark_id>", methods=("POST",))
 @login_first
-def delete(contribution_id):
+def delete(bookmark_id):
     session = model.db.session
-    contrib = model.Contribution.query.get(contribution_id)
-    text = model.Text.query.get(contrib.text.id)
+    bookmark = model.Bookmark.query.get(bookmark_id)
+    if bookmark == None:
+        return "Not found"
+
+    text = model.Text.query.get(bookmark.text.id)
     url = text.url
 
     # delete the associated cards
-    cards = model.Card.query.filter_by(contribution_id=contrib.id).all()
+    cards = model.Card.query.filter_by(bookmark_id=bookmark.id).all()
     for card in cards:
         session.delete(card)
 
     # contrib goes, and so does the associated text
-    session.delete(contrib)
+    session.delete(bookmark)
     session.delete(text)
     session.commit()
 
