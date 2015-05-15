@@ -347,17 +347,17 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     else:
         translation = model.UserWord.find(translation_word,to_lang,None)
 
-    search = model.Search.query.filter_by(
-        user=flask.g.user, user_word=user_word, language=to_lang
-    ).order_by(model.Search.id.desc()).first()
+    # search = model.Search.query.filter_by(
+    #     user=flask.g.user, user_word=user_word, language=to_lang
+    # ).order_by(model.Search.id.desc()).first()
 
     #create the text entity first
     new_text = model.Text(context, from_lang, url)
     bookmark = model.Bookmark(user_word, translation, flask.g.user, new_text, datetime.datetime.now())
-    if search:
-        search.bookmark = bookmark
-    else:
-        zeeguu.db.session.add(bookmark)
+    # if search:
+    #     search.bookmark = bookmark
+    # else:
+    zeeguu.db.session.add(bookmark)
 
     zeeguu.db.session.commit()
 
