@@ -43,24 +43,14 @@
   padding-top: 30px;
   margin-bottom: 50px; }
 
-#main-description {
-  text-align: center;
-  font-family: "Myriad Pro";
-  color: #4A4A4A;
-  padding-top: -10px;
-  padding-bottom: 40px; }
-
 #extra-button {
   background-color: yellowgreen;
   font-family: "Myriad Pro";
-  height: 50px;
   width: 330px;
   text-align: center;
   color: #ffffff;
-  padding-top: 12px; }
+  padding: 16px 0px; }
 
-/*margin-top: 50px */
-/*margin-left: 50px 10px 0 10px */
 #extra-button:hover {
   background-color: #dce828; }
 
@@ -70,10 +60,36 @@
 #extra-button a:link {
   color: white; }
 
+@media screen and (max-width: 992px) {
+  #extra-button {
+    width: 500px;
+    max-width: 90%;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    font-size: 35px;
+    font-weight: bold; }
+
+  #extra-button a {
+    padding: 25px 60px; }
+
+  #main-message {
+    font-size: 40px; } }
+@media screen and (max-width: 447px) {
+  #extra-button {
+    height: 100px;
+    width: 100%;
+    padding-top: 22px;
+    font-size: 30px; }
+
+  #extra-button a {
+    padding: 25px 60px; } }
 /* THREE STEPS PRESENTATION */
 .three-steps-presentation {
   background-color: white;
   margin-bottom: 60px; }
+
+.three-steps-presentation p {
+  margin-bottom: 80px; }
 
 .three-steps-presentation h1 {
   margin-top: 100px;
@@ -83,60 +99,73 @@
   width: 260px;
   padding-top: 30px; }
 
-/*padding-bottom: 40px */
-/*margin-left: -20px */
-.info-cassette {
-  text-align: center; }
-
 .info-cassette p {
-  font-size: 30px;
+  font-size: 18px;
   color: dimgrey;
-  text-align: center; }
+  text-align: justify; }
 
 .info-cassette h3 {
   font-weight: bold;
-  text-align: left; }
-
-.feature h3 {
+  text-align: left;
   font-family: "Myriad Pro Squezed";
   font-size: 28px;
   margin-bottom: 30px; }
-
-.three-steps-presentation p {
-  font-size: 18px;
-  text-align: justify;
-  margin-bottom: 80px; }
-
-.three-steps-presentation p {
-  font-size: 20px; }
-
-.three-steps-presentation h3 {
-  font-size: 24px; }
-
-/* SMALL Devices */
-.three-steps-presentation p {
-  font-size: 24px; }
-
-.three-steps-presentation h3 {
-  font-size: 28px; }
-
-.three-steps-presentation img {
-  margin-top: -72px;
-  margin-bottom: 72px; }
 
 #eleph-booklover {
   width: 260px;
   margin-left: 20px; }
 
 #eleph-carrier {
-  width: 360px;
-  margin-top: -10px;
-  padding-right: 110px; }
+  width: 260px;
+  margin-top: -10px; }
 
 #eleph-redpants {
   width: 340px;
   padding-bottom: 20px; }
 
+/* SMALL Devices */
+@media screen and (max-width: 992px) {
+  .three-steps-presentation p {
+    font-size: 24px; }
+
+  .three-steps-presentation h3 {
+    font-size: 35px; }
+
+  .three-steps-presentation img {
+    margin-top: -72px;
+    margin-bottom: 72px; }
+
+  .three-steps-presentation h1 {
+    font-size: 40px; }
+
+  #eleph-booklover {
+    width: 310px;
+    margin-left: 20px; }
+
+  #eleph-carrier {
+    width: 310px;
+    margin-top: -10px; }
+
+  #eleph-redpants {
+    width: 420px;
+    padding-bottom: 20px; } }
+@media screen and (max-width: 768px) {
+  .three-steps-presentation p {
+    font-size: 24px; }
+
+  .three-steps-presentation h3 {
+    font-size: 35px; }
+
+  .three-steps-presentation img {
+    margin-top: -72px;
+    margin-bottom: 72px; }
+
+  .three-steps-presentation h1 {
+    font-size: 40px; }
+
+  #eleph-booklover {
+    width: 260px;
+    margin-left: 0px; } }
 /*HOW DOES IT WORK STEPS */
 /*background-color: #F0F0F0 */
 .grey-backgroung-strip-steps h1 {
@@ -243,26 +272,9 @@
   border-top: solid 1px lightgrey;
   padding-top: 40px; }
 
-.team-members {
-  font-size: 20px; }
-
-.team-members {
-  font-size: 22px; }
-
-/*.become-beta-tester */
-/*background-color: yellowgreen */
-/*width: 310px */
-/*height: 60px */
-/*color: #ffffff */
-/*text-align: center */
-/*margin-bottom: 80px */
-/* */
-/*.become-beta-tester:hover */
-/*background-color: #dce828 */
-/* */
-/*.become-beta-tester a */
-/*color: white */
-/* */
+@media screen and (max-width: 992px) {
+  .team-members {
+    font-size: 24px; } }
 a:link {
   text-decoration: none; }
 
