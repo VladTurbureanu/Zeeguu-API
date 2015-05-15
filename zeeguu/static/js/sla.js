@@ -340,7 +340,7 @@ function checkTranslateAnswer() {
 
 function deleteBookmark(id) {
     console.log("deleting " + id);
-    $.post("/gym/delete_bookmark/"+id);
+    $.post("/delete_bookmark/"+id);
     $("#bookmark"+id).fadeOut();
     return false;
 }
