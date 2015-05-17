@@ -150,6 +150,8 @@ class User(db.Model):
 
 
 class Session(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     user = db.relationship("User")
@@ -326,6 +328,7 @@ class UserWord(db.Model, util.JSONSerializable):
 WordAlias = db.aliased(UserWord, name="translated_word")
 
 class Url(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(2083))
     title = db.Column(db.String(2083))
@@ -356,6 +359,8 @@ class Url(db.Model):
 
 
 class Bookmark(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
     id = db.Column(db.Integer, primary_key=True)
     origin_id = db.Column(db.Integer, db.ForeignKey('user_words.id'))
     origin = db.relationship("UserWord", primaryjoin=origin_id == UserWord.id,
@@ -423,7 +428,9 @@ bookmark_translation_mapping = Table('bookmark_translation_mapping', db.Model.me
 
 
 class Exercise(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
     __tablename__ = 'exercise'
+
     id = db.Column(db.Integer, primary_key=True)
     outcome_id=db.Column(db.Integer,db.ForeignKey('exercise_outcome.id'),nullable=False)
     outcome = db.relationship ("ExerciseOutcome", backref="exercise")
@@ -441,6 +448,8 @@ class Exercise(db.Model):
 
 class ExerciseOutcome(db.Model):
     __tablename__ = 'exercise_outcome'
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
     id = db.Column(db.Integer, primary_key=True)
     outcome=db.Column(db.String(255),nullable=False)
 
@@ -453,6 +462,8 @@ class ExerciseOutcome(db.Model):
 
 class ExerciseSource(db.Model):
     __tablename__ = 'exercise_source'
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
     id = db.Column(db.Integer, primary_key=True)
     source=db.Column(db.String(255), nullable=False)
 
