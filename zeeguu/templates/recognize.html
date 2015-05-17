@@ -7,23 +7,23 @@
 <div class="container recognize">
     <div id="language-selection">
         <div class="exercise-title">Recognize the Word</div>
-        <select id="lang1">
-            {% for language in languages %}
-                <option value="{{ language.id }}" {% if "English" == language.name %} selected{% endif %}>
-                    {{ language.name }}
-                </option>
-            {% endfor %}
-        </select>
+        <!--<select id="lang1">-->
+            <!--{% for language in languages %}-->
+                <!--<option value="{{ language.id }}" {% if "English" == language.name %} selected{% endif %}>-->
+                    <!--{{ language.name }}-->
+                <!--</option>-->
+            <!--{% endfor %}-->
+        <!--</select>-->
 
-        <i style="visibility: hidden" class="icon-long-arrow-right"></i>
+        <!--<i style="visibility: hidden" class="icon-long-arrow-right"></i>-->
 
-        <select id="lang2" >
-            {% for language in languages %}
-                 <option value="{{ language.id }}" {% if g.user.learned_language_id == language.id %} selected {% endif %} >
-                    {{ language.name }}
-                </option>
-            {% endfor %}
-        </select>
+        <!--<select id="lang2" >-->
+            <!--{% for language in languages %}-->
+                 <!--<option value="{{ language.id }}" {% if g.user.learned_language_id == language.id %} selected {% endif %} >-->
+                    <!--{{ language.name }}-->
+                <!--</option>-->
+            <!--{% endfor %}-->
+        <!--</select>-->
 
     </div>
 
@@ -31,7 +31,7 @@
 
     <div id="recognize_card">
 
-        <div class="starholder"><a href="#" id="star"></a></div>
+        <!--<div class="starholder"><a href="#" id="star"></a></div>-->
 
         <div id="question" class="recognize_question"><span class="loading">Loading...</span></div>
 

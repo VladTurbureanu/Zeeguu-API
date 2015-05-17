@@ -1,12 +1,12 @@
-from datetime import timedelta, date
 import json
 from functools import wraps
+import random
 
+from datetime import timedelta, date
 import flask
 
 from zeeguu import model
-import sys
-import random
+from zeeguu.model import UserWord, Bookmark
 
 
 gym = flask.Blueprint("gym", __name__)
@@ -191,31 +191,36 @@ def select_next_card_aware_of_days(cards):
 @gym.route("/gym/question/<from_lang>/<to_lang>")
 @login_first
 def question(from_lang, to_lang):
-    from_lang = model.Language.find(from_lang)
-    to_lang = model.Language.find(to_lang)
+    # from_lang = model.Language.find(from_lang)
+    # to_lang = model.Language.find(to_lang)
 
     bookmarks = (
-        model.Bookmark.query.filter_by(user=flask.g.user)
-                                .join(model.UserWord, model.Bookmark.origin)
-    )
+        model.Bookmark
+            .query.filter_by(user=flask.g.user)
+            .join(UserWord, Bookmark.origin)
+            .join(model.Language, UserWord.language)
+            .filter(UserWord.language == flask.g.user.learned_language)
 
-    bookmark = random.choice(bookmarks)
+    ).all()
 
-    question = bookmark.origin
-    answer = bookmark.translation()
 
-    if question.language != from_lang:
-        question, answer = answer, question
+    tested_word = random.choice(bookmarks)
+
+    # question = tested_word.origin
+    answer = tested_word.translation()
+
+    # if question.language != from_lang:
+    #     question, answer = answer, question
 
     return json.dumps({
-        "question": question.word,
-        "example":bookmark.text.content,
-        "url":bookmark.text.url.url,
+        "question": tested_word.origin.word,
+        "example":tested_word.text.content,
+        "url":tested_word.text.url.url,
         "answer": answer.word,
-        "id": bookmark.id,
-        "rank": bookmark.origin.importance_level(),
-        "reason": "-",
-        "starred": True
+        "id": tested_word.id,
+        "rank": tested_word.origin.importance_level(),
+        "reason": "Random Word",
+        "starred": False
     })
 
 
@@ -261,18 +266,23 @@ def submit_answer(answer, expected,question_id):
 
 @gym.route("/gym/correct/<card_id>", methods=("POST",))
 def correct(card_id):
-    card = model.Card.query.get(card_id)
-    card.position += 1
-    model.db.session.commit()
+    # card = model.Card.query.get(card_id)
+    # card.position += 1
+    # model.db.session.commit()
+
+    # TO Reimplement...
+
     return "OK"
 
 
 @gym.route("/gym/wrong/<card_id>", methods=("POST",))
 def wrong(card_id):
-    card = model.Card.query.get(card_id)
-    if card.position > 0:
-        card.position -= 1
-        model.db.session.commit()
+    # card = model.Card.query.get(card_id)
+    # if card.position > 0:
+    #     card.position -= 1
+    #     model.db.session.commit()
+
+    # TO REIMPLEMENT
     return "OK"
 
 @gym.route("/gym/starred_card/<card_id>", methods=("POST",))
@@ -291,15 +301,15 @@ def unstarred(card_id):
 
 @gym.route("/gym/starred_word/<word_id>/<user_id>", methods=("POST",))
 def starred_word(word_id,user_id):
-    word = model.UserWord.query.get(word_id)
-    user = model.User.find_by_id(user_id)
+    word = UserWord.query.get(word_id)
+    user = User.find_by_id(user_id)
     user.star(word)
     model.db.session.commit()
     return "OK"
 
 @gym.route("/gym/unstarred_word/<word_id>/<user_id>", methods=("POST",))
 def unstarred_word(word_id,user_id):
-    word = model.UserWord.query.get(word_id)
+    word = UserWord.query.get(word_id)
     user = model.User.find_by_id(user_id)
     user.starred_words.remove(word)
     model.db.session.commit()
