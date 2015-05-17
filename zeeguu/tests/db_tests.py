@@ -11,101 +11,102 @@ import unittest
 from zeeguu import model, db
 from zeeguu.model import UserWord, Language, User
 import datetime
+import random
 
 
 class Dbtest(ZeeguuTestCase):
 
+    def setUp(self):
+        # Superclass does prepare the DB before each of the tests
+        super(Dbtest, self).setUp()
+
+        # Some common test fixtures
+        self.mir = model.User.find("i@mir.lu")
+        assert self.mir
+        self.de = Language.find("de")
+
 
     def test_languages_exists(self):
-        de = model.Language.find("de")
-        assert de.name == "German"
+        assert self.de.name == "German"
+
 
     def test_get_all_languages(self):
         assert model.Language.all()
         assert u'en' in [lan.id for lan in model.Language.all()]
         assert u'German' in [lan.name for lan in model.Language.all()]
 
-    def test_preferred_word(self):
-        mir = model.User.find("i@mir.lu")
-        de = model.Language.find("de")
-        word = "hauen"
-        rank = model.UserWord.find_rank(word, de)
-        someword = model.UserWord.find(word, de, rank)
-        assert mir
-        assert someword
 
-        mir.starred_words.append(someword)
+    def test_preferred_word(self):
+        starred_words_count_before = len(self.mir.starred_words)
+
+        hauen = model.UserWord.find("hauen", self.de)
+        self.mir.starred_words.append(hauen)
         db.session.commit()
+
+        starred_words_count_after = len(self.mir.starred_words)
+
+        assert starred_words_count_after == starred_words_count_before + 1
+
 
     def test_user_bookmark_count(self):
-        mir = model.User.find("i@mir.lu")
-        assert mir
-        assert len(mir.all_bookmarks()) > 0
+        assert len(self.mir.all_bookmarks()) > 0
+
 
     def test_add_new_word_to_DB(self):
-        deutsch = Language.find("de")
         word = "baum"
-        rank = model.UserWord.find_rank(word, deutsch)
-        new_word = UserWord(word, deutsch,rank)
-        mircea = User.find("i@mir.lu")
+        rank = model.UserWord.find_rank(word, self.de)
+        new_word = UserWord(word, self.de, rank)
 
         db.session.add(new_word)
-        mircea.star(new_word)
+        self.mir.star(new_word)
         db.session.commit()
 
+
     def test_find_word(self):
-        deutsch = Language.find("de")
         word = "baum"
-        rank = model.UserWord.find_rank(word, deutsch)
-        assert UserWord.find(word, deutsch, rank)
+        rank = model.UserWord.find_rank(word, self.de)
+        assert UserWord.find(word, self.de, rank)
 
 
     def test_user_words(self):
-        mir = model.User.find("i@mir.lu")
-        assert mir.user_words() == map((lambda x: x.origin.word), mir.all_bookmarks())
+        assert self.mir.user_words() == map((lambda x: x.origin.word), self.mir.all_bookmarks())
 
 
     def test_search_1(self):
-        mir = model.User.find("i@mir.lu")
-        de = model.Language.find("de")
-        word = UserWord.find("hauen345", de)
-        s = model.Search(mir, word, de)
+        word = UserWord.find("hauen345", self.de)
+        s = model.Search(self.mir, word, self.de)
         db.session.add(s)
         db.session.commit()
 
 
     def test_preferred_words(self):
-        mir = model.User.find("i@mir.lu")
-        de = model.Language.find("de")
         word = "hauen"
-        if(model.WordRank.exists(word.lower(), de)):
-            rank = model.UserWord.find_rank(word.lower(), de)
-            someword = model.UserWord.find(word,de,rank)
+        if(model.WordRank.exists(word.lower(), self.de)):
+            rank = model.UserWord.find_rank(word.lower(), self.de)
+            someword = model.UserWord.find(word,self.de,rank)
         else:
-            someword = model.UserWord.find(word,de,None)
-        assert mir
+            someword = model.UserWord.find(word,self.de,None)
         assert someword
         # add someword to starred words
-        mir.starred_words.append(someword)
+        self.mir.starred_words.append(someword)
         db.session.commit()
 
-        mir = model.User.find("i@mir.lu")
-        assert someword in mir.starred_words
+        assert someword in self.mir.starred_words
 
-        mir.starred_words.remove(someword)
+        self.mir.starred_words.remove(someword)
         db.session.commit()
-        assert not mir.starred_words
+        assert not self.mir.starred_words
+
 
 
     def test_user_daily_bookmarks(self):
 
-        mir = model.User.find("i@mir.lu")
         date = datetime.datetime(2011,01,01)
 
-        assert len(mir.all_bookmarks()) > 0
+        assert len(self.mir.all_bookmarks()) > 0
 
         count_bookmarks = 0
-        for bookmark in mir.all_bookmarks():
+        for bookmark in self.mir.all_bookmarks():
             if bookmark.time == date:
                 count_bookmarks += 1
 
@@ -113,35 +114,43 @@ class Dbtest(ZeeguuTestCase):
 
 
     def test_user_set_language(self):
-        mir = model.User.find("i@mir.lu")
-        mir.set_learned_language("it")
-        assert mir.learned_language.id == "it"
+        self.mir.set_learned_language("it")
+        assert self.mir.learned_language.id == "it"
 
 
     def test_importance_level(self):
-        deutsch = Language.find("de")
         word = "beschloss"
-        if(model.WordRank.exists(word.lower(), deutsch)):
-            rank = model.UserWord.find_rank(word.lower(), deutsch)
-            new_word = model.UserWord.find(word,deutsch,rank)
+        if(model.WordRank.exists(word.lower(), self.de)):
+            rank = model.UserWord.find_rank(word.lower(), self.de)
+            new_word = model.UserWord.find(word,self.de,rank)
         else:
-            new_word = model.UserWord.find(word,deutsch,None)
-        mircea = User.find("i@mir.lu")
+            new_word = model.UserWord.find(word,self.de,None)
 
         db.session.add(new_word)
         db.session.commit()
 
         word = "unexistingword"
-        beschloss = UserWord.find(word, deutsch, None)
+        beschloss = UserWord.find(word, self.de, None)
         assert beschloss
         assert beschloss.importance_level() == 0
 
 
     def test_native_language(self):
-        mir = model.User.find("i@mir.lu")
+        assert self.mir.native_language.id == "ro"
+
         ada = model.User.find("i@ada.lu")
-        assert mir.native_language.id == "ro"
         assert ada.native_language.id == "en"
+
+
+    def test_get_random_bookmark(self):
+
+        bookmarks = (
+            model.Bookmark.query.filter_by(user=self.mir)
+                                    .join(model.UserWord, model.Bookmark.origin)
+        ).all()
+
+        print random.choice(bookmarks).origin.word
+
 
 
 

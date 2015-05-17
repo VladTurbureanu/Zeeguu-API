@@ -6,7 +6,7 @@ from datetime import timedelta, date
 import flask
 
 from zeeguu import model
-from zeeguu.model import UserWord, Bookmark
+from zeeguu.model import UserWord, Bookmark, User
 
 
 gym = flask.Blueprint("gym", __name__)
@@ -32,7 +32,7 @@ def login_first(fun):
 @gym.before_request
 def setup():
     if "user" in flask.session:
-        flask.g.user = model.User.query.get(flask.session["user"])
+        flask.g.user = User.query.get(flask.session["user"])
     else:
         flask.g.user = None
 
@@ -63,7 +63,7 @@ def login():
         if password is None or email is None:
             flask.flash("Please enter your email address and password")
         else:
-            user = model.User.authorize(email, password)
+            user = User.authorize(email, password)
             if user is None:
                 flask.flash("Invalid email and password combination")
             else:
@@ -77,13 +77,6 @@ def login():
 def logout():
     flask.session.pop("user", None)
     return flask.redirect(flask.url_for("gym.home"))
-
-
-@gym.route("/history")
-@login_first
-def history():
-    searches = model.Search.query.filter_by(user=flask.g.user).order_by(model.Search.id.desc()).all()
-    return flask.render_template("history.html", searches=searches)
 
 
 @gym.route("/bookmarks")
@@ -310,7 +303,7 @@ def starred_word(word_id,user_id):
 @gym.route("/gym/unstarred_word/<word_id>/<user_id>", methods=("POST",))
 def unstarred_word(word_id,user_id):
     word = UserWord.query.get(word_id)
-    user = model.User.find_by_id(user_id)
+    user = User.find_by_id(user_id)
     user.starred_words.remove(word)
     model.db.session.commit()
     print word + " is now *unstarred* for user " + user.name
