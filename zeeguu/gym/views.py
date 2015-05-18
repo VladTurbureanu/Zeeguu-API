@@ -257,25 +257,20 @@ def submit_answer(answer, expected,question_id):
         return "WRONG"
 
 
-@gym.route("/gym/correct/<card_id>", methods=("POST",))
-def correct(card_id):
-    # card = model.Card.query.get(card_id)
-    # card.position += 1
-    # model.db.session.commit()
-
+@gym.route("/gym/correct/<bookmark_id>", methods=("POST",))
+def correct(bookmark_id):
+    # print str(Bookmark.find(bookmark_id).origin.word)
     # TO Reimplement...
+    print str(Bookmark.find(bookmark_id))
 
     return "OK"
 
 
-@gym.route("/gym/wrong/<card_id>", methods=("POST",))
-def wrong(card_id):
-    # card = model.Card.query.get(card_id)
-    # if card.position > 0:
-    #     card.position -= 1
-    #     model.db.session.commit()
-
+@gym.route("/gym/wrong/<bookmark_id>", methods=("POST",))
+def wrong(bookmark_id):
+    # print str(Bookmark.find(bookmark_id).origin.word)
     # TO REIMPLEMENT
+
     return "OK"
 
 @gym.route("/gym/starred_card/<card_id>", methods=("POST",))

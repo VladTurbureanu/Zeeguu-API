@@ -413,6 +413,14 @@ class Bookmark(db.Model):
         ).all()
 
     @classmethod
+    def find(cls, b_id):
+        return cls.query.filter_by(
+            id= b_id
+        ).first()
+
+
+
+    @classmethod
     def is_sorted_exercise_log_after_date_outcome(cls,outcome, bookmark):
         sorted_exercise_log_after_date=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=True)
         if sorted_exercise_log_after_date:
