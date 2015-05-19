@@ -314,16 +314,6 @@ class UserWord(db.Model, util.JSONSerializable):
         except sqlalchemy.orm.exc.NoResultFound:
             return cls(word, language,rank)
 
-    @classmethod
-    def exists(cls, word, language_id, rank):
-        try:
-            (cls.query.filter(cls.word == word)
-                             .filter(cls.language == language_id)
-                             .filter(cls.rank == rank)
-                             .one())
-            return True
-        except sqlalchemy.orm.exc.NoResultFound:
-            return False
 
     @classmethod
     def find_rank(cls, word, language):
