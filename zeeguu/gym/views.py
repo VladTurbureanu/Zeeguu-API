@@ -7,6 +7,7 @@ import flask
 from zeeguu import model
 import sys
 import random
+import datetime
 
 
 gym = flask.Blueprint("gym", __name__)
@@ -375,17 +376,20 @@ def submit_answer(answer, expected,question_id):
         return "WRONG"
 
 
-@gym.route("/gym/correct/<card_id>", methods=("POST",))
-def correct(card_id):
+@gym.route("/gym/correct/<card_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
+def correct(card_id, exercise_source, exercise_outcome, exercise_solving_speed):
     card = model.Card.query.get(card_id)
+    card.bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)
     card.position += 1
     model.db.session.commit()
     return "OK"
 
 
-@gym.route("/gym/wrong/<card_id>", methods=("POST",))
-def wrong(card_id):
+@gym.route("/gym/wrong/<card_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
+def wrong(card_id, exercise_source, exercise_outcome, exercise_solving_speed):
     card = model.Card.query.get(card_id)
+    card.bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)
+    model.db.session.commit()
     if card.position > 0:
         card.position -= 1
         model.db.session.commit()
