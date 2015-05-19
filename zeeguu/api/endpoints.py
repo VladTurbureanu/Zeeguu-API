@@ -239,6 +239,7 @@ def bookmarks_by_day(return_context):
 
     bookmarks_by_date, sorted_dates = flask.g.user.bookmarks_by_date()
 
+
     dates = []
     for date in sorted_dates:
         bookmarks = []
@@ -247,6 +248,8 @@ def bookmarks_by_day(return_context):
             bookmark['id'] = b.id
             bookmark['from'] = b.origin.word
             bookmark['to'] = b.translation_words_list()
+            bookmark['from_lang'] = b.origin.language_id
+            bookmark['to_lang'] = b.translation().language.id
             bookmark['title'] = b.text.url.title
             bookmark['url'] = b.text.url.url
 
@@ -346,7 +349,7 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
         translation = model.UserWord.find(translation_word,to_lang,None)
 
     search = model.Search.query.filter_by(
-        user=flask.g.user, word=user_word, language=to_lang
+        user=flask.g.user, user_word=user_word, language=to_lang
     ).order_by(model.Search.id.desc()).first()
 
     #create the text entity first

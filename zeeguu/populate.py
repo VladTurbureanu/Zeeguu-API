@@ -68,7 +68,6 @@ def add_word_ranks_to_db(lang_code):
 
     for word in filter_word_list(word_list(lang_code)):
         r = model.WordRank(word.lower(), from_lang,initial_line_number)
-        print word.lower()
         zeeguu.db.session.add(r)
         zeeguu.db.session.commit()
         initial_line_number+=1
