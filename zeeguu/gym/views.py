@@ -6,7 +6,13 @@ from datetime import timedelta, date
 import flask
 
 from zeeguu import model
+<<<<<<< HEAD
 from zeeguu.model import UserWord, Bookmark, User
+=======
+import sys
+import random
+import datetime
+>>>>>>> 59df05c76ce4e9d42d2ae423f31a220478a0b740
 
 
 gym = flask.Blueprint("gym", __name__)
@@ -257,20 +263,23 @@ def submit_answer(answer, expected,question_id):
         return "WRONG"
 
 
-@gym.route("/gym/correct/<bookmark_id>", methods=("POST",))
-def correct(bookmark_id):
-    # print str(Bookmark.find(bookmark_id).origin.word)
-    # TO Reimplement...
-    print str(Bookmark.find(bookmark_id))
-
+@gym.route("/gym/correct/<card_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
+def correct(card_id, exercise_source, exercise_outcome, exercise_solving_speed):
+    card = model.Card.query.get(card_id)
+    card.bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)
+    card.position += 1
+    model.db.session.commit()
     return "OK"
 
 
-@gym.route("/gym/wrong/<bookmark_id>", methods=("POST",))
-def wrong(bookmark_id):
-    # print str(Bookmark.find(bookmark_id).origin.word)
-    # TO REIMPLEMENT
-
+@gym.route("/gym/wrong/<card_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
+def wrong(card_id, exercise_source, exercise_outcome, exercise_solving_speed):
+    card = model.Card.query.get(card_id)
+    card.bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)
+    model.db.session.commit()
+    if card.position > 0:
+        card.position -= 1
+        model.db.session.commit()
     return "OK"
 
 @gym.route("/gym/starred_card/<card_id>", methods=("POST",))

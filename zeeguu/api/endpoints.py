@@ -241,6 +241,7 @@ def bookmarks_by_day(return_context):
 
     bookmarks_by_date, sorted_dates = flask.g.user.bookmarks_by_date()
 
+
     dates = []
     for date in sorted_dates:
         bookmarks = []
@@ -249,6 +250,8 @@ def bookmarks_by_day(return_context):
             bookmark['id'] = b.id
             bookmark['from'] = b.origin.word
             bookmark['to'] = b.translation_words_list()
+            bookmark['from_lang'] = b.origin.language_id
+            bookmark['to_lang'] = b.translation().language.id
             bookmark['title'] = b.text.url.title
             bookmark['url'] = b.text.url.url
 
