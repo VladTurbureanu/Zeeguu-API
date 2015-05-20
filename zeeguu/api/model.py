@@ -12,8 +12,7 @@ from zeeguu import db
 from zeeguu import util
 import zeeguu
 from sqlalchemy.orm import relationship
-
-starred_words_association_table = Table('starred_words_association', db.Model.metadata,
+red_words_association_table = Table('starred_words_association', db.Model.metadata,
     Column('user_id', Integer, ForeignKey('user.id')),
     Column('starred_word_id', Integer, ForeignKey('user_words.id'))
 )
@@ -478,6 +477,18 @@ class ExerciseOutcome(db.Model):
 
     def __init__(self,outcome):
         self.outcome = outcome
+
+
+    @classmethod
+    def find(cls, outcome):
+        try:
+            return cls.query.filter_by(
+                outcome = outcome
+            ).first()
+        except  sqlalchemy.orm.exc.NoResultFound:
+            return cls(outcome)
+
+
 
 
 class ExerciseSource(db.Model):

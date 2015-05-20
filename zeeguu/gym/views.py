@@ -251,30 +251,26 @@ def delete(bookmark_id):
 def submit_answer(answer, expected,question_id):
     if answer.lower() == expected.lower() \
             or (answer+".").lower() == expected.lower():
-        correct(question_id)
+        # correct(question_id, "Web::Recognize", model.ExerciseOutcome.find("Correct"), None)
         return "CORRECT"
     else:
-        wrong(question_id)
+        # wrong(question_id, "Web::Recognize", model.ExerciseOutcome.find("Wrong"), None)
         return "WRONG"
 
 
-@gym.route("/gym/correct/<card_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
-def correct(card_id, exercise_source, exercise_outcome, exercise_solving_speed):
-    card = model.Card.query.get(card_id)
-    card.bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)
-    card.position += 1
-    model.db.session.commit()
+@gym.route("/gym/correct/<bookmark_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
+def correct(bookmark_id, exercise_source, exercise_outcome, exercise_solving_speed):
+    # bookmark = model.Bookmark.query.get(bookmark_id)
+    # bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)
+    # model.db.session.commit()
     return "OK"
 
 
-@gym.route("/gym/wrong/<card_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
-def wrong(card_id, exercise_source, exercise_outcome, exercise_solving_speed):
-    card = model.Card.query.get(card_id)
-    card.bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)
-    model.db.session.commit()
-    if card.position > 0:
-        card.position -= 1
-        model.db.session.commit()
+@gym.route("/gym/wrong/<bookmark_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
+def wrong(bookmark_id, exercise_source, exercise_outcome, exercise_solving_speed):
+    # bookmark = model.Bookmark.query.get(bookmark_id)
+    # bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)
+    # model.db.session.commit()
     return "OK"
 
 @gym.route("/gym/starred_card/<card_id>", methods=("POST",))
