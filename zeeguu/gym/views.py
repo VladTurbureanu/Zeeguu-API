@@ -6,13 +6,8 @@ from datetime import timedelta, date
 import flask
 
 from zeeguu import model
-<<<<<<< HEAD
 from zeeguu.model import UserWord, Bookmark, User
-=======
-import sys
 import random
-import datetime
->>>>>>> 59df05c76ce4e9d42d2ae423f31a220478a0b740
 
 
 gym = flask.Blueprint("gym", __name__)
