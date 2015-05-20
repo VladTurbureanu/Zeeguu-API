@@ -316,6 +316,7 @@ class UserWord(db.Model, util.JSONSerializable):
         except sqlalchemy.orm.exc.NoResultFound:
             return cls(word, language,rank)
 
+
     @classmethod
     def find_rank(cls, word, language):
         return WordRank.find(word, language)
@@ -405,6 +406,17 @@ class Bookmark(db.Model):
     def remove_translation(self,translation):
         if translation in self.translations_list:
             self.translations_list.remove(translation)
+
+    def add_exercise_outcome(self, exercise_source, exercise_outcome, exercise_solving_speed):
+        new_source = ExerciseSource.query.filter_by(
+        source = exercise_source
+    ).first()
+        new_outcome=ExerciseOutcome.query.filter_by(
+        outcome=exercise_outcome
+    ).first()
+        exercise = Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
+        self.add_new_exercise(exercise)
+        db.session.add(exercise)
 
     @classmethod
     def find_all_filtered_by_user(cls):
