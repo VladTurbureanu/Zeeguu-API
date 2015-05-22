@@ -8,6 +8,7 @@ import flask
 from zeeguu import model
 from zeeguu.model import UserWord, Bookmark, User
 import random
+import datetime
 
 
 gym = flask.Blueprint("gym", __name__)
@@ -120,11 +121,80 @@ def recommended_texts():
 #     return flask.render_template("translate_with_context.html", languages=lang)
 
 
+@gym.route("/gym/question/<from_lang>/<to_lang>")
+@login_first
+def question(from_lang, to_lang):
+    # from_lang = model.Language.find(from_lang)
+    # to_lang = model.Language.find(to_lang)
+
+    bookmarks = (
+        model.Bookmark
+            .query.filter_by(user=flask.g.user)
+            .join(UserWord, Bookmark.origin)
+            .join(model.Language, UserWord.language)
+            .filter(UserWord.language == flask.g.user.learned_language)
+
+    ).all()
+
+
+    tested_word = random.choice(bookmarks)
+
+    # question = tested_word.origin
+    answer = tested_word.translation()
+
+    # if question.language != from_lang:
+    #     question, answer = answer, question
+
+    return json.dumps({
+        "question": tested_word.origin.word,
+        "example":tested_word.text.content,
+        "url":tested_word.text.url.url,
+        "answer": answer.word,
+        "id": tested_word.id,
+        "rank": tested_word.origin.importance_level(),
+        "reason": "Random Word",
+        "starred": False
+    })
+
+
+
+def question_new(from_lang, to_lang):
+    bookmarks = (
+        model.Bookmark
+            .query.filter_by(user=flask.g.user)
+            .join(UserWord, Bookmark.origin)
+            .join(model.Language, UserWord.language)
+            .filter(UserWord.language == flask.g.user.learned_language)
+
+    ).all()
+
+    bookmark = random.choice(bookmarks)
+
+    return {
+        "question": bookmark.translations_rendered_as_text(),
+        "example":bookmark.text.content,
+        "url":bookmark.text.url.url,
+        "answer": bookmark.origin.word,
+        "bookmark_id": bookmark.id,
+        "id": bookmark.id,
+        "rank": bookmark.origin.importance_level(),
+        "reason": "Random Word",
+        "starred": False
+    }
+
+
+
 @gym.route("/recognize")
 @login_first
 def recognize():
-    lang = model.Language.query.all()
-    return flask.render_template("recognize.html", languages=lang)
+        lang = model.Language.query.all()
+        q = question_new("en","de")
+        return flask.render_template("recognize.html",  languages=lang,
+                                                        user=flask.g.user,
+                                                        question = q)
+
+
+
 
 @gym.route("/study_before_play")
 @login_first
@@ -182,40 +252,7 @@ def select_next_card_aware_of_days(cards):
     return None
 
 
-@gym.route("/gym/question/<from_lang>/<to_lang>")
-@login_first
-def question(from_lang, to_lang):
-    # from_lang = model.Language.find(from_lang)
-    # to_lang = model.Language.find(to_lang)
 
-    bookmarks = (
-        model.Bookmark
-            .query.filter_by(user=flask.g.user)
-            .join(UserWord, Bookmark.origin)
-            .join(model.Language, UserWord.language)
-            .filter(UserWord.language == flask.g.user.learned_language)
-
-    ).all()
-
-
-    tested_word = random.choice(bookmarks)
-
-    # question = tested_word.origin
-    answer = tested_word.translation()
-
-    # if question.language != from_lang:
-    #     question, answer = answer, question
-
-    return json.dumps({
-        "question": tested_word.origin.word,
-        "example":tested_word.text.content,
-        "url":tested_word.text.url.url,
-        "answer": answer.word,
-        "id": tested_word.id,
-        "rank": tested_word.origin.importance_level(),
-        "reason": "Random Word",
-        "starred": False
-    })
 
 
 
@@ -258,7 +295,28 @@ def submit_answer(answer, expected,question_id):
         return "WRONG"
 
 
-@gym.route("/gym/correct/<bookmark_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
+@gym.route("/gym/create_new_exercise/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<bookmark_id>",
+           methods=["POST"])
+def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,bookmark_id):
+    bookmark = model.Bookmark.query.filter_by(
+        id=bookmark_id
+    ).first()
+    new_source = model.ExerciseSource.query.filter_by(
+        source=exercise_source
+    ).first()
+    new_outcome=model.ExerciseOutcome.query.filter_by(
+        outcome=exercise_outcome
+    ).first()
+    if new_source is None or new_outcome is None :
+         return "FAIL"
+    exercise = model.Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
+    bookmark.add_new_exercise(exercise)
+    model.db.session.add(exercise)
+    model.db.session.commit()
+    return "OK"
+
+
+@gym.route("/gym/exercise_outcome/<bookmark_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
 def correct(bookmark_id, exercise_source, exercise_outcome, exercise_solving_speed):
     # bookmark = model.Bookmark.query.get(bookmark_id)
     # bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)

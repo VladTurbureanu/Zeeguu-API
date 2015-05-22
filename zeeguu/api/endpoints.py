@@ -379,27 +379,6 @@ def delete_bookmark(bookmark_id):
     zeeguu.db.session.commit()
     return "OK"
 
-@api.route("/create_new_exercise/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<bookmark_id>",
-           methods=["POST"])
-@cross_domain
-@with_session
-def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,bookmark_id):
-    bookmark = model.Bookmark.query.filter_by(
-        id=bookmark_id
-    ).first()
-    new_source = model.ExerciseSource.query.filter_by(
-        source=exercise_source
-    ).first()
-    new_outcome=model.ExerciseOutcome.query.filter_by(
-        outcome=exercise_outcome
-    ).first()
-    if new_source is None or new_outcome is None :
-         return "FAIL"
-    exercise = model.Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
-    bookmark.add_new_exercise(exercise)
-    zeeguu.db.session.add(exercise)
-    zeeguu.db.session.commit()
-    return "OK"
 
 @api.route("/get_exercise_log_for_bookmark/<bookmark_id>", methods=("GET",))
 @cross_domain

@@ -10,6 +10,7 @@ function showStar(starred)
 
 
 
+
 $(function() {
     if (typeof chrome !== "undefined" && !chrome.app.isInstalled) {
         $("#install-extension").click(function() {
@@ -22,6 +23,8 @@ $(function() {
     $('input').focus(function() {
         $(this).popover('show');
     });
+
+
 
 
     $('input').blur(function() {
@@ -56,6 +59,7 @@ $(function() {
         return $("form").valid();
     });
 
+
     $("#create_account").validate({
         rules: {
             email: {
@@ -88,10 +92,12 @@ $(function() {
     });
 
 
+
+
     // Language Gym
-    if ($("#question").length === 0) {
-        return;
-    }
+    //if ($("#question").length === 0) {
+    //    return;
+    //}
 
     $("#lang1, #lang2").select2().change(newRecognizeQuestion);
 
@@ -112,6 +118,7 @@ $(function() {
 
     $("#answer").focus().keyup(function(e) {
         if (e.keyCode == 13) {  // Return key
+            console.log(".....");
             checkAnswer();
         }
     });
@@ -139,6 +146,8 @@ $(function() {
 
         newTranslateQuestion(); console.log("----> setting up a new translate question...")
     }
+
+
 
 
 
@@ -223,38 +232,50 @@ function newTranslateQuestion() {
     });
 }
 
+function log_new_exercise(outcome) {
+    url = ["/gym/create_new_exercise",
+        outcome,
+         $("#exercise_source").val(),
+        -1,
+        $("#bookmark_id").val()
+        ].join("/");
+     $.post(url, function(data) {});
+}
+
+function showAnswer() {
+    $("#answer_submit").hide();
+    $("#answer").hide();
+    $("#show_solution").hide();
+    $("#expected_answer").show();
+    $("#next_exercise").show();
+
+    log_new_exercise("Do not know");
+    $("#next_exercise").show().focus().select();
+
+}
+
+function iKnowThis() {
+    log_new_exercise("I know");
+}
+
 function checkAnswer() {
-    if (!ready) {
-        return;
+
+    if ($("#answer").val() == $("#expected_answer").val()) {
+        log_new_exercise("Correct");
+
+        $("#i_learned_this").show();
+        //$("#answer_submit").hide();
+        $("#show_solution").hide();
+        //$("#answer").prop("disabled", true);
+        $("#answer").css("color", "green");
+        $("#next_exercise").show().focus().select();
+
+    } else {
+        log_new_exercise("Wrong");
+        $("#answer").css({backgroundColor: "#ffdddd"});
+        $("#answer").animate({backgroundColor: "white"}, 700 );
+        //$("#answer").css({"background-color": "white"});
     }
-    $("#answer").prop("disabled", true);
-    //  test the correctness of the answer on the server side...
-    url = ["/gym/test_answer", $("#answer").val(), last_question.answer, last_question.id ].join("/");
-    $.post(url,
-        function(data) {
-
-            var back = flippant.flip(
-                $("#recognize_card").get(0),
-                    '<div class="back_of_card_container"><div class="'+data.toLowerCase()+'">' +
-                    last_question.question+ "" +
-                    "<br/>" +
-                    "=<br/>"+
-                    last_question.answer + "" +
-                    '</div></div>',
-                "card",
-                "flipped_card");
-
-            newRecognizeQuestion();
-
-            $("#answer").hide();
-            window.setTimeout(function() {
-                back.close();
-                $("#answer").prop("disabled", false);
-                $("#answer").val("").show().focus();
-            }, 3000);
-
-            }
-    );
 }
 
 
