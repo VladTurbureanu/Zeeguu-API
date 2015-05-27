@@ -164,7 +164,7 @@ def question(from_lang, to_lang):
 
 
 
-def question_new(from_lang, to_lang):
+def question_new():
     bookmarks = (
         model.Bookmark
             .query.filter_by(user=flask.g.user)
@@ -193,13 +193,18 @@ def question_new(from_lang, to_lang):
 @gym.route("/recognize")
 @login_first
 def recognize():
-        lang = model.Language.query.all()
-        q = question_new("en","de")
-        return flask.render_template("recognize.html",  languages=lang,
-                                                        user=flask.g.user,
-                                                        question = q)
+        return flask.render_template(
+                "recognize.html",
+                user=flask.g.user,
+                question = question_new())
 
-
+@gym.route("/m_recognize")
+@login_first
+def m_recognize():
+        return flask.render_template(
+                "m_recognize.html",
+                user=flask.g.user,
+                question = question_new())
 
 
 @gym.route("/study_before_play")
