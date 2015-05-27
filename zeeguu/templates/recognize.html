@@ -4,47 +4,87 @@
 
 {% block body %}
 
-<div class="container recognize">
-    <div id="language-selection">
-        <div class="exercise-title">Recognize the Word, {{ user.name }}</div>
-    </div>
 
-    <div id="recognize_card">
+<div class="container exercise_page">
 
-        <div id="question_new" class="recognize_question"><span class="loading">{{ question["question"]}}</span></div>
+    <div class="exercise-title">Recognize the Word, {{ user.name }} !!! </div>
 
-        <div  id="rank_new" class="rank"><span>Rank: {{question["rank"]}}</span></div>
+    <div class="col-xs-12 col-md-offset-3 col-md-6" id="exercise-card">
 
-        <div id="example_new" class="recognize_example" >
-            <span>{{question["example"]}}</span>
+        <div class="row">
+        <!--the WORD to be recognized-->
+        <div class="col-xs-12 word-to-recognize" id="question_new">
+            <span>{{ question["question"]}}</span>
+        </div>
+        </div>
+
+        <div class="row" >
+            <!--the RANK label-->
+            <div id="rank_new" class="rank">
+                <span>Rank: {{question["rank"]}}</span>
+            </div>
+        </div>
+
+        <!--the CONTEXT-->
+        <div class="row">
+            <div class="col-xs-12 text-context" id="example_new">
+                <span>{{question["example"]}}</span>
+            </div>
+        </div>
+
+        <!--Random Word-->
+        <!--<div class="col-xs-12" id="reason_new" class="recognize_reason">-->
+            <!--<span>{{question["reason"]}}</span></div>-->
+
+
+        <div class="row input-block">
+            <!--the help/question mark sign centered-->
+            <div class="col-xs-2 ">
+                <a id="show_solution" href="#" onclick="showAnswer()">
+                    <i class="fa fa-question-circle button-font-size"></i>
+                </a>
+            </div>
+
+            <!--the input square-->
+            <div class="col-xs-8">
+                <input id="answer"  placeholder="" />
+                <input id="expected_answer" hidden value="{{question['answer']}}" />
+            </div>
+
+            <!--the enter button-->
+            <!--<button id="answer_submit" onclick="checkAnswer()" type="submit" > Ok </button>-->
+            <div class="col-xs-2 ">
+                <a id="check_answer" href="#" onclick="checkAnswer()">
+                    <i class="fa fa-check-circle button-font-size"></i>
+                </a>
+                <a id="next_exercise" hidden href="recognize">
+                    <i class="fa fa-play button-font-size"></i>
+                </a>
+
+            </div>
+
+            <input id="exercise_source" hidden value="Recognize" />
+            <input id="bookmark_id" hidden value="{{question['bookmark_id']}}" />
+
+
+        </row>
+
+        <div class="row">
+            <div class="col-xs-12 text-center">
+                <a id="i_learned_this" onclick="iKnowThis()" hidden href="recognize">I learned this </a>
+            </div>
         </div>
 
 
-        <div  id="reason_new" class="recognize_reason"><span>{{question["reason"]}}</span></div>
 
-        <div  id="progress_new" class="recognize_progress"><span></span></div>
-
-        <input id="exercise_source" hidden value="Recognize" />
-        <input id="bookmark_id" hidden value="{{question['bookmark_id']}}" />
-        <input id="expected_answer" hidden value="{{question['answer']}}" />
-        <input id="answer" placeholder="" />
-        <!--<button id="answer_submit" onclick="checkAnswer()" type="submit" > Ok </button>-->
-
-        <button id="show_solution" onclick="showAnswer()" type="submit" > Show Solution </button>
-
-        <a hidden id="next_exercise" href="recognize">Next ... </a></button>
-        <br/>
-
-
-        <small>
-        <button id="i_learned_this" onclick="iKnowThis()" hidden >
-            <a href="recognize">I learned this </a>
-        </button>
-        </small>
+        <!--<button class="col-xs-12" id="i_learned_this" onclick="iKnowThis()" hidden >-->
+            <!--<a href="recognize">I learned this </a>-->
+        <!--</button>-->
+        <!--</div>-->
 
     </div>
 
 </div>
-
+</div>
 
 {% endblock %}
