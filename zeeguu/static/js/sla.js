@@ -243,11 +243,12 @@ function log_new_exercise(outcome) {
 }
 
 function showAnswer() {
-    $("#answer_submit").hide();
     $("#answer").hide();
-//    $("#show_solution").hide();
     $("#expected_answer").show();
+
+    $("#check_answer").hide();
     $("#next_exercise").show();
+    $("#show_solution").hide();
 
     log_new_exercise("Do not know");
     $("#next_exercise").show().focus().select();
