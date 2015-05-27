@@ -19,6 +19,16 @@
 
                     <p id="authentification-box-title">Create Account</p>
 
+
+                    <div class="input-group">
+                      <label class="control-label">Beta-tester Invite Code </label>
+                        <small> (email to <a href="mail:me@mir.lu"> me@mir.lu</a> for code)</small>
+
+                      <input id="code" name="code" type="code" placeholder="Code" class="form-control input-lg" />
+                    </div>
+
+                    <hr/>
+
                     <div class="input-group">
                       <label>Name</label>
                       <input type="text" name="name" id="name" placeholder="Name" class="form-control input-lg" rel="popover" />
@@ -33,6 +43,8 @@
                       <label class="control-label">Choose a Password</label>
                       <input id="password" name="password" type="password" placeholder="Password" class="form-control input-lg" />
                     </div>
+
+                    <hr/>
 
                     <div class="input-group" >
                         <label class="control-label">The language you are learning</label>
@@ -51,6 +63,7 @@
                                 {% endfor %}
                             </select>
                     </div>
+
 
 
                     {% if flashed_messages %}

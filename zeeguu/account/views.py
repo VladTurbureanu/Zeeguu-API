@@ -64,10 +64,13 @@ def create_account():
         password = form.get("password", None)
         email = form.get("email", None)
         name = form.get("name", None)
+        code = form.get("code", None)
         language = model.Language.find(form.get("language", None))
         native_language = model.Language.find(form.get("native_language", None))
 
-        if password is None or email is None or name is None:
+        if code != "Kairo":
+            flask.flash("Please provide your beta-tester invitation code.")
+        elif password is None or email is None or name is None:
             flask.flash("Please enter your name, email address, and password")
         else:
             try:
@@ -75,11 +78,17 @@ def create_account():
                 zeeguu.db.session.commit()
             except ValueError:
                 flask.flash("The username could not be created. Please contact us.")
-                return flask.render_template("create_account.html",flashed_messages=flask.get_flashed_messages())
+                return flask.render_template("create_account.html",
+                                                flashed_messages=flask.get_flashed_messages(),
+                                                languages=model.Language.all(),
+                                                native_languages = model.Language.native_languages())
             except sqlalchemy.exc.IntegrityError:
                 print "integrity error"
                 flask.flash(email + " is already in use. Please select a different email.")
-                return flask.render_template("create_account.html",flashed_messages=flask.get_flashed_messages())
+                return flask.render_template("create_account.html",
+                                                flashed_messages=flask.get_flashed_messages(),
+                                                languages=model.Language.all(),
+                                                native_languages = model.Language.native_languages())
 
             print "looking for the user"
             user = model.User.authorize(email, password)
@@ -87,4 +96,7 @@ def create_account():
             return flask.redirect(flask.url_for("gym.bookmarks"))
 
 
-    return flask.render_template("create_account.html", flashed_messages=flask.get_flashed_messages())
+    return flask.render_template("create_account.html",
+                                    flashed_messages=flask.get_flashed_messages(),
+                                    languages=model.Language.all(),
+                                    native_languages = model.Language.native_languages())
