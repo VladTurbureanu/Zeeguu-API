@@ -199,12 +199,14 @@ def recognize():
                 question = question_new())
 
 @gym.route("/m_recognize")
-@login_first
 def m_recognize():
+    if flask.g.user:
         return flask.render_template(
                 "m_recognize.html",
                 user=flask.g.user,
                 question = question_new())
+    else:
+        return "not logged in..."
 
 
 @gym.route("/study_before_play")
