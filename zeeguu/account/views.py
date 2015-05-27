@@ -69,7 +69,7 @@ def create_account():
         native_language = model.Language.find(form.get("native_language", None))
 
         if code != "Kairo":
-            flask.flash("Please provide your beta-tester invitation code.")
+            flask.flash("Invitation code is not recognized. Please contact us.")
         elif password is None or email is None or name is None:
             flask.flash("Please enter your name, email address, and password")
         else:
