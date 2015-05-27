@@ -245,7 +245,7 @@ function log_new_exercise(outcome) {
 function showAnswer() {
     $("#answer_submit").hide();
     $("#answer").hide();
-    $("#show_solution").hide();
+//    $("#show_solution").hide();
     $("#expected_answer").show();
     $("#next_exercise").show();
 
@@ -264,11 +264,11 @@ function checkAnswer() {
         log_new_exercise("Correct");
 
         $("#i_learned_this").show();
-        //$("#answer_submit").hide();
-        $("#show_solution").hide();
-        //$("#answer").prop("disabled", true);
-        $("#answer").css("color", "green");
+        $("#check_answer").hide();
         $("#next_exercise").show().focus().select();
+        $("#show_solution").hide();
+        $("#answer").css("color", "green");
+
 
     } else {
         log_new_exercise("Wrong");
