@@ -38,6 +38,7 @@
 
     <body>
 
+    {% if tab != "m_recognize" %}
 
     <nav class="navbar navbar-default menu-cassette">
         <div class="container-fluid">
@@ -73,7 +74,7 @@
             </ul>
         </div>
     </nav>
-
+    {% endif %}
 
     {% block body %}{% endblock %}
 

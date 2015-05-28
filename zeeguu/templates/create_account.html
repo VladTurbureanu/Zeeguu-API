@@ -19,20 +19,40 @@
 
                     <p id="authentification-box-title">Create Account</p>
 
-                    <div class="input-group">
-                      <label>Name</label>
+                    {% if flashed_messages %}
+                    {% for message in flashed_messages %}
+                    <div class="bg-warning" id="login-error">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+
+                    <div class="input-group ">
+                      <label for="code" class="control-label">Invite Code
+                      (email to <a href="mail:me@mir.lu"> me@mir.lu</a> for code)</label>
+
+                      <input id="code" name="code" type="code" placeholder="Code" class="form-control input-lg" />
+                    </div>
+
+                    <hr/>
+
+                    <div class="input-group ">
+                      <label class="control-label">Name</label>
                       <input type="text" name="name" id="name" placeholder="Name" class="form-control input-lg" rel="popover" />
                     </div>
 
-                    <div class="input-group">
-                      <label>Email</label>
+                    <div class="input-group ">
+                      <label class="control-label">Email</label>
                       <input type="email" name="email" id="email" placeholder="Email address" class="form-control input-lg" rel="popover" />
                     </div>
 
-                    <div class="input-group">
+                    <div class="input-group ">
                       <label class="control-label">Choose a Password</label>
                       <input id="password" name="password" type="password" placeholder="Password" class="form-control input-lg" />
                     </div>
+
+                    <hr/>
 
                     <div class="input-group" >
                         <label class="control-label">The language you are learning</label>
@@ -53,16 +73,10 @@
                     </div>
 
 
-                    {% if flashed_messages %}
-                    {% for message in flashed_messages %}
-                    <div class="alert alert-error" id="login-error">
-                    {{ message }}
-                    </div>
-                    {% endfor %}
-                    {% endif %}
 
 
-                    <div class="alert alert-error hide" id="register-error">
+
+                    <div class="bg-warning hide" id="register-error">
                     This email address is already in use.
                     </div>
 
