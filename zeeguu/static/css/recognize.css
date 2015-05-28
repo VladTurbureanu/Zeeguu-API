@@ -1,29 +1,34 @@
 .exercise-title {
   width: 100%;
-  text-align: center; }
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 30px;
+  color: #5E5E5E; }
 
 #exercise-card {
   padding: 10px 20px 20px 20px;
   border: 1px solid #ddd;
-  border-radius: 2px;
-  box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 5px 0px;
-  background: lightgoldenrodyellow;
-  font-size: 22px;
-  min-height: 500px; }
+  border-radius: 4px;
+  background-color: #fff5c5;
+  font-size: 18px;
+  min-height: 400px; }
 
 .word-to-recognize {
   width: 100%;
-  text-align: center; }
+  text-align: center;
+  font-size: 24px;
+  color: #5E5E5E; }
 
 .rank {
   width: 100%;
   text-align: center;
-  font-size: 10px;
+  font-size: 12px;
   color: darkgray; }
 
 .text-context {
   margin-top: 60px;
-  margin-bottom: 100px; }
+  margin-bottom: 50px;
+  min-height: 100px; }
 
 .button-font-size {
   font-size: 44px; }
@@ -34,5 +39,25 @@
 
 #next_exercise {
   text-align: center; }
+
+.clickable-symbol {
+  width: 45px;
+  height: 45px; }
+
+#question-mark {
+  float: right; }
+
+#i_learned_this {
+  border: 1px solid grey;
+  padding: 10px;
+  color: #5E5E5E;
+  background-color: #E5E5E5;
+  font-size: 16px; }
+
+.exercise-instruction {
+  color: #aaaaaa;
+  text-align: center;
+  font-size: small;
+  font-family: "Helvetica Neue", sans-serif; }
 
 /*# sourceMappingURL=recognize.css.map */

@@ -7,23 +7,24 @@
 
 <div class="container exercise_page">
 
-    <div class="exercise-title">Recognize the Word, {{ user.name }} !!! </div>
+    <!--<div class="col-xs-12 col-md-12 exercise-title">Find the word in the text, {{ user.name }} </div>-->
 
     <div class="col-xs-12 col-md-offset-3 col-md-6" id="exercise-card">
 
         <div class="row">
         <!--the WORD to be recognized-->
-        <div class="col-xs-12 word-to-recognize" id="question_new">
-            <span>{{ question["question"]}}</span>
-        </div>
-        </div>
-
-        <div class="row" >
-            <!--the RANK label-->
-            <div id="rank_new" class="rank">
-                <span>Rank: {{question["rank"]}}</span>
+            <div class="col-xs-12 word-to-recognize" id="question_new">
+                <span>{{ question["question"]}}</span>
+                <div class="exercise-instruction">Identify the  word in the example below</div>
             </div>
         </div>
+
+        <!--<div class="row" >-->
+            <!--<!--the RANK label-->
+            <!--<div id="rank_new" class="rank">-->
+                <!--<span>Rank: {{question["rank"]}}</span>-->
+            <!--</div>-->
+        <!--</div>-->
 
         <!--the CONTEXT-->
         <div class="row">
@@ -39,14 +40,16 @@
 
         <div class="row input-block">
             <!--the help/question mark sign centered-->
-            <div class="col-xs-2 ">
+            <div class="col-xs-2">
                 <a id="show_solution" href="#" onclick="showAnswer()">
-                    <i class="fa fa-question-circle button-font-size"></i>
+                    <!--<i class="fa fa-question-circle button-font-size"></i>-->
+                    <img id="question-mark" class="clickable-symbol" src="../static/img/question-mark-grey.png">
                 </a>
             </div>
 
             <!--the input square-->
             <div class="col-xs-8">
+
                 <input id="answer"  placeholder="" />
                 <input id="expected_answer" hidden value="{{question['answer']}}" />
             </div>
@@ -55,12 +58,16 @@
             <!--<button id="answer_submit" onclick="checkAnswer()" type="submit" > Ok </button>-->
             <div class="col-xs-2 ">
                 <a id="check_answer" href="#" onclick="checkAnswer()">
-                    <i class="fa fa-check-circle button-font-size"></i>
+                    <!--<i class="fa fa-check-circle button-font-size"></i>-->
+                    <img class="clickable-symbol" src="../static/img/check-mark-yellow.png">
                 </a>
                 <a id="next_exercise" hidden href="recognize">
-                    <i class="fa fa-play button-font-size"></i>
+                    <!--<i class="fa fa-play button-font-size"></i>-->
+                    <!--<img class="clickable-symbol" src="../static/img/forward-transparent.png">-->
+                    <!--<img class="clickable-symbol" src="../static/img/forward-grey.png">-->
+                    <img class="clickable-symbol" src="../static/img/forward-yellow.png">
                 </a>
-
+                
             </div>
 
             <input id="exercise_source" hidden value="Recognize" />
@@ -71,10 +78,9 @@
 
         <div class="row">
             <div class="col-xs-12 text-center">
-                <a id="i_learned_this" onclick="iKnowThis()" hidden href="recognize">I learned this </a>
+                <a id="i_learned_this" onclick="iKnowThis()" hidden href="recognize">I know this word already </a>
             </div>
         </div>
-
 
 
         <!--<button class="col-xs-12" id="i_learned_this" onclick="iKnowThis()" hidden >-->
@@ -82,9 +88,14 @@
         <!--</button>-->
         <!--</div>-->
 
+        </div>
     </div>
 
-</div>
+    <div class="col-md-3">
+        <a id="next_exercise" hidden href="recognize">
+            <img id="forward-exercise" src="../static/img/forward-transparent.png">
+        </a>
+    </div>
 </div>
 
 {% endblock %}
