@@ -41,7 +41,7 @@
         <div class="row input-block">
             <!--the help/question mark sign centered-->
             <div class="col-xs-2">
-                <a id="show_solution" href="#" onclick="showAnswer()">
+                <a class="input-lg" id="show_solution" href="#" onclick="showAnswer()">
                     <!--<i class="fa fa-question-circle button-font-size"></i>-->
                     <img id="question-mark" class="clickable-symbol" src="../static/img/question-mark-grey.png">
                 </a>
@@ -49,15 +49,14 @@
 
             <!--the input square-->
             <div class="col-xs-8">
-
-                <input id="answer"  placeholder="" />
+                <input class="input-lg" id="answer" placeholder="" />
                 <input id="expected_answer" hidden value="{{question['answer']}}" />
             </div>
 
             <!--the enter button-->
             <!--<button id="answer_submit" onclick="checkAnswer()" type="submit" > Ok </button>-->
-            <div class="col-xs-2 ">
-                <a id="check_answer" href="#" onclick="checkAnswer()">
+            <div class="col-xs-2">
+                <a class="input-lg" id="check_answer" href="#" onclick="checkAnswer()">
                     <!--<i class="fa fa-check-circle button-font-size"></i>-->
                     <img class="clickable-symbol" src="../static/img/check-mark-yellow.png">
                 </a>
@@ -91,11 +90,11 @@
         </div>
     </div>
 
-    <div class="col-md-3">
-        <a id="next_exercise" hidden href="recognize">
-            <img id="forward-exercise" src="../static/img/forward-transparent.png">
-        </a>
-    </div>
+    <!--<div class="col-md-3">-->
+        <!--<a id="next_exercise" hidden href="recognize">-->
+            <!--<img id="forward-exercise" src="../static/img/forward-transparent.png">-->
+        <!--</a>-->
+    <!--</div>-->
 </div>
 
 {% endblock %}

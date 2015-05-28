@@ -1,3 +1,48 @@
+.inner-center {
+  display: block;
+  margin: 0px auto; }
+
+.outer-block {
+  width: 100%; }
+
+#authentification-box-title {
+  margin-bottom: 20px;
+  font-size: 30px; }
+
+.authentification-box {
+  background-color: #fafafa;
+  padding: 30px 40px;
+  margin-top: 45px;
+  border: 1px solid #e6f0e6; }
+
+.input-group {
+  margin-bottom: 10px; }
+
+.input-lg {
+  height: 45px !important;
+  font-size: 16px !important; }
+
+.input-group label {
+  font-size: 16px; }
+
+.green-button {
+  font-size: 16px;
+  margin-top: 30px; }
+
+@media screen and (max-width: 992px) {
+  #authentification-box-title {
+    font-size: 42px; }
+
+  .input-group label {
+    font-size: 30px; }
+
+  .green-button {
+    font-size: 30px;
+    padding: 20px 40px; }
+
+  .input-lg {
+    height: 70px !important;
+    font-size: 30px !important; } }
 .exercise-title {
   width: 100%;
   text-align: center;
@@ -35,7 +80,8 @@
 
 #answer, #expected_answer {
   width: 100%;
-  text-align: center; }
+  text-align: center;
+  margin-bottom: 20px; }
 
 #next_exercise {
   text-align: center; }
@@ -44,14 +90,11 @@
   width: 45px;
   height: 45px; }
 
-#question-mark {
-  float: right; }
-
 #i_learned_this {
   border: 1px solid grey;
   padding: 10px;
   color: #5E5E5E;
-  background-color: #E5E5E5;
+  background-color: #EBEBEB;
   font-size: 16px; }
 
 .exercise-instruction {
@@ -59,5 +102,20 @@
   text-align: center;
   font-size: small;
   font-family: "Helvetica Neue", sans-serif; }
+
+@media screen and (max-width: 992px) {
+  .input-group {
+    font-size: 30px; }
+
+  .input-lg {
+    height: 70px !important;
+    font-size: 30px !important; }
+
+  #exercise-card {
+    min-height: 650px; }
+
+  .clickable-symbol {
+    width: 65px;
+    height: 65px; } }
 
 /*# sourceMappingURL=recognize.css.map */

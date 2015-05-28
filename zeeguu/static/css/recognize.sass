@@ -1,4 +1,4 @@
-
+@import "common-authentication"
 
 .exercise-title
   width: 100%
@@ -56,6 +56,7 @@
 #answer, #expected_answer
   width: 100%
   text-align: center
+  margin-bottom: 20px
   //margin-bottom: 50px
 
 
@@ -68,23 +69,48 @@
   height: 45px
 
 
-#question-mark
-  float: right
+//#question-mark
+  //float: right
 
 #i_learned_this
   border: 1px solid grey
   padding: 10px
   color: #5E5E5E
-  background-color: #E5E5E5
+  background-color: #EBEBEB
   font-size: 16px
 
-#forward-exercise
 
 .exercise-instruction
   color: #aaaaaa
   text-align: center
   font-size: small
   font-family: "Helvetica Neue", sans-serif
+
+
+
+@media screen and (max-width: $SMALL_SCREEN)
+
+  .input-group
+    font-size: $sm-form-text-size
+
+  .input-lg
+    height: 70px !important
+    font-size: $sm-form-text-size !important
+    //line-height: 50px !important
+    //padding: 11px 19px !important
+
+  //.input-block a
+    //padding: 25px 60px
+
+  #exercise-card
+    min-height: 650px
+    //background-color: greenyellow
+
+  .clickable-symbol
+    width: 65px
+    height: 65px
+
+
 
 //  .parent {
 //  display: flex;
