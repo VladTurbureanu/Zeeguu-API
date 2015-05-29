@@ -298,7 +298,7 @@ class UserWord(db.Model, util.JSONSerializable):
         else:
             return  0
 
-    # we use this in the contributions.html to show the rank.
+    # we use this in the bookmarks.html to show the rank.
     # for words in which there is no rank info, we don't display anything
     def importance_level_string(self):
         if self.rank == None:

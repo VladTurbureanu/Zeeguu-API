@@ -54,9 +54,9 @@ def home():
     return flask.render_template("index.html")
 
 
-@gym.route("/test_german")
-def test_german():
-    return flask.render_template("test_german.html")
+@gym.route("/prinz")
+def prinz():
+    return flask.render_template("prinz.html")
 
 
 @gym.route("/install")
@@ -109,30 +109,13 @@ def bookmarks():
 
 
 
-    return flask.render_template("contributions.html",
+    return flask.render_template("bookmarks.html",
                                  bookmarks_by_url=bookmarks_by_url,
                                  urls_by_date=urls_by_date,
                                  sorted_dates=dates,
                                  all_urls = flask.g.user.recommended_urls(),
                                  user = flask.g.user)
 
-@gym.route("/recommended_texts")
-@login_first
-def recommended_texts():
-    return flask.render_template("recommended_texts.html",
-                                 # contribs_by_url=contribs_by_url,
-                                 # urls_by_date=urls_by_date,
-                                 # sorted_dates=dates,
-                                 all_urls = flask.g.user.recommended_urls())
-
-
-
-
-# @gym.route("/translate_with_context")
-# @login_first
-# def translate_with_context():
-#     lang = model.Language.query.all()
-#     return flask.render_template("translate_with_context.html", languages=lang)
 
 
 @gym.route("/gym/question/<from_lang>/<to_lang>")
