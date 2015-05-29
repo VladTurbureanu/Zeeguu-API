@@ -375,9 +375,13 @@ def delete_bookmark(bookmark_id):
     bookmark = model.Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
-    zeeguu.db.session.delete(bookmark)
-    zeeguu.db.session.commit()
-    return "OK"
+
+    try:
+        zeeguu.db.session.delete(bookmark)
+        zeeguu.db.session.commit()
+        return "OK"
+    except Exception:
+        return "FAIL"
 
 
 @api.route("/get_exercise_log_for_bookmark/<bookmark_id>", methods=("GET",))
