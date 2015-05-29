@@ -244,9 +244,9 @@ def study_before_play():
 
     url_to_redirect_to = flask.request.args.get('to','')
 
-    lang = model.Language.query.all()
-    return flask.render_template("study_before_play.html",
-                                 languages=lang,
+    return flask.render_template("recognize.html",
+                                 question = question_new(),
+                                 user=flask.g.user,
                                  redirect_to_url=url_to_redirect_to,
                                  redirect_to_domain=get_domain_from_url(url_to_redirect_to))
 
