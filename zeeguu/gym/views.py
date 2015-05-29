@@ -13,6 +13,14 @@ import datetime
 
 gym = flask.Blueprint("gym", __name__)
 
+class UserVisibleException (Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
 
 def login_first(fun):
     """
@@ -174,6 +182,9 @@ def question_new():
 
     ).all()
 
+    if len(bookmarks) == 0:
+        raise UserVisibleException("It seems you have nothing to learn...")
+
     bookmark = random.choice(bookmarks)
 
     return {
@@ -193,18 +204,31 @@ def question_new():
 @gym.route("/recognize")
 @login_first
 def recognize():
+    try:
         return flask.render_template(
                 "recognize.html",
                 user=flask.g.user,
                 question = question_new())
 
+    except UserVisibleException as e:
+        return  flask.render_template(
+                "message.html",
+                message = e.value)
+
 @gym.route("/m_recognize")
 def m_recognize():
     if flask.g.user:
-        return flask.render_template(
-                "m_recognize.html",
-                user=flask.g.user,
-                question = question_new())
+        try:
+            return flask.render_template(
+                    "recognize.html",
+                    mobile=True,
+                    user=flask.g.user,
+                    question = question_new())
+        except UserVisibleException as e:
+            return  flask.render_template(
+                    "message.html",
+                    mobile=True,
+                    message = e.value)
     else:
         return "not logged in..."
 
@@ -220,9 +244,9 @@ def study_before_play():
 
     url_to_redirect_to = flask.request.args.get('to','')
 
-    lang = model.Language.query.all()
-    return flask.render_template("study_before_play.html",
-                                 languages=lang,
+    return flask.render_template("recognize.html",
+                                 question = question_new(),
+                                 user=flask.g.user,
                                  redirect_to_url=url_to_redirect_to,
                                  redirect_to_domain=get_domain_from_url(url_to_redirect_to))
 
