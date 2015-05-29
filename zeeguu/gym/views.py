@@ -220,7 +220,7 @@ def m_recognize():
     if flask.g.user:
         try:
             return flask.render_template(
-                    "m_recognize.html",
+                    "recognize.html",
                     mobile=True,
                     user=flask.g.user,
                     question = question_new())
