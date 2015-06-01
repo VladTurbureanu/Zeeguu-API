@@ -50,6 +50,9 @@
   margin-bottom: 30px;
   color: #5E5E5E; }
 
+.parent-of-centered-inline-block {
+  text-align: center; }
+
 #exercise-card {
   padding: 10px 20px 20px 20px;
   border: 1px solid #ddd;
@@ -103,6 +106,16 @@
   font-size: small;
   font-family: "Helvetica Neue", sans-serif; }
 
+#question-mark-button, #input-box, #check-answer-button {
+  display: inline-block; }
+
+#question-mark-button, #check-answer-button {
+  padding-left: 30px;
+  padding-right: 30px; }
+
+#input-box {
+  width: 50%; }
+
 @media screen and (max-width: 992px) {
   .input-group {
     font-size: 30px; }
@@ -112,10 +125,24 @@
     font-size: 30px !important; }
 
   #exercise-card {
-    min-height: 650px; }
+    min-height: 450px;
+    font-size: 18px;
+    background-color: greenyellow; }
 
   .clickable-symbol {
     width: 65px;
-    height: 65px; } }
+    height: 65px; }
+
+  .word-to-recognize {
+    font-size: 35px; }
+
+  .exercise-instruction {
+    font-size: 18px; }
+
+  #i_learned_this {
+    font-size: 20px; }
+
+  .container {
+    width: 100% !important; } }
 
 /*# sourceMappingURL=recognize.css.map */

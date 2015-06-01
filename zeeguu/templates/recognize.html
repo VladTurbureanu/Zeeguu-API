@@ -42,36 +42,37 @@
                 <!--<span>{{question["reason"]}}</span></div>-->
 
 
-            <div class="row input-block">
-                <!--the help/question mark sign centered-->
-                <div class="col-xs-2">
-                    <a class="input-lg" id="show_solution" href="#" onclick="showAnswer()">
-                        <!--<i class="fa fa-question-circle button-font-size"></i>-->
-                        <img id="question-mark" class="clickable-symbol" src="../static/img/question-mark-grey.png">
-                    </a>
-                </div>
+            <div class="row">
+                <div class="parent-of-centered-inline-block">
+                        <!--the help/question mark sign centered-->
+                        <div id="question-mark-button">
+                            <a id="show_solution" href="#" onclick="showAnswer()">
+                                <img id="question-mark" class="clickable-symbol" src="../static/img/question-mark-grey.png" />
+                            </a>
+                        </div>
 
-                <!--the input square-->
-                <div class="col-xs-8">
-                    <input class="input-lg" id="answer" placeholder="" />
-                    <input id="expected_answer" hidden value="{{question['answer']}}" />
-                </div>
+                        <!--the input square-->
+                        <div id="input-box">
+                            <input id="answer" class="input-lg" placeholder="" />
+                            <input id="expected_answer" hidden value="{{question['answer']}}" />
+                        </div>
 
-                <!--the enter button-->
-                <!--<button id="answer_submit" onclick="checkAnswer()" type="submit" > Ok </button>-->
-                <div class="col-xs-2">
-                    <a class="input-lg" id="check_answer" href="#" onclick="checkAnswer()">
-                        <!--<i class="fa fa-check-circle button-font-size"></i>-->
-                        <img class="clickable-symbol" src="../static/img/check-mark-yellow.png">
-                    </a>
-                    <a id="next_exercise" hidden href="">
-                        <!--<i class="fa fa-play button-font-size"></i>-->
-                        <!--<img class="clickable-symbol" src="../static/img/forward-transparent.png">-->
-                        <!--<img class="clickable-symbol" src="../static/img/forward-grey.png">-->
-                        <img class="clickable-symbol" src="../static/img/forward-yellow.png">
-                    </a>
-
-                </div>
+                        <!--the enter button-->
+                        <!--<button id="answer_submit" onclick="checkAnswer()" type="submit" > Ok </button>-->
+                        <div id="check-answer-button">
+                            <a id="check_answer" href="#" onclick="checkAnswer()">
+                                <!--<i class="fa fa-check-circle button-font-size"></i>-->
+                                <img class="clickable-symbol" src="../static/img/check-mark-yellow.png">
+                            </a>
+                            <a id="next_exercise" hidden href="">
+                                <!--<i class="fa fa-play button-font-size"></i>-->
+                                <!--<img class="clickable-symbol" src="../static/img/forward-transparent.png">-->
+                                <!--<img class="clickable-symbol" src="../static/img/forward-grey.png">-->
+                                <img class="clickable-symbol" src="../static/img/forward-yellow.png">
+                            </a>
+                        </div>
+                    </div>
+            </div>
 
                 <input id="exercise_source" hidden value="Recognize" />
                 <input id="bookmark_id" hidden value="{{question['bookmark_id']}}" />
