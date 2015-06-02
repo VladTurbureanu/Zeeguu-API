@@ -46,9 +46,15 @@
                 <div class="parent-of-centered-inline-block">
                         <!--the help/question mark sign centered-->
                         <div id="question-mark-button">
+
                             <a id="show_solution" href="#" onclick="showAnswer()">
                                 <img id="question-mark" class="clickable-symbol" src="../static/img/question-mark-grey.png" />
                             </a>
+
+                            <a id="i_learned_this" onclick="iKnowThis()" hidden href="" >
+                                <img title="This exercise is too easy..." class="clickable-symbol" src="../static/img/bored-face.png" />
+                            </a>
+
                         </div>
 
                         <!--the input square-->
@@ -57,11 +63,9 @@
                             <input id="expected_answer" hidden value="{{question['answer']}}" />
                         </div>
 
-                        <!--the enter button-->
-                        <!--<button id="answer_submit" onclick="checkAnswer()" type="submit" > Ok </button>-->
+
                         <div id="check-answer-button">
                             <a id="check_answer" href="#" onclick="checkAnswer()">
-                                <!--<i class="fa fa-check-circle button-font-size"></i>-->
                                 <img class="clickable-symbol" src="../static/img/check-mark-yellow.png">
                             </a>
                             <a id="next_exercise" hidden href="">
@@ -79,18 +83,6 @@
 
 
             </row>
-
-            <div class="row">
-                <div class="col-xs-12 text-center">
-                    <a id="i_learned_this" onclick="iKnowThis()" hidden href="">Too easy</a>
-                </div>
-            </div>
-
-
-            <!--<button class="col-xs-12" id="i_learned_this" onclick="iKnowThis()" hidden >-->
-                <!--<a href="recognize">I learned this </a>-->
-            <!--</button>-->
-            <!--</div>-->
 
             </div>
 
