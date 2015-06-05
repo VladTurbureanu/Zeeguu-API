@@ -135,6 +135,12 @@
   .container {
     width: 100% !important; } }
 @media screen and (max-width: 768px) {
+  body {
+    background-color: #fff5c5; }
+
+  #exercise-card {
+    border: 0px; }
+
   .word-to-recognize {
     width: 100%;
     text-align: center;
