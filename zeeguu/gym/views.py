@@ -6,7 +6,7 @@ from datetime import timedelta, date
 import flask
 
 from zeeguu import model
-from zeeguu.model import UserWord, Bookmark, User
+from zeeguu.model import UserWord, Bookmark, User, Text
 import random
 import datetime
 
@@ -161,8 +161,9 @@ def question_new():
             .query.filter_by(user=flask.g.user)
             .join(UserWord, Bookmark.origin)
             .join(model.Language, UserWord.language)
+            .join(Text, Bookmark.text)
             .filter(UserWord.language == flask.g.user.learned_language)
-
+            .filter(Text.content != "")
     ).all()
 
     if len(bookmarks) == 0:

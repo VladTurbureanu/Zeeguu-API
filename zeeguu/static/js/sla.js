@@ -268,10 +268,12 @@ function checkAnswer() {
     if (answerIsCorrect($("#answer").val(), $("#expected_answer").val())) {
         log_new_exercise("Correct");
 
-        $("#i_learned_this").show();
         $("#check_answer").hide();
         $("#next_exercise").show().focus().select();
+
         $("#show_solution").hide();
+        $("#i_learned_this").show();
+
         $("#answer").css("color", "green");
 
 
@@ -279,7 +281,6 @@ function checkAnswer() {
         log_new_exercise("Wrong");
         $("#answer").css({backgroundColor: "#ffdddd"});
         $("#answer").animate({backgroundColor: "white"}, 700 );
-        //$("#answer").css({"background-color": "white"});
     }
 }
 
