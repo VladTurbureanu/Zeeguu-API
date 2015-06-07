@@ -259,9 +259,13 @@ function iKnowThis() {
     log_new_exercise("I know");
 }
 
+function answerIsCorrect(answer, reference) {
+    return answer.toLowerCase() == reference.toLowerCase();
+}
+
 function checkAnswer() {
 
-    if ($("#answer").val() == $("#expected_answer").val()) {
+    if (answerIsCorrect($("#answer").val(), $("#expected_answer").val())) {
         log_new_exercise("Correct");
 
         $("#i_learned_this").show();
