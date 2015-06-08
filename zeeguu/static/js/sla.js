@@ -260,7 +260,7 @@ function iKnowThis() {
 }
 
 function answerIsCorrect(answer, reference) {
-    return answer.toLowerCase() == reference.toLowerCase();
+    return answer.toLowerCase().trim() == reference.toLowerCase().trim();
 }
 
 function checkAnswer() {
