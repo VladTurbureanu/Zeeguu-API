@@ -183,6 +183,9 @@ def question_new():
         "starred": False
     }
 
+@gym.route("/i")
+def i():
+    return  flask.render_template("i.html")
 
 
 @gym.route("/recognize")
