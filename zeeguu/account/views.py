@@ -68,7 +68,7 @@ def create_account():
         language = model.Language.find(form.get("language", None))
         native_language = model.Language.find(form.get("native_language", None))
 
-        if code != "Kairo":
+        if not (code == "Kairo" or code == "unibe"):
             flask.flash("Invitation code is not recognized. Please contact us.")
         elif password is None or email is None or name is None:
             flask.flash("Please enter your name, email address, and password")
