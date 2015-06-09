@@ -183,11 +183,6 @@ def question_new():
         "starred": False
     }
 
-@gym.route("/i")
-def i():
-    return  flask.render_template("install.html")
-
-
 @gym.route("/recognize")
 @login_first
 def recognize():

@@ -7,13 +7,13 @@
 <div class="container welcome-message">
     <h2>Hi {{ user.name }}!</h2>
 
-    {% if user.bookmark_count() == 0 %}
+    {% if user.bookmark_count() > 0 %}
         <p>
             It seems you have recently created an account. <br/>
         </p><br/>
 
         <h1>What next?</h1>
-        <p>Make sure to <a href="i">install the Chrome extension and Android App</a>
+        <p>Make sure to <a href="install">install the Chrome extension and Android App</a>
         </p>
 
 
@@ -24,9 +24,9 @@
             - Bookmark Count: {{ user.bookmark_count() }}
         </h4>
 
-        <h4>
-            - Word Count: {{ user.word_count() }}
-        </h4>
+        <!--<h4>-->
+            <!--- Word Count: {{ user.word_count() }}-->
+        <!--</h4>-->
 
         <!--<h4>-->
             <!--- Known Bookmark Count: {{ user.get_known_bookmarks_count() }}-->

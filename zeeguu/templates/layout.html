@@ -49,7 +49,7 @@
                     <li><a href="{{ url_for('account.my_account') }}"><img id="zeeguu-logo" src="../static/img/elephlogo-alone.png" alt="ZeeGuu" /></a></li>
                 {% endif %}
 
-                {% if g.user %}
+                {% if g.user and tab != "install" %}
                     {{ menu_item ("bookmarks", "gym.bookmarks", "My Words") }}
                     {{ menu_item ("recognize", "gym.recognize", "Exercises") }}
                 {% endif %}
