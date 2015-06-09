@@ -4,6 +4,9 @@
 
 {% block body %}
 
+<!--Maybe this should be placed somewhere nicer... -->
+<script src="../static/js/recognize.js"></script>
+
 
 <div class="container exercise_page">
 
@@ -60,13 +63,14 @@
                         <!--the input square-->
                         <div id="input-box">
                             <input id="answer" class="input-lg" placeholder="" />
-                            <input id="expected_answer" hidden value="{{question['answer']}}" />
+                            <input id="expected_answer" class="input-lg" hidden value="{{question['answer']}}" />
                         </div>
 
 
                         <div id="check-answer-button">
+
                             <a id="check_answer" href="#" onclick="checkAnswer()">
-                                <img class="clickable-symbol" src="../static/img/check-mark-yellow.png">
+                                <img class="clickable-symbol" src="../static/img/forward-green.png">
                             </a>
                             <a id="next_exercise" hidden href="">
                                 <!--<i class="fa fa-play button-font-size"></i>-->
@@ -75,7 +79,16 @@
                                 <img class="clickable-symbol" src="../static/img/forward-green.png">
                             </a>
                         </div>
+
+
                     </div>
+
+                <div hidden id="correct_message">
+                        Correct
+                    </div>
+
+
+
             </div>
 
                 <input id="exercise_source" hidden value="Recognize" />
