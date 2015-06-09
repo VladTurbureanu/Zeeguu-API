@@ -534,7 +534,7 @@ def get_learned_bookmarks():
 @cross_domain
 @with_session
 def get_estimated_user_vocabulary(lang_code):
-    js = json.dumps(flask.g.user.get_estimated_vocabulary(lang_code))
+    js = json.dumps(flask.g.user.get_estimated_vocabulary(model.Language.find(lang_code)))
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
