@@ -185,7 +185,7 @@ def question_new():
 
 @gym.route("/i")
 def i():
-    return  flask.render_template("i.html")
+    return  flask.render_template("install.html")
 
 
 @gym.route("/recognize")
