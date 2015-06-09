@@ -94,7 +94,7 @@ def create_account():
             print "looking for the user"
             user = model.User.authorize(email, password)
             flask.session["user"] = user.id
-            return flask.redirect(flask.url_for("gym.bookmarks"))
+            return flask.redirect(flask.url_for("account.my_account"))
 
 
     return flask.render_template("create_account.html",
