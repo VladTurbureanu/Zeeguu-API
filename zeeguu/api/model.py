@@ -152,6 +152,21 @@ class User(db.Model):
                 urls_to_words [bookmark.text.url] += bookmark.origin.importance_level()
         return sorted(urls_to_words, key=urls_to_words.get, reverse=True)
 
+    def get_known_bookmarks(self):
+        bookmarks = Bookmark.find_all_filtered_by_user()
+        i_know_bookmarks=[]
+        for bookmark in bookmarks:
+            if Bookmark.is_sorted_exercise_log_after_date_outcome(ExerciseOutcome.IKNOW, bookmark):
+                    i_know_bookmark_dict = {}
+                    i_know_bookmark_dict['id'] = bookmark.id
+                    i_know_bookmark_dict['origin'] = bookmark.origin.word
+                    i_know_bookmark_dict['text']= bookmark.text.content
+                    i_know_bookmark_dict['time']=bookmark.time.strftime('%m/%d/%Y')
+                    i_know_bookmarks.append(i_know_bookmark_dict.copy())
+        return i_know_bookmarks
+
+    def get_known_bookmarks_count(self):
+        return len(self.get_known_bookmarks())
 
 
 class Session(db.Model):
@@ -422,6 +437,7 @@ class Bookmark(db.Model):
         exercise = Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
         self.add_new_exercise(exercise)
         db.session.add(exercise)
+
 
     @classmethod
     def find_all_filtered_by_user(cls):

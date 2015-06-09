@@ -477,19 +477,10 @@ def get_translations_for_bookmark(bookmark_id):
 @cross_domain
 @with_session
 def get_known_bookmarks():
-    bookmarks = model.Bookmark.find_all_filtered_by_user()
-    i_know_bookmarks=[]
-    for bookmark in bookmarks:
-        if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
-                i_know_bookmark_dict = {}
-                i_know_bookmark_dict['id'] = bookmark.id
-                i_know_bookmark_dict['origin'] = bookmark.origin.word
-                i_know_bookmark_dict['text']= bookmark.text.content
-                i_know_bookmark_dict['time']=bookmark.time.strftime('%m/%d/%Y')
-                i_know_bookmarks.append(i_know_bookmark_dict.copy())
-    js = json.dumps(i_know_bookmarks)
+    js = json.dumps(flask.g.user.get_known_bookmarks())
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
+
 
 @api.route("/get_known_words/<lang_code>", methods=("GET",))
 @cross_domain
