@@ -28,7 +28,7 @@ function answerIsCorrect(answer, reference) {
 }
 
 function checkAnswer() {
-    
+
     if ($("#answer").val() == "") return;
 
     if (answerIsCorrect($("#answer").val(), $("#expected_answer").val())) {
