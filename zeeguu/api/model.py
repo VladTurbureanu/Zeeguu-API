@@ -561,6 +561,65 @@ bookmark_exercise_mapping = Table('bookmark_exercise_mapping', db.Model.metadata
     Column('exercise_id', Integer, ForeignKey('exercise.id'))
 )
 
+class ExerciseBasedProbability(db.Model):
+    __tablename__ = 'exercise_based_probability'
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable = False)
+    user = db.relationship("User")
+    user_words_id = db.Column(db.Integer, db.ForeignKey('user_words.id'), nullable = False)
+    user_words = db.relationship("UserWord")
+    probability = db.Column(db.Decimal(9), nullable = False)
+    db.UniqueConstraint(user_id, user_words_id)
+    db.CheckConstraint('probability>=0', 'probability<=1', name='check_prob')
+
+    def __init__(self, user, user_words, probability):
+        self.user = user
+        self.user_words =user_words
+        self.probability = probability
+
+class EncounterBasedProbability(db.Model):
+    __tablename__ = 'encounter_based_probability'
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable = False)
+    user = db.relationship("User")
+    word_ranks_id = db.Column(db.Integer, db.ForeignKey("word_ranks.id"), nullable=False)
+    word_ranks = db.relationship("WordRanks")
+    count_looked_up = db.Column(db.Integer,nullable = False)
+    count_not_looked_up = db.Column(db.Integer,nullable = False)
+    probability = db.Column(db.Decimal(9), nullable = False)
+    db.UniqueConstraint(user_id, word_ranks_id)
+    db.CheckConstraint('probability>=0', 'probability<=1', name='check_prob')
+
+    def __init__(self, user, word_ranks,count_looked_up, count_not_looked_up, probability):
+        self.user = user
+        self.word_ranks = word_ranks
+        self.count_looked_up = count_looked_up
+        self.count_not_looked_up = count_not_looked_up
+        self.probability = probability
+
+class AggregatedProbability(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+    __tablename__ = 'aggregated_based_probability'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable = False)
+    user = db.relationship("User")
+    user_words_id = db.Column(db.Integer, db.ForeignKey('user_words.id'), nullable = True)
+    user_words = db.relationship("UserWord")
+    word_ranks_id = db.Column(db.Integer, db.ForeignKey("word_ranks.id"), nullable=True)
+    word_ranks = db.relationship("WordRanks")
+    probability = db.Column(db.Decimal(9), nullable = False)
+    db.CheckConstraint('probability>=0', 'probability<=1', name='check_prob')
+
+    def __init__(self, user, user_words, word_ranks,probability):
+        self.user = user
+        self.user_words = user_words
+        self.word_ranks = word_ranks
+        self.probability = probability
+
 
 class Text(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
