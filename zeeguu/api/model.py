@@ -169,6 +169,38 @@ class User(db.Model):
         return len(self.get_known_bookmarks())
 
 
+    def get_estimated_vocabulary(self, lang):
+        bookmarks = Bookmark.find_all_filtered_by_user()
+        filtered_words_known_from_user_dict_list =[]
+        marked_words_of_user_in_text = []
+        words_of_all_bookmarks_content = []
+        filtered_words_known_from_user = []
+        for bookmark in bookmarks:
+            bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
+            words_of_all_bookmarks_content.extend(bookmark_content_words)
+            marked_words_of_user_in_text.append(bookmark.origin.word)
+        words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
+        for word_known in words_known_from_user:
+            if WordRank.exists(word_known.lower(), lang):
+                filtered_words_known_from_user.append(word_known)
+            zeeguu.db.session.commit()
+
+        filtered_words_known_from_user = list(set(filtered_words_known_from_user))
+        for word in filtered_words_known_from_user:
+            filtered_word_known_from_user_dict = {}
+            filtered_word_known_from_user_dict['word'] = word
+            filtered_words_known_from_user_dict_list.append(filtered_word_known_from_user_dict.copy())
+        return filtered_words_known_from_user_dict_list
+
+    def get_estimated_vocabulary_for_learned_language(self):
+        return self.get_estimated_vocabulary(self.learned_language)
+
+
+    def get_estimated_vocabulary_count(self):
+        return len(self.get_estimated_vocabulary_for_learned_language())
+
+
+
 class Session(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
 
