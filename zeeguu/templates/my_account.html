@@ -21,8 +21,15 @@
         <h3>Here are some statistics about you:</h3>
 
         <h4>
-            - Bookmark Count: {{ user.bookmark_count() }}
+            - Words Being Learned: {{ user.bookmark_count() }}
         </h4>
+
+        <h4>
+            - Words Already Learned: {{ user.get_known_bookmarks_count() }}
+        </h4>
+
+
+
 
     {% endif %}
 
