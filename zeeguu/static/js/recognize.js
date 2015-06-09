@@ -28,6 +28,8 @@ function answerIsCorrect(answer, reference) {
 }
 
 function checkAnswer() {
+    
+    if ($("#answer").val() == "") return;
 
     if (answerIsCorrect($("#answer").val(), $("#expected_answer").val())) {
         log_new_exercise("Correct");
@@ -44,6 +46,7 @@ function checkAnswer() {
 
 
     } else {
+        console.log("checking answer...");
         log_new_exercise("Wrong");
         $("#answer").css({backgroundColor: "#ffdddd"});
         setTimeout(change_answer_bg_to_white, 345);
