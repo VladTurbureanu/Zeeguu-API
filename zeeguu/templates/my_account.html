@@ -7,7 +7,7 @@
 <div class="container welcome-message">
     <h2>Hi {{ user.name }}!</h2>
 
-    {% if user.bookmark_count() > 0 %}
+    {% if user.bookmark_count() == 0 %}
         <p>
             It seems you have recently created an account. <br/>
         </p><br/>
