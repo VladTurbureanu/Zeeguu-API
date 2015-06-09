@@ -47,7 +47,8 @@ def my_account():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
 
-    return flask.render_template("my_account.html", user=flask.g.user)
+    return flask.render_template("my_account.html",
+                                    user=flask.g.user)
 
 
 @account.route("/create_account", methods=("GET", "POST"))

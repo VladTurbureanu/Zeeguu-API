@@ -1,18 +1,38 @@
 {% extends "layout.html" %}
 
-{% set tab = "learning_center" %}
+{% set tab = "my_account" %}
 
 {% block body %}
 
 <div class="container welcome-message">
-    <h2>Welcome {{ user.name }}!</h2>
-    <p>
-        You have now created an account. <br/>
-    </p><br/>
+    <h2>Hi {{ user.name }}!</h2>
 
-    <h1>What next?</h1>
-    <p>Make sure to <a href="i">install the Chrome extension and Android App</a>
-    </p>
+    {% if user.bookmark_count() == 0 %}
+        <p>
+            It seems you have recently created an account. <br/>
+        </p><br/>
+
+        <h1>What next?</h1>
+        <p>Make sure to <a href="i">install the Chrome extension and Android App</a>
+        </p>
+
+
+    {% else %}
+        <h3>Here are some statistics about you:</h3>
+
+        <h4>
+            - Bookmark Count: {{ user.bookmark_count() }}
+        </h4>
+
+        <h4>
+            - Word Count: {{ user.word_count() }}
+        </h4>
+
+
+
+    {% endif %}
+
+
 
 
 

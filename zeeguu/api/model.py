@@ -118,6 +118,12 @@ class User(db.Model):
     def all_bookmarks(self):
         return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
 
+    def bookmark_count(self):
+        return len(self.all_bookmarks())
+
+    def word_count(self):
+        return len(self.user_words())
+
     def bookmarks_by_date(self):
 	def extract_day_from_date(bookmark):
 		return (bookmark, bookmark.time.replace(bookmark.time.year, bookmark.time.month, bookmark.time.day,0,0,0,0))
