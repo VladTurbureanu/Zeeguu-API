@@ -214,10 +214,10 @@ def m_recognize():
     else:
         return "not logged in..."
 
-@gym.route ("/m_home")
-def m_home():
+@gym.route ("/browser_home")
+def browser_home():
     return  flask.render_template(
-            "m_home.html",
+            "browser_home.html",
             mobile=True)
 
 
