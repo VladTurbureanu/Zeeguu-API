@@ -58,7 +58,8 @@ def create_account():
         return flask.render_template("create_account.html",
                                      languages=model.Language.all(),
                                      native_languages = model.Language.native_languages(),
-                                     flashed_messages=flask.get_flashed_messages())
+                                     flashed_messages=flask.get_flashed_messages(),
+                                     default_learned=model.Language.default_learned())
 
     form = flask.request.form
     if flask.request.method == "POST" and form.get("create_account", False):
@@ -82,14 +83,16 @@ def create_account():
                 return flask.render_template("create_account.html",
                                                 flashed_messages=flask.get_flashed_messages(),
                                                 languages=model.Language.all(),
-                                                native_languages = model.Language.native_languages())
+                                                native_languages = model.Language.native_languages(),
+                                                default_learned=model.Language.default_learned())
             except sqlalchemy.exc.IntegrityError:
                 print "integrity error"
                 flask.flash(email + " is already in use. Please select a different email.")
                 return flask.render_template("create_account.html",
                                                 flashed_messages=flask.get_flashed_messages(),
                                                 languages=model.Language.all(),
-                                                native_languages = model.Language.native_languages())
+                                                native_languages = model.Language.native_languages(),
+                                                default_learned=model.Language.default_learned())
 
             print "looking for the user"
             user = model.User.authorize(email, password)
@@ -100,4 +103,5 @@ def create_account():
     return flask.render_template("create_account.html",
                                     flashed_messages=flask.get_flashed_messages(),
                                     languages=model.Language.all(),
-                                    native_languages = model.Language.native_languages())
+                                    native_languages = model.Language.native_languages(),
+                                    default_learned=model.Language.default_learned())
