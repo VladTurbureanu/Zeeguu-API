@@ -118,6 +118,12 @@ class User(db.Model):
     def all_bookmarks(self):
         return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
 
+    def bookmark_count(self):
+        return len(self.all_bookmarks())
+
+    def word_count(self):
+        return len(self.user_words())
+
     def bookmarks_by_date(self):
 	def extract_day_from_date(bookmark):
 		return (bookmark, bookmark.time.replace(bookmark.time.year, bookmark.time.month, bookmark.time.day,0,0,0,0))
@@ -145,6 +151,53 @@ class User(db.Model):
                 urls_to_words.setdefault(bookmark.text.url,0)
                 urls_to_words [bookmark.text.url] += bookmark.origin.importance_level()
         return sorted(urls_to_words, key=urls_to_words.get, reverse=True)
+
+    def get_known_bookmarks(self):
+        bookmarks = Bookmark.find_all_filtered_by_user()
+        i_know_bookmarks=[]
+        for bookmark in bookmarks:
+            if Bookmark.is_sorted_exercise_log_after_date_outcome(ExerciseOutcome.IKNOW, bookmark):
+                    i_know_bookmark_dict = {}
+                    i_know_bookmark_dict['id'] = bookmark.id
+                    i_know_bookmark_dict['origin'] = bookmark.origin.word
+                    i_know_bookmark_dict['text']= bookmark.text.content
+                    i_know_bookmark_dict['time']=bookmark.time.strftime('%m/%d/%Y')
+                    i_know_bookmarks.append(i_know_bookmark_dict.copy())
+        return i_know_bookmarks
+
+    def get_known_bookmarks_count(self):
+        return len(self.get_known_bookmarks())
+
+
+    def get_estimated_vocabulary(self, lang):
+        bookmarks = Bookmark.find_all_filtered_by_user()
+        filtered_words_known_from_user_dict_list =[]
+        marked_words_of_user_in_text = []
+        words_of_all_bookmarks_content = []
+        filtered_words_known_from_user = []
+        for bookmark in bookmarks:
+            bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
+            words_of_all_bookmarks_content.extend(bookmark_content_words)
+            marked_words_of_user_in_text.append(bookmark.origin.word)
+        words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
+        for word_known in words_known_from_user:
+            if WordRank.exists(word_known.lower(), lang):
+                filtered_words_known_from_user.append(word_known)
+            zeeguu.db.session.commit()
+
+        filtered_words_known_from_user = list(set(filtered_words_known_from_user))
+        for word in filtered_words_known_from_user:
+            filtered_word_known_from_user_dict = {}
+            filtered_word_known_from_user_dict['word'] = word
+            filtered_words_known_from_user_dict_list.append(filtered_word_known_from_user_dict.copy())
+        return filtered_words_known_from_user_dict_list
+
+    def get_estimated_vocabulary_for_learned_language(self):
+        return self.get_estimated_vocabulary(self.learned_language)
+
+
+    def get_estimated_vocabulary_count(self):
+        return len(self.get_estimated_vocabulary_for_learned_language())
 
 
 
@@ -196,7 +249,7 @@ class Language(db.Model):
 
     @classmethod
     def native_languages(cls):
-        return [cls.find("en")]
+        return [cls.find("en"), cls.find("de"), cls.find("pt"), cls.find("es")]
 
     @classmethod
     def available_languages(cls):
@@ -416,6 +469,7 @@ class Bookmark(db.Model):
         exercise = Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
         self.add_new_exercise(exercise)
         db.session.add(exercise)
+
 
     @classmethod
     def find_all_filtered_by_user(cls):

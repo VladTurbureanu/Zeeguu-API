@@ -232,59 +232,6 @@ function newTranslateQuestion() {
     });
 }
 
-function log_new_exercise(outcome) {
-    url = ["/gym/create_new_exercise",
-        outcome,
-         $("#exercise_source").val(),
-        -1,
-        $("#bookmark_id").val()
-        ].join("/");
-     $.post(url, function(data) {});
-}
-
-function showAnswer() {
-    $("#answer").hide();
-    $("#expected_answer").show();
-
-    $("#check_answer").hide();
-    $("#next_exercise").show();
-    $("#show_solution").hide();
-
-    log_new_exercise("Do not know");
-    $("#next_exercise").show().focus().select();
-
-}
-
-function iKnowThis() {
-    log_new_exercise("I know");
-}
-
-function answerIsCorrect(answer, reference) {
-    return answer.toLowerCase().trim() == reference.toLowerCase().trim();
-}
-
-function checkAnswer() {
-
-    if (answerIsCorrect($("#answer").val(), $("#expected_answer").val())) {
-        log_new_exercise("Correct");
-
-        $("#check_answer").hide();
-        $("#next_exercise").show().focus().select();
-
-        $("#show_solution").hide();
-        $("#i_learned_this").show();
-
-        $("#answer").css("color", "green");
-
-
-    } else {
-        log_new_exercise("Wrong");
-        $("#answer").css({backgroundColor: "#ffdddd"});
-        $("#answer").animate({backgroundColor: "white"}, 700 );
-    }
-}
-
-
 
 function checkAnswerBeforeFacebook() {
     if (!ready) {

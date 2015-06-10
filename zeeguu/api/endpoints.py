@@ -477,19 +477,10 @@ def get_translations_for_bookmark(bookmark_id):
 @cross_domain
 @with_session
 def get_known_bookmarks():
-    bookmarks = model.Bookmark.find_all_filtered_by_user()
-    i_know_bookmarks=[]
-    for bookmark in bookmarks:
-        if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
-                i_know_bookmark_dict = {}
-                i_know_bookmark_dict['id'] = bookmark.id
-                i_know_bookmark_dict['origin'] = bookmark.origin.word
-                i_know_bookmark_dict['text']= bookmark.text.content
-                i_know_bookmark_dict['time']=bookmark.time.strftime('%m/%d/%Y')
-                i_know_bookmarks.append(i_know_bookmark_dict.copy())
-    js = json.dumps(i_know_bookmarks)
+    js = json.dumps(flask.g.user.get_known_bookmarks())
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
+
 
 @api.route("/get_known_words/<lang_code>", methods=("GET",))
 @cross_domain
@@ -543,28 +534,7 @@ def get_learned_bookmarks():
 @cross_domain
 @with_session
 def get_estimated_user_vocabulary(lang_code):
-    lang_code = model.Language.find(lang_code)
-    bookmarks = model.Bookmark.find_all_filtered_by_user()
-    filtered_words_known_from_user_dict_list =[]
-    marked_words_of_user_in_text = []
-    words_of_all_bookmarks_content = []
-    filtered_words_known_from_user = []
-    for bookmark in bookmarks:
-        bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
-        words_of_all_bookmarks_content.extend(bookmark_content_words)
-        marked_words_of_user_in_text.append(bookmark.origin.word)
-    words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
-    for word_known in words_known_from_user:
-        if model.WordRank.exists(word_known.lower(), lang_code):
-            filtered_words_known_from_user.append(word_known)
-        zeeguu.db.session.commit()
-
-    filtered_words_known_from_user = list(set(filtered_words_known_from_user))
-    for word in filtered_words_known_from_user:
-        filtered_word_known_from_user_dict = {}
-        filtered_word_known_from_user_dict['word'] = word
-        filtered_words_known_from_user_dict_list.append(filtered_word_known_from_user_dict.copy())
-    js = json.dumps(filtered_words_known_from_user_dict_list)
+    js = json.dumps(flask.g.user.get_estimated_vocabulary(model.Language.find(lang_code)))
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 

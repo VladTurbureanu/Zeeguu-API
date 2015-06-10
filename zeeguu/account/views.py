@@ -47,7 +47,8 @@ def my_account():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
 
-    return flask.render_template("my_account.html", user=flask.g.user)
+    return flask.render_template("my_account.html",
+                                    user=flask.g.user)
 
 
 @account.route("/create_account", methods=("GET", "POST"))
@@ -57,7 +58,8 @@ def create_account():
         return flask.render_template("create_account.html",
                                      languages=model.Language.all(),
                                      native_languages = model.Language.native_languages(),
-                                     flashed_messages=flask.get_flashed_messages())
+                                     flashed_messages=flask.get_flashed_messages(),
+                                     default_learned=model.Language.default_learned())
 
     form = flask.request.form
     if flask.request.method == "POST" and form.get("create_account", False):
@@ -68,7 +70,7 @@ def create_account():
         language = model.Language.find(form.get("language", None))
         native_language = model.Language.find(form.get("native_language", None))
 
-        if not (code == "Kairo" or code == "unibe"):
+        if not (code == "Kairo" or code == "unibe" or code == "klubschule"):
             flask.flash("Invitation code is not recognized. Please contact us.")
         elif password is None or email is None or name is None:
             flask.flash("Please enter your name, email address, and password")
@@ -81,22 +83,25 @@ def create_account():
                 return flask.render_template("create_account.html",
                                                 flashed_messages=flask.get_flashed_messages(),
                                                 languages=model.Language.all(),
-                                                native_languages = model.Language.native_languages())
+                                                native_languages = model.Language.native_languages(),
+                                                default_learned=model.Language.default_learned())
             except sqlalchemy.exc.IntegrityError:
                 print "integrity error"
                 flask.flash(email + " is already in use. Please select a different email.")
                 return flask.render_template("create_account.html",
                                                 flashed_messages=flask.get_flashed_messages(),
                                                 languages=model.Language.all(),
-                                                native_languages = model.Language.native_languages())
+                                                native_languages = model.Language.native_languages(),
+                                                default_learned=model.Language.default_learned())
 
             print "looking for the user"
             user = model.User.authorize(email, password)
             flask.session["user"] = user.id
-            return flask.redirect(flask.url_for("gym.bookmarks"))
+            return flask.redirect(flask.url_for("account.my_account"))
 
 
     return flask.render_template("create_account.html",
                                     flashed_messages=flask.get_flashed_messages(),
                                     languages=model.Language.all(),
-                                    native_languages = model.Language.native_languages())
+                                    native_languages = model.Language.native_languages(),
+                                    default_learned=model.Language.default_learned())
