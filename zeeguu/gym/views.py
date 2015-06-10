@@ -219,6 +219,12 @@ def m_recognize():
     else:
         return "not logged in..."
 
+@gym.route ("/m_home")
+def m_home():
+    return  flask.render_template(
+            "m_home.html",
+            mobile=True)
+
 
 @gym.route("/study_before_play")
 @login_first
