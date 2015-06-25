@@ -117,7 +117,9 @@
 
   #exercise-card {
     min-height: 450px;
-    font-size: 18px; }
+    font-size: 28px;
+    width: 96%;
+    margin-left: 2%; }
 
   .clickable-symbol {
     width: 65px;
