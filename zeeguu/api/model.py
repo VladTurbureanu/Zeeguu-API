@@ -304,10 +304,10 @@ class WordRank(db.Model, util.JSONSerializable):
         ).all()
 
     @classmethod
-    def exists(cls, word, language_id):
+    def exists(cls, word, language):
         try:
             (cls.query.filter(cls.word == word)
-                             .filter(cls.language == language_id)
+                             .filter(cls.language == language)
                              .one())
             return True
         except sqlalchemy.orm.exc.NoResultFound:
@@ -381,10 +381,27 @@ class UserWord(db.Model, util.JSONSerializable):
     def find_all(cls):
         return cls.query.all()
 
+    @classmethod
+    def find_by_language(cls, language):
+        return (cls.query.filter(cls.language == language)
+                         .all())
+
+    @classmethod
+    def exists(cls, word, language):
+         try:
+            cls.query.filter_by(
+                language = language,
+                word = word
+            ).one()
+            return True
+         except  sqlalchemy.orm.exc.NoResultFound:
+            return False
+
 
 WordAlias = db.aliased(UserWord, name="translated_word")
 
 class ExerciseBasedProbability(db.Model):
+
     __tablename__ = 'exercise_based_probability'
     __table_args__ = {'mysql_collate': 'utf8_bin'}
 
@@ -397,20 +414,91 @@ class ExerciseBasedProbability(db.Model):
     db.UniqueConstraint(user_id, user_words_id)
     db.CheckConstraint('probability>=0', 'probability<=1')
 
+    DEFAULT_MIN_PROBABILITY = 0.1
+    DEFAULT_MAX_PROBABILITY = 1.0
+
     def __init__(self, user, user_words, probability):
         self.user = user
         self.user_words =user_words
         self.probability = probability
 
     @classmethod
-    def find(cls, user, user_words, default_probability):
-         try:
+    def find(cls, user, user_words):
+        try:
             return cls.query.filter_by(
                 user = user,
                 user_words = user_words
-            ).first()
-         except  sqlalchemy.orm.exc.NoResultFound:
-            return cls(user, user_words, default_probability)
+            ).one()
+        except sqlalchemy.orm.exc.NoResultFound:
+            return cls(user, user_words, 0.1)
+
+    @classmethod
+    def exists(cls, user, user_words):
+        try:
+            cls.query.filter_by(
+                user = user,
+                user_words = user_words
+            ).one()
+            return True
+
+        except sqlalchemy.orm.exc.NoResultFound:
+            return False
+
+
+    @classmethod
+    def find_all(cls):
+        return cls.query.all()
+
+    @classmethod
+    def wrong_formula(self, count_wrong, count_wrong_after_another, weight):
+        return (self.probability - (self.DEFAULT_MIN_PROBABILITY * count_wrong)* count_wrong_after_another) ^ 1/weight
+
+    @classmethod
+    def correct_formula(self, count_correct, count_correct_after_another, weight):
+        return (self.probability + (self.DEFAULT_MAX_PROBABILITY * count_correct)* count_correct_after_another) ^1/weight
+
+
+
+    def calculate_bookmark_probability(self,bookmark):
+        count_correct_after_another = 0
+        count_wrong_after_another = 0
+        count_not_know_after_another = 0
+        count_correct = 0
+        count_wrong = 0
+        count_not_know = 0
+        weight = 1
+        sorted_exercise_log_after_date=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=False)
+        for exercise in sorted_exercise_log_after_date:
+            if exercise.outcome.outcome == ExerciseOutcome.IKNOW:
+                self.probability = 1.0
+                count_wrong = count_wrong/2
+            elif exercise.outcome.outcome == ExerciseOutcome.NOT_KNOW:
+                if self.probability is not 0.1:
+                    self.probability /=2
+                if self.probability < 0.1:
+                    self.probability = 0.1
+                count_correct = count_correct/2
+                count_correct_after_another =0
+                count_not_know_after_another+=1
+                count_not_know +=1
+            elif exercise.outcome.outcome == ExerciseOutcome.CORRECT:
+                count_correct+=1
+                count_correct_after_another +=1
+                count_wrong_after_another =0
+                count_not_know_after_another = 0
+                if self.probability is not 1.0:
+                    self.probability = self.correct_formula(self.probability,count_correct, count_correct_after_another, weight)
+
+            elif exercise.outcome.outcome == ExerciseOutcome.WRONG:
+                 count_wrong+=1
+                 count_wrong_after_another += 1
+                 count_correct_after_another =0
+                 if self.probability is not 0.1:
+                    self.probability = self.wrong_formula(self.probability,count_wrong, count_wrong_after_another, weight)
+            weight +=1
+
+
+
 
 
 class EncounterBasedProbability(db.Model):
@@ -439,9 +527,23 @@ class EncounterBasedProbability(db.Model):
             return cls.query.filter_by(
                 user = user,
                 word_ranks = word_ranks
-            ).first()
+            ).one()
          except  sqlalchemy.orm.exc.NoResultFound:
-            return cls(user, word_ranks,1, default_probability)
+            return cls(user, word_ranks, 1, default_probability)
+
+
+
+
+
+    @classmethod
+    def find_all(cls):
+        return cls.query.all()
+
+    @classmethod
+    def find_all_by_user(cls, user):
+        return cls.query.filter_by(
+            user = user
+        ).all()
 
     @classmethod
     def exists(cls, user, word_ranks):
@@ -449,7 +551,8 @@ class EncounterBasedProbability(db.Model):
             cls.query.filter_by(
                 user = user,
                 word_ranks = word_ranks
-            ).first()
+            ).one()
+            return True
          except  sqlalchemy.orm.exc.NoResultFound:
             return False
 
@@ -473,6 +576,22 @@ class AggregatedProbability(db.Model):
         self.user_words = user_words
         self.word_ranks = word_ranks
         self.probability = probability
+
+    @classmethod
+    def calculateAggregatedProb(cls,exerciseProb, encounterProb):
+        return 0.6 * exerciseProb + 0.4 * encounterProb
+
+    @classmethod
+    def find(cls, user, user_words, word_ranks, probability):
+        try:
+            return cls.query.filter_by(
+                user = user,
+                user_words = user_words,
+                word_ranks = word_ranks
+            ).one()
+        except sqlalchemy.orm.exc.NoResultFound:
+            return cls(user, user_words, word_ranks, probability)
+
 
 class Url(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
@@ -578,7 +697,7 @@ class Bookmark(db.Model):
 
     @classmethod
     def find_all(cls):
-        return cls.query.all()
+        return cls.query.filter().all()
 
     @classmethod
     def find(cls, b_id):
@@ -586,15 +705,35 @@ class Bookmark(db.Model):
             id= b_id
         ).first()
 
+    @classmethod
+    def find_all_by_user_and_word(cls, user, word):
+        return cls.query.filter_by(
+            user = user,
+            origin = word
+        ).all()
 
+
+
+    # @classmethod
+    # def is_sorted_exercise_log_after_date_outcome(cls,outcome, bookmark):
+    #     sorted_exercise_log_after_date=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=True)
+    #     if sorted_exercise_log_after_date:
+    #         if sorted_exercise_log_after_date[0].outcome.outcome == outcome:
+    #             return True
+    #     return False
 
     @classmethod
     def is_sorted_exercise_log_after_date_outcome(cls,outcome, bookmark):
         sorted_exercise_log_after_date=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=True)
-        if sorted_exercise_log_after_date:
-            if sorted_exercise_log_after_date[0].outcome.outcome == outcome:
+        for exercise in sorted_exercise_log_after_date:
+            if exercise.outcome.outcome == outcome:
                 return True
+            elif exercise.outcome.outcome == 'Do not know' or exercise.outcome.outcome == 'Wrong':
+                return False
         return False
+
+
+
 
 bookmark_translation_mapping = Table('bookmark_translation_mapping', db.Model.metadata,
     Column('bookmark_id', Integer, ForeignKey('bookmark.id')),
@@ -631,6 +770,8 @@ class ExerciseOutcome(db.Model):
 
     IKNOW = 'I know'
     NOT_KNOW = 'Do not know'
+    CORRECT = 'Correct'
+    WRONG = 'Wrong'
 
     def __init__(self,outcome):
         self.outcome = outcome
@@ -641,7 +782,7 @@ class ExerciseOutcome(db.Model):
         try:
             return cls.query.filter_by(
                 outcome = outcome
-            ).first()
+            ).one()
         except  sqlalchemy.orm.exc.NoResultFound:
             return cls(outcome)
 
