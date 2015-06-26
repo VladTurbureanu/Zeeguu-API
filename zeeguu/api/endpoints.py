@@ -357,10 +357,54 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     #create the text entity first
     new_text = model.Text(context, from_lang, url)
     bookmark = model.Bookmark(user_word, translation, flask.g.user, new_text, datetime.datetime.now())
-    # if search:
-    #     search.bookmark = bookmark
-    # else:
     zeeguu.db.session.add(bookmark)
+    words_of_all_bookmarks_content = []
+    not_looked_up_words = flask.g.user.filter_bookmark_context(bookmark,words_of_all_bookmarks_content)
+    while bookmark.origin.word in not_looked_up_words: not_looked_up_words.remove(bookmark.origin.word)
+    not_looked_up_words_with_rank = flask.g.user.filter_bookmark_context_by_rank(not_looked_up_words, from_lang)
+    for word in not_looked_up_words_with_rank:
+        if model.WordRank.exists(word,from_lang):
+            word_rank = model.WordRank.find(word, from_lang)
+            if model.EncounterBasedProbability.exists(flask.g.user, word_rank):
+                enc_prob = model.EncounterBasedProbability.find(flask.g.user,word_rank)
+                enc_prob.count_not_looked_up +=1
+                enc_prob.boost_prob()
+            else:
+                enc_prob = model.EncounterBasedProbability.find(flask.g.user,word_rank, model.EncounterBasedProbability.DEFAULT_PROBABILITY)
+                zeeguu.db.session.add(enc_prob)
+            word_rank = model.WordRank.find(word, from_lang)
+            user_word = None
+            if model.UserWord.exists(word,from_lang):
+                user_word = model.UserWord.find(word,from_lang,word_rank)
+                ex_prob = model.ExerciseBasedProbability.find(flask.g.user,user_word)
+                agg_prob = model.AggregatedProbability.find(flask.g.user,user_word,word_rank)
+                agg_prob.probability = agg_prob.calculateAggregatedProb(ex_prob, enc_prob)
+            else:
+                agg_prob = model.AggregatedProbability.find(flask.g.user,user_word,word_rank, model.EncounterBasedProbability.DEFAULT_PROBABILITY)
+                zeeguu.db.session.add(agg_prob)
+
+    word_rank = None
+    enc_prob = None
+    ex_prob = model.ExerciseBasedProbability.find(flask.g.user, bookmark.origin)
+    if model.WordRank.exists(bookmark.origin.word, from_lang):
+        word_rank = model.WordRank.find(bookmark.origin.word, from_lang)
+        if model.EncounterBasedProbability.exists(flask.g.user, word_rank):
+            enc_prob = model.EncounterBasedProbability.find(flask.g.user, word_rank)
+            enc_prob.reset_prob()
+    if model.ExerciseBasedProbability.exists(flask.g.user, bookmark.origin):
+        ex_prob.halfProbability()
+    else:
+        zeeguu.db.session.add(ex_prob)
+
+    if model.AggregatedProbability.exists(flask.g.user, bookmark.origin,word_rank) and enc_prob == None:
+        agg_prob = model.AggregatedProbability.find(flask.g.user, bookmark.origin,word_rank)
+        agg_prob.probability = ex_prob.probability
+    elif enc_prob is not None:
+        agg_prob = model.AggregatedProbability.find(flask.g.user, bookmark.origin,word_rank)
+        agg_prob.probability = model.AggregatedProbability.calculateAggregatedProb(ex_prob,enc_prob)
+    else:
+        agg_prob = model.AggregatedProbability.find(flask.g.user, bookmark.origin,word_rank, ex_prob.probability)
+        zeeguu.db.session.add(agg_prob)
 
     zeeguu.db.session.commit()
 
@@ -507,6 +551,27 @@ def get_known_words(lang_code):
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
+@api.route("/get_probable_known_words", methods=("GET",))
+@cross_domain
+@with_session
+def get_probable_known_words():
+    high_agg_prob_of_user = model.AggregatedProbability.get_probable_known_words(flask.g.user)
+    probable_known_words_dict_list = []
+    for agg_prob in high_agg_prob_of_user:
+        probable_known_word_dict = {}
+        probable_known_word_dict['word'] = agg_prob.word_ranks.word
+        probable_known_words_dict_list.append(probable_known_word_dict.copy())
+    js = json.dumps(probable_known_words_dict_list)
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
+
+@api.route("/get_percentage_of_known_words_in_lang", methods=("GET",))
+@cross_domain
+@with_session
+def get_percentage_of_known_words_in_lang():
+    high_agg_prob_of_user = model.AggregatedProbability.get_probable_known_words(flask.g.user)
+    res = str(len(high_agg_prob_of_user)/3000*100)
+    return res
 
 @api.route("/get_learned_bookmarks", methods=("GET",))
 @cross_domain

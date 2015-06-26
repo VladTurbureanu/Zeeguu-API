@@ -23,7 +23,7 @@ def set_default_exercise_based_prob():
                 total_prob = 0
                 for bookmark in bookmarks_by_user_and_word:
                     prob.calculate_bookmark_probability(bookmark)
-                    total_prob += prob.probability
+                    total_prob += float(prob.probability)
                 if bookmarks_by_user_and_word:
                     prob.probability = total_prob/len(bookmarks_by_user_and_word)
                 zeeguu.db.session.commit()

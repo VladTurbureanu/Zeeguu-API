@@ -3,6 +3,7 @@ import re
 import random
 import datetime
 import codecs
+import math
 import flask
 from sqlalchemy import Column, Table, ForeignKey, Integer, DECIMAL
 
@@ -172,27 +173,28 @@ class User(db.Model):
     def get_known_bookmarks_count(self):
         return len(self.get_known_bookmarks())
 
+    def filter_bookmark_context(self, bookmark, words_of_all_bookmarks_content):
+        bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
+        words_of_all_bookmarks_content.extend(bookmark_content_words)
+        return words_of_all_bookmarks_content
 
-    def get_estimated_vocabulary(self, lang):
-        bookmarks = Bookmark.find_all_filtered_by_user()
-        filtered_words_known_from_user_dict_list =[]
-        marked_words_of_user_in_text = []
-        words_of_all_bookmarks_content = []
+
+
+    def filter_bookmark_context_by_rank(self, words_known_from_user, lang):
         filtered_words_known_from_user = []
-        for bookmark in bookmarks:
-            bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
-            words_of_all_bookmarks_content.extend(bookmark_content_words)
-            marked_words_of_user_in_text.append(bookmark.origin.word)
-        words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
         for word_known in words_known_from_user:
             if WordRank.exists(word_known.lower(), lang):
                 filtered_words_known_from_user.append(word_known)
-            zeeguu.db.session.commit()
+        return filtered_words_known_from_user
 
-        filtered_words_known_from_user = list(set(filtered_words_known_from_user))
-        for word in filtered_words_known_from_user:
+
+    def get_estimated_vocabulary(self, lang):
+
+        filtered_words_known_from_user_dict_list =[]
+        enc_probs = EncounterBasedProbability.find_all_by_user(flask.g.user)
+        for enc_prob in enc_probs:
             filtered_word_known_from_user_dict = {}
-            filtered_word_known_from_user_dict['word'] = word
+            filtered_word_known_from_user_dict['word'] = enc_prob.word_ranks.word
             filtered_words_known_from_user_dict_list.append(filtered_word_known_from_user_dict.copy())
         return filtered_words_known_from_user_dict_list
 
@@ -410,7 +412,7 @@ class ExerciseBasedProbability(db.Model):
     user = db.relationship("User")
     user_words_id = db.Column(db.Integer, db.ForeignKey('user_words.id'), nullable = False)
     user_words = db.relationship("UserWord")
-    probability = db.Column(db.DECIMAL(9), nullable = False)
+    probability = db.Column(db.DECIMAL(10,9), nullable = False)
     db.UniqueConstraint(user_id, user_words_id)
     db.CheckConstraint('probability>=0', 'probability<=1')
 
@@ -449,13 +451,11 @@ class ExerciseBasedProbability(db.Model):
     def find_all(cls):
         return cls.query.all()
 
-    @classmethod
     def wrong_formula(self, count_wrong, count_wrong_after_another, weight):
-        return (self.probability - (self.DEFAULT_MIN_PROBABILITY * count_wrong)* count_wrong_after_another) ^ 1/weight
+        return (float(self.probability) - (self.DEFAULT_MIN_PROBABILITY * count_wrong)* count_wrong_after_another)** 1/weight
 
-    @classmethod
     def correct_formula(self, count_correct, count_correct_after_another, weight):
-        return (self.probability + (self.DEFAULT_MAX_PROBABILITY * count_correct)* count_correct_after_another) ^1/weight
+        return (float(self.probability) + (self.DEFAULT_MAX_PROBABILITY * count_correct)* count_correct_after_another)** 1/weight
 
 
 
@@ -487,15 +487,21 @@ class ExerciseBasedProbability(db.Model):
                 count_wrong_after_another =0
                 count_not_know_after_another = 0
                 if self.probability is not 1.0:
-                    self.probability = self.correct_formula(self.probability,count_correct, count_correct_after_another, weight)
+                    self.probability = self.correct_formula(count_correct, count_correct_after_another, weight)
 
             elif exercise.outcome.outcome == ExerciseOutcome.WRONG:
                  count_wrong+=1
                  count_wrong_after_another += 1
                  count_correct_after_another =0
                  if self.probability is not 0.1:
-                    self.probability = self.wrong_formula(self.probability,count_wrong, count_wrong_after_another, weight)
+                    self.probability = self.wrong_formula(count_wrong, count_wrong_after_another, weight)
             weight +=1
+
+    def halfProbability(self):
+        self.probability /=2
+
+
+
 
 
 
@@ -505,13 +511,15 @@ class EncounterBasedProbability(db.Model):
     __tablename__ = 'encounter_based_probability'
     __table_args__ = {'mysql_collate': 'utf8_bin'}
 
+    DEFAULT_PROBABILITY = 0.5
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable = False)
     user = db.relationship("User")
     word_ranks_id = db.Column(db.Integer, db.ForeignKey("word_ranks.id"), nullable=False)
     word_ranks = db.relationship("WordRank")
     count_not_looked_up = db.Column(db.Integer,nullable = False)
-    probability = db.Column(db.DECIMAL(9), nullable = False)
+    probability = db.Column(db.DECIMAL(10,9), nullable = False)
     db.UniqueConstraint(user_id, word_ranks_id)
     db.CheckConstraint('probability>=0', 'probability<=1')
 
@@ -556,6 +564,9 @@ class EncounterBasedProbability(db.Model):
          except  sqlalchemy.orm.exc.NoResultFound:
             return False
 
+    def reset_prob (self):
+        self.probability = 0.5
+
 
 
 class AggregatedProbability(db.Model):
@@ -568,7 +579,7 @@ class AggregatedProbability(db.Model):
     user_words = db.relationship("UserWord")
     word_ranks_id = db.Column(db.Integer, db.ForeignKey("word_ranks.id"), nullable=True)
     word_ranks = db.relationship("WordRank")
-    probability = db.Column(db.DECIMAL(9), nullable = False)
+    probability = db.Column(db.DECIMAL(10,9), nullable = False)
     db.CheckConstraint('probability>=0', 'probability<=1')
 
     def __init__(self, user, user_words, word_ranks,probability):
@@ -582,7 +593,7 @@ class AggregatedProbability(db.Model):
         return 0.6 * exerciseProb + 0.4 * encounterProb
 
     @classmethod
-    def find(cls, user, user_words, word_ranks, probability):
+    def find(cls, user, user_words, word_ranks, probability=None):
         try:
             return cls.query.filter_by(
                 user = user,
@@ -591,6 +602,23 @@ class AggregatedProbability(db.Model):
             ).one()
         except sqlalchemy.orm.exc.NoResultFound:
             return cls(user, user_words, word_ranks, probability)
+
+    @classmethod
+    def exists(cls, user, user_words, word_ranks):
+        try:
+            cls.query.filter_by(
+                user = user,
+                user_words = user_words,
+                word_ranks = word_ranks
+            ).one()
+            return True
+        except sqlalchemy.orm.exc.NoResultFound:
+            return False
+
+    @classmethod
+    def get_probable_known_words(cls, user):
+        cls.query.filter(
+            cls.user == user).filter(cls.probability >=0.9).all()
 
 
 class Url(db.Model):
