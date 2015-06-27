@@ -26,9 +26,10 @@ def set_default_encounter_based_prob():
             marked_words_of_user_in_text = []
             words_of_all_bookmarks_content = []
             for bookmark in model.Bookmark.find_by_specific_user(user):
-                bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
-                words_of_all_bookmarks_content.extend(bookmark_content_words)
-                marked_words_of_user_in_text.append(bookmark.origin.word)
+                if bookmark.origin.language == lang:
+                    bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
+                    words_of_all_bookmarks_content.extend(bookmark_content_words)
+                    marked_words_of_user_in_text.append(bookmark.origin.word)
             words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
             for word_known in words_known_from_user:
                 if model.WordRank.exists(word_known.lower(), lang):

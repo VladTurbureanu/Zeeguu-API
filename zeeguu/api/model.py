@@ -205,6 +205,21 @@ class User(db.Model):
     def get_estimated_vocabulary_count(self):
         return len(self.get_estimated_vocabulary_for_learned_language())
 
+    def get_probable_known_words(self):
+        high_agg_prob_of_user = AggregatedProbability.get_probable_known_words(flask.g.user)
+        probable_known_words_dict_list = []
+        for agg_prob in high_agg_prob_of_user:
+            probable_known_word_dict = {}
+            if agg_prob.word_ranks is not None:
+                probable_known_word_dict['word'] = agg_prob.word_ranks.word
+            elif agg_prob.user_words is not None:
+                probable_known_word_dict['word'] = agg_prob.user_words.word
+            probable_known_words_dict_list.append(probable_known_word_dict.copy())
+        return probable_known_words_dict_list
+
+    def get_probable_known_words_count(self):
+        return len(self.get_probable_known_words())
+
 
 
 class Session(db.Model):
@@ -452,10 +467,17 @@ class ExerciseBasedProbability(db.Model):
         return cls.query.all()
 
     def wrong_formula(self, count_wrong, count_wrong_after_another, weight):
-        return (float(self.probability) - (self.DEFAULT_MIN_PROBABILITY * count_wrong)* count_wrong_after_another)** 1/weight
+        print 'prob wrong ' + str(self.probability)
+        self.probability=(float(self.probability) - (self.DEFAULT_MIN_PROBABILITY * count_wrong)* count_wrong_after_another)** 1/weight
+        if self.probability<0.1:
+           self.probability = 0.1
 
     def correct_formula(self, count_correct, count_correct_after_another, weight):
-        return (float(self.probability) + (self.DEFAULT_MAX_PROBABILITY * count_correct)* count_correct_after_another)** 1/weight
+        print 'prob correct ' + str(self.probability)
+        self.probability=(float(self.probability) + (self.DEFAULT_MIN_PROBABILITY * count_correct)* count_correct_after_another)** 1/weight
+        if self.probability>1.0:
+            self.probability = 1.0
+
 
 
 
@@ -487,14 +509,14 @@ class ExerciseBasedProbability(db.Model):
                 count_wrong_after_another =0
                 count_not_know_after_another = 0
                 if self.probability is not 1.0:
-                    self.probability = self.correct_formula(count_correct, count_correct_after_another, weight)
+                    self.correct_formula(count_correct, count_correct_after_another, weight)
 
             elif exercise.outcome.outcome == ExerciseOutcome.WRONG:
                  count_wrong+=1
                  count_wrong_after_another += 1
                  count_correct_after_another =0
                  if self.probability is not 0.1:
-                    self.probability = self.wrong_formula(count_wrong, count_wrong_after_another, weight)
+                    self.wrong_formula(count_wrong, count_wrong_after_another, weight)
             weight +=1
 
     def halfProbability(self):
@@ -590,7 +612,7 @@ class AggregatedProbability(db.Model):
 
     @classmethod
     def calculateAggregatedProb(cls,exerciseProb, encounterProb):
-        return 0.6 * exerciseProb + 0.4 * encounterProb
+        return 0.6 * float(exerciseProb) + 0.4 * float(encounterProb)
 
     @classmethod
     def find(cls, user, user_words, word_ranks, probability=None):
@@ -617,7 +639,7 @@ class AggregatedProbability(db.Model):
 
     @classmethod
     def get_probable_known_words(cls, user):
-        cls.query.filter(
+        return cls.query.filter(
             cls.user == user).filter(cls.probability >=0.9).all()
 
 

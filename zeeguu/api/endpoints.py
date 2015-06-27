@@ -555,13 +555,7 @@ def get_known_words(lang_code):
 @cross_domain
 @with_session
 def get_probable_known_words():
-    high_agg_prob_of_user = model.AggregatedProbability.get_probable_known_words(flask.g.user)
-    probable_known_words_dict_list = []
-    for agg_prob in high_agg_prob_of_user:
-        probable_known_word_dict = {}
-        probable_known_word_dict['word'] = agg_prob.word_ranks.word
-        probable_known_words_dict_list.append(probable_known_word_dict.copy())
-    js = json.dumps(probable_known_words_dict_list)
+    js = json.dumps(flask.g.user.get_probable_known_words())
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 

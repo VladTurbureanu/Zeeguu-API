@@ -28,6 +28,14 @@
             - Words Already Learned: {{ user.get_known_bookmarks_count() }}
         </h4>
 
+         <h4>
+            - Words Already Known: {{ user.get_estimated_vocabulary_count() }}
+        </h4>
+
+        <h4>
+            - Probable Known Words: {{ user.get_probable_known_words_count() }}
+        </h4>
+
 
 
 
