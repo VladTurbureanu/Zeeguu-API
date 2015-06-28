@@ -32,8 +32,17 @@
             - Words Already Known: {{ user.get_estimated_vocabulary_count() }}
         </h4>
 
+
         <h4>
             - Probable Known Words: {{ user.get_probable_known_words_count() }}
+        </h4>
+
+         <h4>
+            - How well language known: {{ user.get_percentage_of_known_words_of_word_ranks() }}%
+        </h4>
+
+        <h4>
+            - How well bookmarks known: {{ user.get_percentage_of_known_bookmarked_words() }}%
         </h4>
 
 

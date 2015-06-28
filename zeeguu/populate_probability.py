@@ -14,6 +14,7 @@ def set_default_exercise_based_prob():
         prob = model.ExerciseBasedProbability.find(bookmark.user, bookmark.origin)
         zeeguu.db.session.add(prob)
         zeeguu.db.session.commit()
+    print 'job1'
 
 def set_default_encounter_based_prob():
     zeeguu.app.test_request_context().push()
@@ -41,6 +42,7 @@ def set_default_encounter_based_prob():
                        prob = model.EncounterBasedProbability.find(user,rank,default_probability)
                        zeeguu.db.session.add(prob)
     zeeguu.db.session.commit()
+    print 'job2'
 
 
 

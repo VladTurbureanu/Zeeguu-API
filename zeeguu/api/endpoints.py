@@ -559,10 +559,10 @@ def get_probable_known_words():
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_percentage_of_known_words_in_lang", methods=("GET",))
+@api.route("/get_percentage_of_known_words_of_word_ranks", methods=("GET",))
 @cross_domain
 @with_session
-def get_percentage_of_known_words_in_lang():
+def get_percentage_of_known_words_of_word_ranks():
     high_agg_prob_of_user = model.AggregatedProbability.get_probable_known_words(flask.g.user)
     res = str(len(high_agg_prob_of_user)/3000*100)
     return res

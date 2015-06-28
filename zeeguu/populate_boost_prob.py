@@ -48,7 +48,6 @@ def set_default_encounter_based_prob():
 def set_aggregated_prob():
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
-    languages = model.Language.all()
     enc_probs = model.EncounterBasedProbability.find_all()
     ex_probs = model.ExerciseBasedProbability.find_all()
     for prob in enc_probs:
@@ -71,12 +70,12 @@ def set_aggregated_prob():
         language = prob.user_words.language
         word = prob.user_words.word
         word_rank = None
-        if model.WordRank.exists(word,language):
-            word_rank = model.WordRank.find(word,language)
+        if model.WordRank.exists(word.lower(),language):
+            word_rank = model.WordRank.find(word.lower(),language)
         if not model.EncounterBasedProbability.exists(user,word_rank):
             if model.UserWord.exists(word, language):
                 user_word = model.UserWord.find(word, language)
-                aggreg_probability_obj = model.AggregatedProbability(user,user_word,None,prob.probability)
+                aggreg_probability_obj = model.AggregatedProbability(user,user_word,word_rank,prob.probability)
                 zeeguu.db.session.add(aggreg_probability_obj)
                 zeeguu.db.session.commit()
     print 'job3'
@@ -91,8 +90,8 @@ def set_aggregated_prob():
 
 
 if __name__ == "__main__":
-    # set_default_exercise_based_prob()
-    # set_default_encounter_based_prob()
+    set_default_exercise_based_prob()
+    set_default_encounter_based_prob()
     set_aggregated_prob()
 
 

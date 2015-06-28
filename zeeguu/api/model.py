@@ -220,6 +220,34 @@ class User(db.Model):
     def get_probable_known_words_count(self):
         return len(self.get_probable_known_words())
 
+    def get_percentage_of_known_words_of_word_ranks(self):
+        high_agg_prob_of_user = AggregatedProbability.get_probable_known_words(self)
+        count_high_agg_prob_of_user_ranked = 0
+        for prob in high_agg_prob_of_user:
+            if prob.word_ranks is not None and prob.word_ranks.rank <=3000:
+                count_high_agg_prob_of_user_ranked +=1
+        return round(float(count_high_agg_prob_of_user_ranked)/3000*100,2)
+
+    def get_percentage_of_known_bookmarked_words(self):
+        high_agg_prob_of_user = AggregatedProbability.get_probable_known_words(self)
+        find_all_agg_prob_of_user = AggregatedProbability.find_all_by_user(self)
+        count_user_words_of_user = 0
+        count_high_agg_prob_of_user =0
+        for prob in find_all_agg_prob_of_user:
+            if prob.user_words is not None:
+                count_user_words_of_user+=1
+        for prob in high_agg_prob_of_user:
+            if prob.user_words is not None:
+                count_high_agg_prob_of_user +=1
+        return round(float(count_high_agg_prob_of_user)/count_user_words_of_user*100,2)
+
+
+
+
+
+
+
+
 
 
 class Session(db.Model):
@@ -398,6 +426,7 @@ class UserWord(db.Model, util.JSONSerializable):
     def find_all(cls):
         return cls.query.all()
 
+
     @classmethod
     def find_by_language(cls, language):
         return (cls.query.filter(cls.language == language)
@@ -467,13 +496,11 @@ class ExerciseBasedProbability(db.Model):
         return cls.query.all()
 
     def wrong_formula(self, count_wrong, count_wrong_after_another, weight):
-        print 'prob wrong ' + str(self.probability)
         self.probability=(float(self.probability) - (self.DEFAULT_MIN_PROBABILITY * count_wrong)* count_wrong_after_another)** 1/weight
         if self.probability<0.1:
            self.probability = 0.1
 
     def correct_formula(self, count_correct, count_correct_after_another, weight):
-        print 'prob correct ' + str(self.probability)
         self.probability=(float(self.probability) + (self.DEFAULT_MIN_PROBABILITY * count_correct)* count_correct_after_another)** 1/weight
         if self.probability>1.0:
             self.probability = 1.0
@@ -626,6 +653,12 @@ class AggregatedProbability(db.Model):
             return cls(user, user_words, word_ranks, probability)
 
     @classmethod
+    def find_all_by_user(cls,user):
+        return cls.query.filter_by(
+            user = user
+        ).all()
+
+    @classmethod
     def exists(cls, user, user_words, word_ranks):
         try:
             cls.query.filter_by(
@@ -641,6 +674,7 @@ class AggregatedProbability(db.Model):
     def get_probable_known_words(cls, user):
         return cls.query.filter(
             cls.user == user).filter(cls.probability >=0.9).all()
+
 
 
 class Url(db.Model):
