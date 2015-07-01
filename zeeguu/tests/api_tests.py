@@ -51,6 +51,54 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
         added_bookmark_id = int(rv.data)
         rv = self.api_get('/bookmarks_by_day/with_context')
+        elements = json.loads(rv.data)
+        first_date = elements[0]
+        latest_bookmark_id = int(first_date["bookmarks"][0]['id'])
+        assert latest_bookmark_id  == added_bookmark_id
+
+    def test_get_probable_known_test(self):
+        rv = self.api_get('/get_probable_known_words')
+        probable_known_words_before = json.loads(rv.data)
+        assert not any(bookmark['word'] == 'gute' for bookmark in probable_known_words_before)
+        assert not any(bookmark['word'] == 'nacht' for bookmark in probable_known_words_before)
+        assert not any(bookmark['word'] == 'sondern' for bookmark in probable_known_words_before)
+        formData = dict(
+            url='http://mir.lu',
+            context='gute nacht sondern')
+        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        self.api_post('/gym/create_new_exercise/I know/Recognize/10000/'+ rv.data)
+        rv1 = self.api_get('/get_probable_known_words')
+        probable_known_words_after = json.loads(rv1.data)
+        assert any(bookmark['word'] == 'sondern' for bookmark in probable_known_words_after)
+        self.api_post('/gym/create_new_exercise/Do not know/Recognize/10000/'+ rv.data)
+        rv = self.api_get('/get_probable_known_words')
+        probable_known_words_after = json.loads(rv.data)
+        assert not any(bookmark['word'] == 'sondern' for bookmark in probable_known_words_after)
+        formData = dict(
+            url='http://mir.lu',
+            context='gute nacht sondern')
+        self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        formData = dict(
+            url='http://mir.lu',
+            context='gute nacht sondern')
+        self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        formData = dict(
+            url='http://mir.lu',
+            context='gute nacht sondern')
+        self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        formData = dict(
+            url='http://mir.lu',
+            context='gute nacht sondern')
+        self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        rv = self.api_get('/get_probable_known_words')
+        probable_known_words_after = json.loads(rv.data)
+        assert any(bookmark['word'] == 'gute' for bookmark in probable_known_words_after)
+        assert any(bookmark['word'] == 'nacht' for bookmark in probable_known_words_after)
+        assert not any(bookmark['word'] == 'sondern' for bookmark in probable_known_words_after)
+
+
+
+
 
 
     def test_delete_bookmark(self):
@@ -112,6 +160,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.api_get('/get_translations_for_bookmark/2')
         translations_dict_of_bookmark = json.loads(rv.data)
         assert not any(translation['word'] == first_word_translation_of_bookmark for translation in translations_dict_of_bookmark)
+
 
 
 

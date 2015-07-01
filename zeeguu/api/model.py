@@ -239,7 +239,10 @@ class User(db.Model):
         for prob in high_agg_prob_of_user:
             if prob.user_words is not None:
                 count_high_agg_prob_of_user +=1
-        return round(float(count_high_agg_prob_of_user)/count_user_words_of_user*100,2)
+        if count_user_words_of_user is not 0:
+            return round(float(count_high_agg_prob_of_user)/count_user_words_of_user*100,2)
+        else:
+            return 0
 
 
 
@@ -339,7 +342,6 @@ class WordRank(db.Model, util.JSONSerializable):
             return (cls.query.filter(cls.word == word)
                              .filter(cls.language == language)
                              .one())
-            return w
         except sqlalchemy.orm.exc.NoResultFound:
             return None
 
@@ -548,6 +550,8 @@ class ExerciseBasedProbability(db.Model):
 
     def halfProbability(self):
         self.probability /=2
+        if self.probability<0.1:
+            self.probability = 0.1
 
 
 
@@ -579,7 +583,7 @@ class EncounterBasedProbability(db.Model):
         self.probability = probability
 
     @classmethod
-    def find(cls, user, word_ranks, default_probability):
+    def find(cls, user, word_ranks, default_probability=None):
          try:
             return cls.query.filter_by(
                 user = user,
@@ -615,6 +619,10 @@ class EncounterBasedProbability(db.Model):
 
     def reset_prob (self):
         self.probability = 0.5
+
+    def boost_prob(self):
+        if float(self.probability) <> 1.0:
+            self.probability = float(self.probability) + 0.1
 
 
 

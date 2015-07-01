@@ -103,7 +103,57 @@ def add_bookmark(user, original_language, original_word, translation_language, t
     zeeguu.db.session.add(t1)
 
     zeeguu.db.session.commit()
-    return
+    add_probability_to_existing_words_of_user(user,t1,original_language)
+
+def add_probability_to_existing_words_of_user(user,bookmark,language):
+    words_of_all_bookmarks_content = []
+    not_looked_up_words = user.filter_bookmark_context(bookmark,words_of_all_bookmarks_content)
+    while bookmark.origin.word in not_looked_up_words: not_looked_up_words.remove(bookmark.origin.word)
+    not_looked_up_words_with_rank = user.filter_bookmark_context_by_rank(not_looked_up_words, language)
+
+    for word in not_looked_up_words_with_rank:
+        word_rank = model.WordRank.find(word.lower(), language)#
+        if model.EncounterBasedProbability.exists(user, word_rank):
+            enc_prob = model.EncounterBasedProbability.find(user,word_rank)
+            enc_prob.count_not_looked_up +=1
+            enc_prob.boost_prob()
+        else:
+            enc_prob = model.EncounterBasedProbability.find(user,word_rank, model.EncounterBasedProbability.DEFAULT_PROBABILITY)
+            zeeguu.db.session.add(enc_prob)
+        user_word = None
+        if model.UserWord.exists(word,language):
+            user_word = model.UserWord.find(word,language,word_rank)
+            ex_prob = model.ExerciseBasedProbability.find(user,user_word)
+            agg_prob = model.AggregatedProbability.find(user,user_word,word_rank)
+            agg_prob.probability = agg_prob.calculateAggregatedProb(ex_prob, enc_prob)
+        else:
+            agg_prob = model.AggregatedProbability.find(user,user_word,word_rank, model.EncounterBasedProbability.DEFAULT_PROBABILITY)
+            zeeguu.db.session.add(agg_prob)
+
+    word_rank = None
+    enc_prob = None
+    ex_prob = model.ExerciseBasedProbability.find(user, bookmark.origin)
+    if model.WordRank.exists(bookmark.origin.word, language):
+        word_rank = model.WordRank.find(bookmark.origin.word, language)
+        if model.EncounterBasedProbability.exists(user, word_rank):
+            enc_prob = model.EncounterBasedProbability.find(user, word_rank)
+            enc_prob.reset_prob()
+    if model.ExerciseBasedProbability.exists(user, bookmark.origin):
+        ex_prob.halfProbability()
+    else:
+        zeeguu.db.session.add(ex_prob)
+
+    if model.AggregatedProbability.exists(user, bookmark.origin,word_rank) and enc_prob == None:
+        agg_prob = model.AggregatedProbability.find(user, bookmark.origin,word_rank)
+        agg_prob.probability = ex_prob.probability
+    elif enc_prob is not None:
+        agg_prob = model.AggregatedProbability.find(user, bookmark.origin,word_rank)
+        agg_prob.probability = model.AggregatedProbability.calculateAggregatedProb(ex_prob,enc_prob)
+    else:
+        agg_prob = model.AggregatedProbability.find(user, bookmark.origin,word_rank, ex_prob.probability)
+        zeeguu.db.session.add(agg_prob)
+    zeeguu.db.session.commit()
+
 
 
 def create_test_db():
