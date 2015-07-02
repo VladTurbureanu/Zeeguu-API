@@ -36,7 +36,7 @@ def set_default_encounter_based_prob():
     zeeguu.db.session.commit()
     encounter_prob = model.EncounterBasedProbability.find_all()
     for prob in encounter_prob:
-        for i in range(0,prob.count_not_looked_up):
+        for i in range(1,prob.count_not_looked_up):
             a = decimal.Decimal('1.0')
             b = prob.probability
             c = decimal.Decimal('0.1')

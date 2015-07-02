@@ -255,7 +255,7 @@ def create_test_db():
     story_url = 'http://www.gutenberg.org/files/23393/23393-h/23393-h.htm'
     japanese_story = [
             # ['recht', 'right', 'Du hast recht', story_url],
-            ['hauen', 'to chop', 'Es waren einmal zwei Holzhauer', story_url],
+            ['hauen', 'to chop', 'Da waren einmal zwei Holzhauer', story_url],
             [u'Wald','to arrive', u'Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren', story_url],
             ['eingerichtet','established',u'Um in den Wald zu gelangen, mußten sie einen großen Fluß passieren, über den eine Fähre eingerichtet war', story_url],
             [u'vorläufig','temporary',u'von der er des rasenden Sturmes wegen vorläufig nicht zurück konnte', story_url],

@@ -372,7 +372,6 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
         else:
             enc_prob = model.EncounterBasedProbability.find(flask.g.user,word_rank, model.EncounterBasedProbability.DEFAULT_PROBABILITY)
             zeeguu.db.session.add(enc_prob)
-            print enc_prob.word_ranks.word
         user_word = None
         if model.UserWord.exists(word,from_lang):
             user_word = model.UserWord.find(word,from_lang,word_rank)
@@ -521,11 +520,11 @@ def get_translations_for_bookmark(bookmark_id):
     return resp
 
 
-@api.route("/get_known_bookmarks", methods=("GET",))
+@api.route("/get_known_bookmarks/<lang_code>", methods=("GET",))
 @cross_domain
 @with_session
-def get_known_bookmarks():
-    js = json.dumps(flask.g.user.get_known_bookmarks())
+def get_known_bookmarks(lang_code):
+    js = json.dumps(flask.g.user.get_known_bookmarks(model.Language.find(lang_code)))
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
@@ -555,11 +554,11 @@ def get_known_words(lang_code):
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_probable_known_words", methods=("GET",))
+@api.route("/get_probable_known_words/<lang_code>", methods=("GET",))
 @cross_domain
 @with_session
-def get_probable_known_words():
-    js = json.dumps(flask.g.user.get_probable_known_words())
+def get_probable_known_words(lang_code):
+    js = json.dumps(flask.g.user.get_probable_known_words(model.Language.find(lang_code)))
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
@@ -567,19 +566,24 @@ def get_probable_known_words():
 @cross_domain
 @with_session
 def get_percentage_of_known_words_of_word_ranks():
-    high_agg_prob_of_user = model.AggregatedProbability.get_probable_known_words(flask.g.user)
-    res = str(len(high_agg_prob_of_user)/3000*100)
-    return res
+    return flask.g.user.get_percentage_of_known_words_of_word_ranks()
 
-@api.route("/get_learned_bookmarks", methods=("GET",))
+@api.route("/get_percentage_of_known_bookmarked_words", methods=("GET",))
 @cross_domain
 @with_session
-def get_learned_bookmarks():
+def get_percentage_of_known_bookmarked_words():
+    return flask.g.user.get_percentage_of_known_bookmarked_words()
+
+@api.route("/get_learned_bookmarks/<lang>", methods=("GET",))
+@cross_domain
+@with_session
+def get_learned_bookmarks(lang):
+    lang = model.Language.find(lang)
     bookmarks = model.Bookmark.find_all_filtered_by_user()
     i_know_bookmarks=[]
     learned_bookmarks_dict_list =[]
     for bookmark in bookmarks:
-        if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
+        if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark) and bookmark.origin.language == lang:
                 i_know_bookmarks.append(bookmark)
     learned_bookmarks= [bookmark for bookmark in bookmarks if bookmark not in i_know_bookmarks]
     for bookmark in learned_bookmarks:

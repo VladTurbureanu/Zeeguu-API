@@ -3,7 +3,7 @@ import re
 import random
 import datetime
 import codecs
-import math
+import decimal
 import flask
 from sqlalchemy import Column, Table, ForeignKey, Integer, DECIMAL
 
@@ -157,11 +157,11 @@ class User(db.Model):
                 urls_to_words [bookmark.text.url] += bookmark.origin.importance_level()
         return sorted(urls_to_words, key=urls_to_words.get, reverse=True)
 
-    def get_known_bookmarks(self):
+    def get_known_bookmarks(self,lang):
         bookmarks = Bookmark.find_all_filtered_by_user()
         i_know_bookmarks=[]
         for bookmark in bookmarks:
-            if Bookmark.is_sorted_exercise_log_after_date_outcome(ExerciseOutcome.IKNOW, bookmark):
+            if Bookmark.is_sorted_exercise_log_after_date_outcome(ExerciseOutcome.IKNOW, bookmark) and lang ==bookmark.origin.language:
                     i_know_bookmark_dict = {}
                     i_know_bookmark_dict['id'] = bookmark.id
                     i_know_bookmark_dict['origin'] = bookmark.origin.word
@@ -171,7 +171,7 @@ class User(db.Model):
         return i_know_bookmarks
 
     def get_known_bookmarks_count(self):
-        return len(self.get_known_bookmarks())
+        return len(self.get_known_bookmarks(self.learned_language))
 
     def filter_bookmark_context(self, bookmark, words_of_all_bookmarks_content):
         bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
@@ -193,9 +193,10 @@ class User(db.Model):
         filtered_words_known_from_user_dict_list =[]
         enc_probs = EncounterBasedProbability.find_all_by_user(flask.g.user)
         for enc_prob in enc_probs:
-            filtered_word_known_from_user_dict = {}
-            filtered_word_known_from_user_dict['word'] = enc_prob.word_ranks.word
-            filtered_words_known_from_user_dict_list.append(filtered_word_known_from_user_dict.copy())
+            if enc_prob.word_ranks.language == lang:
+                filtered_word_known_from_user_dict = {}
+                filtered_word_known_from_user_dict['word'] = enc_prob.word_ranks.word
+                filtered_words_known_from_user_dict_list.append(filtered_word_known_from_user_dict.copy())
         return filtered_words_known_from_user_dict_list
 
     def get_estimated_vocabulary_for_learned_language(self):
@@ -205,20 +206,20 @@ class User(db.Model):
     def get_estimated_vocabulary_count(self):
         return len(self.get_estimated_vocabulary_for_learned_language())
 
-    def get_probable_known_words(self):
+    def get_probable_known_words(self, lang):
         high_agg_prob_of_user = AggregatedProbability.get_probable_known_words(flask.g.user)
         probable_known_words_dict_list = []
         for agg_prob in high_agg_prob_of_user:
             probable_known_word_dict = {}
-            if agg_prob.word_ranks is not None:
+            if agg_prob.word_ranks is not None and agg_prob.word_ranks.language == lang:
                 probable_known_word_dict['word'] = agg_prob.word_ranks.word
-            elif agg_prob.user_words is not None:
+            elif agg_prob.user_words is not None and agg_prob.user_words.language == lang:
                 probable_known_word_dict['word'] = agg_prob.user_words.word
             probable_known_words_dict_list.append(probable_known_word_dict.copy())
         return probable_known_words_dict_list
 
     def get_probable_known_words_count(self):
-        return len(self.get_probable_known_words())
+        return len(self.get_probable_known_words(self.learned_language))
 
     def get_percentage_of_known_words_of_word_ranks(self):
         high_agg_prob_of_user = AggregatedProbability.get_probable_known_words(self)
@@ -239,7 +240,7 @@ class User(db.Model):
         for prob in high_agg_prob_of_user:
             if prob.user_words is not None:
                 count_high_agg_prob_of_user +=1
-        if count_user_words_of_user is not 0:
+        if count_user_words_of_user <> 0:
             return round(float(count_high_agg_prob_of_user)/count_user_words_of_user*100,2)
         else:
             return 0
@@ -499,13 +500,13 @@ class ExerciseBasedProbability(db.Model):
 
     def wrong_formula(self, count_wrong, count_wrong_after_another, weight):
         self.probability=(float(self.probability) - (self.DEFAULT_MIN_PROBABILITY * count_wrong)* count_wrong_after_another)** 1/weight
-        if self.probability<0.1:
-           self.probability = 0.1
+        if float(self.probability)<0.1:
+           self.probability = decimal.Decimal('0.1')
 
     def correct_formula(self, count_correct, count_correct_after_another, weight):
         self.probability=(float(self.probability) + (self.DEFAULT_MIN_PROBABILITY * count_correct)* count_correct_after_another)** 1/weight
-        if self.probability>1.0:
-            self.probability = 1.0
+        if float(self.probability)>1.0:
+            self.probability = decimal.Decimal('1.0')
 
 
 
@@ -521,13 +522,13 @@ class ExerciseBasedProbability(db.Model):
         sorted_exercise_log_after_date=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=False)
         for exercise in sorted_exercise_log_after_date:
             if exercise.outcome.outcome == ExerciseOutcome.IKNOW:
-                self.probability = 1.0
+                self.probability = decimal.Decimal('1.0')
                 count_wrong = count_wrong/2
             elif exercise.outcome.outcome == ExerciseOutcome.NOT_KNOW:
-                if self.probability is not 0.1:
+                if float(self.probability) <> 0.1:
                     self.probability /=2
-                if self.probability < 0.1:
-                    self.probability = 0.1
+                if float(self.probability) < 0.1:
+                    self.probability = decimal.Decimal('0.1')
                 count_correct = count_correct/2
                 count_correct_after_another =0
                 count_not_know_after_another+=1
@@ -537,21 +538,21 @@ class ExerciseBasedProbability(db.Model):
                 count_correct_after_another +=1
                 count_wrong_after_another =0
                 count_not_know_after_another = 0
-                if self.probability is not 1.0:
+                if float(self.probability) <> 1.0:
                     self.correct_formula(count_correct, count_correct_after_another, weight)
 
             elif exercise.outcome.outcome == ExerciseOutcome.WRONG:
                  count_wrong+=1
                  count_wrong_after_another += 1
                  count_correct_after_another =0
-                 if self.probability is not 0.1:
+                 if float(self.probability) <> 0.1:
                     self.wrong_formula(count_wrong, count_wrong_after_another, weight)
             weight +=1
 
     def halfProbability(self):
         self.probability /=2
-        if self.probability<0.1:
-            self.probability = 0.1
+        if float(self.probability)<0.1:
+            self.probability = decimal.Decimal('0.1')
 
 
 

@@ -57,23 +57,23 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert latest_bookmark_id  == added_bookmark_id
 
     def test_get_probable_known_test(self):
-        rv = self.api_get('/get_probable_known_words')
-        probable_known_words_before = json.loads(rv.data)
-        assert not any(bookmark['word'] == 'gute' for bookmark in probable_known_words_before)
-        assert not any(bookmark['word'] == 'nacht' for bookmark in probable_known_words_before)
-        assert not any(bookmark['word'] == 'sondern' for bookmark in probable_known_words_before)
+        rv = self.api_get('/get_probable_known_words/de')
+        probable_known_words = json.loads(rv.data)
+        assert not any(word['word'] == 'gute' for word in probable_known_words)
+        assert not any(word['word'] == 'nacht' for word in probable_known_words)
+        assert not any(word['word'] == 'sondern' for word in probable_known_words)
         formData = dict(
             url='http://mir.lu',
             context='gute nacht sondern')
         rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
         self.api_post('/gym/create_new_exercise/I know/Recognize/10000/'+ rv.data)
-        rv1 = self.api_get('/get_probable_known_words')
-        probable_known_words_after = json.loads(rv1.data)
-        assert any(bookmark['word'] == 'sondern' for bookmark in probable_known_words_after)
+        rv1 = self.api_get('/get_probable_known_words/de')
+        probable_known_words = json.loads(rv1.data)
+        assert any(word['word'] == 'sondern' for word in probable_known_words)
         self.api_post('/gym/create_new_exercise/Do not know/Recognize/10000/'+ rv.data)
-        rv = self.api_get('/get_probable_known_words')
-        probable_known_words_after = json.loads(rv.data)
-        assert not any(bookmark['word'] == 'sondern' for bookmark in probable_known_words_after)
+        rv = self.api_get('/get_probable_known_words/de')
+        probable_known_words = json.loads(rv.data)
+        assert not any(word['word'] == 'sondern' for word in probable_known_words)
         formData = dict(
             url='http://mir.lu',
             context='gute nacht sondern')
@@ -90,11 +90,11 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             url='http://mir.lu',
             context='gute nacht sondern')
         self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
-        rv = self.api_get('/get_probable_known_words')
-        probable_known_words_after = json.loads(rv.data)
-        assert any(bookmark['word'] == 'gute' for bookmark in probable_known_words_after)
-        assert any(bookmark['word'] == 'nacht' for bookmark in probable_known_words_after)
-        assert not any(bookmark['word'] == 'sondern' for bookmark in probable_known_words_after)
+        rv = self.api_get('/get_probable_known_words/de')
+        probable_known_words = json.loads(rv.data)
+        assert any(word['word'] == 'gute' for word in probable_known_words)
+        assert any(word['word'] == 'nacht' for word in probable_known_words)
+        assert not any(word['word'] == 'sondern' for word in probable_known_words)
 
 
 
@@ -205,19 +205,19 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.api_get('/get_exercise_log_for_bookmark/'+str(second_latest_bookmark_id))
         'I know' not in rv.data
         self.api_post('/gym/create_new_exercise/I know/Recognize/10000/'+ str(latest_bookmark_id))
-        rv = self.api_get('/get_known_bookmarks')
+        rv = self.api_get('/get_known_bookmarks/de')
         known_bookmarks_before = json.loads(rv.data)
         assert any(bookmark['id'] == latest_bookmark_id for bookmark in known_bookmarks_before)
         assert not any(bookmark['id'] == second_latest_bookmark_id for bookmark in known_bookmarks_before)
         self.api_post('/gym/create_new_exercise/I know/Recognize/10000/'+ str(second_latest_bookmark_id))
-        rv3 = self.api_get('/get_known_bookmarks')
+        rv3 = self.api_get('/get_known_bookmarks/de')
         known_bookmarks_after = json.loads(rv3.data)
         assert any(bookmark['id'] == latest_bookmark_id for bookmark in known_bookmarks_after)
         assert any(bookmark['id'] == second_latest_bookmark_id for bookmark in known_bookmarks_after)
 
         time.sleep(2) # delays for 5 seconds
         self.api_post('/gym/create_new_exercise/Do not know/Recognize/10000/'+ str(second_latest_bookmark_id))
-        rv4 = self.api_get('/get_known_bookmarks')
+        rv4 = self.api_get('/get_known_bookmarks/de')
         known_bookmarks_after = json.loads(rv4.data)
         assert not any(bookmark['id'] == second_latest_bookmark_id for bookmark in known_bookmarks_after)
 
@@ -274,34 +274,34 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         formData = dict(
             url='http://mir.lu',
             context='somewhere over the rainbowwwwwwwww')
-        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
         rv = self.api_get('/bookmarks_by_day/with_context')
         bookmarks_by_day = json.loads(rv.data)
         latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][0]['id']
-        rv = self.api_get('/get_learned_bookmarks')
+        rv = self.api_get('/get_learned_bookmarks/de')
         learned_bookmarks = json.loads(rv.data)
         assert any(bookmark['id'] == latest_bookmark_id for bookmark in learned_bookmarks)
         learned_bookmarks_count = len(learned_bookmarks)
         formData = dict(
             url='http://mir.lu',
             context='chilling on the streets')
-        rv = self.api_post('/bookmark_with_context/de/strassen/en/streets', formData)
+        self.api_post('/bookmark_with_context/de/strassen/en/streets', formData)
         rv = self.api_get('/bookmarks_by_day/with_context')
         bookmarks_by_day = json.loads(rv.data)
         new_latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][1]['id']
-        rv = self.api_get('/get_learned_bookmarks')
+        rv = self.api_get('/get_learned_bookmarks/de')
         learned_bookmarks = json.loads(rv.data)
         assert learned_bookmarks_count +1 == len(learned_bookmarks)
         assert any(bookmark['id'] == latest_bookmark_id for bookmark in learned_bookmarks)
         assert any(bookmark['id'] == new_latest_bookmark_id for bookmark in learned_bookmarks)
-        rv = self.api_post('/gym/create_new_exercise/I know/Recognize/10000/'+ str(latest_bookmark_id))
-        rv = self.api_get('/get_learned_bookmarks')
+        self.api_post('/gym/create_new_exercise/I know/Recognize/10000/'+ str(latest_bookmark_id))
+        rv = self.api_get('/get_learned_bookmarks/de')
         learned_bookmarks = json.loads(rv.data)
         assert not any(bookmark['id'] == latest_bookmark_id for bookmark in learned_bookmarks)
         assert learned_bookmarks_count== len(learned_bookmarks)
         time.sleep(5)
-        rv = self.api_post('/gym/create_new_exercise/Do not know/Recognize/10000/'+ str(latest_bookmark_id))
-        rv = self.api_get('/get_learned_bookmarks')
+        self.api_post('/gym/create_new_exercise/Do not know/Recognize/10000/'+ str(latest_bookmark_id))
+        rv = self.api_get('/get_learned_bookmarks/de')
         learned_bookmarks = json.loads(rv.data)
         assert learned_bookmarks_count+1== len(learned_bookmarks)
         assert any(bookmark['id'] == latest_bookmark_id for bookmark in learned_bookmarks)
