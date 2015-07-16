@@ -3,24 +3,24 @@
 import re
 import zeeguu
 import decimal
-from zeeguu import model
+from zeeguu.model import WordRank, Language,Bookmark, UserWord, User, ExerciseBasedProbability, EncounterBasedProbability,AggregatedProbability
 
 
 
 def set_default_exercise_based_prob():
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
-    users = model.User.find_all()
-    languages = model.Language.all()
+    users = User.find_all()
+    languages = Language.all()
 
 
     for user in users:
         for language in languages:
-            user_words = model.UserWord.find_by_language(language)
+            user_words = UserWord.find_by_language(language)
             for word in user_words:
-                if model.ExerciseBasedProbability.exists(user,word):
-                    prob = model.ExerciseBasedProbability.find(user,word)
-                    bookmarks_by_user_and_word = model.Bookmark.find_all_by_user_and_word(user,word)
+                if ExerciseBasedProbability.exists(user,word):
+                    prob = ExerciseBasedProbability.find(user,word)
+                    bookmarks_by_user_and_word = Bookmark.find_all_by_user_and_word(user,word)
                     total_prob = 0
                     for bookmark in bookmarks_by_user_and_word:
                         prob.calculate_bookmark_probability(bookmark)
@@ -34,7 +34,7 @@ def set_default_exercise_based_prob():
 def set_default_encounter_based_prob():
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
-    encounter_prob = model.EncounterBasedProbability.find_all()
+    encounter_prob = EncounterBasedProbability.find_all()
     for prob in encounter_prob:
         for i in range(1,prob.count_not_looked_up):
             a = decimal.Decimal('1.0')
@@ -48,21 +48,21 @@ def set_default_encounter_based_prob():
 def set_aggregated_prob():
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
-    enc_probs = model.EncounterBasedProbability.find_all()
-    ex_probs = model.ExerciseBasedProbability.find_all()
+    enc_probs = EncounterBasedProbability.find_all()
+    ex_probs = ExerciseBasedProbability.find_all()
     for prob in enc_probs:
         user = prob.user
         word = prob.word_ranks.word
         language = prob.word_ranks.language
         user_word = None
-        if model.UserWord.exists(word, language):
-            user_word = model.UserWord.find(word, language)
-        if model.ExerciseBasedProbability.exists(user, user_word):
-            ex_prob = model.ExerciseBasedProbability.find(user, user_word)
-            aggreg_prob = model.AggregatedProbability.calculateAggregatedProb(ex_prob.probability, prob.probability)
-            aggreg_probability_obj = model.AggregatedProbability.find(user,user_word,prob.word_ranks,aggreg_prob)
+        if UserWord.exists(word, language):
+            user_word = UserWord.find(word, language)
+        if ExerciseBasedProbability.exists(user, user_word):
+            ex_prob = ExerciseBasedProbability.find(user, user_word)
+            aggreg_prob = AggregatedProbability.calculateAggregatedProb(ex_prob.probability, prob.probability)
+            aggreg_probability_obj = AggregatedProbability.find(user,user_word,prob.word_ranks,aggreg_prob)
         else:
-            aggreg_probability_obj = model.AggregatedProbability.find(user,None, prob.word_ranks,prob.probability)
+            aggreg_probability_obj = AggregatedProbability.find(user,None, prob.word_ranks,prob.probability)
         zeeguu.db.session.add(aggreg_probability_obj)
         zeeguu.db.session.commit()
     for prob in ex_probs:
@@ -70,12 +70,12 @@ def set_aggregated_prob():
         language = prob.user_words.language
         word = prob.user_words.word
         word_rank = None
-        if model.WordRank.exists(word.lower(),language):
-            word_rank = model.WordRank.find(word.lower(),language)
-        if not model.EncounterBasedProbability.exists(user,word_rank):
-            if model.UserWord.exists(word, language):
-                user_word = model.UserWord.find(word, language)
-                aggreg_probability_obj = model.AggregatedProbability(user,user_word,word_rank,prob.probability)
+        if WordRank.exists(word,language):
+            word_rank = WordRank.find(word,language)
+        if not EncounterBasedProbability.exists(user,word_rank):
+            if UserWord.exists(word, language):
+                user_word = UserWord.find(word, language)
+                aggreg_probability_obj = AggregatedProbability(user,user_word,word_rank,prob.probability)
                 zeeguu.db.session.add(aggreg_probability_obj)
                 zeeguu.db.session.commit()
     print 'job3'

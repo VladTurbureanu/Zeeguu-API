@@ -19,7 +19,7 @@ import json
 import goslate
 import datetime
 import re
-from zeeguu import model
+from zeeguu.model import WordRank, Language,Bookmark, Session, Search, UserWord, User, Url, ExerciseBasedProbability, EncounterBasedProbability,AggregatedProbability, Text, ExerciseOutcome
 import re
 
 
@@ -42,7 +42,7 @@ def with_session(view):
             session_id = int(flask.request.args['session'])
         except:
             flask.abort(401)
-        session = model.Session.query.get(session_id)
+        session = Session.query.get(session_id)
         if session is None:
             flask.abort(401)
         flask.g.user = session.user
@@ -159,7 +159,7 @@ def available_languages():
     supported languages.
     e.g. ["en", "fr", "de", "it", "no", "ro"]
     """
-    available_language_codes = map((lambda x: x.id), (model.Language.available_languages()))
+    available_language_codes = map((lambda x: x.id), (Language.available_languages()))
     return json.dumps(available_language_codes)
 
 
@@ -181,7 +181,7 @@ def add_user(email):
     if password is None:
         flask.abort(400)
     try:
-        zeeguu.db.session.add(model.User(email, username, password))
+        zeeguu.db.session.add(User(email, username, password))
         zeeguu.db.session.commit()
     except ValueError:
         flask.abort(400)
@@ -203,10 +203,10 @@ def get_session(email):
     password = flask.request.form.get("password", None)
     if password is None:
         flask.abort(400)
-    user = model.User.authorize(email, password)
+    user = User.authorize(email, password)
     if user is None:
         flask.abort(401)
-    session = model.Session.for_user(user)
+    session = Session.for_user(user)
     zeeguu.db.session.add(session)
     zeeguu.db.session.commit()
     return str(session.id)
@@ -328,85 +328,84 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     context = flask.request.form['context']
 
 
-    url = model.Url.find(bookmarked_url, bookmarked_url_title)
+    url = Url.find(bookmarked_url, bookmarked_url_title)
 
-    from_lang = model.Language.find(from_lang_code)
-    to_lang = model.Language.find(to_lang_code)
+    from_lang = Language.find(from_lang_code)
+    to_lang = Language.find(to_lang_code)
 
     word = (decode_word(term))
     translation_word = decode_word(translation)
 
 
-    if model.WordRank.exists(word.lower(), from_lang):
-        rank = model.UserWord.find_rank(word.lower(),from_lang)
-        user_word = model.UserWord.find(word,from_lang,rank)
+    if WordRank.exists(word, from_lang):
+        rank = UserWord.find_rank(word.lower(),from_lang)
+        user_word = UserWord.find(word,from_lang,rank)
     else:
-        user_word = model.UserWord.find(word,from_lang,None)
+        user_word = UserWord.find(word,from_lang,None)
 
 
-    if model.WordRank.exists(translation_word.lower(), to_lang):
-        rank = model.UserWord.find_rank(translation_word.lower(),to_lang)
-        translation = model.UserWord.find(translation_word,to_lang,rank)
+    if WordRank.exists(translation_word, to_lang):
+        rank = UserWord.find_rank(translation_word.lower(),to_lang)
+        translation = UserWord.find(translation_word,to_lang,rank)
     else:
-        translation = model.UserWord.find(translation_word,to_lang,None)
+        translation = UserWord.find(translation_word,to_lang,None)
 
-    # search = model.Search.query.filter_by(
+    # search = Search.query.filter_by(
     #     user=flask.g.user, user_word=user_word, language=to_lang
-    # ).order_by(model.Search.id.desc()).first()
+    # ).order_by(Search.id.desc()).first()
 
     #create the text entity first
-    new_text = model.Text(context, from_lang, url)
-    bookmark = model.Bookmark(user_word, translation, flask.g.user, new_text, datetime.datetime.now())
+    new_text = Text(context, from_lang, url)
+    bookmark = Bookmark(user_word, translation, flask.g.user, new_text, datetime.datetime.now())
     zeeguu.db.session.add(bookmark)
 
-    words_of_all_bookmarks_content = []
-    not_looked_up_words = flask.g.user.filter_bookmark_context(bookmark,words_of_all_bookmarks_content)
+    not_looked_up_words = bookmark.split_words_from_context()
     while bookmark.origin.word in not_looked_up_words: not_looked_up_words.remove(bookmark.origin.word)
-    not_looked_up_words_with_rank = flask.g.user.filter_bookmark_context_by_rank(not_looked_up_words, from_lang)
+    not_looked_up_words_with_rank = bookmark.probable_known_words_that_have_a_rank(not_looked_up_words)
     for word in not_looked_up_words_with_rank:
-        word_rank = model.WordRank.find(word.lower(), from_lang)#
-        if model.EncounterBasedProbability.exists(flask.g.user, word_rank):
-            enc_prob = model.EncounterBasedProbability.find(flask.g.user,word_rank)
+        word_rank = WordRank.find(word, from_lang)
+        if EncounterBasedProbability.exists(flask.g.user, word_rank):
+            enc_prob = EncounterBasedProbability.find(flask.g.user,word_rank)
             enc_prob.count_not_looked_up +=1
             enc_prob.boost_prob()
         else:
-            enc_prob = model.EncounterBasedProbability.find(flask.g.user,word_rank, model.EncounterBasedProbability.DEFAULT_PROBABILITY)
-            zeeguu.db.session.add(enc_prob)
+            enc_prob = EncounterBasedProbability.find(flask.g.user,word_rank, EncounterBasedProbability.DEFAULT_PROBABILITY)
+        zeeguu.db.session.add(enc_prob)
         user_word = None
-        if model.UserWord.exists(word,from_lang):
-            user_word = model.UserWord.find(word,from_lang,word_rank)
-            ex_prob = model.ExerciseBasedProbability.find(flask.g.user,user_word)
-            agg_prob = model.AggregatedProbability.find(flask.g.user,user_word,word_rank)
+        if UserWord.exists(word,from_lang):
+            user_word = UserWord.find(word,from_lang,word_rank)
+            ex_prob = ExerciseBasedProbability.find(flask.g.user,user_word)
+            agg_prob = AggregatedProbability.find(flask.g.user,user_word,word_rank)
             agg_prob.probability = agg_prob.calculateAggregatedProb(ex_prob, enc_prob)
         else:
-            if model.AggregatedProbability.exists(flask.g.user, user_word,word_rank):
-                agg_prob = model.AggregatedProbability.find(flask.g.user,user_word,word_rank)
+            if AggregatedProbability.exists(flask.g.user, user_word,word_rank):
+                agg_prob = AggregatedProbability.find(flask.g.user,user_word,word_rank)
                 agg_prob.probability = enc_prob.probability
             else:
-                agg_prob = model.AggregatedProbability.find(flask.g.user,user_word,word_rank, enc_prob.probability)
+                agg_prob = AggregatedProbability.find(flask.g.user,user_word,word_rank, enc_prob.probability)
                 zeeguu.db.session.add(agg_prob)
 
     word_rank = None
     enc_prob = None
-    ex_prob = model.ExerciseBasedProbability.find(flask.g.user, bookmark.origin)
-    if model.WordRank.exists(bookmark.origin.word, from_lang):
-        word_rank = model.WordRank.find(bookmark.origin.word, from_lang)
-        if model.EncounterBasedProbability.exists(flask.g.user, word_rank):
-            enc_prob = model.EncounterBasedProbability.find(flask.g.user, word_rank)
+    ex_prob = ExerciseBasedProbability.find(flask.g.user, bookmark.origin)
+    if WordRank.exists(bookmark.origin.word, from_lang):
+        word_rank = WordRank.find(bookmark.origin.word, from_lang)
+        if EncounterBasedProbability.exists(flask.g.user, word_rank):
+            enc_prob = EncounterBasedProbability.find(flask.g.user, word_rank)
             enc_prob.reset_prob()
-    if model.ExerciseBasedProbability.exists(flask.g.user, bookmark.origin):
+    if ExerciseBasedProbability.exists(flask.g.user, bookmark.origin):
         ex_prob.halfProbability()
     else:
         zeeguu.db.session.add(ex_prob)
 
-    if model.AggregatedProbability.exists(flask.g.user, bookmark.origin,word_rank) and enc_prob == None:
-        agg_prob = model.AggregatedProbability.find(flask.g.user, bookmark.origin,word_rank)
+    if AggregatedProbability.exists(flask.g.user, bookmark.origin,word_rank) and enc_prob == None:
+        agg_prob = AggregatedProbability.find(flask.g.user, bookmark.origin,word_rank)
         agg_prob.probability = ex_prob.probability
     elif enc_prob is not None:
-        agg_prob = model.AggregatedProbability.find(flask.g.user, bookmark.origin,word_rank)
-        agg_prob.probability = model.AggregatedProbability.calculateAggregatedProb(ex_prob,enc_prob)
+        agg_prob = AggregatedProbability.find(flask.g.user, bookmark.origin,word_rank)
+        agg_prob.probability = AggregatedProbability.calculateAggregatedProb(ex_prob,enc_prob)
     else:
-        agg_prob = model.AggregatedProbability.find(flask.g.user, bookmark.origin,word_rank, ex_prob.probability)
+        agg_prob = AggregatedProbability.find(flask.g.user, bookmark.origin,word_rank, ex_prob.probability)
         zeeguu.db.session.add(agg_prob)
 
     zeeguu.db.session.commit()
@@ -419,7 +418,7 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
 @cross_domain
 @with_session
 def delete_bookmark(bookmark_id):
-    bookmark = model.Bookmark.query.filter_by(
+    bookmark = Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
 
@@ -435,7 +434,7 @@ def delete_bookmark(bookmark_id):
 @cross_domain
 @with_session
 def get_exercise_log_for_bookmark(bookmark_id):
-    bookmark = model.Bookmark.query.filter_by(
+    bookmark = Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
     exercise_log_dict = []
@@ -458,7 +457,7 @@ def get_exercise_log_for_bookmark(bookmark_id):
 @cross_domain
 @with_session
 def add_new_translation_to_bookmark(word_translation, bookmark_id):
-    bookmark = model.Bookmark.query.filter_by(
+    bookmark = Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
     translations_of_bookmark = bookmark.translations_list
@@ -467,8 +466,8 @@ def add_new_translation_to_bookmark(word_translation, bookmark_id):
             return 'FAIL'
 
 
-    rank = model.UserWord.find_rank(word_translation, translations_of_bookmark[0].language)
-    translation_user_word = model.UserWord.find(word_translation,translations_of_bookmark[0].language,rank)
+    rank = UserWord.find_rank(word_translation, translations_of_bookmark[0].language)
+    translation_user_word = UserWord.find(word_translation,translations_of_bookmark[0].language,rank)
     bookmark.add_new_translation(translation_user_word)
     zeeguu.db.session.add(translation_user_word)
     zeeguu.db.session.commit()
@@ -479,7 +478,7 @@ def add_new_translation_to_bookmark(word_translation, bookmark_id):
 @cross_domain
 @with_session
 def delete_translation_from_bookmark(bookmark_id,translation_word):
-    bookmark = model.Bookmark.query.filter_by(
+    bookmark = Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
     if len(bookmark.translations_list) == 1:
@@ -491,7 +490,7 @@ def delete_translation_from_bookmark(bookmark_id,translation_word):
             break
     if translation_id ==-1:
         return 'FAIL'
-    translation = model.UserWord.query.filter_by(
+    translation = UserWord.query.filter_by(
         id = translation_id
     ).first()
     bookmark.remove_translation(translation)
@@ -503,7 +502,7 @@ def delete_translation_from_bookmark(bookmark_id,translation_word):
 @cross_domain
 @with_session
 def get_translations_for_bookmark(bookmark_id):
-    bookmark = model.Bookmark.query.filter_by(
+    bookmark = Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
     translation_dict_list = []
@@ -524,7 +523,7 @@ def get_translations_for_bookmark(bookmark_id):
 @cross_domain
 @with_session
 def get_known_bookmarks(lang_code):
-    js = json.dumps(flask.g.user.get_known_bookmarks(model.Language.find(lang_code)))
+    js = json.dumps(flask.g.user.get_known_bookmarks(Language.find(lang_code)))
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
@@ -533,16 +532,16 @@ def get_known_bookmarks(lang_code):
 @cross_domain
 @with_session
 def get_known_words(lang_code):
-    lang_id = model.Language.find(lang_code)
-    bookmarks = model.Bookmark.find_all_filtered_by_user()
+    lang_id = Language.find(lang_code)
+    bookmarks = Bookmark.find_all_filtered_by_user()
     i_know_words=[]
     filtered_i_know_words_from_user = []
     filtered_i_know_words_dict_list =[]
     for bookmark in bookmarks:
-        if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark):
+        if Bookmark.is_sorted_exercise_log_after_date_outcome(ExerciseOutcome.IKNOW, bookmark):
                 i_know_words.append(bookmark.origin.word)
     for word_known in i_know_words:
-        if model.WordRank.exists(word_known.lower(), lang_id):
+        if WordRank.exists(word_known, lang_id):
             filtered_i_know_words_from_user.append(word_known)
             zeeguu.db.session.commit()
     filtered_i_know_words_from_user = list(set(filtered_i_know_words_from_user))
@@ -558,7 +557,7 @@ def get_known_words(lang_code):
 @cross_domain
 @with_session
 def get_probable_known_words(lang_code):
-    js = json.dumps(flask.g.user.get_probable_known_words(model.Language.find(lang_code)))
+    js = json.dumps(flask.g.user.get_probable_known_words(Language.find(lang_code)))
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
@@ -578,12 +577,12 @@ def get_percentage_of_known_bookmarked_words():
 @cross_domain
 @with_session
 def get_learned_bookmarks(lang):
-    lang = model.Language.find(lang)
-    bookmarks = model.Bookmark.find_all_filtered_by_user()
+    lang = Language.find(lang)
+    bookmarks = Bookmark.find_all_filtered_by_user()
     i_know_bookmarks=[]
     learned_bookmarks_dict_list =[]
     for bookmark in bookmarks:
-        if model.Bookmark.is_sorted_exercise_log_after_date_outcome(model.ExerciseOutcome.IKNOW, bookmark) and bookmark.origin.language == lang:
+        if Bookmark.is_sorted_exercise_log_after_date_outcome(ExerciseOutcome.IKNOW, bookmark) and bookmark.origin.language == lang:
                 i_know_bookmarks.append(bookmark)
     learned_bookmarks= [bookmark for bookmark in bookmarks if bookmark not in i_know_bookmarks]
     for bookmark in learned_bookmarks:
@@ -601,7 +600,7 @@ def get_learned_bookmarks(lang):
 @cross_domain
 @with_session
 def get_estimated_user_vocabulary(lang_code):
-    js = json.dumps(flask.g.user.get_estimated_vocabulary(model.Language.find(lang_code)))
+    js = json.dumps(flask.g.user.get_estimated_vocabulary(Language.find(lang_code)))
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
@@ -623,20 +622,20 @@ def lookup(from_lang, term, to_lang):
     :param to_lang:
     :return:
     """
-    from_lang = model.Language.find(from_lang)
-    if not isinstance(to_lang, model.Language):
-        to_lang = model.Language.find(to_lang)
+    from_lang = Language.find(from_lang)
+    if not isinstance(to_lang, Language):
+        to_lang = Language.find(to_lang)
     user = flask.g.user
     content = flask.request.form.get("text")
     if content is not None:
-        text = model.Text.find(content, from_lang)
+        text = Text.find(content, from_lang)
         user.read(text)
     else:
         text = None
     word = decode_word(term)
-    rank = model.UserWord.find_rank(word, to_lang)
+    rank = UserWord.find_rank(word, to_lang)
     user.searches.append(
-        model.Search(user, model.UserWord.find(word, from_lang,rank),
+        Search(user, UserWord.find(word, from_lang,rank),
                      to_lang, text)
     )
     zeeguu.db.session.commit()

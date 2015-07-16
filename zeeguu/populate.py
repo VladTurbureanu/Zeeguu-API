@@ -106,20 +106,19 @@ def add_bookmark(user, original_language, original_word, translation_language, t
     add_probability_to_existing_words_of_user(user,t1,original_language)
 
 def add_probability_to_existing_words_of_user(user,bookmark,language):
-    words_of_all_bookmarks_content = []
-    not_looked_up_words = user.filter_bookmark_context(bookmark,words_of_all_bookmarks_content)
+    not_looked_up_words = bookmark.split_words_from_context()
     while bookmark.origin.word in not_looked_up_words: not_looked_up_words.remove(bookmark.origin.word)
-    not_looked_up_words_with_rank = user.filter_bookmark_context_by_rank(not_looked_up_words, language)
+    not_looked_up_words_with_rank = bookmark.probable_known_words_that_have_a_rank(not_looked_up_words)
 
     for word in not_looked_up_words_with_rank:
-        word_rank = model.WordRank.find(word.lower(), language)#
+        word_rank = model.WordRank.find(word, language)
         if model.EncounterBasedProbability.exists(user, word_rank):
             enc_prob = model.EncounterBasedProbability.find(user,word_rank)
             enc_prob.count_not_looked_up +=1
             enc_prob.boost_prob()
         else:
             enc_prob = model.EncounterBasedProbability.find(user,word_rank, model.EncounterBasedProbability.DEFAULT_PROBABILITY)
-            zeeguu.db.session.add(enc_prob)
+        zeeguu.db.session.add(enc_prob)
         user_word = None
         if model.UserWord.exists(word,language):
             user_word = model.UserWord.find(word,language,word_rank)
@@ -127,8 +126,12 @@ def add_probability_to_existing_words_of_user(user,bookmark,language):
             agg_prob = model.AggregatedProbability.find(user,user_word,word_rank)
             agg_prob.probability = agg_prob.calculateAggregatedProb(ex_prob, enc_prob)
         else:
-            agg_prob = model.AggregatedProbability.find(user,user_word,word_rank, model.EncounterBasedProbability.DEFAULT_PROBABILITY)
-            zeeguu.db.session.add(agg_prob)
+            if  model.AggregatedProbability.exists(user, user_word,word_rank):
+                agg_prob = model.AggregatedProbability.find(user,user_word,word_rank)
+                agg_prob.probability = enc_prob.probability
+            else:
+                agg_prob = model.AggregatedProbability.find(user,user_word,word_rank, enc_prob.probability)
+                zeeguu.db.session.add(agg_prob)
 
     word_rank = None
     enc_prob = None
@@ -255,7 +258,7 @@ def create_test_db():
     story_url = 'http://www.gutenberg.org/files/23393/23393-h/23393-h.htm'
     japanese_story = [
             # ['recht', 'right', 'Du hast recht', story_url],
-            ['hauen', 'to chop', 'Da waren einmal zwei Holzhauer', story_url],
+            ['hauen', 'to chop', 'Da waren einmal zwei Holzhauer können', story_url],
             [u'Wald','to arrive', u'Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren', story_url],
             ['eingerichtet','established',u'Um in den Wald zu gelangen, mußten sie einen großen Fluß passieren, über den eine Fähre eingerichtet war', story_url],
             [u'vorläufig','temporary',u'von der er des rasenden Sturmes wegen vorläufig nicht zurück konnte', story_url],

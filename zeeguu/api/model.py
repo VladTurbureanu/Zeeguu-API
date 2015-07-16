@@ -2,10 +2,11 @@
 import re
 import random
 import datetime
-import codecs
+import string
 import decimal
 import flask
 from sqlalchemy import Column, Table, ForeignKey, Integer, DECIMAL
+from re import compile as _Re
 
 import sqlalchemy.orm.exc
 
@@ -173,20 +174,6 @@ class User(db.Model):
     def get_known_bookmarks_count(self):
         return len(self.get_known_bookmarks(self.learned_language))
 
-    def filter_bookmark_context(self, bookmark, words_of_all_bookmarks_content):
-        bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
-        words_of_all_bookmarks_content.extend(bookmark_content_words)
-        return words_of_all_bookmarks_content
-
-
-
-    def filter_bookmark_context_by_rank(self, words_known_from_user, lang):
-        filtered_words_known_from_user = []
-        for word_known in words_known_from_user:
-            if WordRank.exists(word_known.lower(), lang):
-                filtered_words_known_from_user.append(word_known)
-        return filtered_words_known_from_user
-
 
     def get_estimated_vocabulary(self, lang):
 
@@ -339,6 +326,7 @@ class WordRank(db.Model, util.JSONSerializable):
 
     @classmethod
     def find(cls, word, language):
+        word = word.lower()
         try:
             return (cls.query.filter(cls.word == word)
                              .filter(cls.language == language)
@@ -353,6 +341,7 @@ class WordRank(db.Model, util.JSONSerializable):
 
     @classmethod
     def exists(cls, word, language):
+        word = word.lower()
         try:
             (cls.query.filter(cls.word == word)
                              .filter(cls.language == language)
@@ -621,9 +610,11 @@ class EncounterBasedProbability(db.Model):
     def reset_prob (self):
         self.probability = 0.5
 
+#         This function controls if prob is already 1.0, else it adds 0.1. It maximum adds 0.1, therefore cannot exceed 1
     def boost_prob(self):
         if float(self.probability) <> 1.0:
             self.probability = float(self.probability) + 0.1
+
 
 
 
@@ -736,6 +727,9 @@ class Bookmark(db.Model):
 
     exercise_log = relationship("Exercise", secondary="bookmark_exercise_mapping")
 
+
+
+
     def __init__(self, origin, translation, user, text, time):
         self.origin = origin
         self.translations_list.append(translation)
@@ -776,6 +770,23 @@ class Bookmark(db.Model):
         self.add_new_exercise(exercise)
         db.session.add(exercise)
 
+    def split_words_from_context(self):
+        words_of_bookmark_content = []
+        # bookmark_content_words = re.sub("[^\w]", " ",  self.text.content).split()
+        # bookmark_content_words = re.compile(r'[%s\s]+' % re.escape(string.punctuation)).split(self.text.content)
+        bookmark_content_words = re.findall(r'(?u)\w+', self.text.content)
+        words_of_bookmark_content.extend(bookmark_content_words)
+        return words_of_bookmark_content
+
+
+
+    def probable_known_words_that_have_a_rank(self, words_known_from_user):
+        filtered_words_known_from_user = []
+        for word_known in words_known_from_user:
+            if WordRank.exists(word_known.lower(), self.origin.language):
+                filtered_words_known_from_user.append(word_known)
+        return filtered_words_known_from_user
+
 
     @classmethod
     def find_by_specific_user(cls, user):
@@ -804,6 +815,7 @@ class Bookmark(db.Model):
             user = user,
             origin = word
         ).all()
+
 
 
 
