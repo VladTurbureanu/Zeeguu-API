@@ -488,15 +488,19 @@ class ExerciseBasedProbability(db.Model):
     def find_all(cls):
         return cls.query.all()
 
-    def wrong_formula(self, count_wrong, count_wrong_after_another, weight):
-        self.probability=(float(self.probability) - (self.DEFAULT_MIN_PROBABILITY * count_wrong)* count_wrong_after_another)** 1/weight
-        if float(self.probability)<0.1:
+    def wrong_formula(self, count_wrong_after_another):
+        if self.DEFAULT_MIN_PROBABILITY * count_wrong_after_another >= float(self.probability):
            self.probability = decimal.Decimal('0.1')
+        else:
+            self.probability=(float(self.probability) - self.DEFAULT_MIN_PROBABILITY * count_wrong_after_another)
 
-    def correct_formula(self, count_correct, count_correct_after_another, weight):
-        self.probability=(float(self.probability) + (self.DEFAULT_MIN_PROBABILITY * count_correct)* count_correct_after_another)** 1/weight
-        if float(self.probability)>1.0:
-            self.probability = decimal.Decimal('1.0')
+    def correct_formula(self, count_correct_after_another):
+        if  float(self.probability) +  self.DEFAULT_MIN_PROBABILITY * count_correct_after_another >= 1.0 :
+           self.probability = decimal.Decimal('1.0')
+        else:
+             self.probability=(float(self.probability) + self.DEFAULT_MIN_PROBABILITY * count_correct_after_another)
+
+
 
 
 
@@ -504,40 +508,28 @@ class ExerciseBasedProbability(db.Model):
     def calculate_bookmark_probability(self,bookmark):
         count_correct_after_another = 0
         count_wrong_after_another = 0
-        count_not_know_after_another = 0
-        count_correct = 0
-        count_wrong = 0
-        count_not_know = 0
-        weight = 1
         sorted_exercise_log_after_date=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=False)
         for exercise in sorted_exercise_log_after_date:
             if exercise.outcome.outcome == ExerciseOutcome.IKNOW:
                 self.probability = decimal.Decimal('1.0')
-                count_wrong = count_wrong/2
+                count_wrong_after_another =0
             elif exercise.outcome.outcome == ExerciseOutcome.NOT_KNOW:
-                if float(self.probability) <> 0.1:
-                    self.probability /=2
+                self.probability //=2
                 if float(self.probability) < 0.1:
                     self.probability = decimal.Decimal('0.1')
-                count_correct = count_correct/2
                 count_correct_after_another =0
-                count_not_know_after_another+=1
-                count_not_know +=1
             elif exercise.outcome.outcome == ExerciseOutcome.CORRECT:
-                count_correct+=1
                 count_correct_after_another +=1
-                count_wrong_after_another =0
-                count_not_know_after_another = 0
-                if float(self.probability) <> 1.0:
-                    self.correct_formula(count_correct, count_correct_after_another, weight)
-
+                count_wrong_after_another //=2
+                if float(self.probability) < 1.0:
+                    self.correct_formula(count_correct_after_another)
+                else: self.probability = decimal.Decimal('1.0')
             elif exercise.outcome.outcome == ExerciseOutcome.WRONG:
-                 count_wrong+=1
                  count_wrong_after_another += 1
-                 count_correct_after_another =0
-                 if float(self.probability) <> 0.1:
-                    self.wrong_formula(count_wrong, count_wrong_after_another, weight)
-            weight +=1
+                 count_correct_after_another//=2
+                 if float(self.probability) > 0.1:
+                    self.wrong_formula(count_wrong_after_another)
+                 else: self.probability = decimal.Decimal('0.1')
 
     def halfProbability(self):
         self.probability /=2
