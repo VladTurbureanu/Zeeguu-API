@@ -64,8 +64,7 @@ class Dbtest(ZeeguuTestCase):
 
     def test_find_word(self):
         word = "baum"
-        rank = model.UserWord.find_rank(word, self.de)
-        assert UserWord.find(word, self.de, rank)
+        assert UserWord.find(word, self.de)
 
 
     def test_user_words(self):
@@ -130,7 +129,7 @@ class Dbtest(ZeeguuTestCase):
         db.session.commit()
 
         word = "unexistingword"
-        beschloss = UserWord.find(word, self.de, None)
+        beschloss = UserWord.find(word, self.de)
         assert beschloss
         assert beschloss.importance_level() == 0
 

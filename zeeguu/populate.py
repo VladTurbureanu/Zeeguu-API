@@ -3,7 +3,7 @@ import re
 
 import zeeguu
 import datetime
-from zeeguu import model
+from zeeguu.model import WordRank, Language,Bookmark, UserWord, User, Url, ExerciseBasedProbability, EncounterBasedProbability,AggregatedProbability, Text, ExerciseOutcome, ExerciseSource
 
 
 WORD_PATTERN = re.compile("\[?([^{\[]+)\]?( {[^}]+})?( \[[^\]]\])?")
@@ -16,7 +16,7 @@ class WordCache(object):
     def __getitem__(self, args):
         word = self.cache.get(args, None)
         if word is None:
-            word = model.UserWord(*args)
+            word = UserWord(*args)
             zeeguu.db.session.add(word)
             self.cache[args] = word
         return word
@@ -59,11 +59,11 @@ def test_word_list(lang_code):
 def add_word_ranks_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
-    from_lang = model.Language.find(lang_code)
+    from_lang = Language.find(lang_code)
     initial_line_number = 1
 
     for word in filter_word_list(test_word_list(lang_code)):
-        r = model.WordRank(word.lower(), from_lang,initial_line_number)
+        r = WordRank(word.lower(), from_lang,initial_line_number)
         zeeguu.db.session.add(r)
         initial_line_number+=1
     zeeguu.db.session.commit()
@@ -79,81 +79,73 @@ def clean_word(word):
 
 def add_bookmark(user, original_language, original_word, translation_language, translation_word,  date, the_context, the_url, the_url_title):
 
-    url = model.Url.find (the_url, the_url_title)
-    text = model.Text(the_context, translation_language, url)
+    url = Url.find (the_url, the_url_title)
+    text = Text(the_context, translation_language, url)
 
 
 
-    if model.WordRank.exists(original_word.lower(), original_language):
-        rank1 = model.UserWord.find_rank(original_word.lower(), original_language)
-        w1 = model.UserWord(original_word, original_language,rank1)
+    if WordRank.exists(original_word.lower(), original_language):
+        rank1 = UserWord.find_rank(original_word.lower(), original_language)
+        w1 = UserWord(original_word, original_language,rank1)
     else:
-        w1  = model.UserWord(original_word, original_language,None)
-    if model.WordRank.exists(translation_word.lower(), translation_language):
-        rank2 = model.UserWord.find_rank(translation_word.lower(), translation_language)
-        w2 = model.UserWord(translation_word, translation_language,rank2)
+        w1  = UserWord(original_word, original_language,None)
+    if WordRank.exists(translation_word.lower(), translation_language):
+        rank2 = UserWord.find_rank(translation_word.lower(), translation_language)
+        w2 = UserWord(translation_word, translation_language,rank2)
     else:
-        w2  = model.UserWord(translation_word, translation_language,None)
+        w2  = UserWord(translation_word, translation_language,None)
 
     zeeguu.db.session.add(url)
     zeeguu.db.session.add(text)
     zeeguu.db.session.add(w1)
     zeeguu.db.session.add(w2)
-    t1= model.Bookmark(w1,w2, user, text, date)
+    t1= Bookmark(w1,w2, user, text, date)
     zeeguu.db.session.add(t1)
 
     zeeguu.db.session.commit()
     add_probability_to_existing_words_of_user(user,t1,original_language)
 
 def add_probability_to_existing_words_of_user(user,bookmark,language):
-    not_looked_up_words = bookmark.split_words_from_context()
-    while bookmark.origin.word in not_looked_up_words: not_looked_up_words.remove(bookmark.origin.word)
-    not_looked_up_words_with_rank = bookmark.probable_known_words_that_have_a_rank(not_looked_up_words)
-
-    for word in not_looked_up_words_with_rank:
-        word_rank = model.WordRank.find(word, language)
-        if model.EncounterBasedProbability.exists(user, word_rank):
-            enc_prob = model.EncounterBasedProbability.find(user,word_rank)
-            enc_prob.count_not_looked_up +=1
-            enc_prob.boost_prob()
-        else:
-            enc_prob = model.EncounterBasedProbability.find(user,word_rank, model.EncounterBasedProbability.DEFAULT_PROBABILITY)
+    ranked_and_not_looked_up_words = bookmark.not_looked_up_words_with_rank()
+    for word in ranked_and_not_looked_up_words:
+        enc_prob = EncounterBasedProbability.find_or_create(word,user)
         zeeguu.db.session.add(enc_prob)
         user_word = None
-        if model.UserWord.exists(word,language):
-            user_word = model.UserWord.find(word,language,word_rank)
-            ex_prob = model.ExerciseBasedProbability.find(user,user_word)
-            agg_prob = model.AggregatedProbability.find(user,user_word,word_rank)
+        word_rank = enc_prob.word_ranks
+        if UserWord.exists(word,language):
+            user_word = UserWord.find(word,language,word_rank)
+            ex_prob = ExerciseBasedProbability.find(user,user_word)
+            agg_prob = AggregatedProbability.find(user,user_word,word_rank)
             agg_prob.probability = agg_prob.calculateAggregatedProb(ex_prob, enc_prob)
         else:
-            if  model.AggregatedProbability.exists(user, user_word,word_rank):
-                agg_prob = model.AggregatedProbability.find(user,user_word,word_rank)
+            if  AggregatedProbability.exists(user, user_word,word_rank):
+                agg_prob = AggregatedProbability.find(user,user_word,word_rank)
                 agg_prob.probability = enc_prob.probability
             else:
-                agg_prob = model.AggregatedProbability.find(user,user_word,word_rank, enc_prob.probability)
+                agg_prob = AggregatedProbability.find(user,user_word,word_rank, enc_prob.probability)
                 zeeguu.db.session.add(agg_prob)
 
     word_rank = None
     enc_prob = None
-    ex_prob = model.ExerciseBasedProbability.find(user, bookmark.origin)
-    if model.WordRank.exists(bookmark.origin.word, language):
-        word_rank = model.WordRank.find(bookmark.origin.word, language)
-        if model.EncounterBasedProbability.exists(user, word_rank):
-            enc_prob = model.EncounterBasedProbability.find(user, word_rank)
+    ex_prob = ExerciseBasedProbability.find(user, bookmark.origin)
+    if WordRank.exists(bookmark.origin.word, language):
+        word_rank = WordRank.find(bookmark.origin.word, language)
+        if EncounterBasedProbability.exists(user, word_rank):
+            enc_prob = EncounterBasedProbability.find(user, word_rank)
             enc_prob.reset_prob()
-    if model.ExerciseBasedProbability.exists(user, bookmark.origin):
+    if ExerciseBasedProbability.exists(user, bookmark.origin):
         ex_prob.halfProbability()
     else:
         zeeguu.db.session.add(ex_prob)
 
-    if model.AggregatedProbability.exists(user, bookmark.origin,word_rank) and enc_prob == None:
-        agg_prob = model.AggregatedProbability.find(user, bookmark.origin,word_rank)
+    if AggregatedProbability.exists(user, bookmark.origin,word_rank) and enc_prob == None:
+        agg_prob = AggregatedProbability.find(user, bookmark.origin,word_rank)
         agg_prob.probability = ex_prob.probability
     elif enc_prob is not None:
-        agg_prob = model.AggregatedProbability.find(user, bookmark.origin,word_rank)
-        agg_prob.probability = model.AggregatedProbability.calculateAggregatedProb(ex_prob,enc_prob)
+        agg_prob = AggregatedProbability.find(user, bookmark.origin,word_rank)
+        agg_prob.probability = AggregatedProbability.calculateAggregatedProb(ex_prob,enc_prob)
     else:
-        agg_prob = model.AggregatedProbability.find(user, bookmark.origin,word_rank, ex_prob.probability)
+        agg_prob = AggregatedProbability.find(user, bookmark.origin,word_rank, ex_prob.probability)
         zeeguu.db.session.add(agg_prob)
     zeeguu.db.session.commit()
 
@@ -166,14 +158,14 @@ def create_test_db():
     zeeguu.db.drop_all()
     zeeguu.db.create_all()
 
-    fr = model.Language("fr", "French")
-    de = model.Language("de", "German")
-    dk = model.Language("dk", "Danish")
-    en = model.Language("en", "English")
-    it = model.Language("it", "Italian")
-    no = model.Language("no", "Norwegian")
-    ro = model.Language("ro", "Romanian")
-    es = model.Language("es", "Spanish")
+    fr = Language("fr", "French")
+    de = Language("de", "German")
+    dk = Language("dk", "Danish")
+    en = Language("en", "English")
+    it = Language("it", "Italian")
+    no = Language("no", "Norwegian")
+    ro = Language("ro", "Romanian")
+    es = Language("es", "Spanish")
 
     zeeguu.db.session.add(en)
     zeeguu.db.session.add(fr)
@@ -185,15 +177,15 @@ def create_test_db():
     zeeguu.db.session.add(es)
     zeeguu.db.session.commit()
 
-    not_know = model.ExerciseOutcome("Do not know")
-    retry = model.ExerciseOutcome("Retry")
-    correct = model.ExerciseOutcome("Correct")
-    wrong = model.ExerciseOutcome("Wrong")
-    typo = model.ExerciseOutcome("Typo")
-    i_know = model.ExerciseOutcome("I know")
+    not_know = ExerciseOutcome("Do not know")
+    retry = ExerciseOutcome("Retry")
+    correct = ExerciseOutcome("Correct")
+    wrong = ExerciseOutcome("Wrong")
+    typo = ExerciseOutcome("Typo")
+    i_know = ExerciseOutcome("I know")
 
-    recognize = model.ExerciseSource("Recognize")
-    translate = model.ExerciseSource("Translate")
+    recognize = ExerciseSource("Recognize")
+    translate = ExerciseSource("Translate")
 
     zeeguu.db.session.add(not_know)
     zeeguu.db.session.add(retry)
@@ -207,8 +199,8 @@ def create_test_db():
 
 
 
-    user = model.User("i@mir.lu", "Mircea", "pass", de, ro)
-    user2 = model.User("i@ada.lu", "Ada", "pass", fr)
+    user = User("i@mir.lu", "Mircea", "pass", de, ro)
+    user2 = User("i@ada.lu", "Ada", "pass", fr)
 
     zeeguu.db.session.add(user)
     zeeguu.db.session.add(user2)

@@ -401,12 +401,13 @@ class UserWord(db.Model, util.JSONSerializable):
         return b * self.importance_level()
 
     @classmethod
-    def find(cls, word, language,rank = None):
+    def find(cls, word, language):
         try:
             return (cls.query.filter(cls.word == word)
                              .filter(cls.language == language)
                              .one())
         except sqlalchemy.orm.exc.NoResultFound:
+            rank = UserWord.find_rank(word.lower(),language)
             return cls(word, language,rank)
 
 
@@ -607,6 +608,18 @@ class EncounterBasedProbability(db.Model):
          except  sqlalchemy.orm.exc.NoResultFound:
             return False
 
+    @classmethod
+    def find_or_create(cls, word, user):
+        word_rank = WordRank.find(word, user.learned_language)
+        if EncounterBasedProbability.exists(user, word_rank):
+            enc_prob = EncounterBasedProbability.find(user,word_rank)
+            enc_prob.count_not_looked_up +=1
+            enc_prob.boost_prob()
+        else:
+            enc_prob = EncounterBasedProbability.find(user,word_rank, EncounterBasedProbability.DEFAULT_PROBABILITY)
+        return enc_prob
+
+
     def reset_prob (self):
         self.probability = 0.5
 
@@ -614,6 +627,8 @@ class EncounterBasedProbability(db.Model):
     def boost_prob(self):
         if float(self.probability) <> 1.0:
             self.probability = float(self.probability) + 0.1
+
+
 
 
 
@@ -780,13 +795,14 @@ class Bookmark(db.Model):
 
 
 
-    def probable_known_words_that_have_a_rank(self, words_known_from_user):
+    def not_looked_up_words_with_rank(self):
+        not_looked_up_words = self.split_words_from_context()
+        while self.origin.word in not_looked_up_words: not_looked_up_words.remove(self.origin.word)
         filtered_words_known_from_user = []
-        for word_known in words_known_from_user:
+        for word_known in not_looked_up_words:
             if WordRank.exists(word_known.lower(), self.origin.language):
                 filtered_words_known_from_user.append(word_known)
         return filtered_words_known_from_user
-
 
     @classmethod
     def find_by_specific_user(cls, user):

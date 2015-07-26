@@ -335,20 +335,8 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
 
     word = (decode_word(term))
     translation_word = decode_word(translation)
-
-
-    if WordRank.exists(word, from_lang):
-        rank = UserWord.find_rank(word.lower(),from_lang)
-        user_word = UserWord.find(word,from_lang,rank)
-    else:
-        user_word = UserWord.find(word,from_lang,None)
-
-
-    if WordRank.exists(translation_word, to_lang):
-        rank = UserWord.find_rank(translation_word.lower(),to_lang)
-        translation = UserWord.find(translation_word,to_lang,rank)
-    else:
-        translation = UserWord.find(translation_word,to_lang,None)
+    user_word = UserWord.find(word,from_lang)
+    translation = UserWord.find(translation_word,to_lang)
 
     # search = Search.query.filter_by(
     #     user=flask.g.user, user_word=user_word, language=to_lang
@@ -358,22 +346,14 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     new_text = Text(context, from_lang, url)
     bookmark = Bookmark(user_word, translation, flask.g.user, new_text, datetime.datetime.now())
     zeeguu.db.session.add(bookmark)
-
-    not_looked_up_words = bookmark.split_words_from_context()
-    while bookmark.origin.word in not_looked_up_words: not_looked_up_words.remove(bookmark.origin.word)
-    not_looked_up_words_with_rank = bookmark.probable_known_words_that_have_a_rank(not_looked_up_words)
-    for word in not_looked_up_words_with_rank:
-        word_rank = WordRank.find(word, from_lang)
-        if EncounterBasedProbability.exists(flask.g.user, word_rank):
-            enc_prob = EncounterBasedProbability.find(flask.g.user,word_rank)
-            enc_prob.count_not_looked_up +=1
-            enc_prob.boost_prob()
-        else:
-            enc_prob = EncounterBasedProbability.find(flask.g.user,word_rank, EncounterBasedProbability.DEFAULT_PROBABILITY)
+    ranked_and_not_looked_up_words = bookmark.not_looked_up_words_with_rank()
+    for word in ranked_and_not_looked_up_words:
+        enc_prob = EncounterBasedProbability.find_or_create(word,flask.g.user)
         zeeguu.db.session.add(enc_prob)
         user_word = None
+        word_rank = enc_prob.word_ranks
         if UserWord.exists(word,from_lang):
-            user_word = UserWord.find(word,from_lang,word_rank)
+            user_word = UserWord.find(word,from_lang)
             ex_prob = ExerciseBasedProbability.find(flask.g.user,user_word)
             agg_prob = AggregatedProbability.find(flask.g.user,user_word,word_rank)
             agg_prob.probability = agg_prob.calculateAggregatedProb(ex_prob, enc_prob)
@@ -466,8 +446,7 @@ def add_new_translation_to_bookmark(word_translation, bookmark_id):
             return 'FAIL'
 
 
-    rank = UserWord.find_rank(word_translation, translations_of_bookmark[0].language)
-    translation_user_word = UserWord.find(word_translation,translations_of_bookmark[0].language,rank)
+    translation_user_word = UserWord.find(word_translation,translations_of_bookmark[0].language)
     bookmark.add_new_translation(translation_user_word)
     zeeguu.db.session.add(translation_user_word)
     zeeguu.db.session.commit()
@@ -635,7 +614,7 @@ def lookup(from_lang, term, to_lang):
     word = decode_word(term)
     rank = UserWord.find_rank(word, to_lang)
     user.searches.append(
-        Search(user, UserWord.find(word, from_lang,rank),
+        Search(user, UserWord.find(word, from_lang),
                      to_lang, text)
     )
     zeeguu.db.session.commit()
