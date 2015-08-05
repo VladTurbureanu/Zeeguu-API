@@ -56,7 +56,7 @@ def test_word_list(lang_code):
     words_list = words_file.read().splitlines()
     return words_list
 
-def add_word_ranks_to_db(lang_code):
+def add_word_rank_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
     from_lang = Language.find(lang_code)
@@ -111,7 +111,7 @@ def add_probability_to_existing_words_of_user(user,bookmark,language):
         enc_prob = EncounterBasedProbability.find_or_create(word,user)
         zeeguu.db.session.add(enc_prob)
         user_word = None
-        word_rank = enc_prob.word_ranks
+        word_rank = enc_prob.word_rank
         if UserWord.exists(word,language):
             user_word = UserWord.find(word,language,word_rank)
             ex_prob = ExerciseBasedProbability.find(user,user_word)
@@ -261,7 +261,7 @@ def create_test_db():
 
 
 
-    add_word_ranks_to_db('de')
+    add_word_rank_to_db('de')
 
     for key in today_dict:
         add_bookmark(user, de, key, en, today_dict[key], jan111, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung fur das finanzsystem habe, sagte holder, ohne namen von banken zu nennen" + key,

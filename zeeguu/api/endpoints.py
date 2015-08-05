@@ -212,14 +212,14 @@ def get_session(email):
     return str(session.id)
 
 
-@api.route("/user_words", methods=["GET"])
+@api.route("/user_word", methods=["GET"])
 @cross_domain
 @with_session
 def studied_words():
     """
     Returns a list of the words that the user is currently studying.
     """
-    js = json.dumps(flask.g.user.user_words())
+    js = json.dumps(flask.g.user.user_word())
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
@@ -351,7 +351,7 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
         enc_prob = EncounterBasedProbability.find_or_create(word,flask.g.user)
         zeeguu.db.session.add(enc_prob)
         user_word = None
-        word_rank = enc_prob.word_ranks
+        word_rank = enc_prob.word_rank
         if UserWord.exists(word,from_lang):
             user_word = UserWord.find(word,from_lang)
             ex_prob = ExerciseBasedProbability.find(flask.g.user,user_word)
@@ -540,11 +540,11 @@ def get_probable_known_words(lang_code):
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_percentage_of_known_words_of_word_ranks", methods=("GET",))
+@api.route("/get_percentage_of_known_words_of_word_rank", methods=("GET",))
 @cross_domain
 @with_session
-def get_percentage_of_known_words_of_word_ranks():
-    return flask.g.user.get_percentage_of_known_words_of_word_ranks()
+def get_percentage_of_known_words_of_word_rank():
+    return flask.g.user.get_percentage_of_known_words_of_word_rank()
 
 @api.route("/get_percentage_of_known_bookmarked_words", methods=("GET",))
 @cross_domain

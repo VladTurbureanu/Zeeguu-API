@@ -67,8 +67,8 @@ class Dbtest(ZeeguuTestCase):
         assert UserWord.find(word, self.de)
 
 
-    def test_user_words(self):
-        assert self.mir.user_words() == map((lambda x: x.origin.word), self.mir.all_bookmarks())
+    def test_user_word(self):
+        assert self.mir.user_word() == map((lambda x: x.origin.word), self.mir.all_bookmarks())
 
 
     def test_search_1(self):

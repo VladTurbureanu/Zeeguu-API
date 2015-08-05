@@ -29,7 +29,7 @@ def word_list(lang_code):
 
 
 
-def add_word_ranks_to_db(lang_code):
+def add_word_rank_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
     from_lang = model.Language.find(lang_code)
@@ -42,7 +42,7 @@ def add_word_ranks_to_db(lang_code):
     zeeguu.db.session.commit()
 
 def change_db(lang_code):
-    add_word_ranks_to_db(lang_code)
+    add_word_rank_to_db(lang_code)
 
 
 

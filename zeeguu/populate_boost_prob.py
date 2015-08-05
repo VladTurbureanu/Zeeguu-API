@@ -16,8 +16,8 @@ def set_default_exercise_based_prob():
 
     for user in users:
         for language in languages:
-            user_words = UserWord.find_by_language(language)
-            for word in user_words:
+            user_word = UserWord.find_by_language(language)
+            for word in user_word:
                 if ExerciseBasedProbability.exists(user,word):
                     prob = ExerciseBasedProbability.find(user,word)
                     bookmarks_by_user_and_word = Bookmark.find_all_by_user_and_word(user,word)
@@ -52,23 +52,23 @@ def set_aggregated_prob():
     ex_probs = ExerciseBasedProbability.find_all()
     for prob in enc_probs:
         user = prob.user
-        word = prob.word_ranks.word
-        language = prob.word_ranks.language
+        word = prob.word_rank.word
+        language = prob.word_rank.language
         user_word = None
         if UserWord.exists(word, language):
             user_word = UserWord.find(word, language)
         if ExerciseBasedProbability.exists(user, user_word):
             ex_prob = ExerciseBasedProbability.find(user, user_word)
             aggreg_prob = AggregatedProbability.calculateAggregatedProb(ex_prob.probability, prob.probability)
-            aggreg_probability_obj = AggregatedProbability.find(user,user_word,prob.word_ranks,aggreg_prob)
+            aggreg_probability_obj = AggregatedProbability.find(user,user_word,prob.word_rank,aggreg_prob)
         else:
-            aggreg_probability_obj = AggregatedProbability.find(user,None, prob.word_ranks,prob.probability)
+            aggreg_probability_obj = AggregatedProbability.find(user,None, prob.word_rank,prob.probability)
         zeeguu.db.session.add(aggreg_probability_obj)
         zeeguu.db.session.commit()
     for prob in ex_probs:
         user = prob.user
-        language = prob.user_words.language
-        word = prob.user_words.word
+        language = prob.user_word.language
+        word = prob.user_word.word
         word_rank = None
         if WordRank.exists(word,language):
             word_rank = WordRank.find(word,language)

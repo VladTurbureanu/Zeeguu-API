@@ -29,7 +29,7 @@ def word_list(lang_code):
 
 
 
-def add_word_ranks_to_db(lang_code):
+def add_word_rank_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
     from_lang = model.Language.find(lang_code)
@@ -45,6 +45,6 @@ def add_word_ranks_to_db(lang_code):
 
 if __name__ == "__main__":
     try:
-        add_word_ranks_to_db(sys.argv[1])
+        add_word_rank_to_db(sys.argv[1])
     except :
-        print "Usage: add_word_ranks <language_code>"
+        print "Usage: add_word_rank <language_code>"
