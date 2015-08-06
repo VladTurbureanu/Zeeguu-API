@@ -160,22 +160,22 @@ class User(db.Model):
 
     def get_known_bookmarks(self,lang):
         bookmarks = Bookmark.find_all_filtered_by_user()
-        i_know_bookmarks=[]
+        known_bookmarks=[]
         for bookmark in bookmarks:
-            if Bookmark.is_sorted_exercise_log_after_date_outcome(ExerciseOutcome.IKNOW, bookmark) and lang ==bookmark.origin.language:
-                    i_know_bookmark_dict = {}
-                    i_know_bookmark_dict['id'] = bookmark.id
-                    i_know_bookmark_dict['origin'] = bookmark.origin.word
-                    i_know_bookmark_dict['text']= bookmark.text.content
-                    i_know_bookmark_dict['time']=bookmark.time.strftime('%m/%d/%Y')
-                    i_know_bookmarks.append(i_know_bookmark_dict.copy())
-        return i_know_bookmarks
+            if Bookmark.sort_exercise_log_by_latest_and_check_is_latest_outcome_too_easy(ExerciseOutcome.TOO_EASY, bookmark) and lang ==bookmark.origin.language:
+                    known_bookmark_dict = {}
+                    known_bookmark_dict['id'] = bookmark.id
+                    known_bookmark_dict['origin'] = bookmark.origin.word
+                    known_bookmark_dict['text']= bookmark.text.content
+                    known_bookmark_dict['time']=bookmark.time.strftime('%m/%d/%Y')
+                    known_bookmarks.append(known_bookmark_dict.copy())
+        return known_bookmarks
 
     def get_known_bookmarks_count(self):
         return len(self.get_known_bookmarks(self.learned_language))
 
 
-    def get_estimated_vocabulary(self, lang):
+    def get_not_looked_up_words(self, lang):
 
         filtered_words_known_from_user_dict_list =[]
         enc_probs = EncounterBasedProbability.find_all_by_user(flask.g.user)
@@ -186,15 +186,15 @@ class User(db.Model):
                 filtered_words_known_from_user_dict_list.append(filtered_word_known_from_user_dict.copy())
         return filtered_words_known_from_user_dict_list
 
-    def get_estimated_vocabulary_for_learned_language(self):
-        return self.get_estimated_vocabulary(self.learned_language)
+    def get_not_looked_up_words_for_learned_language(self):
+        return self.get_not_looked_up_words(self.learned_language)
 
 
-    def get_estimated_vocabulary_count(self):
-        return len(self.get_estimated_vocabulary_for_learned_language())
+    def get_not_looked_up_words_count(self):
+        return len(self.get_not_looked_up_words_for_learned_language())
 
-    def get_probable_known_words(self, lang):
-        high_agg_prob_of_user = AggregatedProbability.get_probable_known_words(flask.g.user)
+    def get_probably_known_words(self, lang):
+        high_agg_prob_of_user = AggregatedProbability.get_probably_known_words(flask.g.user)
         probable_known_words_dict_list = []
         for agg_prob in high_agg_prob_of_user:
             probable_known_word_dict = {}
@@ -205,11 +205,11 @@ class User(db.Model):
             probable_known_words_dict_list.append(probable_known_word_dict.copy())
         return probable_known_words_dict_list
 
-    def get_probable_known_words_count(self):
-        return len(self.get_probable_known_words(self.learned_language))
+    def get_probably_known_words_count(self):
+        return len(self.get_probably_known_words(self.learned_language))
 
-    def get_percentage_of_known_words_of_word_rank(self):
-        high_agg_prob_of_user = AggregatedProbability.get_probable_known_words(self)
+    def get_percentage_of_known_words(self):
+        high_agg_prob_of_user = AggregatedProbability.get_probably_known_words(self)
         count_high_agg_prob_of_user_ranked = 0
         for prob in high_agg_prob_of_user:
             if prob.word_rank is not None and prob.word_rank.rank <=3000:
@@ -217,7 +217,7 @@ class User(db.Model):
         return round(float(count_high_agg_prob_of_user_ranked)/3000*100,2)
 
     def get_percentage_of_known_bookmarked_words(self):
-        high_agg_prob_of_user = AggregatedProbability.get_probable_known_words(self)
+        high_agg_prob_of_user = AggregatedProbability.get_probably_known_words(self)
         find_all_agg_prob_of_user = AggregatedProbability.find_all_by_user(self)
         count_user_word_of_user = 0
         count_high_agg_prob_of_user =0
@@ -505,28 +505,28 @@ class ExerciseBasedProbability(db.Model):
 
 
 
-    def calculate_bookmark_probability(self,bookmark):
+    def know_bookmark_probability(self,bookmark):
         count_correct_after_another = 0
         count_wrong_after_another = 0
         sorted_exercise_log_after_date=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=False)
         for exercise in sorted_exercise_log_after_date:
-            if exercise.outcome.outcome == ExerciseOutcome.IKNOW:
+            if exercise.outcome.outcome == ExerciseOutcome.TOO_EASY:
                 self.probability = decimal.Decimal('1.0')
                 count_wrong_after_another =0
-            elif exercise.outcome.outcome == ExerciseOutcome.NOT_KNOW:
+            elif exercise.outcome.outcome == ExerciseOutcome.SHOW_SOLUTION:
                 self.probability //=2
                 if float(self.probability) < 0.1:
                     self.probability = decimal.Decimal('0.1')
                 count_correct_after_another =0
             elif exercise.outcome.outcome == ExerciseOutcome.CORRECT:
                 count_correct_after_another +=1
-                count_wrong_after_another //=2
+                count_wrong_after_another = 0
                 if float(self.probability) < 1.0:
                     self.correct_formula(count_correct_after_another)
                 else: self.probability = decimal.Decimal('1.0')
             elif exercise.outcome.outcome == ExerciseOutcome.WRONG:
                  count_wrong_after_another += 1
-                 count_correct_after_another//=2
+                 count_correct_after_another = 0
                  if float(self.probability) > 0.1:
                     self.wrong_formula(count_wrong_after_another)
                  else: self.probability = decimal.Decimal('0.1')
@@ -678,7 +678,7 @@ class AggregatedProbability(db.Model):
             return False
 
     @classmethod
-    def get_probable_known_words(cls, user):
+    def get_probably_known_words(cls, user):
         return cls.query.filter(
             cls.user == user).filter(cls.probability >=0.9).all()
 
@@ -787,11 +787,11 @@ class Bookmark(db.Model):
 
 
 
-    def not_looked_up_words_with_rank(self):
-        not_looked_up_words = self.split_words_from_context()
-        while self.origin.word in not_looked_up_words: not_looked_up_words.remove(self.origin.word)
+    def context_words_with_rank(self):
+        ranked_context_words = self.split_words_from_context()
+        while self.origin.word in ranked_context_words: ranked_context_words.remove(self.origin.word)
         filtered_words_known_from_user = []
-        for word_known in not_looked_up_words:
+        for word_known in ranked_context_words:
             if WordRank.exists(word_known.lower(), self.origin.language):
                 filtered_words_known_from_user.append(word_known)
         return filtered_words_known_from_user
@@ -836,12 +836,12 @@ class Bookmark(db.Model):
     #     return False
 
     @classmethod
-    def is_sorted_exercise_log_after_date_outcome(cls,outcome, bookmark):
-        sorted_exercise_log_after_date=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=True)
-        for exercise in sorted_exercise_log_after_date:
+    def sort_exercise_log_by_latest_and_check_is_latest_outcome_too_easy(cls,outcome, bookmark):
+        sorted_exercise_log_by_latest=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=True)
+        for exercise in sorted_exercise_log_by_latest:
             if exercise.outcome.outcome == outcome:
                 return True
-            elif exercise.outcome.outcome == 'Do not know' or exercise.outcome.outcome == 'Wrong':
+            elif exercise.outcome.outcome == ExerciseOutcome.SHOW_SOLUTION or exercise.outcome.outcome == ExerciseOutcome.WRONG:
                 return False
         return False
 
@@ -881,8 +881,8 @@ class ExerciseOutcome(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     outcome=db.Column(db.String(255),nullable=False)
 
-    IKNOW = 'I know'
-    NOT_KNOW = 'Do not know'
+    TOO_EASY = 'Too easy'
+    SHOW_SOLUTION = 'Show solution'
     CORRECT = 'Correct'
     WRONG = 'Wrong'
 

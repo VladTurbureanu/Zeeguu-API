@@ -348,7 +348,7 @@ def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,
     ex_prob = model.ExerciseBasedProbability.find(flask.g.user, bookmark.origin)
     total_prob = 0
     for b in bookmarks:
-        ex_prob.calculate_bookmark_probability(b)
+        ex_prob.know_bookmark_probability(b)
         total_prob +=float(ex_prob.probability)
     ex_prob.probability = total_prob/len(bookmarks)
     model.db.session.commit()

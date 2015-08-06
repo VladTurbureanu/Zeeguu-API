@@ -29,16 +29,16 @@
         </h4>
 
          <h4>
-            - Probable Known words: {{ user.get_estimated_vocabulary_count() }}
+            - Not Looked Up Words: {{ user.get_not_looked_up_words_count() }}
         </h4>
 
 
         <h4>
-            - Words Already Known: {{ user.get_probable_known_words_count() }}
+            - Probably Known Words: {{ user.get_probably_known_words_count() }}
         </h4>
 
          <h4>
-            - How well language known: {{ user.get_percentage_of_known_words_of_word_rank() }}%
+            - How well language known: {{ user.get_percentage_of_known_words() }}%
         </h4>
 
         <h4>

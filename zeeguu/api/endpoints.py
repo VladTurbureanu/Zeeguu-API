@@ -346,7 +346,7 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     new_text = Text(context, from_lang, url)
     bookmark = Bookmark(user_word, translation, flask.g.user, new_text, datetime.datetime.now())
     zeeguu.db.session.add(bookmark)
-    ranked_and_not_looked_up_words = bookmark.not_looked_up_words_with_rank()
+    ranked_and_not_looked_up_words = bookmark.context_words_with_rank()
     for word in ranked_and_not_looked_up_words:
         enc_prob = EncounterBasedProbability.find_or_create(word,flask.g.user)
         zeeguu.db.session.add(enc_prob)
@@ -513,38 +513,38 @@ def get_known_bookmarks(lang_code):
 def get_known_words(lang_code):
     lang_id = Language.find(lang_code)
     bookmarks = Bookmark.find_all_filtered_by_user()
-    i_know_words=[]
-    filtered_i_know_words_from_user = []
-    filtered_i_know_words_dict_list =[]
+    known_words=[]
+    filtered_known_words_from_user = []
+    filtered_known_words_dict_list =[]
     for bookmark in bookmarks:
-        if Bookmark.is_sorted_exercise_log_after_date_outcome(ExerciseOutcome.IKNOW, bookmark):
-                i_know_words.append(bookmark.origin.word)
-    for word_known in i_know_words:
+        if Bookmark.sort_exercise_log_by_latest_and_check_is_latest_outcome_too_easy(ExerciseOutcome.TOO_EASY, bookmark):
+                known_words.append(bookmark.origin.word)
+    for word_known in known_words:
         if WordRank.exists(word_known, lang_id):
-            filtered_i_know_words_from_user.append(word_known)
+            filtered_known_words_from_user.append(word_known)
             zeeguu.db.session.commit()
-    filtered_i_know_words_from_user = list(set(filtered_i_know_words_from_user))
-    for word in filtered_i_know_words_from_user:
-        filtered_i_know_word_dict = {}
-        filtered_i_know_word_dict['word'] = word
-        filtered_i_know_words_dict_list.append(filtered_i_know_word_dict.copy())
-    js = json.dumps(filtered_i_know_words_dict_list)
+    filtered_known_words_from_user = list(set(filtered_known_words_from_user))
+    for word in filtered_known_words_from_user:
+        filtered_known_word_dict = {}
+        filtered_known_word_dict['word'] = word
+        filtered_known_words_dict_list.append(filtered_known_word_dict.copy())
+    js = json.dumps(filtered_known_words_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_probable_known_words/<lang_code>", methods=("GET",))
+@api.route("/get_probably_known_words/<lang_code>", methods=("GET",))
 @cross_domain
 @with_session
-def get_probable_known_words(lang_code):
-    js = json.dumps(flask.g.user.get_probable_known_words(Language.find(lang_code)))
+def get_probably_known_words(lang_code):
+    js = json.dumps(flask.g.user.get_probably_known_words(Language.find(lang_code)))
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_percentage_of_known_words_of_word_rank", methods=("GET",))
+@api.route("/get_percentage_of_known_words", methods=("GET",))
 @cross_domain
 @with_session
-def get_percentage_of_known_words_of_word_rank():
-    return flask.g.user.get_percentage_of_known_words_of_word_rank()
+def get_percentage_of_known_words():
+    return flask.g.user.get_percentage_of_known_words()
 
 @api.route("/get_percentage_of_known_bookmarked_words", methods=("GET",))
 @cross_domain
@@ -558,12 +558,12 @@ def get_percentage_of_known_bookmarked_words():
 def get_learned_bookmarks(lang):
     lang = Language.find(lang)
     bookmarks = Bookmark.find_all_filtered_by_user()
-    i_know_bookmarks=[]
+    too_easy_bookmarks=[]
     learned_bookmarks_dict_list =[]
     for bookmark in bookmarks:
-        if Bookmark.is_sorted_exercise_log_after_date_outcome(ExerciseOutcome.IKNOW, bookmark) and bookmark.origin.language == lang:
-                i_know_bookmarks.append(bookmark)
-    learned_bookmarks= [bookmark for bookmark in bookmarks if bookmark not in i_know_bookmarks]
+        if Bookmark.sort_exercise_log_by_latest_and_check_is_latest_outcome_too_easy(ExerciseOutcome.TOO_EASY, bookmark) and bookmark.origin.language == lang:
+                too_easy_bookmarks.append(bookmark)
+    learned_bookmarks= [bookmark for bookmark in bookmarks if bookmark not in too_easy_bookmarks]
     for bookmark in learned_bookmarks:
         learned_bookmarks_dict = {}
         learned_bookmarks_dict ['id'] = bookmark.id
@@ -575,11 +575,11 @@ def get_learned_bookmarks(lang):
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_estimated_user_vocabulary/<lang_code>", methods=("GET",))
+@api.route("/get_not_looked_up_words/<lang_code>", methods=("GET",))
 @cross_domain
 @with_session
-def get_estimated_user_vocabulary(lang_code):
-    js = json.dumps(flask.g.user.get_estimated_vocabulary(Language.find(lang_code)))
+def get_not_looked_up_words(lang_code):
+    js = json.dumps(flask.g.user.get_not_looked_up_words(Language.find(lang_code)))
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 

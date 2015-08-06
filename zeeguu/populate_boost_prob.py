@@ -16,14 +16,14 @@ def set_default_exercise_based_prob():
 
     for user in users:
         for language in languages:
-            user_word = UserWord.find_by_language(language)
-            for word in user_word:
+            user_words_by_language = UserWord.find_by_language(language)
+            for word in user_words_by_language:
                 if ExerciseBasedProbability.exists(user,word):
                     prob = ExerciseBasedProbability.find(user,word)
                     bookmarks_by_user_and_word = Bookmark.find_all_by_user_and_word(user,word)
                     total_prob = 0
                     for bookmark in bookmarks_by_user_and_word:
-                        prob.calculate_bookmark_probability(bookmark)
+                        prob.know_bookmark_probability(bookmark)
                         total_prob += float(prob.probability)
                     if bookmarks_by_user_and_word:
                         prob.probability = total_prob/len(bookmarks_by_user_and_word)

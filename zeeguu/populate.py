@@ -106,8 +106,8 @@ def add_bookmark(user, original_language, original_word, translation_language, t
     add_probability_to_existing_words_of_user(user,t1,original_language)
 
 def add_probability_to_existing_words_of_user(user,bookmark,language):
-    ranked_and_not_looked_up_words = bookmark.not_looked_up_words_with_rank()
-    for word in ranked_and_not_looked_up_words:
+    ranked_context_words = bookmark.context_words_with_rank()
+    for word in ranked_context_words:
         enc_prob = EncounterBasedProbability.find_or_create(word,user)
         zeeguu.db.session.add(enc_prob)
         user_word = None
@@ -177,22 +177,22 @@ def create_test_db():
     zeeguu.db.session.add(es)
     zeeguu.db.session.commit()
 
-    not_know = ExerciseOutcome("Do not know")
+    show_solution = ExerciseOutcome("Show solution")
     retry = ExerciseOutcome("Retry")
     correct = ExerciseOutcome("Correct")
     wrong = ExerciseOutcome("Wrong")
     typo = ExerciseOutcome("Typo")
-    i_know = ExerciseOutcome("I know")
+    too_easy = ExerciseOutcome("Too easy")
 
     recognize = ExerciseSource("Recognize")
     translate = ExerciseSource("Translate")
 
-    zeeguu.db.session.add(not_know)
+    zeeguu.db.session.add(show_solution)
     zeeguu.db.session.add(retry)
     zeeguu.db.session.add(correct)
     zeeguu.db.session.add(wrong)
     zeeguu.db.session.add(typo)
-    zeeguu.db.session.add(i_know)
+    zeeguu.db.session.add(too_easy)
 
     zeeguu.db.session.add(recognize)
     zeeguu.db.session.add(translate)
