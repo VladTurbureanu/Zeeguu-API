@@ -540,11 +540,11 @@ def get_probably_known_words(lang_code):
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_percentage_of_known_words", methods=("GET",))
+@api.route("/get_percentage_of_language_known", methods=("GET",))
 @cross_domain
 @with_session
-def get_percentage_of_known_words():
-    return flask.g.user.get_percentage_of_known_words()
+def get_percentage_of_language_known():
+    return flask.g.user.get_percentage_of_language_known()
 
 @api.route("/get_percentage_of_known_bookmarked_words", methods=("GET",))
 @cross_domain

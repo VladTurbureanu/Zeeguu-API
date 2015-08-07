@@ -208,7 +208,7 @@ class User(db.Model):
     def get_probably_known_words_count(self):
         return len(self.get_probably_known_words(self.learned_language))
 
-    def get_percentage_of_known_words(self):
+    def get_percentage_of_language_known(self):
         high_agg_prob_of_user = AggregatedProbability.get_probably_known_words(self)
         count_high_agg_prob_of_user_ranked = 0
         for prob in high_agg_prob_of_user:
