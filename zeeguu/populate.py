@@ -106,46 +106,38 @@ def add_bookmark(user, original_language, original_word, translation_language, t
     add_probability_to_existing_words_of_user(user,t1,original_language)
 
 def add_probability_to_existing_words_of_user(user,bookmark,language):
-    ranked_context_words = bookmark.context_words_with_rank()
-    for word in ranked_context_words:
+    # computations for adding encounter based probability
+    for word in bookmark.context_words_with_rank():
         enc_prob = EncounterBasedProbability.find_or_create(word,user)
-        zeeguu.db.session.add(enc_prob)
+        zeeguu.db.session.add(enc_prob) #adds encounter based probabilities of words in context
         user_word = None
         word_rank = enc_prob.word_rank
         if UserWord.exists(word,language):
             user_word = UserWord.find(word,language,word_rank)
-            ex_prob = ExerciseBasedProbability.find(user,user_word)
-            agg_prob = AggregatedProbability.find(user,user_word,word_rank)
-            agg_prob.probability = agg_prob.calculateAggregatedProb(ex_prob, enc_prob)
+            if ExerciseBasedProbability.exists(user, user_word): #checks if exercise based probability exists for words in context
+                ex_prob = ExerciseBasedProbability.find(user,user_word)
+                agg_prob = AggregatedProbability.find(user,user_word,word_rank)
+                agg_prob.probability = agg_prob.calculateAggregatedProb(ex_prob, enc_prob) #updates aggregated probability as exercise based probability already existed.
         else:
             if  AggregatedProbability.exists(user, user_word,word_rank):
                 agg_prob = AggregatedProbability.find(user,user_word,word_rank)
-                agg_prob.probability = enc_prob.probability
+                agg_prob.probability = enc_prob.probability # updates aggregated probability as encounter based probability already existed
             else:
-                agg_prob = AggregatedProbability.find(user,user_word,word_rank, enc_prob.probability)
+                agg_prob = AggregatedProbability.find(user,user_word,word_rank, enc_prob.probability) # new aggregated probability created as it did not exist
                 zeeguu.db.session.add(agg_prob)
-
-    word_rank = None
+    # computations for adding exercise based probability
     enc_prob = None
     ex_prob = ExerciseBasedProbability.find(user, bookmark.origin)
-    if WordRank.exists(bookmark.origin.word, language):
+    if WordRank.exists(bookmark.origin.word, language): #checks if word rank exists for that looked up word
         word_rank = WordRank.find(bookmark.origin.word, language)
-        if EncounterBasedProbability.exists(user, word_rank):
+        if EncounterBasedProbability.exists(user, word_rank): # checks if encounter based probability exists for that looked up word
             enc_prob = EncounterBasedProbability.find(user, word_rank)
-            enc_prob.reset_prob()
-    if ExerciseBasedProbability.exists(user, bookmark.origin):
-        ex_prob.halfProbability()
-    else:
+            enc_prob.reset_prob() # reset encounter based probability to 0.5
+        if ExerciseBasedProbability.exists(user, bookmark.origin):
+            count_bookmarks_with_same_word = len(Bookmark.find_all_by_user_and_word(user, bookmark.origin))
+            ex_prob.probability = (float(ex_prob.probability * count_bookmarks_with_same_word) + 0.1)/(count_bookmarks_with_same_word+1)# compute avg probability of all bookmarks with same word
         zeeguu.db.session.add(ex_prob)
-
-    if AggregatedProbability.exists(user, bookmark.origin,word_rank) and enc_prob == None:
-        agg_prob = AggregatedProbability.find(user, bookmark.origin,word_rank)
-        agg_prob.probability = ex_prob.probability
-    elif enc_prob is not None:
-        agg_prob = AggregatedProbability.find(user, bookmark.origin,word_rank)
-        agg_prob.probability = AggregatedProbability.calculateAggregatedProb(ex_prob,enc_prob)
-    else:
-        agg_prob = AggregatedProbability.find(user, bookmark.origin,word_rank, ex_prob.probability)
+        Bookmark.calculate_aggregated_probability_after_adding_exercise_based_probability(ex_prob,enc_prob)
         zeeguu.db.session.add(agg_prob)
     zeeguu.db.session.commit()
 

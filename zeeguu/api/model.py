@@ -796,6 +796,18 @@ class Bookmark(db.Model):
                 filtered_words_known_from_user.append(word_known)
         return filtered_words_known_from_user
 
+    def calculate_aggregated_probability_after_adding_exercise_based_probability(self, ex_prob, enc_prob):
+        if AggregatedProbability.exists(flask.g.user, self.origin,self.origin.rank) and enc_prob == None: #checks if only exercise based probability exists
+            agg_prob = AggregatedProbability.find(flask.g.user, self.origin,self.origin.rank)
+            agg_prob.probability = ex_prob.probability
+        elif enc_prob is not None: #checks if encounter based probability also exists
+            agg_prob = AggregatedProbability.find(flask.g.user, self.origin, self.origin.rank)
+            agg_prob.probability = AggregatedProbability.calculateAggregatedProb(ex_prob,enc_prob)
+        else:
+            agg_prob = AggregatedProbability.find(flask.g.user, self.origin,self.origin.rank, ex_prob.probability) # new aggregated probability created as it did not exist.
+
+        return agg_prob
+
     @classmethod
     def find_by_specific_user(cls, user):
         return cls.query.filter_by(
