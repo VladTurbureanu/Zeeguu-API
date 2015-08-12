@@ -24,7 +24,7 @@ CONSTRAINT chk_probability CHECK (probability>=0 AND probability <=1)
 
 );
 
-CREATE TABLE aggregated_probability
+CREATE TABLE known_word_probability
 (
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 user_id INT NOT NULL,

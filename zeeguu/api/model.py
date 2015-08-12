@@ -194,14 +194,14 @@ class User(db.Model):
         return len(self.get_not_looked_up_words_for_learned_language())
 
     def get_probably_known_words(self, lang):
-        high_agg_prob_of_user = AggregatedProbability.get_probably_known_words(flask.g.user)
+        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(flask.g.user)
         probable_known_words_dict_list = []
-        for agg_prob in high_agg_prob_of_user:
+        for known_word_prob in high_known_word_prob_of_user:
             probable_known_word_dict = {}
-            if agg_prob.word_rank is not None and agg_prob.word_rank.language == lang:
-                probable_known_word_dict['word'] = agg_prob.word_rank.word
-            elif agg_prob.user_word is not None and agg_prob.user_word.language == lang:
-                probable_known_word_dict['word'] = agg_prob.user_word.word
+            if known_word_prob.word_rank is not None and known_word_prob.word_rank.language == lang:
+                probable_known_word_dict['word'] = known_word_prob.word_rank.word
+            elif known_word_prob.user_word is not None and known_word_prob.user_word.language == lang:
+                probable_known_word_dict['word'] = known_word_prob.user_word.word
             probable_known_words_dict_list.append(probable_known_word_dict.copy())
         return probable_known_words_dict_list
 
@@ -209,26 +209,26 @@ class User(db.Model):
         return len(self.get_probably_known_words(self.learned_language))
 
     def get_percentage_of_language_known(self):
-        high_agg_prob_of_user = AggregatedProbability.get_probably_known_words(self)
-        count_high_agg_prob_of_user_ranked = 0
-        for prob in high_agg_prob_of_user:
+        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
+        count_high_known_word_prob_of_user_ranked = 0
+        for prob in high_known_word_prob_of_user:
             if prob.word_rank is not None and prob.word_rank.rank <=3000:
-                count_high_agg_prob_of_user_ranked +=1
-        return round(float(count_high_agg_prob_of_user_ranked)/3000*100,2)
+                count_high_known_word_prob_of_user_ranked +=1
+        return round(float(count_high_known_word_prob_of_user_ranked)/3000*100,2)
 
     def get_percentage_of_known_bookmarked_words(self):
-        high_agg_prob_of_user = AggregatedProbability.get_probably_known_words(self)
-        find_all_agg_prob_of_user = AggregatedProbability.find_all_by_user(self)
+        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
+        find_all_known_word_prob_of_user = KnownWordProbability.find_all_by_user(self)
         count_user_word_of_user = 0
-        count_high_agg_prob_of_user =0
-        for prob in find_all_agg_prob_of_user:
+        count_high_known_word_prob_of_user =0
+        for prob in find_all_known_word_prob_of_user:
             if prob.user_word is not None:
                 count_user_word_of_user+=1
-        for prob in high_agg_prob_of_user:
+        for prob in high_known_word_prob_of_user:
             if prob.user_word is not None:
-                count_high_agg_prob_of_user +=1
+                count_high_known_word_prob_of_user +=1
         if count_user_word_of_user <> 0:
-            return round(float(count_high_agg_prob_of_user)/count_user_word_of_user*100,2)
+            return round(float(count_high_known_word_prob_of_user)/count_user_word_of_user*100,2)
         else:
             return 0
 
@@ -625,9 +625,9 @@ class EncounterBasedProbability(db.Model):
 
 
 
-class AggregatedProbability(db.Model):
+class KnownWordProbability(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
-    __tablename__ = 'aggregated_probability'
+    __tablename__ = 'known_word_probability'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable = False)
     user = db.relationship("User")
@@ -796,17 +796,17 @@ class Bookmark(db.Model):
                 filtered_words_known_from_user.append(word_known)
         return filtered_words_known_from_user
 
-    def calculate_aggregated_probability_after_adding_exercise_based_probability(self, ex_prob, enc_prob):
-        if AggregatedProbability.exists(flask.g.user, self.origin,self.origin.rank) and enc_prob == None: #checks if only exercise based probability exists
-            agg_prob = AggregatedProbability.find(flask.g.user, self.origin,self.origin.rank)
-            agg_prob.probability = ex_prob.probability
+    def calculate_known_word_probability_after_adding_exercise_based_probability(self, ex_prob, enc_prob):
+        if KnownWordProbability.exists(flask.g.user, self.origin,self.origin.rank) and enc_prob == None: #checks if only exercise based probability exists
+            known_word_prob = KnownWordProbability.find(flask.g.user, self.origin,self.origin.rank)
+            known_word_prob.probability = ex_prob.probability
         elif enc_prob is not None: #checks if encounter based probability also exists
-            agg_prob = AggregatedProbability.find(flask.g.user, self.origin, self.origin.rank)
-            agg_prob.probability = AggregatedProbability.calculateAggregatedProb(ex_prob,enc_prob)
+            known_word_prob = KnownWordProbability.find(flask.g.user, self.origin, self.origin.rank)
+            known_word_prob.probability = KnownWordProbability.calculateAggregatedProb(ex_prob,enc_prob)
         else:
-            agg_prob = AggregatedProbability.find(flask.g.user, self.origin,self.origin.rank, ex_prob.probability) # new aggregated probability created as it did not exist.
+            known_word_prob = KnownWordProbability.find(flask.g.user, self.origin,self.origin.rank, ex_prob.probability) # new known word probability created as it did not exist.
 
-        return agg_prob
+        return known_word_prob
 
     @classmethod
     def find_by_specific_user(cls, user):

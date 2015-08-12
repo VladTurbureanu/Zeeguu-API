@@ -356,11 +356,11 @@ def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,
         word_rank = model.WordRank.find(bookmark.origin.word, bookmark.origin.language)
         if model.EncounterBasedProbability.exists(flask.g.user,word_rank):
             enc_prob = model.EncounterBasedProbability.find(flask.g.user,word_rank)
-            agg_prob = model.AggregatedProbability.find(flask.g.user,bookmark.origin,word_rank)
-            agg_prob.probability = model.AggregatedProbability.calculateAggregatedProb(ex_prob.probability,enc_prob.probability)
+            known_word_prob = model.KnownWordProbability.find(flask.g.user,bookmark.origin,word_rank)
+            known_word_prob.probability = model.KnownWordProbability.calculateAggregatedProb(ex_prob.probability,enc_prob.probability)
         else:
-            agg_prob = model.AggregatedProbability.find(flask.g.user,bookmark.origin,word_rank)
-            agg_prob.probability = ex_prob.probability
+            known_word_prob = model.KnownWordProbability.find(flask.g.user,bookmark.origin,word_rank)
+            known_word_prob.probability = ex_prob.probability
     model.db.session.commit()
     return "OK"
 

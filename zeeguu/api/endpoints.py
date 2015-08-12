@@ -19,7 +19,7 @@ import json
 import goslate
 import datetime
 import re
-from zeeguu.model import WordRank, Language,Bookmark, Session, Search, UserWord, User, Url, ExerciseBasedProbability, EncounterBasedProbability,AggregatedProbability, Text, ExerciseOutcome
+from zeeguu.model import WordRank, Language,Bookmark, Session, Search, UserWord, User, Url, ExerciseBasedProbability, EncounterBasedProbability,KnownWordProbability, Text, ExerciseOutcome
 import re
 
 
@@ -357,15 +357,15 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
             user_word = UserWord.find(word,from_lang)
             if ExerciseBasedProbability.exists(flask.g.user,user_word): #checks if exercise based probability exists for words in context
                 ex_prob = ExerciseBasedProbability.find(flask.g.user,user_word)
-                agg_prob = AggregatedProbability.find(flask.g.user,user_word,word_rank)
-                agg_prob.probability = agg_prob.calculateAggregatedProb(ex_prob, enc_prob) #updates aggregated probability as exercise based probability already existed.
+                known_word_prob = KnownWordProbability.find(flask.g.user,user_word,word_rank)
+                known_word_prob.probability = known_word_prob.calculateAggregatedProb(ex_prob, enc_prob) #updates known word probability as exercise based probability already existed.
         else:
-            if AggregatedProbability.exists(flask.g.user, user_word,word_rank):
-                agg_prob = AggregatedProbability.find(flask.g.user,user_word,word_rank)
-                agg_prob.probability = enc_prob.probability # updates aggregated probability as encounter based probability already existed
+            if KnownWordProbability.exists(flask.g.user, user_word,word_rank):
+                known_word_prob = KnownWordProbability.find(flask.g.user,user_word,word_rank)
+                known_word_prob.probability = enc_prob.probability # updates known word probability as encounter based probability already existed
             else:
-                agg_prob = AggregatedProbability.find(flask.g.user,user_word,word_rank, enc_prob.probability) # new aggregated probability created as it did not exist
-                zeeguu.db.session.add(agg_prob)
+                known_word_prob = KnownWordProbability.find(flask.g.user,user_word,word_rank, enc_prob.probability) # new known word probability created as it did not exist
+                zeeguu.db.session.add(known_word_prob)
 
     # computations for adding exercise based probability
     enc_prob = None
@@ -379,8 +379,8 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
             count_bookmarks_with_same_word = len(Bookmark.find_all_by_user_and_word(flask.g.user, bookmark.origin))
             ex_prob.probability = (float(ex_prob.probability * count_bookmarks_with_same_word) + 0.1)/(count_bookmarks_with_same_word+1)# compute avg probability of all bookmarks with same word
         zeeguu.db.session.add(ex_prob)
-        agg_prob = bookmark.calculate_aggregated_probability_after_adding_exercise_based_probability(ex_prob,enc_prob)
-        zeeguu.db.session.add(agg_prob)
+        known_word_prob = bookmark.calculate_known_word_probability_after_adding_exercise_based_probability(ex_prob,enc_prob)
+        zeeguu.db.session.add(known_word_prob)
     zeeguu.db.session.commit()
 
     return str(bookmark.id)

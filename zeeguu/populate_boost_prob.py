@@ -3,7 +3,7 @@
 import re
 import zeeguu
 import decimal
-from zeeguu.model import WordRank, Language,Bookmark, UserWord, User, ExerciseBasedProbability, EncounterBasedProbability,AggregatedProbability
+from zeeguu.model import WordRank, Language,Bookmark, UserWord, User, ExerciseBasedProbability, EncounterBasedProbability,KnownWordProbability
 
 
 
@@ -45,7 +45,7 @@ def set_default_encounter_based_prob():
                 zeeguu.db.session.commit()
     print 'job2'
 
-def set_aggregated_prob():
+def set_know_word_prob():
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
     enc_probs = EncounterBasedProbability.find_all()
@@ -59,11 +59,11 @@ def set_aggregated_prob():
             user_word = UserWord.find(word, language)
         if ExerciseBasedProbability.exists(user, user_word):
             ex_prob = ExerciseBasedProbability.find(user, user_word)
-            aggreg_prob = AggregatedProbability.calculateAggregatedProb(ex_prob.probability, prob.probability)
-            aggreg_probability_obj = AggregatedProbability.find(user,user_word,prob.word_rank,aggreg_prob)
+            known_word_prob = KnownWordProbability.calculateAggregatedProb(ex_prob.probability, prob.probability)
+            known_word_probability_obj = KnownWordProbability.find(user,user_word,prob.word_rank,known_word_prob)
         else:
-            aggreg_probability_obj = AggregatedProbability.find(user,None, prob.word_rank,prob.probability)
-        zeeguu.db.session.add(aggreg_probability_obj)
+            known_word_probability_obj = KnownWordProbability.find(user,None, prob.word_rank,prob.probability)
+        zeeguu.db.session.add(known_word_probability_obj)
         zeeguu.db.session.commit()
     for prob in ex_probs:
         user = prob.user
@@ -75,8 +75,8 @@ def set_aggregated_prob():
         if not EncounterBasedProbability.exists(user,word_rank):
             if UserWord.exists(word, language):
                 user_word = UserWord.find(word, language)
-                aggreg_probability_obj = AggregatedProbability(user,user_word,word_rank,prob.probability)
-                zeeguu.db.session.add(aggreg_probability_obj)
+                known_word_probability_obj = KnownWordProbability(user,user_word,word_rank,prob.probability)
+                zeeguu.db.session.add(known_word_probability_obj)
                 zeeguu.db.session.commit()
     print 'job3'
 
@@ -92,6 +92,6 @@ def set_aggregated_prob():
 if __name__ == "__main__":
     set_default_exercise_based_prob()
     set_default_encounter_based_prob()
-    set_aggregated_prob()
+    set_know_word_prob()
 
 
