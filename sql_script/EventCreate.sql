@@ -1,3 +1,5 @@
+-- This script was executed to create all exercise related tables with their data.
+
 DROP TABLE IF EXISTS contribution_exercise_mapping,exercise,exercise_source,exercise_outcome;
 
 CREATE TABLE exercise_outcome

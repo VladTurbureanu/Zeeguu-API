@@ -1,3 +1,5 @@
+-- rename  purposes of user word and ranked word tables. Rename also columns of exercise outcome
+
 UPDATE exercise_outcome
 SET outcome='Show solution'
 WHERE outcome='Do not know';
@@ -10,7 +12,7 @@ WHERE outcome='I know';
 DROP TABLE IF EXISTS words;
 
 ALTER TABLE word_ranks
-RENAME TO word_rank;
+RENAME TO ranked_word;
 
 ALTER TABLE user_words
 RENAME TO user_word;

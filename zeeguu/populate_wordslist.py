@@ -29,20 +29,20 @@ def word_list(lang_code):
 
 
 
-def add_word_rank_to_db(lang_code):
+def add_ranked_word_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
     from_lang = model.Language.find(lang_code)
     initial_line_number = 1
     for word in filter_word_list(word_list(lang_code)):
-        r = model.WordRank(word.lower(), from_lang,initial_line_number)
+        r = model.RankedWord(word.lower(), from_lang,initial_line_number)
         zeeguu.db.session.add(r)
         initial_line_number+=1
     print 'karan the worst'
     zeeguu.db.session.commit()
 
 def change_db(lang_code):
-    add_word_rank_to_db(lang_code)
+    add_ranked_word_to_db(lang_code)
 
 
 

@@ -3,7 +3,7 @@ import re
 
 import zeeguu
 import datetime
-from zeeguu.model import WordRank, Language,Bookmark, UserWord, User, Url, ExerciseBasedProbability, EncounterBasedProbability,KnownWordProbability, Text, ExerciseOutcome, ExerciseSource
+from zeeguu.model import RankedWord, Language,Bookmark, UserWord, User, Url, ExerciseBasedProbability, EncounterBasedProbability,KnownWordProbability, Text, ExerciseOutcome, ExerciseSource
 
 
 WORD_PATTERN = re.compile("\[?([^{\[]+)\]?( {[^}]+})?( \[[^\]]\])?")
@@ -56,14 +56,14 @@ def test_word_list(lang_code):
     words_list = words_file.read().splitlines()
     return words_list
 
-def add_word_rank_to_db(lang_code):
+def add_ranked_word_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
     from_lang = Language.find(lang_code)
     initial_line_number = 1
 
     for word in filter_word_list(test_word_list(lang_code)):
-        r = WordRank(word.lower(), from_lang,initial_line_number)
+        r = RankedWord(word.lower(), from_lang,initial_line_number)
         zeeguu.db.session.add(r)
         initial_line_number+=1
     zeeguu.db.session.commit()
@@ -84,12 +84,12 @@ def add_bookmark(user, original_language, original_word, translation_language, t
 
 
 
-    if WordRank.exists(original_word.lower(), original_language):
+    if RankedWord.exists(original_word.lower(), original_language):
         rank1 = UserWord.find_rank(original_word.lower(), original_language)
         w1 = UserWord(original_word, original_language,rank1)
     else:
         w1  = UserWord(original_word, original_language,None)
-    if WordRank.exists(translation_word.lower(), translation_language):
+    if RankedWord.exists(translation_word.lower(), translation_language):
         rank2 = UserWord.find_rank(translation_word.lower(), translation_language)
         w2 = UserWord(translation_word, translation_language,rank2)
     else:
@@ -111,27 +111,27 @@ def add_probability_to_existing_words_of_user(user,bookmark,language):
         enc_prob = EncounterBasedProbability.find_or_create(word,user)
         zeeguu.db.session.add(enc_prob) #adds encounter based probabilities of words in context
         user_word = None
-        word_rank = enc_prob.word_rank
+        ranked_word = enc_prob.ranked_word
         if UserWord.exists(word,language):
-            user_word = UserWord.find(word,language,word_rank)
+            user_word = UserWord.find(word,language,ranked_word)
             if ExerciseBasedProbability.exists(user, user_word): #checks if exercise based probability exists for words in context
                 ex_prob = ExerciseBasedProbability.find(user,user_word)
-                known_word_prob = KnownWordProbability.find(user,user_word,word_rank)
-                known_word_prob.probability = known_word_prob.calculateAggregatedProb(ex_prob, enc_prob) #updates known word probability as exercise based probability already existed.
+                known_word_prob = KnownWordProbability.find(user,user_word,ranked_word)
+                known_word_prob.probability = known_word_prob.calculateKnownWordProb(ex_prob, enc_prob) #updates known word probability as exercise based probability already existed.
         else:
-            if  KnownWordProbability.exists(user, user_word,word_rank):
-                known_word_prob = KnownWordProbability.find(user,user_word,word_rank)
+            if  KnownWordProbability.exists(user, user_word,ranked_word):
+                known_word_prob = KnownWordProbability.find(user,user_word,ranked_word)
                 known_word_prob.probability = enc_prob.probability # updates known word probability as encounter based probability already existed
             else:
-                known_word_prob = KnownWordProbability.find(user,user_word,word_rank, enc_prob.probability) # new known word probability created as it did not exist
+                known_word_prob = KnownWordProbability.find(user,user_word,ranked_word, enc_prob.probability) # new known word probability created as it did not exist
                 zeeguu.db.session.add(known_word_prob)
     # computations for adding exercise based probability
     enc_prob = None
     ex_prob = ExerciseBasedProbability.find(user, bookmark.origin)
-    if WordRank.exists(bookmark.origin.word, language): #checks if word rank exists for that looked up word
-        word_rank = WordRank.find(bookmark.origin.word, language)
-        if EncounterBasedProbability.exists(user, word_rank): # checks if encounter based probability exists for that looked up word
-            enc_prob = EncounterBasedProbability.find(user, word_rank)
+    if RankedWord.exists(bookmark.origin.word, language): #checks if ranked_word exists for that looked up word
+        ranked_word = RankedWord.find(bookmark.origin.word, language)
+        if EncounterBasedProbability.exists(user, ranked_word): # checks if encounter based probability exists for that looked up word
+            enc_prob = EncounterBasedProbability.find(user, ranked_word)
             enc_prob.reset_prob() # reset encounter based probability to 0.5
         if ExerciseBasedProbability.exists(user, bookmark.origin):
             count_bookmarks_with_same_word = len(Bookmark.find_all_by_user_and_word(user, bookmark.origin))
@@ -253,7 +253,7 @@ def create_test_db():
 
 
 
-    add_word_rank_to_db('de')
+    add_ranked_word_to_db('de')
 
     for key in today_dict:
         add_bookmark(user, de, key, en, today_dict[key], jan111, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung fur das finanzsystem habe, sagte holder, ohne namen von banken zu nennen" + key,

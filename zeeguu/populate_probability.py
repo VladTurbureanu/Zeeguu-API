@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 import re
 import zeeguu
-from zeeguu.model import WordRank, Language,Bookmark,User,ExerciseBasedProbability, EncounterBasedProbability
+from zeeguu.model import RankedWord, Language,Bookmark,User,ExerciseBasedProbability, EncounterBasedProbability
 from re import compile as _Re
 
 
@@ -35,11 +35,11 @@ def set_default_encounter_based_prob():
                     marked_words_of_user_in_text.append(bookmark.origin.word)
             words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
             for word_known in words_known_from_user:
-                if WordRank.exists(word_known, lang):
-                   rank = WordRank.find(word_known, lang)
+                if RankedWord.exists(word_known, lang):
+                   rank = RankedWord.find(word_known, lang)
                    if EncounterBasedProbability.exists(user, rank):
                        prob = EncounterBasedProbability.find(user,rank, default_probability)
-                       prob.count_not_looked_up +=1
+                       prob.not_looked_up_counter +=1
                    else:
                        prob = EncounterBasedProbability.find(user,rank,default_probability)
                        zeeguu.db.session.add(prob)

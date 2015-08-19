@@ -1,4 +1,4 @@
-
+-- This script is executed after the user_words table was split.
 
 ALTER TABLE starred_words_association 
 DROP FOREIGN KEY starred_words_association_ibfk_2;

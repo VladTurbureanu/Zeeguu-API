@@ -19,7 +19,7 @@ import json
 import goslate
 import datetime
 import re
-from zeeguu.model import WordRank, Language,Bookmark, Session, Search, UserWord, User, Url, ExerciseBasedProbability, EncounterBasedProbability,KnownWordProbability, Text, ExerciseOutcome
+from zeeguu.model import RankedWord, Language,Bookmark, Session, Search, UserWord, User, Url, ExerciseBasedProbability, EncounterBasedProbability,KnownWordProbability, Text, ExerciseOutcome
 import re
 
 
@@ -219,7 +219,7 @@ def studied_words():
     """
     Returns a list of the words that the user is currently studying.
     """
-    js = json.dumps(flask.g.user.user_word())
+    js = json.dumps(flask.g.user.user_words())
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
@@ -352,32 +352,31 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
         enc_prob = EncounterBasedProbability.find_or_create(word,flask.g.user)
         zeeguu.db.session.add(enc_prob) #adds encounter based probabilities of words in context
         user_word = None
-        word_rank = enc_prob.word_rank
+        ranked_word = enc_prob.ranked_word
         if UserWord.exists(word,from_lang):
             user_word = UserWord.find(word,from_lang)
             if ExerciseBasedProbability.exists(flask.g.user,user_word): #checks if exercise based probability exists for words in context
                 ex_prob = ExerciseBasedProbability.find(flask.g.user,user_word)
-                known_word_prob = KnownWordProbability.find(flask.g.user,user_word,word_rank)
-                known_word_prob.probability = known_word_prob.calculateAggregatedProb(ex_prob, enc_prob) #updates known word probability as exercise based probability already existed.
+                known_word_prob = KnownWordProbability.find(flask.g.user,user_word,ranked_word)
+                known_word_prob.probability = known_word_prob.calculateKnownWordProb(ex_prob, enc_prob) #updates known word probability as exercise based probability already existed.
         else:
-            if KnownWordProbability.exists(flask.g.user, user_word,word_rank):
-                known_word_prob = KnownWordProbability.find(flask.g.user,user_word,word_rank)
+            if KnownWordProbability.exists(flask.g.user, user_word,ranked_word):
+                known_word_prob = KnownWordProbability.find(flask.g.user,user_word,ranked_word)
                 known_word_prob.probability = enc_prob.probability # updates known word probability as encounter based probability already existed
             else:
-                known_word_prob = KnownWordProbability.find(flask.g.user,user_word,word_rank, enc_prob.probability) # new known word probability created as it did not exist
+                known_word_prob = KnownWordProbability.find(flask.g.user,user_word,ranked_word, enc_prob.probability) # new known word probability created as it did not exist
                 zeeguu.db.session.add(known_word_prob)
 
     # computations for adding exercise based probability
     enc_prob = None
     ex_prob = ExerciseBasedProbability.find(flask.g.user, bookmark.origin)
-    if WordRank.exists(bookmark.origin.word, from_lang): #checks if word rank exists for that looked up word
-        word_rank = WordRank.find(bookmark.origin.word, from_lang)
-        if EncounterBasedProbability.exists(flask.g.user, word_rank): # checks if encounter based probability exists for that looked up word
-            enc_prob = EncounterBasedProbability.find(flask.g.user, word_rank)
+    if RankedWord.exists(bookmark.origin.word, from_lang): #checks if ranked_word exists for that looked up word
+        ranked_word = RankedWord.find(bookmark.origin.word, from_lang)
+        if EncounterBasedProbability.exists(flask.g.user, ranked_word): # checks if encounter based probability exists for that looked up word
+            enc_prob = EncounterBasedProbability.find(flask.g.user, ranked_word)
             enc_prob.reset_prob() # reset encounter based probability to 0.5
         if ExerciseBasedProbability.exists(flask.g.user, bookmark.origin):
-            count_bookmarks_with_same_word = len(Bookmark.find_all_by_user_and_word(flask.g.user, bookmark.origin))
-            ex_prob.probability = (float(ex_prob.probability * count_bookmarks_with_same_word) + 0.1)/(count_bookmarks_with_same_word+1)# compute avg probability of all bookmarks with same word
+            ex_prob.update_probability_after_adding_bookmark_with_same_word(bookmark)
         zeeguu.db.session.add(ex_prob)
         known_word_prob = bookmark.calculate_known_word_probability_after_adding_exercise_based_probability(ex_prob,enc_prob)
         zeeguu.db.session.add(known_word_prob)
@@ -391,9 +390,13 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
 @cross_domain
 @with_session
 def delete_bookmark(bookmark_id):
+
+
     bookmark = Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
+
+
 
     try:
         zeeguu.db.session.delete(bookmark)
@@ -484,7 +487,7 @@ def get_translations_for_bookmark(bookmark_id):
          translation_dict['id'] = translation.id
          translation_dict['word'] = translation.word
          translation_dict['language'] = translation.language.name
-         translation_dict['word_rank'] = translation.rank
+         translation_dict['ranked_word'] = translation.rank
          translation_dict_list.append(translation_dict.copy())
     js = json.dumps(translation_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
@@ -505,22 +508,20 @@ def get_known_bookmarks(lang_code):
 @with_session
 def get_known_words(lang_code):
     lang_id = Language.find(lang_code)
-    bookmarks = Bookmark.find_all_filtered_by_user()
+    bookmarks = flask.g.user.all_bookmarks()
     known_words=[]
     filtered_known_words_from_user = []
     filtered_known_words_dict_list =[]
     for bookmark in bookmarks:
-        if Bookmark.sort_exercise_log_by_latest_and_check_is_latest_outcome_too_easy(ExerciseOutcome.TOO_EASY, bookmark):
+        if bookmark.check_is_latest_outcome_too_easy():
                 known_words.append(bookmark.origin.word)
     for word_known in known_words:
-        if WordRank.exists(word_known, lang_id):
+        if RankedWord.exists(word_known, lang_id):
             filtered_known_words_from_user.append(word_known)
             zeeguu.db.session.commit()
     filtered_known_words_from_user = list(set(filtered_known_words_from_user))
     for word in filtered_known_words_from_user:
-        filtered_known_word_dict = {}
-        filtered_known_word_dict['word'] = word
-        filtered_known_words_dict_list.append(filtered_known_word_dict.copy())
+        filtered_known_words_dict_list.append( {'word': word} )
     js = json.dumps(filtered_known_words_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
@@ -550,11 +551,11 @@ def get_percentage_of_known_bookmarked_words():
 @with_session
 def get_learned_bookmarks(lang):
     lang = Language.find(lang)
-    bookmarks = Bookmark.find_all_filtered_by_user()
+    bookmarks = flask.g.user.all_bookmarks()
     too_easy_bookmarks=[]
     learned_bookmarks_dict_list =[]
     for bookmark in bookmarks:
-        if Bookmark.sort_exercise_log_by_latest_and_check_is_latest_outcome_too_easy(ExerciseOutcome.TOO_EASY, bookmark) and bookmark.origin.language == lang:
+        if bookmark.check_is_latest_outcome_too_easy() and bookmark.origin.language == lang:
                 too_easy_bookmarks.append(bookmark)
     learned_bookmarks= [bookmark for bookmark in bookmarks if bookmark not in too_easy_bookmarks]
     for bookmark in learned_bookmarks:
