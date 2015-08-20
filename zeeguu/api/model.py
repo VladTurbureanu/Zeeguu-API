@@ -163,11 +163,11 @@ class User(db.Model):
         known_bookmarks=[]
         for bookmark in bookmarks:
             if bookmark.check_is_latest_outcome_too_easy() and lang ==bookmark.origin.language:
-                    known_bookmark_dict = {}
-                    known_bookmark_dict['id'] = bookmark.id
-                    known_bookmark_dict['origin'] = bookmark.origin.word
-                    known_bookmark_dict['text']= bookmark.text.content
-                    known_bookmark_dict['time']=bookmark.time.strftime('%m/%d/%Y')
+                    known_bookmark_dict = {
+                        'id': bookmark.id,
+                        'origin': bookmark.origin.word,
+                        'text': bookmark.text.content,
+                        'time': bookmark.time.strftime('%m/%d/%Y')}
                     known_bookmarks.append(known_bookmark_dict.copy())
         return known_bookmarks
 
