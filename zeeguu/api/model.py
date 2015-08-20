@@ -815,7 +815,8 @@ class Bookmark(db.Model):
         object_to_be_added_to_database = []
         for word in self.context_words_with_rank():
             enc_prob = EncounterBasedProbability.find_or_create(word,user)
-            object_to_be_added_to_database.append(enc_prob)
+            #object_to_be_added_to_database.append(enc_prob)
+            zeeguu.db.session.add(enc_prob)
             user_word = None
             ranked_word = enc_prob.ranked_word
             if UserWord.exists(word,language):
@@ -830,7 +831,8 @@ class Bookmark(db.Model):
                     known_word_prob_1.probability = enc_prob.probability # updates known word probability as encounter based probability already existed
                 else:
                     known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word, enc_prob.probability) # new known word probability created as it did not exist
-                    object_to_be_added_to_database.append(known_word_prob_1)
+                    #object_to_be_added_to_database.append(known_word_prob_1)
+                    zeeguu.db.session.add(known_word_prob_1)
 
         # computations for adding exercise based probability
         enc_prob = None
@@ -842,9 +844,12 @@ class Bookmark(db.Model):
                 enc_prob.reset_prob() # reset encounter based probability to 0.5
             if ExerciseBasedProbability.exists(user, self.origin):
                 ex_prob.update_probability_after_adding_bookmark_with_same_word(self,user)
-            object_to_be_added_to_database.append(ex_prob)
+            #object_to_be_added_to_database.append(ex_prob)
+            zeeguu.db.session.add(ex_prob)
             known_word_prob_2 = self.calculate_known_word_probability_after_adding_exercise_based_probability(ex_prob,enc_prob, user)
-            object_to_be_added_to_database.append(known_word_prob_2)
+            #object_to_be_added_to_database.append(known_word_prob_2)
+            zeeguu.db.session.add(known_word_prob_2)
+        zeeguu.db.session.commit()
         return object_to_be_added_to_database
 
     @classmethod
