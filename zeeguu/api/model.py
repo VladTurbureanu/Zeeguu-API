@@ -124,19 +124,31 @@ class User(db.Model):
     def word_count(self):
         return len(self.user_words())
 
+
     def bookmarks_by_date(self):
-	def extract_day_from_date(bookmark):
-		return (bookmark, bookmark.time.replace(bookmark.time.year, bookmark.time.month, bookmark.time.day,0,0,0,0))
+        def extract_day_from_date(bookmark):
+    		return (bookmark, bookmark.time.replace(bookmark.time.year, bookmark.time.month, bookmark.time.day,0,0,0,0))
 
-	bookmarks = self.all_bookmarks()
-	bookmarks_by_date = dict()
-				                                        
-	for elem in map(extract_day_from_date, bookmarks):
-		bookmarks_by_date.setdefault(elem[1],[]).append(elem[0])
+        bookmarks = self.all_bookmarks()
+        bookmarks_by_date = dict()
 
-	sorted_dates = bookmarks_by_date.keys()
-	sorted_dates.sort(reverse=True)
-	return bookmarks_by_date, sorted_dates
+        for elem in map(extract_day_from_date, bookmarks):
+            bookmarks_by_date.setdefault(elem[1],[]).append(elem[0])
+
+        sorted_dates = bookmarks_by_date.keys()
+        sorted_dates.sort(reverse=True)
+        return bookmarks_by_date, sorted_dates
+
+
+    def distinct_domains(self):
+        import re
+        distinct_domains = set()
+        for url in map(lambda b: b.text.url.url, self.all_bookmarks()):
+            domain = re.findall(r'(http://)?([^/?]*)', url)[0][1]
+            distinct_domains.add(domain)
+        return distinct_domains
+
+
 
     def unique_urls(self):
         urls = set()
@@ -394,6 +406,15 @@ class Url(db.Model):
         if self.title != "":
             return self.title
         return self.url
+
+
+    def domain(self):
+        protocol_re = '(.*://)?'
+        domain_re = '([^/?]*)'
+
+        domain = re.findall(protocol_re + domain_re, self.url)[0]
+        return domain[0] + domain[1]
+
 
     @classmethod
     def find(cls, url, title):
