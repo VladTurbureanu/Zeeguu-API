@@ -346,40 +346,9 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     new_text = Text(context, from_lang, url)
     bookmark = Bookmark(user_word, translation, flask.g.user, new_text, datetime.datetime.now())
     zeeguu.db.session.add(bookmark)
-
-    # computations for adding encounter based probability
-    for word in bookmark.context_words_with_rank():
-        enc_prob = EncounterBasedProbability.find_or_create(word,flask.g.user)
-        zeeguu.db.session.add(enc_prob) #adds encounter based probabilities of words in context
-        user_word = None
-        ranked_word = enc_prob.ranked_word
-        if UserWord.exists(word,from_lang):
-            user_word = UserWord.find(word,from_lang)
-            if ExerciseBasedProbability.exists(flask.g.user,user_word): #checks if exercise based probability exists for words in context
-                ex_prob = ExerciseBasedProbability.find(flask.g.user,user_word)
-                known_word_prob = KnownWordProbability.find(flask.g.user,user_word,ranked_word)
-                known_word_prob.probability = known_word_prob.calculateKnownWordProb(ex_prob, enc_prob) #updates known word probability as exercise based probability already existed.
-        else:
-            if KnownWordProbability.exists(flask.g.user, user_word,ranked_word):
-                known_word_prob = KnownWordProbability.find(flask.g.user,user_word,ranked_word)
-                known_word_prob.probability = enc_prob.probability # updates known word probability as encounter based probability already existed
-            else:
-                known_word_prob = KnownWordProbability.find(flask.g.user,user_word,ranked_word, enc_prob.probability) # new known word probability created as it did not exist
-                zeeguu.db.session.add(known_word_prob)
-
-    # computations for adding exercise based probability
-    enc_prob = None
-    ex_prob = ExerciseBasedProbability.find(flask.g.user, bookmark.origin)
-    if RankedWord.exists(bookmark.origin.word, from_lang): #checks if ranked_word exists for that looked up word
-        ranked_word = RankedWord.find(bookmark.origin.word, from_lang)
-        if EncounterBasedProbability.exists(flask.g.user, ranked_word): # checks if encounter based probability exists for that looked up word
-            enc_prob = EncounterBasedProbability.find(flask.g.user, ranked_word)
-            enc_prob.reset_prob() # reset encounter based probability to 0.5
-        if ExerciseBasedProbability.exists(flask.g.user, bookmark.origin):
-            ex_prob.update_probability_after_adding_bookmark_with_same_word(bookmark)
-        zeeguu.db.session.add(ex_prob)
-        known_word_prob = bookmark.calculate_known_word_probability_after_adding_exercise_based_probability(ex_prob,enc_prob)
-        zeeguu.db.session.add(known_word_prob)
+    objects_to_be_added_to_database = bookmark.calculate_probabilities_after_adding_a_bookmark(flask.g.user, bookmark.origin.language)
+    for obj in objects_to_be_added_to_database:
+        zeeguu.db.session.add(obj)
     zeeguu.db.session.commit()
 
     return str(bookmark.id)

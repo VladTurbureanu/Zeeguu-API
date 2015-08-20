@@ -498,8 +498,8 @@ class ExerciseBasedProbability(db.Model):
         else:
              self.probability=(float(self.probability) + self.DEFAULT_MIN_PROBABILITY * count_correct_after_another)
 
-    def update_probability_after_adding_bookmark_with_same_word(self, bookmark):
-        count_bookmarks_with_same_word = len(Bookmark.find_all_by_user_and_word(flask.g.user, bookmark.origin))
+    def update_probability_after_adding_bookmark_with_same_word(self, bookmark, user):
+        count_bookmarks_with_same_word = len(Bookmark.find_all_by_user_and_word(user, bookmark.origin))
         self.probability = (float(self.probability * count_bookmarks_with_same_word) + 0.1)/(count_bookmarks_with_same_word+1)# compute avg probability of all bookmarks with same word
 
 
@@ -798,17 +798,54 @@ class Bookmark(db.Model):
                 filtered_words_known_from_user.append(word_known)
         return filtered_words_known_from_user
 
-    def calculate_known_word_probability_after_adding_exercise_based_probability(self, ex_prob, enc_prob):
-        if KnownWordProbability.exists(flask.g.user, self.origin,self.origin.rank) and enc_prob == None: #checks if only exercise based probability exists
-            known_word_prob = KnownWordProbability.find(flask.g.user, self.origin,self.origin.rank)
+    def calculate_known_word_probability_after_adding_exercise_based_probability(self, ex_prob, enc_prob, user):
+        if KnownWordProbability.exists(user, self.origin,self.origin.rank) and enc_prob == None: #checks if only exercise based probability exists
+            known_word_prob = KnownWordProbability.find(user, self.origin,self.origin.rank)
             known_word_prob.probability = ex_prob.probability
         elif enc_prob is not None: #checks if encounter based probability also exists
-            known_word_prob = KnownWordProbability.find(flask.g.user, self.origin, self.origin.rank)
+            known_word_prob = KnownWordProbability.find(user, self.origin, self.origin.rank)
             known_word_prob.probability = KnownWordProbability.calculateKnownWordProb(ex_prob,enc_prob)
         else:
-            known_word_prob = KnownWordProbability.find(flask.g.user, self.origin,self.origin.rank, ex_prob.probability) # new known word probability created as it did not exist.
+            known_word_prob = KnownWordProbability.find(user, self.origin,self.origin.rank, ex_prob.probability) # new known word probability created as it did not exist.
 
         return known_word_prob
+
+    def calculate_probabilities_after_adding_a_bookmark(self, user,language):
+            # computations for adding encounter based probability
+        object_to_be_added_to_database = []
+        for word in self.context_words_with_rank():
+            enc_prob = EncounterBasedProbability.find_or_create(word,user)
+            object_to_be_added_to_database.append(enc_prob)
+            user_word = None
+            ranked_word = enc_prob.ranked_word
+            if UserWord.exists(word,language):
+                user_word = UserWord.find(word,language)
+                if ExerciseBasedProbability.exists(user,user_word): #checks if exercise based probability exists for words in context
+                    ex_prob = ExerciseBasedProbability.find(user,user_word)
+                    known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word)
+                    known_word_prob_1.probability = known_word_prob_1.calculateKnownWordProb(ex_prob, enc_prob) #updates known word probability as exercise based probability already existed.
+            else:
+                if KnownWordProbability.exists(user, user_word,ranked_word):
+                    known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word)
+                    known_word_prob_1.probability = enc_prob.probability # updates known word probability as encounter based probability already existed
+                else:
+                    known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word, enc_prob.probability) # new known word probability created as it did not exist
+                    object_to_be_added_to_database.append(known_word_prob_1)
+
+        # computations for adding exercise based probability
+        enc_prob = None
+        ex_prob = ExerciseBasedProbability.find(user, self.origin)
+        if RankedWord.exists(self.origin.word, language): #checks if ranked_word exists for that looked up word
+            ranked_word = RankedWord.find(self.origin.word, language)
+            if EncounterBasedProbability.exists(user, ranked_word): # checks if encounter based probability exists for that looked up word
+                enc_prob = EncounterBasedProbability.find(user, ranked_word)
+                enc_prob.reset_prob() # reset encounter based probability to 0.5
+            if ExerciseBasedProbability.exists(user, self.origin):
+                ex_prob.update_probability_after_adding_bookmark_with_same_word(self,user)
+            object_to_be_added_to_database.append(ex_prob)
+            known_word_prob_2 = self.calculate_known_word_probability_after_adding_exercise_based_probability(ex_prob,enc_prob, user)
+            object_to_be_added_to_database.append(known_word_prob_2)
+        return object_to_be_added_to_database
 
     @classmethod
     def find_by_specific_user(cls, user):
