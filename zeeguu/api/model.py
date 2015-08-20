@@ -140,6 +140,9 @@ class User(db.Model):
         return bookmarks_by_date, sorted_dates
 
 
+    # returns only HTTP domains. in this way we filter
+    # out empty domains, and others like the android:
+    # that we use for internal tracking...
     def recent_domains(self):
         domains = []
         domains_and_times = []
