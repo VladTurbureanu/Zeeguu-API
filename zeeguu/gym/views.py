@@ -4,6 +4,7 @@ import random
 
 from datetime import timedelta, date
 import flask
+import decimal
 
 from zeeguu import model
 from zeeguu.model import UserWord, Bookmark, User, Text
@@ -342,6 +343,24 @@ def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,
     exercise = model.Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
     bookmark.add_new_exercise(exercise)
     model.db.session.add(exercise)
+    model.db.session.commit()
+    bookmarks = model.Bookmark.find_all_by_user_and_word(flask.g.user,bookmark.origin)
+    ex_prob = model.ExerciseBasedProbability.find(flask.g.user, bookmark.origin)
+    total_prob = 0
+    for b in bookmarks:
+        ex_prob.calculate_known_bookmark_probability(b)
+        total_prob +=float(ex_prob.probability)
+    ex_prob.probability = total_prob/len(bookmarks)
+    model.db.session.commit()
+    if model.RankedWord.exists(bookmark.origin.word,bookmark.origin.language):
+        ranked_word = model.RankedWord.find(bookmark.origin.word, bookmark.origin.language)
+        if model.EncounterBasedProbability.exists(flask.g.user,ranked_word):
+            enc_prob = model.EncounterBasedProbability.find(flask.g.user,ranked_word)
+            known_word_prob = model.KnownWordProbability.find(flask.g.user,bookmark.origin,ranked_word)
+            known_word_prob.probability = model.KnownWordProbability.calculateKnownWordProb(ex_prob.probability,enc_prob.probability)
+        else:
+            known_word_prob = model.KnownWordProbability.find(flask.g.user,bookmark.origin,ranked_word)
+            known_word_prob.probability = ex_prob.probability
     model.db.session.commit()
     return "OK"
 

@@ -3,7 +3,7 @@ import re
 
 import zeeguu
 import datetime
-from zeeguu import model
+from zeeguu.model import RankedWord, Language,Bookmark, UserWord, User, Url, ExerciseBasedProbability, EncounterBasedProbability,KnownWordProbability, Text, ExerciseOutcome, ExerciseSource
 
 
 WORD_PATTERN = re.compile("\[?([^{\[]+)\]?( {[^}]+})?( \[[^\]]\])?")
@@ -16,7 +16,7 @@ class WordCache(object):
     def __getitem__(self, args):
         word = self.cache.get(args, None)
         if word is None:
-            word = model.UserWord(*args)
+            word = UserWord(*args)
             zeeguu.db.session.add(word)
             self.cache[args] = word
         return word
@@ -56,14 +56,14 @@ def test_word_list(lang_code):
     words_list = words_file.read().splitlines()
     return words_list
 
-def add_word_ranks_to_db(lang_code):
+def add_ranked_word_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
-    from_lang = model.Language.find(lang_code)
+    from_lang = Language.find(lang_code)
     initial_line_number = 1
 
     for word in filter_word_list(test_word_list(lang_code)):
-        r = model.WordRank(word.lower(), from_lang,initial_line_number)
+        r = RankedWord(word.lower(), from_lang,initial_line_number)
         zeeguu.db.session.add(r)
         initial_line_number+=1
     zeeguu.db.session.commit()
@@ -79,31 +79,38 @@ def clean_word(word):
 
 def add_bookmark(user, original_language, original_word, translation_language, translation_word,  date, the_context, the_url, the_url_title):
 
-    url = model.Url.find (the_url, the_url_title)
-    text = model.Text(the_context, translation_language, url)
+    url = Url.find (the_url, the_url_title)
+    text = Text(the_context, translation_language, url)
 
 
 
-    if model.WordRank.exists(original_word.lower(), original_language):
-        rank1 = model.UserWord.find_rank(original_word.lower(), original_language)
-        w1 = model.UserWord(original_word, original_language,rank1)
+    if RankedWord.exists(original_word.lower(), original_language):
+        rank1 = UserWord.find_rank(original_word.lower(), original_language)
+        w1 = UserWord(original_word, original_language,rank1)
     else:
-        w1  = model.UserWord(original_word, original_language,None)
-    if model.WordRank.exists(translation_word.lower(), translation_language):
-        rank2 = model.UserWord.find_rank(translation_word.lower(), translation_language)
-        w2 = model.UserWord(translation_word, translation_language,rank2)
+        w1  = UserWord(original_word, original_language,None)
+    if RankedWord.exists(translation_word.lower(), translation_language):
+        rank2 = UserWord.find_rank(translation_word.lower(), translation_language)
+        w2 = UserWord(translation_word, translation_language,rank2)
     else:
-        w2  = model.UserWord(translation_word, translation_language,None)
+        w2  = UserWord(translation_word, translation_language,None)
 
     zeeguu.db.session.add(url)
     zeeguu.db.session.add(text)
     zeeguu.db.session.add(w1)
     zeeguu.db.session.add(w2)
-    t1= model.Bookmark(w1,w2, user, text, date)
+    t1= Bookmark(w1,w2, user, text, date)
     zeeguu.db.session.add(t1)
 
     zeeguu.db.session.commit()
-    return
+    add_probability_to_existing_words_of_user(user,t1,original_language)
+
+def add_probability_to_existing_words_of_user(user,bookmark,language):
+    prob_objects_to_be_added_to_database = bookmark.calculate_probabilities_after_adding_a_bookmark(user,language)
+    for obj in prob_objects_to_be_added_to_database:
+        zeeguu.db.session.add(obj)
+    zeeguu.db.session.commit()
+
 
 
 def create_test_db():
@@ -113,14 +120,14 @@ def create_test_db():
     zeeguu.db.drop_all()
     zeeguu.db.create_all()
 
-    fr = model.Language("fr", "French")
-    de = model.Language("de", "German")
-    dk = model.Language("dk", "Danish")
-    en = model.Language("en", "English")
-    it = model.Language("it", "Italian")
-    no = model.Language("no", "Norwegian")
-    ro = model.Language("ro", "Romanian")
-    es = model.Language("es", "Spanish")
+    fr = Language("fr", "French")
+    de = Language("de", "German")
+    dk = Language("dk", "Danish")
+    en = Language("en", "English")
+    it = Language("it", "Italian")
+    no = Language("no", "Norwegian")
+    ro = Language("ro", "Romanian")
+    es = Language("es", "Spanish")
 
     zeeguu.db.session.add(en)
     zeeguu.db.session.add(fr)
@@ -132,30 +139,30 @@ def create_test_db():
     zeeguu.db.session.add(es)
     zeeguu.db.session.commit()
 
-    not_know = model.ExerciseOutcome("Do not know")
-    retry = model.ExerciseOutcome("Retry")
-    correct = model.ExerciseOutcome("Correct")
-    wrong = model.ExerciseOutcome("Wrong")
-    typo = model.ExerciseOutcome("Typo")
-    i_know = model.ExerciseOutcome("I know")
+    show_solution = ExerciseOutcome("Show solution")
+    retry = ExerciseOutcome("Retry")
+    correct = ExerciseOutcome("Correct")
+    wrong = ExerciseOutcome("Wrong")
+    typo = ExerciseOutcome("Typo")
+    too_easy = ExerciseOutcome("Too easy")
 
-    recognize = model.ExerciseSource("Recognize")
-    translate = model.ExerciseSource("Translate")
+    recognize = ExerciseSource("Recognize")
+    translate = ExerciseSource("Translate")
 
-    zeeguu.db.session.add(not_know)
+    zeeguu.db.session.add(show_solution)
     zeeguu.db.session.add(retry)
     zeeguu.db.session.add(correct)
     zeeguu.db.session.add(wrong)
     zeeguu.db.session.add(typo)
-    zeeguu.db.session.add(i_know)
+    zeeguu.db.session.add(too_easy)
 
     zeeguu.db.session.add(recognize)
     zeeguu.db.session.add(translate)
 
 
 
-    user = model.User("i@mir.lu", "Mircea", "pass", de, ro)
-    user2 = model.User("i@ada.lu", "Ada", "pass", fr)
+    user = User("i@mir.lu", "Mircea", "pass", de, ro)
+    user2 = User("i@ada.lu", "Ada", "pass", fr)
 
     zeeguu.db.session.add(user)
     zeeguu.db.session.add(user2)
@@ -205,7 +212,7 @@ def create_test_db():
     story_url = 'http://www.gutenberg.org/files/23393/23393-h/23393-h.htm'
     japanese_story = [
             # ['recht', 'right', 'Du hast recht', story_url],
-            ['hauen', 'to chop', 'Es waren einmal zwei Holzhauer', story_url],
+            ['hauen', 'to chop', 'Da waren einmal zwei Holzhauer können', story_url],
             [u'Wald','to arrive', u'Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren', story_url],
             ['eingerichtet','established',u'Um in den Wald zu gelangen, mußten sie einen großen Fluß passieren, über den eine Fähre eingerichtet war', story_url],
             [u'vorläufig','temporary',u'von der er des rasenden Sturmes wegen vorläufig nicht zurück konnte', story_url],
@@ -216,7 +223,7 @@ def create_test_db():
 
 
 
-    add_word_ranks_to_db('de')
+    add_ranked_word_to_db('de')
 
     for key in today_dict:
         add_bookmark(user, de, key, en, today_dict[key], jan111, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung fur das finanzsystem habe, sagte holder, ohne namen von banken zu nennen" + key,

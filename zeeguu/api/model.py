@@ -2,9 +2,11 @@
 import re
 import random
 import datetime
-import codecs
+import string
+import decimal
 import flask
-from sqlalchemy import Column, Table, ForeignKey, Integer
+from sqlalchemy import Column, Table, ForeignKey, Integer, DECIMAL
+from re import compile as _Re
 
 import sqlalchemy.orm.exc
 
@@ -12,9 +14,9 @@ from zeeguu import db
 from zeeguu import util
 import zeeguu
 from sqlalchemy.orm import relationship
-red_words_association_table = Table('starred_words_association', db.Model.metadata,
+starred_words_association_table = Table('starred_words_association', db.Model.metadata,
     Column('user_id', Integer, ForeignKey('user.id')),
-    Column('starred_word_id', Integer, ForeignKey('user_words.id'))
+    Column('starred_word_id', Integer, ForeignKey('user_word.id'))
 )
 
 
@@ -64,6 +66,10 @@ class User(db.Model):
 
     def set_native_language(self, code):
         self.native_language = Language.find(code)
+
+    @classmethod
+    def find_all(cls):
+        return User.query.all()
 
 
     @classmethod
@@ -170,52 +176,84 @@ class User(db.Model):
                 urls_to_words [bookmark.text.url] += bookmark.origin.importance_level()
         return sorted(urls_to_words, key=urls_to_words.get, reverse=True)
 
-    def get_known_bookmarks(self):
-        bookmarks = Bookmark.find_all_filtered_by_user()
-        i_know_bookmarks=[]
+    def get_known_bookmarks(self,lang):
+        bookmarks = flask.g.user.all_bookmarks()
+        known_bookmarks=[]
         for bookmark in bookmarks:
-            if Bookmark.is_sorted_exercise_log_after_date_outcome(ExerciseOutcome.IKNOW, bookmark):
-                    i_know_bookmark_dict = {}
-                    i_know_bookmark_dict['id'] = bookmark.id
-                    i_know_bookmark_dict['origin'] = bookmark.origin.word
-                    i_know_bookmark_dict['text']= bookmark.text.content
-                    i_know_bookmark_dict['time']=bookmark.time.strftime('%m/%d/%Y')
-                    i_know_bookmarks.append(i_know_bookmark_dict.copy())
-        return i_know_bookmarks
+            if bookmark.check_is_latest_outcome_too_easy() and lang ==bookmark.origin.language:
+                    known_bookmark_dict = {
+                        'id': bookmark.id,
+                        'origin': bookmark.origin.word,
+                        'text': bookmark.text.content,
+                        'time': bookmark.time.strftime('%m/%d/%Y')}
+                    known_bookmarks.append(known_bookmark_dict.copy())
+        return known_bookmarks
 
     def get_known_bookmarks_count(self):
-        return len(self.get_known_bookmarks())
+        return len(self.get_known_bookmarks(self.learned_language))
 
 
-    def get_estimated_vocabulary(self, lang):
-        bookmarks = Bookmark.find_all_filtered_by_user()
+    def get_not_looked_up_words(self, lang):
+
         filtered_words_known_from_user_dict_list =[]
-        marked_words_of_user_in_text = []
-        words_of_all_bookmarks_content = []
-        filtered_words_known_from_user = []
-        for bookmark in bookmarks:
-            bookmark_content_words = re.sub("[^\w]", " ",  bookmark.text.content).split()
-            words_of_all_bookmarks_content.extend(bookmark_content_words)
-            marked_words_of_user_in_text.append(bookmark.origin.word)
-        words_known_from_user= [word for word in words_of_all_bookmarks_content if word not in marked_words_of_user_in_text]
-        for word_known in words_known_from_user:
-            if WordRank.exists(word_known.lower(), lang):
-                filtered_words_known_from_user.append(word_known)
-            zeeguu.db.session.commit()
-
-        filtered_words_known_from_user = list(set(filtered_words_known_from_user))
-        for word in filtered_words_known_from_user:
-            filtered_word_known_from_user_dict = {}
-            filtered_word_known_from_user_dict['word'] = word
-            filtered_words_known_from_user_dict_list.append(filtered_word_known_from_user_dict.copy())
+        enc_probs = EncounterBasedProbability.find_all_by_user(flask.g.user)
+        for enc_prob in enc_probs:
+            if enc_prob.ranked_word.language == lang:
+                filtered_words_known_from_user_dict_list.append( {'word': enc_prob.ranked_word.word} )
         return filtered_words_known_from_user_dict_list
 
-    def get_estimated_vocabulary_for_learned_language(self):
-        return self.get_estimated_vocabulary(self.learned_language)
+    def get_not_looked_up_words_for_learned_language(self):
+        return self.get_not_looked_up_words(self.learned_language)
 
 
-    def get_estimated_vocabulary_count(self):
-        return len(self.get_estimated_vocabulary_for_learned_language())
+    def get_not_looked_up_words_count(self):
+        return len(self.get_not_looked_up_words_for_learned_language())
+
+    def get_probably_known_words(self, lang):
+        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(flask.g.user)
+        probable_known_words_dict_list = []
+        for known_word_prob in high_known_word_prob_of_user:
+            probable_known_word_dict = {}
+            if known_word_prob.ranked_word is not None and known_word_prob.ranked_word.language == lang:
+                probable_known_word_dict['word'] = known_word_prob.ranked_word.word
+            elif known_word_prob.user_word is not None and known_word_prob.user_word.language == lang:
+                probable_known_word_dict['word'] = known_word_prob.user_word.word
+            probable_known_words_dict_list.append(probable_known_word_dict.copy())
+        return probable_known_words_dict_list
+
+    def get_probably_known_words_count(self):
+        return len(self.get_probably_known_words(self.learned_language))
+
+    def get_percentage_of_language_known(self):
+        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
+        count_high_known_word_prob_of_user_ranked = 0
+        for prob in high_known_word_prob_of_user:
+            if prob.ranked_word is not None and prob.ranked_word.rank <=3000:
+                count_high_known_word_prob_of_user_ranked +=1
+        return round(float(count_high_known_word_prob_of_user_ranked)/3000*100,2)
+
+    def get_percentage_of_known_bookmarked_words(self):
+        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
+        find_all_known_word_prob_of_user = KnownWordProbability.find_all_by_user(self)
+        count_user_word_of_user = 0
+        count_high_known_word_prob_of_user =0
+        for prob in find_all_known_word_prob_of_user:
+            if prob.user_word is not None:
+                count_user_word_of_user+=1
+        for prob in high_known_word_prob_of_user:
+            if prob.user_word is not None:
+                count_high_known_word_prob_of_user +=1
+        if count_user_word_of_user <> 0:
+            return round(float(count_high_known_word_prob_of_user)/count_user_word_of_user*100,2)
+        else:
+            return 0
+
+
+
+
+
+
+
 
 
 
@@ -283,8 +321,8 @@ class Language(db.Model):
 
 
 
-class WordRank(db.Model, util.JSONSerializable):
-    __tablename__ = 'word_ranks'
+class RankedWord(db.Model, util.JSONSerializable):
+    __tablename__ = 'ranked_word'
     __table_args__ = {'mysql_collate': 'utf8_bin'}
 
     id = db.Column(db.Integer, primary_key=True)
@@ -304,11 +342,11 @@ class WordRank(db.Model, util.JSONSerializable):
 
     @classmethod
     def find(cls, word, language):
+        word = word.lower()
         try:
             return (cls.query.filter(cls.word == word)
                              .filter(cls.language == language)
                              .one())
-            return w
         except sqlalchemy.orm.exc.NoResultFound:
             return None
 
@@ -318,10 +356,11 @@ class WordRank(db.Model, util.JSONSerializable):
         ).all()
 
     @classmethod
-    def exists(cls, word, language_id):
+    def exists(cls, word, language):
+        word = word.lower()
         try:
             (cls.query.filter(cls.word == word)
-                             .filter(cls.language == language_id)
+                             .filter(cls.language == language)
                              .one())
             return True
         except sqlalchemy.orm.exc.NoResultFound:
@@ -336,15 +375,15 @@ class WordRank(db.Model, util.JSONSerializable):
         return words_list
 
 class UserWord(db.Model, util.JSONSerializable):
-    __tablename__ = 'user_words'
+    __tablename__ = 'user_word'
     __table_args__ = {'mysql_collate': 'utf8_bin'}
 
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(255), nullable =False, unique = True)
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
-    rank_id = db.Column(db.Integer, db.ForeignKey("word_ranks.id"), nullable=True)
-    rank = db.relationship("WordRank")
+    rank_id = db.Column(db.Integer, db.ForeignKey("ranked_word.id"), nullable=True)
+    rank = db.relationship("RankedWord")
     db.UniqueConstraint(word, language_id)
 
     IMPORTANCE_LEVEL_STEP = 1000
@@ -378,25 +417,292 @@ class UserWord(db.Model, util.JSONSerializable):
         return b * self.importance_level()
 
     @classmethod
-    def find(cls, word, language,rank = None):
+    def find(cls, word, language):
         try:
             return (cls.query.filter(cls.word == word)
                              .filter(cls.language == language)
                              .one())
         except sqlalchemy.orm.exc.NoResultFound:
+            rank = UserWord.find_rank(word.lower(),language)
             return cls(word, language,rank)
 
 
     @classmethod
     def find_rank(cls, word, language):
-        return WordRank.find(word, language)
+        return RankedWord.find(word, language)
 
     @classmethod
     def find_all(cls):
         return cls.query.all()
 
 
+    @classmethod
+    def find_by_language(cls, language):
+        return (cls.query.filter(cls.language == language)
+                         .all())
+
+    @classmethod
+    def exists(cls, word, language):
+         try:
+            cls.query.filter_by(
+                language = language,
+                word = word
+            ).one()
+            return True
+         except  sqlalchemy.orm.exc.NoResultFound:
+            return False
+
+
 WordAlias = db.aliased(UserWord, name="translated_word")
+
+class ExerciseBasedProbability(db.Model):
+
+    __tablename__ = 'exercise_based_probability'
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable = False)
+    user = db.relationship("User")
+    user_word_id = db.Column(db.Integer, db.ForeignKey('user_word.id'), nullable = False)
+    user_word = db.relationship("UserWord")
+    probability = db.Column(db.DECIMAL(10,9), nullable = False)
+    db.UniqueConstraint(user_id, user_word_id)
+    db.CheckConstraint('probability>=0', 'probability<=1')
+
+    DEFAULT_MIN_PROBABILITY = 0.1
+    DEFAULT_MAX_PROBABILITY = 1.0
+
+    def __init__(self, user, user_word, probability):
+        self.user = user
+        self.user_word =user_word
+        self.probability = probability
+
+    @classmethod
+    def find(cls, user, user_word):
+        try:
+            return cls.query.filter_by(
+                user = user,
+                user_word = user_word
+            ).one()
+        except sqlalchemy.orm.exc.NoResultFound:
+            return cls(user, user_word, 0.1)
+
+    @classmethod
+    def exists(cls, user, user_word):
+        try:
+            cls.query.filter_by(
+                user = user,
+                user_word = user_word
+            ).one()
+            return True
+
+        except sqlalchemy.orm.exc.NoResultFound:
+            return False
+
+
+    @classmethod
+    def find_all(cls):
+        return cls.query.all()
+
+    def wrong_formula(self, count_wrong_after_another):
+        if self.DEFAULT_MIN_PROBABILITY * count_wrong_after_another >= float(self.probability):
+           self.probability = decimal.Decimal('0.1')
+        else:
+            self.probability=(float(self.probability) - self.DEFAULT_MIN_PROBABILITY * count_wrong_after_another)
+
+    def correct_formula(self, count_correct_after_another):
+        if  float(self.probability) +  self.DEFAULT_MIN_PROBABILITY * count_correct_after_another >= 1.0 :
+           self.probability = decimal.Decimal('1.0')
+        else:
+             self.probability=(float(self.probability) + self.DEFAULT_MIN_PROBABILITY * count_correct_after_another)
+
+    def update_probability_after_adding_bookmark_with_same_word(self, bookmark, user):
+        count_bookmarks_with_same_word = len(Bookmark.find_all_by_user_and_word(user, bookmark.origin))
+        self.probability = (float(self.probability * count_bookmarks_with_same_word) + 0.1)/(count_bookmarks_with_same_word+1)# compute avg probability of all bookmarks with same word
+
+
+
+
+
+    #calculates the probability of knowing a certain bookmark after a exercise_outcome.
+    def calculate_known_bookmark_probability(self,bookmark):
+        count_correct_after_another = 0
+        count_wrong_after_another = 0
+        sorted_exercise_log_after_date=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=False)
+        for exercise in sorted_exercise_log_after_date:
+            if exercise.outcome.outcome == ExerciseOutcome.TOO_EASY:
+                self.probability = decimal.Decimal('1.0')
+                count_wrong_after_another =0
+            elif exercise.outcome.outcome == ExerciseOutcome.SHOW_SOLUTION:
+                self.probability //=2
+                if float(self.probability) < 0.1:
+                    self.probability = decimal.Decimal('0.1')
+                count_correct_after_another =0
+            elif exercise.outcome.outcome == ExerciseOutcome.CORRECT:
+                count_correct_after_another +=1
+                count_wrong_after_another = 0
+                if float(self.probability) < 1.0:
+                    self.correct_formula(count_correct_after_another)
+                else: self.probability = decimal.Decimal('1.0')
+            elif exercise.outcome.outcome == ExerciseOutcome.WRONG:
+                 count_wrong_after_another += 1
+                 count_correct_after_another = 0
+                 if float(self.probability) > 0.1:
+                    self.wrong_formula(count_wrong_after_another)
+                 else: self.probability = decimal.Decimal('0.1')
+
+    def halfProbability(self):
+        self.probability /=2
+        if float(self.probability)<0.1:
+            self.probability = decimal.Decimal('0.1')
+
+
+
+
+
+
+
+
+class EncounterBasedProbability(db.Model):
+    __tablename__ = 'encounter_based_probability'
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+
+    DEFAULT_PROBABILITY = 0.5
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable = False)
+    user = db.relationship("User")
+    ranked_word_id = db.Column(db.Integer, db.ForeignKey("ranked_word.id"), nullable=False)
+    ranked_word = db.relationship("RankedWord")
+    not_looked_up_counter = db.Column(db.Integer,nullable = False)
+    probability = db.Column(db.DECIMAL(10,9), nullable = False)
+    db.UniqueConstraint(user_id, ranked_word_id)
+    db.CheckConstraint('probability>=0', 'probability<=1')
+
+    def __init__(self, user, ranked_word, not_looked_up_counter, probability):
+        self.user = user
+        self.ranked_word = ranked_word
+        self.not_looked_up_counter = not_looked_up_counter
+        self.probability = probability
+
+    @classmethod
+    def find(cls, user, ranked_word, default_probability=None):
+         try:
+            return cls.query.filter_by(
+                user = user,
+                ranked_word = ranked_word
+            ).one()
+         except  sqlalchemy.orm.exc.NoResultFound:
+            return cls(user, ranked_word, 1, default_probability)
+
+
+
+
+
+    @classmethod
+    def find_all(cls):
+        return cls.query.all()
+
+    @classmethod
+    def find_all_by_user(cls, user):
+        return cls.query.filter_by(
+            user = user
+        ).all()
+
+    @classmethod
+    def exists(cls, user, ranked_word):
+         try:
+            cls.query.filter_by(
+                user = user,
+                ranked_word = ranked_word
+            ).one()
+            return True
+         except  sqlalchemy.orm.exc.NoResultFound:
+            return False
+
+    @classmethod
+    def find_or_create(cls, word, user):
+        ranked_word = RankedWord.find(word, user.learned_language)
+        if EncounterBasedProbability.exists(user, ranked_word):
+            enc_prob = EncounterBasedProbability.find(user,ranked_word)
+            enc_prob.not_looked_up_counter +=1
+            enc_prob.boost_prob()
+        else:
+            enc_prob = EncounterBasedProbability.find(user,ranked_word, EncounterBasedProbability.DEFAULT_PROBABILITY)
+        return enc_prob
+
+
+    def reset_prob (self):
+        self.probability = 0.5
+
+#         This function controls if prob is already 1.0, else it adds 0.1. It maximum adds 0.1, therefore cannot exceed 1
+    def boost_prob(self):
+        if float(self.probability) <> 1.0:
+            self.probability = float(self.probability) + 0.1
+
+
+
+
+
+
+class KnownWordProbability(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+    __tablename__ = 'known_word_probability'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable = False)
+    user = db.relationship("User")
+    user_word_id = db.Column(db.Integer, db.ForeignKey('user_word.id'), nullable = True)
+    user_word = db.relationship("UserWord")
+    ranked_word_id = db.Column(db.Integer, db.ForeignKey("ranked_word.id"), nullable=True)
+    ranked_word = db.relationship("RankedWord")
+    probability = db.Column(db.DECIMAL(10,9), nullable = False)
+    db.CheckConstraint('probability>=0', 'probability<=1')
+
+    def __init__(self, user, user_word, ranked_word,probability):
+        self.user = user
+        self.user_word = user_word
+        self.ranked_word = ranked_word
+        self.probability = probability
+
+    @classmethod
+    def calculateKnownWordProb(cls,exerciseProb, encounterProb):
+        return 0.8 * float(exerciseProb) + 0.2 * float(encounterProb)
+
+    @classmethod
+    def find(cls, user, user_word, ranked_word, probability=None):
+        try:
+            return cls.query.filter_by(
+                user = user,
+                user_word = user_word,
+                ranked_word = ranked_word
+            ).one()
+        except sqlalchemy.orm.exc.NoResultFound:
+            return cls(user, user_word, ranked_word, probability)
+
+    @classmethod
+    def find_all_by_user(cls,user):
+        return cls.query.filter_by(
+            user = user
+        ).all()
+
+    @classmethod
+    def exists(cls, user, user_word, ranked_word):
+        try:
+            cls.query.filter_by(
+                user = user,
+                user_word = user_word,
+                ranked_word = ranked_word
+            ).one()
+            return True
+        except sqlalchemy.orm.exc.NoResultFound:
+            return False
+
+    @classmethod
+    def get_probably_known_words(cls, user):
+        return cls.query.filter(
+            cls.user == user).filter(cls.probability >=0.9).all()
+
+
 
 class Url(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
@@ -442,7 +748,7 @@ class Bookmark(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
 
     id = db.Column(db.Integer, primary_key=True)
-    origin_id = db.Column(db.Integer, db.ForeignKey('user_words.id'))
+    origin_id = db.Column(db.Integer, db.ForeignKey('user_word.id'))
     origin = db.relationship("UserWord", primaryjoin=origin_id == UserWord.id,
                              backref="translations")
     translations_list = relationship("UserWord", secondary="bookmark_translation_mapping")
@@ -456,6 +762,9 @@ class Bookmark(db.Model):
     time = db.Column(db.DateTime)
 
     exercise_log = relationship("Exercise", secondary="bookmark_exercise_mapping")
+
+
+
 
     def __init__(self, origin, translation, user, text, time):
         self.origin = origin
@@ -497,12 +806,83 @@ class Bookmark(db.Model):
         self.add_new_exercise(exercise)
         db.session.add(exercise)
 
+    def split_words_from_context(self):
+        words_of_bookmark_content = []
+        # bookmark_content_words = re.sub("[^\w]", " ",  self.text.content).split()
+        # bookmark_content_words = re.compile(r'[%s\s]+' % re.escape(string.punctuation)).split(self.text.content)
+        bookmark_content_words = re.findall(r'(?u)\w+', self.text.content)
+        words_of_bookmark_content.extend(bookmark_content_words)
+        return words_of_bookmark_content
+
+
+
+    def context_words_with_rank(self):
+        ranked_context_words = self.split_words_from_context()
+        while self.origin.word in ranked_context_words: ranked_context_words.remove(self.origin.word)
+        filtered_words_known_from_user = []
+        for word_known in ranked_context_words:
+            if RankedWord.exists(word_known.lower(), self.origin.language):
+                filtered_words_known_from_user.append(word_known)
+        return filtered_words_known_from_user
+
+    def calculate_known_word_probability_after_adding_exercise_based_probability(self, ex_prob, enc_prob, user):
+        if KnownWordProbability.exists(user, self.origin,self.origin.rank) and enc_prob == None: #checks if only exercise based probability exists
+            known_word_prob = KnownWordProbability.find(user, self.origin,self.origin.rank)
+            known_word_prob.probability = ex_prob.probability
+        elif enc_prob is not None: #checks if encounter based probability also exists
+            known_word_prob = KnownWordProbability.find(user, self.origin, self.origin.rank)
+            known_word_prob.probability = KnownWordProbability.calculateKnownWordProb(ex_prob,enc_prob)
+        else:
+            known_word_prob = KnownWordProbability.find(user, self.origin,self.origin.rank, ex_prob.probability) # new known word probability created as it did not exist.
+
+        return known_word_prob
+
+    def calculate_probabilities_after_adding_a_bookmark(self, user,language):
+            # computations for adding encounter based probability
+        object_to_be_added_to_database = []
+        for word in self.context_words_with_rank():
+            enc_prob = EncounterBasedProbability.find_or_create(word,user)
+            object_to_be_added_to_database.append(enc_prob)
+            user_word = None
+            ranked_word = enc_prob.ranked_word
+            if UserWord.exists(word,language):
+                user_word = UserWord.find(word,language)
+                if ExerciseBasedProbability.exists(user,user_word): #checks if exercise based probability exists for words in context
+                    ex_prob = ExerciseBasedProbability.find(user,user_word)
+                    known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word)
+                    known_word_prob_1.probability = known_word_prob_1.calculateKnownWordProb(ex_prob, enc_prob) #updates known word probability as exercise based probability already existed.
+            else:
+                if KnownWordProbability.exists(user, user_word,ranked_word):
+                    known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word)
+                    known_word_prob_1.probability = enc_prob.probability # updates known word probability as encounter based probability already existed
+                else:
+                    known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word, enc_prob.probability) # new known word probability created as it did not exist
+                    object_to_be_added_to_database.append(known_word_prob_1)
+
+        # computations for adding exercise based probability
+        enc_prob = None
+        ex_prob = ExerciseBasedProbability.find(user, self.origin)
+        if RankedWord.exists(self.origin.word, language): #checks if ranked_word exists for that looked up word
+            ranked_word = RankedWord.find(self.origin.word, language)
+            if EncounterBasedProbability.exists(user, ranked_word): # checks if encounter based probability exists for that looked up word
+                enc_prob = EncounterBasedProbability.find(user, ranked_word)
+                enc_prob.reset_prob() # reset encounter based probability to 0.5
+            if ExerciseBasedProbability.exists(user, self.origin):
+                ex_prob.update_probability_after_adding_bookmark_with_same_word(self,user)
+            object_to_be_added_to_database.append(ex_prob)
+            known_word_prob_2 = self.calculate_known_word_probability_after_adding_exercise_based_probability(ex_prob,enc_prob, user)
+            object_to_be_added_to_database.append(known_word_prob_2)
+        return object_to_be_added_to_database
 
     @classmethod
-    def find_all_filtered_by_user(cls):
+    def find_by_specific_user(cls, user):
         return cls.query.filter_by(
-            user= flask.g.user
+            user= user
         ).all()
+
+    @classmethod
+    def find_all(cls):
+        return cls.query.filter().all()
 
     @classmethod
     def find(cls, b_id):
@@ -510,19 +890,40 @@ class Bookmark(db.Model):
             id= b_id
         ).first()
 
-
-
     @classmethod
-    def is_sorted_exercise_log_after_date_outcome(cls,outcome, bookmark):
-        sorted_exercise_log_after_date=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=True)
-        if sorted_exercise_log_after_date:
-            if sorted_exercise_log_after_date[0].outcome.outcome == outcome:
+    def find_all_by_user_and_word(cls, user, word):
+        return cls.query.filter_by(
+            user = user,
+            origin = word
+        ).all()
+
+
+
+
+
+    # @classmethod
+    # def is_sorted_exercise_log_after_date_outcome(cls,outcome, bookmark):
+    #     sorted_exercise_log_after_date=sorted(bookmark.exercise_log, key=lambda x: x.time, reverse=True)
+    #     if sorted_exercise_log_after_date:
+    #         if sorted_exercise_log_after_date[0].outcome.outcome == outcome:
+    #             return True
+    #     return False
+
+    def check_is_latest_outcome_too_easy(self):
+        sorted_exercise_log_by_latest=sorted(self.exercise_log, key=lambda x: x.time, reverse=True)
+        for exercise in sorted_exercise_log_by_latest:
+            if exercise.outcome.outcome == ExerciseOutcome.TOO_EASY:
                 return True
+            elif exercise.outcome.outcome == ExerciseOutcome.SHOW_SOLUTION or exercise.outcome.outcome == ExerciseOutcome.WRONG:
+                return False
         return False
+
+
+
 
 bookmark_translation_mapping = Table('bookmark_translation_mapping', db.Model.metadata,
     Column('bookmark_id', Integer, ForeignKey('bookmark.id')),
-    Column('translation_id', Integer, ForeignKey('user_words.id'))
+    Column('translation_id', Integer, ForeignKey('user_word.id'))
 )
 
 
@@ -553,8 +954,10 @@ class ExerciseOutcome(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     outcome=db.Column(db.String(255),nullable=False)
 
-    IKNOW = 'I know'
-    NOT_KNOW = 'Do not know'
+    TOO_EASY = 'Too easy'
+    SHOW_SOLUTION = 'Show solution'
+    CORRECT = 'Correct'
+    WRONG = 'Wrong'
 
     def __init__(self,outcome):
         self.outcome = outcome
@@ -565,7 +968,7 @@ class ExerciseOutcome(db.Model):
         try:
             return cls.query.filter_by(
                 outcome = outcome
-            ).first()
+            ).one()
         except  sqlalchemy.orm.exc.NoResultFound:
             return cls(outcome)
 
@@ -587,6 +990,8 @@ bookmark_exercise_mapping = Table('bookmark_exercise_mapping', db.Model.metadata
     Column('bookmark_id', Integer, ForeignKey('bookmark.id')),
     Column('exercise_id', Integer, ForeignKey('exercise.id'))
 )
+
+
 
 
 class Text(db.Model):
@@ -670,7 +1075,7 @@ class Search(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     user = db.relationship("User", backref="searches")
-    word_id = db.Column(db.Integer, db.ForeignKey("user_words.id"))
+    word_id = db.Column(db.Integer, db.ForeignKey("user_word.id"))
     word = db.relationship("UserWord")
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")

@@ -64,11 +64,10 @@ class Dbtest(ZeeguuTestCase):
 
     def test_find_word(self):
         word = "baum"
-        rank = model.UserWord.find_rank(word, self.de)
-        assert UserWord.find(word, self.de, rank)
+        assert UserWord.find(word, self.de)
 
 
-    def test_user_words(self):
+    def test_user_word(self):
         assert self.mir.user_words() == map((lambda x: x.origin.word), self.mir.all_bookmarks())
 
 
@@ -81,7 +80,7 @@ class Dbtest(ZeeguuTestCase):
 
     def test_preferred_words(self):
         word = "hauen"
-        if(model.WordRank.exists(word.lower(), self.de)):
+        if(model.RankedWord.exists(word.lower(), self.de)):
             rank = model.UserWord.find_rank(word.lower(), self.de)
             someword = model.UserWord.find(word,self.de,rank)
         else:
@@ -120,7 +119,7 @@ class Dbtest(ZeeguuTestCase):
 
     def test_importance_level(self):
         word = "beschloss"
-        if(model.WordRank.exists(word.lower(), self.de)):
+        if(model.RankedWord.exists(word.lower(), self.de)):
             rank = model.UserWord.find_rank(word.lower(), self.de)
             new_word = model.UserWord.find(word,self.de,rank)
         else:
@@ -130,7 +129,7 @@ class Dbtest(ZeeguuTestCase):
         db.session.commit()
 
         word = "unexistingword"
-        beschloss = UserWord.find(word, self.de, None)
+        beschloss = UserWord.find(word, self.de)
         assert beschloss
         assert beschloss.importance_level() == 0
 

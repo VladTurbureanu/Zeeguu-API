@@ -4,7 +4,7 @@ import re
 
 import zeeguu
 import sys
-from zeeguu import model
+from zeeguu.model import RankedWord, Language
 
 
 def filter_word_list(word_list):
@@ -29,13 +29,13 @@ def word_list(lang_code):
 
 
 
-def add_word_ranks_to_db(lang_code):
+def add_ranked_words_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
-    from_lang = model.Language.find(lang_code)
+    from_lang = Language.find(lang_code)
     initial_line_number = 1
     for word in filter_word_list(word_list(lang_code)):
-        r = model.WordRank(word.lower(), from_lang,initial_line_number)
+        r = RankedWord(word.lower(), from_lang,initial_line_number)
         zeeguu.db.session.add(r)
         initial_line_number+=1
     zeeguu.db.session.commit()
@@ -45,6 +45,6 @@ def add_word_ranks_to_db(lang_code):
 
 if __name__ == "__main__":
     try:
-        add_word_ranks_to_db(sys.argv[1])
+        add_ranked_words_to_db(sys.argv[1])
     except :
-        print "Usage: add_word_ranks <language_code>"
+        print "Usage: add_ranked_word <language_code>"
