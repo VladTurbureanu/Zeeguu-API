@@ -113,7 +113,6 @@ def bookmarks():
                                  bookmarks_by_url=bookmarks_by_url,
                                  urls_by_date=urls_by_date,
                                  sorted_dates=dates,
-                                 all_urls = flask.g.user.recommended_urls(),
                                  user = flask.g.user)
 
 
