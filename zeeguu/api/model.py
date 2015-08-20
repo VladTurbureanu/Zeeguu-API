@@ -144,11 +144,11 @@ class User(db.Model):
         domains = []
         domains_and_times = []
         for b in self.bookmarks_chronologically():
-            if not b.text.url.domain() in domains:
-                domains_and_times.append([b.text.url.domain(), b.time])
-                domains.append(b.text.url.domain())
+            if not b.text.url.domain() in domains\
+                and 'http' in b.text.url.domain():
+                    domains_and_times.append([b.text.url.domain(), b.time])
+                    domains.append(b.text.url.domain())
         return domains_and_times
-
 
 
 

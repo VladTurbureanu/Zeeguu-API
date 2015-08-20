@@ -162,6 +162,9 @@ class Dbtest(ZeeguuTestCase):
         url = model.Url("https://news.mir.com/page1", "Mir News")
         assert url.domain() == "https://news.mir.com"
 
+        url = model.Url("", "Mir News")
+        assert url.domain() == ""
+
 
     def test_user_recently_visited_domains(self):
         assert len(self.mir.recent_domains()) == 3
