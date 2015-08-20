@@ -118,21 +118,6 @@ class Dbtest(ZeeguuTestCase):
         assert self.mir.learned_language.id == "it"
 
 
-    def test_user_recently_visited_sites(self):
-        assert len(self.mir.distinct_domains()) == 3
-
-    def test_url_domain(self):
-        url = model.Url("http://news.mir.com/page1", "Mir News")
-        assert url.domain() == "http://news.mir.com"
-
-        url = model.Url("news.mir.com/page1", "Mir News")
-        assert url.domain() == "news.mir.com"
-
-        url = model.Url("https://news.mir.com/page1", "Mir News")
-        assert url.domain() == "https://news.mir.com"
-
-
-
     def test_importance_level(self):
         word = "beschloss"
         if(model.WordRank.exists(word.lower(), self.de)):
@@ -167,6 +152,19 @@ class Dbtest(ZeeguuTestCase):
         print random.choice(bookmarks).origin.word
 
 
+    def test_url_domain(self):
+        url = model.Url("http://news.mir.com/page1", "Mir News")
+        assert url.domain() == "http://news.mir.com"
+
+        url = model.Url("news.mir.com/page1", "Mir News")
+        assert url.domain() == "news.mir.com"
+
+        url = model.Url("https://news.mir.com/page1", "Mir News")
+        assert url.domain() == "https://news.mir.com"
+
+
+    def test_user_recently_visited_domains(self):
+        assert len(self.mir.recent_domains()) == 3
 
 
     # User Date No_ bookmarks

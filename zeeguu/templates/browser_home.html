@@ -9,6 +9,13 @@
 
 
     <h1>Recently Visisted Sites</h1>
+        {% for domain_and_time in recent_domains %}
+        <p>
+                <a href="{{domain_and_time[0]}} ">
+                    {{domain_and_time[0]}}
+                </a>
+        </p>
+        {% endfor %}
 
     <h1>Search the Web</h1>
 

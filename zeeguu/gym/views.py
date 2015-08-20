@@ -215,8 +215,9 @@ def m_recognize():
 
 @gym.route ("/browser_home")
 def browser_home():
-    return  flask.render_template(
+    return flask.render_template(
             "browser_home.html",
+            recent_domains = flask.g.user.recent_domains(),
             mobile=True)
 
 

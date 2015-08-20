@@ -140,13 +140,16 @@ class User(db.Model):
         return bookmarks_by_date, sorted_dates
 
 
-    def distinct_domains(self):
-        import re
-        distinct_domains = set()
-        for url in map(lambda b: b.text.url.url, self.all_bookmarks()):
-            domain = re.findall(r'(http://)?([^/?]*)', url)[0][1]
-            distinct_domains.add(domain)
-        return distinct_domains
+    def recent_domains(self):
+        domains = []
+        domains_and_times = []
+        for b in self.bookmarks_chronologically():
+            if not b.text.url.domain() in domains:
+                domains_and_times.append([b.text.url.domain(), b.time])
+                domains.append(b.text.url.domain())
+        return domains_and_times
+
+
 
 
 
