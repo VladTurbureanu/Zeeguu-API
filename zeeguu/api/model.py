@@ -168,7 +168,7 @@ class User(db.Model):
                         'origin': bookmark.origin.word,
                         'text': bookmark.text.content,
                         'time': bookmark.time.strftime('%m/%d/%Y')}
-                    known_bookmarks.append(known_bookmark_dict.copy())
+                    known_bookmarks.append(known_bookmark_dict)
         return known_bookmarks
 
     def get_known_bookmarks_count(self):
@@ -200,7 +200,7 @@ class User(db.Model):
                 probable_known_word_dict['word'] = known_word_prob.ranked_word.word
             elif known_word_prob.user_word is not None and known_word_prob.user_word.language == lang:
                 probable_known_word_dict['word'] = known_word_prob.user_word.word
-            probable_known_words_dict_list.append(probable_known_word_dict.copy())
+            probable_known_words_dict_list.append(probable_known_word_dict)
         return probable_known_words_dict_list
 
     def get_probably_known_words_count(self):

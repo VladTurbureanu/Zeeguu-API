@@ -391,7 +391,7 @@ def get_exercise_log_for_bookmark(bookmark_id):
          exercise_dict['source'] = exercise.source.source
          exercise_dict['exercise_log_solving_speed'] = exercise.solving_speed
          exercise_dict['time'] = exercise.time.strftime('%m/%d/%Y')
-         exercise_log_dict.append(exercise_dict.copy())
+         exercise_log_dict.append(exercise_dict)
     js = json.dumps(exercise_log_dict)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
@@ -457,7 +457,7 @@ def get_translations_for_bookmark(bookmark_id):
          translation_dict['word'] = translation.word
          translation_dict['language'] = translation.language.name
          translation_dict['ranked_word'] = translation.rank
-         translation_dict_list.append(translation_dict.copy())
+         translation_dict_list.append(translation_dict)
     js = json.dumps(translation_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
@@ -532,7 +532,7 @@ def get_learned_bookmarks(lang):
         learned_bookmarks_dict ['id'] = bookmark.id
         learned_bookmarks_dict ['origin'] = bookmark.origin.word
         learned_bookmarks_dict['text'] = bookmark.text.content
-        learned_bookmarks_dict_list.append(learned_bookmarks_dict.copy())
+        learned_bookmarks_dict_list.append(learned_bookmarks_dict)
 
     js = json.dumps(learned_bookmarks_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
