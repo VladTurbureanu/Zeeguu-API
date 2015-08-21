@@ -191,14 +191,15 @@ class User(db.Model):
     def get_not_looked_up_words_count(self):
         return len(self.get_not_looked_up_words_for_learned_language())
 
+
     def get_probably_known_words(self, lang):
-        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(flask.g.user)
+        known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
         probable_known_words_dict_list = []
-        for known_word_prob in high_known_word_prob_of_user:
+        for known_word_prob in known_word_prob_of_user:
             probable_known_word_dict = {}
             if known_word_prob.ranked_word is not None and known_word_prob.ranked_word.language == lang:
                 probable_known_word_dict['word'] = known_word_prob.ranked_word.word
-            elif known_word_prob.user_word is not None and known_word_prob.user_word.language == lang:
+            else:
                 probable_known_word_dict['word'] = known_word_prob.user_word.word
             probable_known_words_dict_list.append(probable_known_word_dict)
         return probable_known_words_dict_list
@@ -214,19 +215,15 @@ class User(db.Model):
                 count_high_known_word_prob_of_user_ranked +=1
         return round(float(count_high_known_word_prob_of_user_ranked)/3000*100,2)
 
-    def get_percentage_of_known_bookmarked_words(self):
+    def get_percentage_of_probably_known_bookmarked_words(self):
         high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
-        find_all_known_word_prob_of_user = KnownWordProbability.find_all_by_user(self)
-        count_user_word_of_user = 0
         count_high_known_word_prob_of_user =0
-        for prob in find_all_known_word_prob_of_user:
-            if prob.user_word is not None:
-                count_user_word_of_user+=1
+        count_bookmarks_of_user = len(self.all_bookmarks())
         for prob in high_known_word_prob_of_user:
             if prob.user_word is not None:
                 count_high_known_word_prob_of_user +=1
-        if count_user_word_of_user <> 0:
-            return round(float(count_high_known_word_prob_of_user)/count_user_word_of_user*100,2)
+        if count_bookmarks_of_user <> 0:
+            return round(float(count_high_known_word_prob_of_user)/count_bookmarks_of_user*100,2)
         else:
             return 0
 

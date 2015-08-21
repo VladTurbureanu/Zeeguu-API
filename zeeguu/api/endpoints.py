@@ -509,11 +509,12 @@ def get_probably_known_words(lang_code):
 def get_percentage_of_language_known():
     return flask.g.user.get_percentage_of_language_known()
 
-@api.route("/get_percentage_of_known_bookmarked_words", methods=("GET",))
+# returns the percentage of how many bookmarks are known to the user out of all the bookmarks
+@api.route("/get_percentage_of_probably_known_bookmarked_words", methods=("GET",))
 @cross_domain
 @with_session
-def get_percentage_of_known_bookmarked_words():
-    return flask.g.user.get_percentage_of_known_bookmarked_words()
+def get_percentage_of_probably_known_bookmarked_words():
+    return flask.g.user.get_percentage_of_probably_known_bookmarked_words()
 
 @api.route("/get_learned_bookmarks/<lang>", methods=("GET",))
 @cross_domain
