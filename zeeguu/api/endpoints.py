@@ -346,11 +346,7 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     new_text = Text(context, from_lang, url)
     bookmark = Bookmark(user_word, translation, flask.g.user, new_text, datetime.datetime.now())
     zeeguu.db.session.add(bookmark)
-    objects_to_be_added_to_database = bookmark.calculate_probabilities_after_adding_a_bookmark(flask.g.user, bookmark.origin.language)
-    for obj in objects_to_be_added_to_database:
-        zeeguu.db.session.add(obj)
-    zeeguu.db.session.commit()
-
+    bookmark.calculate_probabilities_after_adding_a_bookmark(flask.g.user, bookmark.origin.language)
     return str(bookmark.id)
 
 
