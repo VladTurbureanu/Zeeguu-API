@@ -20,7 +20,7 @@ function log_new_exercise(outcome) {
 }
 
 function iKnowThis() {
-    log_new_exercise("I know");
+    log_new_exercise("Too easy");
 }
 
 function answerIsCorrect(answer, reference) {
@@ -61,7 +61,7 @@ function showAnswer() {
     $("#next_exercise").show();
     //$("#show_solution").hide();
 
-    log_new_exercise("Do not know");
+    log_new_exercise("Show solution");
     $("#next_exercise").show().focus().select();
 
 }

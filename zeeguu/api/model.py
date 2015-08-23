@@ -267,6 +267,7 @@ class Language(db.Model):
     id = db.Column(db.String(2), primary_key=True)
     name = db.Column(db.String(255), unique=True)
 
+
     def __init__(self, id, name):
         self.name = name
         self.id = id
