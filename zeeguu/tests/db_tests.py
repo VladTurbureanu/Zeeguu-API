@@ -121,9 +121,9 @@ class Dbtest(ZeeguuTestCase):
         word = "beschloss"
         if(model.RankedWord.exists(word.lower(), self.de)):
             rank = model.UserWord.find_rank(word.lower(), self.de)
-            new_word = model.UserWord.find(word,self.de,rank)
+            new_word = model.UserWord.find(word,self.de)
         else:
-            new_word = model.UserWord.find(word,self.de,None)
+            new_word = model.UserWord.find(word,self.de)
 
         db.session.add(new_word)
         db.session.commit()
