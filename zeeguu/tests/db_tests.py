@@ -82,9 +82,9 @@ class Dbtest(ZeeguuTestCase):
         word = "hauen"
         if(model.RankedWord.exists(word.lower(), self.de)):
             rank = model.UserWord.find_rank(word.lower(), self.de)
-            someword = model.UserWord.find(word,self.de,rank)
+            someword = model.UserWord.find(word,self.de)
         else:
-            someword = model.UserWord.find(word,self.de,None)
+            someword = model.UserWord.find(word,self.de)
         assert someword
         # add someword to starred words
         self.mir.starred_words.append(someword)
