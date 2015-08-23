@@ -106,11 +106,7 @@ def add_bookmark(user, original_language, original_word, translation_language, t
     add_probability_to_existing_words_of_user(user,t1,original_language)
 
 def add_probability_to_existing_words_of_user(user,bookmark,language):
-    prob_objects_to_be_added_to_database = bookmark.calculate_probabilities_after_adding_a_bookmark(user,language)
-    for obj in prob_objects_to_be_added_to_database:
-        zeeguu.db.session.add(obj)
-    zeeguu.db.session.commit()
-
+    bookmark.calculate_probabilities_after_adding_a_bookmark(user,language)
 
 
 def create_test_db():

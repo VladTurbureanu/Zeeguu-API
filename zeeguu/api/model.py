@@ -186,7 +186,7 @@ class User(db.Model):
                         'origin': bookmark.origin.word,
                         'text': bookmark.text.content,
                         'time': bookmark.time.strftime('%m/%d/%Y')}
-                    known_bookmarks.append(known_bookmark_dict.copy())
+                    known_bookmarks.append(known_bookmark_dict)
         return known_bookmarks
 
     def get_known_bookmarks_count(self):
@@ -209,16 +209,17 @@ class User(db.Model):
     def get_not_looked_up_words_count(self):
         return len(self.get_not_looked_up_words_for_learned_language())
 
+
     def get_probably_known_words(self, lang):
-        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(flask.g.user)
+        known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
         probable_known_words_dict_list = []
-        for known_word_prob in high_known_word_prob_of_user:
+        for known_word_prob in known_word_prob_of_user:
             probable_known_word_dict = {}
             if known_word_prob.ranked_word is not None and known_word_prob.ranked_word.language == lang:
                 probable_known_word_dict['word'] = known_word_prob.ranked_word.word
-            elif known_word_prob.user_word is not None and known_word_prob.user_word.language == lang:
+            else:
                 probable_known_word_dict['word'] = known_word_prob.user_word.word
-            probable_known_words_dict_list.append(probable_known_word_dict.copy())
+            probable_known_words_dict_list.append(probable_known_word_dict)
         return probable_known_words_dict_list
 
     def get_probably_known_words_count(self):
@@ -232,19 +233,15 @@ class User(db.Model):
                 count_high_known_word_prob_of_user_ranked +=1
         return round(float(count_high_known_word_prob_of_user_ranked)/3000*100,2)
 
-    def get_percentage_of_known_bookmarked_words(self):
+    def get_percentage_of_probably_known_bookmarked_words(self):
         high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
-        find_all_known_word_prob_of_user = KnownWordProbability.find_all_by_user(self)
-        count_user_word_of_user = 0
         count_high_known_word_prob_of_user =0
-        for prob in find_all_known_word_prob_of_user:
-            if prob.user_word is not None:
-                count_user_word_of_user+=1
+        count_bookmarks_of_user = len(self.all_bookmarks())
         for prob in high_known_word_prob_of_user:
             if prob.user_word is not None:
                 count_high_known_word_prob_of_user +=1
-        if count_user_word_of_user <> 0:
-            return round(float(count_high_known_word_prob_of_user)/count_user_word_of_user*100,2)
+        if count_bookmarks_of_user <> 0:
+            return round(float(count_high_known_word_prob_of_user)/count_bookmarks_of_user*100,2)
         else:
             return 0
 
@@ -287,6 +284,7 @@ class Language(db.Model):
 
     id = db.Column(db.String(2), primary_key=True)
     name = db.Column(db.String(255), unique=True)
+
 
     def __init__(self, id, name):
         self.name = name
@@ -838,11 +836,10 @@ class Bookmark(db.Model):
         return known_word_prob
 
     def calculate_probabilities_after_adding_a_bookmark(self, user,language):
-            # computations for adding encounter based probability
-        object_to_be_added_to_database = []
+        # computations for adding encounter based probability
         for word in self.context_words_with_rank():
             enc_prob = EncounterBasedProbability.find_or_create(word,user)
-            object_to_be_added_to_database.append(enc_prob)
+            zeeguu.db.session.add(enc_prob)
             user_word = None
             ranked_word = enc_prob.ranked_word
             if UserWord.exists(word,language):
@@ -857,7 +854,7 @@ class Bookmark(db.Model):
                     known_word_prob_1.probability = enc_prob.probability # updates known word probability as encounter based probability already existed
                 else:
                     known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word, enc_prob.probability) # new known word probability created as it did not exist
-                    object_to_be_added_to_database.append(known_word_prob_1)
+                    zeeguu.db.session.add(known_word_prob_1)
 
         # computations for adding exercise based probability
         enc_prob = None
@@ -869,10 +866,10 @@ class Bookmark(db.Model):
                 enc_prob.reset_prob() # reset encounter based probability to 0.5
             if ExerciseBasedProbability.exists(user, self.origin):
                 ex_prob.update_probability_after_adding_bookmark_with_same_word(self,user)
-            object_to_be_added_to_database.append(ex_prob)
+            zeeguu.db.session.add(ex_prob)
             known_word_prob_2 = self.calculate_known_word_probability_after_adding_exercise_based_probability(ex_prob,enc_prob, user)
-            object_to_be_added_to_database.append(known_word_prob_2)
-        return object_to_be_added_to_database
+            zeeguu.db.session.add(known_word_prob_2)
+        zeeguu.db.session.commit()
 
     @classmethod
     def find_by_specific_user(cls, user):

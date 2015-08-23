@@ -346,11 +346,7 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     new_text = Text(context, from_lang, url)
     bookmark = Bookmark(user_word, translation, flask.g.user, new_text, datetime.datetime.now())
     zeeguu.db.session.add(bookmark)
-    objects_to_be_added_to_database = bookmark.calculate_probabilities_after_adding_a_bookmark(flask.g.user, bookmark.origin.language)
-    for obj in objects_to_be_added_to_database:
-        zeeguu.db.session.add(obj)
-    zeeguu.db.session.commit()
-
+    bookmark.calculate_probabilities_after_adding_a_bookmark(flask.g.user, bookmark.origin.language)
     return str(bookmark.id)
 
 
@@ -391,7 +387,7 @@ def get_exercise_log_for_bookmark(bookmark_id):
          exercise_dict['source'] = exercise.source.source
          exercise_dict['exercise_log_solving_speed'] = exercise.solving_speed
          exercise_dict['time'] = exercise.time.strftime('%m/%d/%Y')
-         exercise_log_dict.append(exercise_dict.copy())
+         exercise_log_dict.append(exercise_dict)
     js = json.dumps(exercise_log_dict)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
@@ -457,7 +453,7 @@ def get_translations_for_bookmark(bookmark_id):
          translation_dict['word'] = translation.word
          translation_dict['language'] = translation.language.name
          translation_dict['ranked_word'] = translation.rank
-         translation_dict_list.append(translation_dict.copy())
+         translation_dict_list.append(translation_dict)
     js = json.dumps(translation_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
@@ -509,11 +505,12 @@ def get_probably_known_words(lang_code):
 def get_percentage_of_language_known():
     return flask.g.user.get_percentage_of_language_known()
 
-@api.route("/get_percentage_of_known_bookmarked_words", methods=("GET",))
+# returns the percentage of how many bookmarks are known to the user out of all the bookmarks
+@api.route("/get_percentage_of_probably_known_bookmarked_words", methods=("GET",))
 @cross_domain
 @with_session
-def get_percentage_of_known_bookmarked_words():
-    return flask.g.user.get_percentage_of_known_bookmarked_words()
+def get_percentage_of_probably_known_bookmarked_words():
+    return flask.g.user.get_percentage_of_probably_known_bookmarked_words()
 
 @api.route("/get_learned_bookmarks/<lang>", methods=("GET",))
 @cross_domain
@@ -532,7 +529,7 @@ def get_learned_bookmarks(lang):
         learned_bookmarks_dict ['id'] = bookmark.id
         learned_bookmarks_dict ['origin'] = bookmark.origin.word
         learned_bookmarks_dict['text'] = bookmark.text.content
-        learned_bookmarks_dict_list.append(learned_bookmarks_dict.copy())
+        learned_bookmarks_dict_list.append(learned_bookmarks_dict)
 
     js = json.dumps(learned_bookmarks_dict_list)
     resp = flask.Response(js, status=200, mimetype='application/json')
