@@ -43,7 +43,7 @@ def set_default_encounter_based_prob():
                    else:
                        prob = EncounterBasedProbability.find(user,rank,default_probability)
                        zeeguu.db.session.add(prob)
-                       zeeguu.db.session.commit()
+     		       zeeguu.db.session.commit()
     print 'job2'
 
 
