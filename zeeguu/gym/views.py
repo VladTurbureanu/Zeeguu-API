@@ -218,7 +218,8 @@ def m_recognize():
 def browser_home():
     return flask.render_template(
             "browser_home.html",
-            recent_domains = flask.g.user.recent_domains(),
+            recent_domains_and_times = flask.g.user.recent_domains_with_times(),
+            domain_and_frequency_map =flask.g.user.frequent_domains(),
             mobile=True)
 
 

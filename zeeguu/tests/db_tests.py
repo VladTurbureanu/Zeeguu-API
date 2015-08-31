@@ -171,7 +171,15 @@ class Dbtest(ZeeguuTestCase):
 
 
     def test_user_recently_visited_domains(self):
-        assert len(self.mir.recent_domains()) == 3
+        assert len(self.mir.recent_domains_with_times()) == 3
+
+    def test_user_recently_visited_domains_does_not_include_android(self):
+        assert not(any("android" in dom[0] for dom in self.mir.recent_domains_with_times()))
+
+    def test_frequent_domains(self):
+        print self.mir.frequent_domains()
+
+
 
 
     # User Date No_ bookmarks

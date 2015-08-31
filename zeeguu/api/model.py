@@ -149,7 +149,8 @@ class User(db.Model):
     # returns only HTTP domains. in this way we filter
     # out empty domains, and others like the android:
     # that we use for internal tracking...
-    def recent_domains(self):
+    # Returns: list of tuples (domain, date)
+    def recent_domains_with_times(self):
         domains = []
         domains_and_times = []
         for b in self.bookmarks_chronologically():
@@ -158,6 +159,13 @@ class User(db.Model):
                     domains_and_times.append([b.text.url.domain(), b.time])
                     domains.append(b.text.url.domain())
         return domains_and_times
+
+    def frequent_domains(self):
+        domains = map (lambda b: b.text.url.domain(), self.bookmarks_chronologically())
+        from collections import Counter
+        counter = Counter(domains)
+        return counter.most_common()
+
 
 
 
