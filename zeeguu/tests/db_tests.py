@@ -25,6 +25,11 @@ class Dbtest(ZeeguuTestCase):
         assert self.mir
         self.de = Language.find("de")
 
+    def tearDown(self):
+        self.de = None #if we don't do this, the test holds onto this object across runs sometimes, and
+        # this messes up the test db initialization. two hours well spent... aiii iaaa!
+
+        self.mir = None
 
     def test_languages_exists(self):
         assert self.de.name == "German"
@@ -82,9 +87,9 @@ class Dbtest(ZeeguuTestCase):
         word = "hauen"
         if(model.RankedWord.exists(word.lower(), self.de)):
             rank = model.UserWord.find_rank(word.lower(), self.de)
-            someword = model.UserWord.find(word,self.de,rank)
+            someword = model.UserWord.find(word,self.de)
         else:
-            someword = model.UserWord.find(word,self.de,None)
+            someword = model.UserWord.find(word,self.de)
         assert someword
         # add someword to starred words
         self.mir.starred_words.append(someword)
@@ -121,9 +126,9 @@ class Dbtest(ZeeguuTestCase):
         word = "beschloss"
         if(model.RankedWord.exists(word.lower(), self.de)):
             rank = model.UserWord.find_rank(word.lower(), self.de)
-            new_word = model.UserWord.find(word,self.de,rank)
+            new_word = model.UserWord.find(word,self.de)
         else:
-            new_word = model.UserWord.find(word,self.de,None)
+            new_word = model.UserWord.find(word,self.de)
 
         db.session.add(new_word)
         db.session.commit()

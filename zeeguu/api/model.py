@@ -593,10 +593,6 @@ class EncounterBasedProbability(db.Model):
          except  sqlalchemy.orm.exc.NoResultFound:
             return cls(user, ranked_word, 1, default_probability)
 
-
-
-
-
     @classmethod
     def find_all(cls):
         return cls.query.all()
@@ -615,12 +611,12 @@ class EncounterBasedProbability(db.Model):
                 ranked_word = ranked_word
             ).one()
             return True
-         except  sqlalchemy.orm.exc.NoResultFound:
+         except sqlalchemy.orm.exc.NoResultFound:
             return False
 
     @classmethod
     def find_or_create(cls, word, user):
-        ranked_word = RankedWord.find(word, user.learned_language)
+        ranked_word = RankedWord.find(word.lower(), user.learned_language)
         if EncounterBasedProbability.exists(user, ranked_word):
             enc_prob = EncounterBasedProbability.find(user,ranked_word)
             enc_prob.not_looked_up_counter +=1
@@ -840,6 +836,7 @@ class Bookmark(db.Model):
         for word in self.context_words_with_rank():
             enc_prob = EncounterBasedProbability.find_or_create(word,user)
             zeeguu.db.session.add(enc_prob)
+            zeeguu.db.session.commit()
             user_word = None
             ranked_word = enc_prob.ranked_word
             if UserWord.exists(word,language):
@@ -869,7 +866,7 @@ class Bookmark(db.Model):
             zeeguu.db.session.add(ex_prob)
             known_word_prob_2 = self.calculate_known_word_probability_after_adding_exercise_based_probability(ex_prob,enc_prob, user)
             zeeguu.db.session.add(known_word_prob_2)
-        zeeguu.db.session.commit()
+            zeeguu.db.session.commit()
 
     @classmethod
     def find_by_specific_user(cls, user):
