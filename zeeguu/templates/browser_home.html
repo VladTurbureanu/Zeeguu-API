@@ -7,35 +7,56 @@
 
 {% block body %}
 
+    <h4>
+        {% if item_count < recent_domains_and_times_count or item_count <  domain_and_frequency_map_size %}
+                <a href="/browser_home/expanded/">Show all</a>
+        {% endif %}
+    </h4>
 
-    <h1>Recently Visited</h1>
+    {% if recent_domains_and_times %}
+        <h1>Recent</h1>
+            {% for domain_and_time in recent_domains_and_times[:item_count] %}
+            <h4>
+                    &nbsp;<a href="{{domain_and_time[0]}} ">
+                         {{domain_and_time[0]}}
+                            <small>
+                                ({{domain_and_time[1].date()}})
+                            </small>
+                    </a>
+            </h4>
+            {% endfor %}
+    {% endif %}
 
-        {% for domain_and_time in recent_domains_and_times[:7] %}
-        <h4>
-                &nbsp;<a href="{{domain_and_time[0]}} ">
-                     {{domain_and_time[0]}}
-                        <small>
-                            ({{domain_and_time[1].date()}})
-                        </small>
-                </a>
-        </h4>
-        {% endfor %}
 
-    <h1>Frequently Visited</h1>
-        {% for domain_and_frequency in domain_and_frequency_map[:7] %}
-        <h4>
-                &nbsp;<a href="{{domain_and_frequency[0]}} ">
-                     {{domain_and_frequency[0]}}
-                        <small>({{domain_and_frequency[1]}})</small>
-                </a>
-        </h4>
-        {% endfor %}
+    {% if domain_and_frequency_map %}
+        <h1>Frequent</h1>
+            {% for domain_and_frequency in domain_and_frequency_map[:item_count] %}
+            <h4>
+                    &nbsp;<a href="{{domain_and_frequency[0]}} ">
+                         {{domain_and_frequency[0]}}
+                            <small>({{domain_and_frequency[1]}})</small>
+                    </a>
+            </h4>
+            {% endfor %}
+    {% endif %}
 
-    <h1>Web Search</h1>
+
+    {% if recommendations %}
+        <h1>Advised</h1>
+            {% for r in recommendations[:item_count] %}
+
+                <h4>
+                    &nbsp; <a href="{{r[1]}}">{{r[1]}}</a> <small>({{r[2]}})</small>
+                </h4>
+
+            {% endfor %}
+    {% endif %}
+
+    <h1>Search</h1>
 
     <form method="get" action="https://www.google.com/search">
 
-        <input type="text" name="q"  class="input-sm" value=""/>
+        &nbsp; &nbsp; <input type="text" name="q"  class="input-sm" value=""/>
         <input class="input-sm" type="submit" value="Go!" />
 
     </form>

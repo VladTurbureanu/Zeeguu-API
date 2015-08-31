@@ -255,6 +255,17 @@ class User(db.Model):
 
 
 
+#     Reading recommendations
+    def recommendations(self):
+        recommendations = {
+            'de':
+                [
+                    ['Der Spiegel', 'http://m.spiegel.de', 'news, advanced', 'World News']
+                ]        }
+        try:
+            return recommendations[self.learned_language_id]
+        except:
+            return []
 
 
 
