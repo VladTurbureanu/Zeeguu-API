@@ -38,7 +38,7 @@
         </h4>
 
          <h4>
-            - How well language known: {{ user.get_percentage_of_language_known() }}%
+            - Confidence Interval of Language Known: {{ user.get_lower_bound_percentage_of_language_known()}}% - {{user.get_upper_bound_percentage_of_language_known() }}%
         </h4>
 
         <h4>
