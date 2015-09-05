@@ -138,7 +138,8 @@
     width: 100% !important; } }
 @media screen and (max-width: 768px) {
   body {
-    background-color: #fff5c5; }
+    background-color: white;
+    padding: 10px;}
 
   #exercise-card {
     border: 0px; }

@@ -130,19 +130,45 @@ class User(db.Model):
     def word_count(self):
         return len(self.user_words())
 
+
     def bookmarks_by_date(self):
-	def extract_day_from_date(bookmark):
-		return (bookmark, bookmark.time.replace(bookmark.time.year, bookmark.time.month, bookmark.time.day,0,0,0,0))
+        def extract_day_from_date(bookmark):
+    		return (bookmark, bookmark.time.replace(bookmark.time.year, bookmark.time.month, bookmark.time.day,0,0,0,0))
 
-	bookmarks = self.all_bookmarks()
-	bookmarks_by_date = dict()
-				                                        
-	for elem in map(extract_day_from_date, bookmarks):
-		bookmarks_by_date.setdefault(elem[1],[]).append(elem[0])
+        bookmarks = self.all_bookmarks()
+        bookmarks_by_date = dict()
 
-	sorted_dates = bookmarks_by_date.keys()
-	sorted_dates.sort(reverse=True)
-	return bookmarks_by_date, sorted_dates
+        for elem in map(extract_day_from_date, bookmarks):
+            bookmarks_by_date.setdefault(elem[1],[]).append(elem[0])
+
+        sorted_dates = bookmarks_by_date.keys()
+        sorted_dates.sort(reverse=True)
+        return bookmarks_by_date, sorted_dates
+
+
+    # returns only HTTP domains. in this way we filter
+    # out empty domains, and others like the android:
+    # that we use for internal tracking...
+    # Returns: list of tuples (domain, date)
+    def recent_domains_with_times(self):
+        domains = []
+        domains_and_times = []
+        for b in self.bookmarks_chronologically():
+            if not b.text.url.domain() in domains\
+                and 'http' in b.text.url.domain():
+                    domains_and_times.append([b.text.url.domain(), b.time])
+                    domains.append(b.text.url.domain())
+        return domains_and_times
+
+    def frequent_domains(self):
+        domains = map (lambda b: b.text.url.domain(), self.bookmarks_chronologically())
+        from collections import Counter
+        counter = Counter(domains)
+        return counter.most_common()
+
+
+
+
 
     def unique_urls(self):
         urls = set()
@@ -238,6 +264,17 @@ class User(db.Model):
 
 
 
+#     Reading recommendations
+    def recommendations(self):
+        recommendations = {
+            'de':
+                [
+                    ['Der Spiegel', 'http://m.spiegel.de', 'news, advanced', 'World News']
+                ]        }
+        try:
+            return recommendations[self.learned_language_id]
+        except:
+            return []
 
 
 
@@ -584,10 +621,6 @@ class EncounterBasedProbability(db.Model):
          except  sqlalchemy.orm.exc.NoResultFound:
             return cls(user, ranked_word, 1, default_probability)
 
-
-
-
-
     @classmethod
     def find_all(cls):
         return cls.query.all()
@@ -606,12 +639,12 @@ class EncounterBasedProbability(db.Model):
                 ranked_word = ranked_word
             ).one()
             return True
-         except  sqlalchemy.orm.exc.NoResultFound:
+         except sqlalchemy.orm.exc.NoResultFound:
             return False
 
     @classmethod
     def find_or_create(cls, word, user):
-        ranked_word = RankedWord.find(word, user.learned_language)
+        ranked_word = RankedWord.find(word.lower(), user.learned_language)
         if EncounterBasedProbability.exists(user, ranked_word):
             enc_prob = EncounterBasedProbability.find(user,ranked_word)
             enc_prob.not_looked_up_counter +=1
@@ -707,6 +740,15 @@ class Url(db.Model):
         if self.title != "":
             return self.title
         return self.url
+
+
+    def domain(self):
+        protocol_re = '(.*://)?'
+        domain_re = '([^/?]*)'
+
+        domain = re.findall(protocol_re + domain_re, self.url)[0]
+        return domain[0] + domain[1]
+
 
     @classmethod
     def find(cls, url, title):
@@ -822,6 +864,7 @@ class Bookmark(db.Model):
         for word in self.context_words_with_rank():
             enc_prob = EncounterBasedProbability.find_or_create(word,user)
             zeeguu.db.session.add(enc_prob)
+            zeeguu.db.session.commit()
             user_word = None
             ranked_word = enc_prob.ranked_word
             if UserWord.exists(word,language):
@@ -851,7 +894,7 @@ class Bookmark(db.Model):
             zeeguu.db.session.add(ex_prob)
             known_word_prob_2 = self.calculate_known_word_probability_after_adding_exercise_based_probability(ex_prob,enc_prob, user)
             zeeguu.db.session.add(known_word_prob_2)
-        zeeguu.db.session.commit()
+            zeeguu.db.session.commit()
 
     @classmethod
     def find_by_specific_user(cls, user):

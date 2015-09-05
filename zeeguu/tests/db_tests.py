@@ -25,6 +25,11 @@ class Dbtest(ZeeguuTestCase):
         assert self.mir
         self.de = Language.find("de")
 
+    def tearDown(self):
+        self.de = None #if we don't do this, the test holds onto this object across runs sometimes, and
+        # this messes up the test db initialization. two hours well spent... aiii iaaa!
+
+        self.mir = None
 
     def test_languages_exists(self):
         assert self.de.name == "German"
@@ -149,6 +154,30 @@ class Dbtest(ZeeguuTestCase):
         ).all()
 
         print random.choice(bookmarks).origin.word
+
+
+    def test_url_domain(self):
+        url = model.Url("http://news.mir.com/page1", "Mir News")
+        assert url.domain() == "http://news.mir.com"
+
+        url = model.Url("news.mir.com/page1", "Mir News")
+        assert url.domain() == "news.mir.com"
+
+        url = model.Url("https://news.mir.com/page1", "Mir News")
+        assert url.domain() == "https://news.mir.com"
+
+        url = model.Url("", "Mir News")
+        assert url.domain() == ""
+
+
+    def test_user_recently_visited_domains(self):
+        assert len(self.mir.recent_domains_with_times()) == 3
+
+    def test_user_recently_visited_domains_does_not_include_android(self):
+        assert not(any("android" in dom[0] for dom in self.mir.recent_domains_with_times()))
+
+    def test_frequent_domains(self):
+        print self.mir.frequent_domains()
 
 
 

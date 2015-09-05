@@ -44,6 +44,7 @@ class ZeeguuTestCase(unittest.TestCase):
         url_with_session = url + "?session=" + self.session
         for each in other_args:
             url_with_session += "&" + each
+        print url_with_session
         return url_with_session
 
 
@@ -52,6 +53,10 @@ class ZeeguuTestCase(unittest.TestCase):
         self.app = zeeguu.app.test_client()
         zeeguu.populate.create_test_db()
         self.session = self.get_session()
+
+    def tearDown(self):
+        self.app = None
+        self.session = None
 
     def api_get(self, test_data, formdata='None'):
         return self.app.get(self.in_session(test_data), data = formdata)

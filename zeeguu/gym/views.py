@@ -114,7 +114,6 @@ def bookmarks():
                                  bookmarks_by_url=bookmarks_by_url,
                                  urls_by_date=urls_by_date,
                                  sorted_dates=dates,
-                                 all_urls = flask.g.user.recommended_urls(),
                                  user = flask.g.user)
 
 
@@ -215,10 +214,26 @@ def m_recognize():
     else:
         return "not logged in..."
 
-@gym.route ("/browser_home")
-def browser_home():
-    return  flask.render_template(
+@gym.route ("/browser_home/expanded/")
+def browser_home_expand():
+    return browser_home(42)
+
+@gym.route ("/browser_home/")
+def browser_home(item_count = 3):
+    return flask.render_template(
             "browser_home.html",
+            recent_domains_and_times = flask.g.user.recent_domains_with_times(),
+            # recent_domains_and_times = [],
+            recent_domains_and_times_count = len(flask.g.user.recent_domains_with_times()),
+            # recent_domains_and_times_count = 0,
+
+            domain_and_frequency_map = flask.g.user.frequent_domains(),
+            # domain_and_frequency_map = [],
+            domain_and_frequency_map_size = len(flask.g.user.frequent_domains()),
+            # domain_and_frequency_map_size = 0,
+
+            recommendations = flask.g.user.recommendations(),
+            item_count = item_count,
             mobile=True)
 
 
