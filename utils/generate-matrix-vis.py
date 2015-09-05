@@ -1,3 +1,5 @@
+import numpy
+import matplotlib.pylab as plt
 
 def generate_matrix_visualization(known_words):
 
@@ -9,10 +11,9 @@ def generate_matrix_visualization(known_words):
 				m[i].append(1)
 			else:
 				m[i].append(0.65)
+	
+	# we need this next line to scale the color scheme
 	m[0][0]=0
-
-	import numpy
-	import matplotlib.pylab as plt
 
 	matrix = numpy.matrix(m)
 
