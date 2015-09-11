@@ -7,9 +7,18 @@
 
 {% block body %}
 
+    <h3>Search the Web</h3>
+
+    <form method="get" action="https://www.google.com/search">
+
+        &nbsp; &nbsp; <input type="text" name="q"  class="input-sm" value=""/>
+        <input class="input-sm" type="submit" value="Go!" />
+
+    </form>
+
 
     {% if recent_domains_and_times %}
-        <h1>Recent</h1>
+        <h3>Recently Visited</h3>
             {% for domain_and_time in recent_domains_and_times[:item_count] %}
             <h4>
                     &nbsp;<a href="{{domain_and_time[0]}} ">
@@ -23,7 +32,7 @@
 
 
     {% if domain_and_frequency_map %}
-        <h1>Frequent</h1>
+        <h3>Frequently Visited</h3>
             {% for domain_and_frequency in domain_and_frequency_map[:item_count] %}
             <h4>
                     &nbsp;<a href="{{domain_and_frequency[0]}} ">
@@ -36,7 +45,7 @@
 
 
     {% if recommendations %}
-        <h1>Advised</h1>
+        <h3>Advised</h3>
             {% for r in recommendations[:item_count] %}
 
                 <h4>
@@ -46,14 +55,6 @@
             {% endfor %}
     {% endif %}
 
-    <h1>Search</h1>
-
-    <form method="get" action="https://www.google.com/search">
-
-        &nbsp; &nbsp; <input type="text" name="q"  class="input-sm" value=""/>
-        <input class="input-sm" type="submit" value="Go!" />
-
-    </form>
 
     <h4>
         {% if item_count < recent_domains_and_times_count or item_count <  domain_and_frequency_map_size %}
