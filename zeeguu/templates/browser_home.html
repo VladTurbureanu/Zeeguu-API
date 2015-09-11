@@ -7,11 +7,6 @@
 
 {% block body %}
 
-    <h4>
-        {% if item_count < recent_domains_and_times_count or item_count <  domain_and_frequency_map_size %}
-                <a href="/browser_home/expanded/">Show all</a>
-        {% endif %}
-    </h4>
 
     {% if recent_domains_and_times %}
         <h1>Recent</h1>
@@ -60,6 +55,11 @@
 
     </form>
 
+    <h4>
+        {% if item_count < recent_domains_and_times_count or item_count <  domain_and_frequency_map_size %}
+                <a href="/browser_home/expanded/">Show more...</a>
+        {% endif %}
+    </h4>
 
 
 
