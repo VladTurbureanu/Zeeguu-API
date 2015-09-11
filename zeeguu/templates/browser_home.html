@@ -20,7 +20,9 @@
                     &nbsp;<a href="{{domain_and_time[0]}} ">
                          {{domain_and_time[0]}}
                             <small>
-                                ({{domain_and_time[1].date()}})
+                                ({{domain_and_time[1].date().day}}
+                                /
+                                {{domain_and_time[1].date().month}})
                             </small>
                     </a>
             </h4>
