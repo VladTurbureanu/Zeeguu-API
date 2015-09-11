@@ -20,7 +20,7 @@
                     &nbsp;<a href="{{domain_and_time[0]}} ">
                          {{domain_and_time[0]}}
                             <small>
-                                ({{domain_and_time[1].date()..strftime("%d/%b")}})                            </small>
+                                ({{domain_and_time[1].date().strftime("%d %b")}})                            </small>
                     </a>
             </h4>
             {% endfor %}
