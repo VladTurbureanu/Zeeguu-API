@@ -196,18 +196,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         rv = self.api_get('/bookmarks_by_day/with_context')
         bookmarks_by_day = json.loads(rv.data)
-<<<<<<< HEAD
         assert any(context['context'] ==  'chilling on the streets' for context in bookmarks_by_day[0]['bookmarks'])
         #assert 'chilling on the streets' == bookmarks_by_day[0]['bookmarks'][0]['context']
         #assert sondernExampleData["context"] == bookmarks_by_day[0]['bookmarks'][1]['context']
         assert any (context ['context'] == sondernExampleData["context"] for context in bookmarks_by_day[0]['bookmarks'])
-=======
-
-
-        # assert 'chilling on the streets' == bookmarks_by_day[0]['bookmarks'][0]['context']
-        # assert sondernExampleData["context"] == bookmarks_by_day[0]['bookmarks'][1]['context']
-
->>>>>>> remotes/upstream/master
         latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][0]['id']
         print bookmarks_by_day[0]
 
@@ -298,20 +290,11 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         formData = dict(
             url='http://mir.lu',
             context='chilling on the streets')
-<<<<<<< HEAD
         rv = self.api_post('/bookmark_with_context/de/strassen/en/streets', formData)
         new_latest_bookmark_id = json.loads(rv.data)
         #rv = self.api_get('/bookmarks_by_day/with_context')
         #bookmarks_by_day = json.loads(rv.data)
         #new_latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][1]['id']
-=======
-        self.api_post('/bookmark_with_context/de/strassen/en/streets', formData)
-        rv = self.api_get('/bookmarks_by_day/with_context')
-        bookmarks_by_day = json.loads(rv.data)
-        print bookmarks_by_day[0]
-        print 'done'
-        new_latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][1]['id']
->>>>>>> remotes/upstream/master
         rv = self.api_get('/get_learned_bookmarks/de')
         learned_bookmarks = json.loads(rv.data)
         assert learned_bookmarks_count +1 == len(learned_bookmarks)
