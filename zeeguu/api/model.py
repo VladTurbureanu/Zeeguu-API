@@ -233,7 +233,7 @@ class User(db.Model):
     def get_probably_known_words_count(self):
         return len(self.get_probably_known_words(self.learned_language))
 
-    def get_lower_bound_percentage_of_language_known(self):
+    def get_lower_bound_percentage_of_basic_vocabulary(self):
         high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
         count_high_known_word_prob_of_user_ranked = 0
         for prob in high_known_word_prob_of_user:
@@ -241,13 +241,29 @@ class User(db.Model):
                 count_high_known_word_prob_of_user_ranked +=1
         return round(float(count_high_known_word_prob_of_user_ranked)/3000*100,2)
 
-    def get_upper_bound_percentage_of_language_known(self):
+    def get_upper_bound_percentage_of_basic_vocabulary(self):
         count_not_looked_up_words_with_rank = 0
         not_looked_up_words = EncounterBasedProbability.find_all_by_user(self)
         for prob in not_looked_up_words:
             if prob.ranked_word.rank <=3000:
                 count_not_looked_up_words_with_rank +=1
         return round(float(count_not_looked_up_words_with_rank)/3000*100,2)
+
+    def get_lower_bound_percentage_of_extended_vocabulary(self):
+        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
+        count_high_known_word_prob_of_user_ranked = 0
+        for prob in high_known_word_prob_of_user:
+            if prob.ranked_word is not None and prob.ranked_word.rank <=10000:
+                count_high_known_word_prob_of_user_ranked +=1
+        return round(float(count_high_known_word_prob_of_user_ranked)/10000*100,2)
+
+    def get_upper_bound_percentage_of_extended_vocabulary(self):
+        count_not_looked_up_words_with_rank = 0
+        not_looked_up_words = EncounterBasedProbability.find_all_by_user(self)
+        for prob in not_looked_up_words:
+            if prob.ranked_word.rank <=10000:
+                count_not_looked_up_words_with_rank +=1
+        return round(float(count_not_looked_up_words_with_rank)/10000*100,2)
 
 
     def get_percentage_of_probably_known_bookmarked_words(self):

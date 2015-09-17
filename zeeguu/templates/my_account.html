@@ -38,11 +38,15 @@
         </h4>
 
          <h4>
-            - Confidence Interval of Language Known: {{ user.get_lower_bound_percentage_of_language_known()}}% - {{user.get_upper_bound_percentage_of_language_known() }}%
+            - Percentage of Basic Vocabulary Known: {{ user.get_lower_bound_percentage_of_basic_vocabulary()}}% - {{user.get_upper_bound_percentage_of_basic_vocabulary() }}%
         </h4>
 
         <h4>
-            - How well bookmarks known: {{ user.get_percentage_of_probably_known_bookmarked_words() }}%
+            - Percentage of Extended Vocabulary Known: {{ user.get_lower_bound_percentage_of_extended_vocabulary()}}% - {{user.get_upper_bound_percentage_of_extended_vocabulary() }}%
+        </h4>
+
+        <h4>
+            - Ratio of bookmarks known: {{ user.get_percentage_of_probably_known_bookmarked_words() }}%
         </h4>
 
 
