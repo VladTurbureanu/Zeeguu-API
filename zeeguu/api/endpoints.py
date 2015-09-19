@@ -458,6 +458,13 @@ def get_translations_for_bookmark(bookmark_id):
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
+@api.route("/get_not_encountered_words/<lang_code>", methods=("GET",))
+@cross_domain
+@with_session
+def get_not_encountered_words(lang_code):
+    js = json.dumps(flask.g.user.get_not_encountered_words(Language.find(lang_code)))
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
 
 @api.route("/get_known_bookmarks/<lang_code>", methods=("GET",))
 @cross_domain
