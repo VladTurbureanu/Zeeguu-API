@@ -1,6 +1,7 @@
 import numpy
 import matplotlib.pylab as plt
-
+from matplotlib import pylab
+import matplotlib.patches as mpatches
 
 def generate_matrix_visualization(known_words, bookmark_words):
 
@@ -18,15 +19,15 @@ def generate_matrix_visualization(known_words, bookmark_words):
 	
     # we need this next line to scale the color scheme
     m[0][0]=0
+
     matrix = numpy.matrix(m)
 
-	fig = plt.figure()
-	ax = fig.add_subplot(1,1,1)
-	ax.set_aspect('equal')
-	plt.imshow(matrix, interpolation='none')
-	plt.set_cmap('hot')
-	plt.colorbar()
-	plt.show()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+    ax.set_aspect('equal')
+    plt.imshow(matrix, interpolation='none', extent=[0,10000,0,10000])
+    frame = pylab.gca()
 
     frame.axes.get_xaxis().set_ticks([])
 	#plt.axis([0,10000,0,10000])
@@ -36,8 +37,9 @@ def generate_matrix_visualization(known_words, bookmark_words):
     plt.show()
 
 # assume known words in current folder words.txt file
-known_words = [ ]
-learning_words = [ ]
+known_words = []
+bookmark_words = []
+
 with open ('words.txt') as f:
 	for line in f:
 		known_words.append(int	(line))
@@ -45,8 +47,4 @@ with open ('bookmarkwords.txt') as f:
 	for line in f:
 		bookmark_words.append(int	(line))
 
-with open ('learning.txt') as f:
-	for line in f: 
-		learning_words.append(int	(line))
-
-generate_matrix_visualization(known_words, learning_words)
+generate_matrix_visualization(known_words, bookmark_words)

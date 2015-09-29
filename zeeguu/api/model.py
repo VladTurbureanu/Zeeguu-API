@@ -184,6 +184,28 @@ class User(db.Model):
                 urls_to_words [bookmark.text.url] += bookmark.origin.importance_level()
         return sorted(urls_to_words, key=urls_to_words.get, reverse=True)
 
+    def get_not_encountered_words(self, lang):
+        not_encountered_words_dict_list = []
+        all_ranks = RankedWord.find_all(lang)
+        known_word_probs = KnownWordProbability.find_all_by_user_with_rank(self)
+        for p in known_word_probs:
+            if p.ranked_word in all_ranks:
+                all_ranks.remove(p.ranked_word)
+        for rank in all_ranks:
+            not_encountered_word_dict = {}
+            not_encountered_word_dict['word'] = rank.word
+            not_encountered_words_dict_list.append(not_encountered_word_dict)
+        return not_encountered_words_dict_list
+
+
+
+    def get_not_encountered_words_count(self):
+        return len(self.get_not_encountered_words(self.learned_language))
+
+
+
+
+
     def get_known_bookmarks(self,lang):
         bookmarks = flask.g.user.all_bookmarks()
         known_bookmarks=[]
@@ -233,13 +255,38 @@ class User(db.Model):
     def get_probably_known_words_count(self):
         return len(self.get_probably_known_words(self.learned_language))
 
-    def get_percentage_of_language_known(self):
+    def get_lower_bound_percentage_of_basic_vocabulary(self):
         high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
         count_high_known_word_prob_of_user_ranked = 0
         for prob in high_known_word_prob_of_user:
             if prob.ranked_word is not None and prob.ranked_word.rank <=3000:
                 count_high_known_word_prob_of_user_ranked +=1
         return round(float(count_high_known_word_prob_of_user_ranked)/3000*100,2)
+
+    def get_upper_bound_percentage_of_basic_vocabulary(self):
+        count_not_looked_up_words_with_rank = 0
+        not_looked_up_words = EncounterBasedProbability.find_all_by_user(self)
+        for prob in not_looked_up_words:
+            if prob.ranked_word.rank <=3000:
+                count_not_looked_up_words_with_rank +=1
+        return round(float(count_not_looked_up_words_with_rank)/3000*100,2)
+
+    def get_lower_bound_percentage_of_extended_vocabulary(self):
+        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
+        count_high_known_word_prob_of_user_ranked = 0
+        for prob in high_known_word_prob_of_user:
+            if prob.ranked_word is not None and prob.ranked_word.rank <=10000:
+                count_high_known_word_prob_of_user_ranked +=1
+        return round(float(count_high_known_word_prob_of_user_ranked)/10000*100,2)
+
+    def get_upper_bound_percentage_of_extended_vocabulary(self):
+        count_not_looked_up_words_with_rank = 0
+        not_looked_up_words = EncounterBasedProbability.find_all_by_user(self)
+        for prob in not_looked_up_words:
+            if prob.ranked_word.rank <=10000:
+                count_not_looked_up_words_with_rank +=1
+        return round(float(count_not_looked_up_words_with_rank)/10000*100,2)
+
 
     def get_percentage_of_probably_known_bookmarked_words(self):
         high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
@@ -616,6 +663,8 @@ class EncounterBasedProbability(db.Model):
     def find_all(cls):
         return cls.query.all()
 
+
+
     @classmethod
     def find_all_by_user(cls, user):
         return cls.query.filter_by(
@@ -697,6 +746,16 @@ class KnownWordProbability(db.Model):
         return cls.query.filter_by(
             user = user
         ).all()
+
+    @classmethod
+    def find_all_by_user_with_rank(cls, user):
+        known_probs = cls.query.filter_by(
+            user = user
+        ).all()
+        for p in known_probs:
+            if p.ranked_word is None:
+                known_probs.remove(p)
+        return known_probs
 
     @classmethod
     def exists(cls, user, user_word, ranked_word):
@@ -821,8 +880,6 @@ class Bookmark(db.Model):
 
     def split_words_from_context(self):
         words_of_bookmark_content = []
-        # bookmark_content_words = re.sub("[^\w]", " ",  self.text.content).split()
-        # bookmark_content_words = re.compile(r'[%s\s]+' % re.escape(string.punctuation)).split(self.text.content)
         bookmark_content_words = re.findall(r'(?u)\w+', self.text.content)
         words_of_bookmark_content.extend(bookmark_content_words)
         return words_of_bookmark_content

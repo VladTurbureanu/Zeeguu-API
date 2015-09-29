@@ -458,6 +458,13 @@ def get_translations_for_bookmark(bookmark_id):
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
+@api.route("/get_not_encountered_words/<lang_code>", methods=("GET",))
+@cross_domain
+@with_session
+def get_not_encountered_words(lang_code):
+    js = json.dumps(flask.g.user.get_not_encountered_words(Language.find(lang_code)))
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
 
 @api.route("/get_known_bookmarks/<lang_code>", methods=("GET",))
 @cross_domain
@@ -499,11 +506,30 @@ def get_probably_known_words(lang_code):
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_percentage_of_language_known", methods=("GET",))
+@api.route("/get_lower_bound_percentage_of_basic_vocabulary", methods=("GET",))
 @cross_domain
 @with_session
-def get_percentage_of_language_known():
-    return flask.g.user.get_percentage_of_language_known()
+def get_lower_bound_percentage_of_basic_vocabulary():
+    return flask.g.user.get_lower_bound_percentage_of_basic_vocabulary()
+
+@api.route("/get_upper_bound_percentage_of_basic_vocabulary", methods=("GET",))
+@cross_domain
+@with_session
+def get_upper_bound_percentage_of_basic_vocabulary():
+    return flask.g.user.get_upper_bound_percentage_of_basic_vocabulary()
+
+@api.route("/get_lower_bound_percentage_of_extended_vocabulary", methods=("GET",))
+@cross_domain
+@with_session
+def get_lower_bound_percentage_of_extended_vocabulary():
+    return flask.g.user.get_lower_bound_percentage_of_extended_vocabulary()
+
+@api.route("/get_upper_bound_percentage_of_extended_vocabulary", methods=("GET",))
+@cross_domain
+@with_session
+def get_upper_bound_percentage_of_extended_vocabulary():
+    return flask.g.user.get_upper_bound_percentage_of_extended_vocabulary()
+
 
 # returns the percentage of how many bookmarks are known to the user out of all the bookmarks
 @api.route("/get_percentage_of_probably_known_bookmarked_words", methods=("GET",))
