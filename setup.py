@@ -16,6 +16,6 @@ setuptools.setup(
     keywords="second language acquisition api",
     dependency_links=('http://github.com/zacharyvoase/cssmin/'
                       'tarball/master#egg=cssmin-0.1.4',),
-    install_requires=("flask", "Flask-SQLAlchemy", "Flask-Assets",
+    install_requires=("flask>=0.10.1", "Flask-SQLAlchemy", "Flask-Assets",
                       "cssmin", "jsmin", "flask-wtf", "goslate", "MySQL-python")
 )
