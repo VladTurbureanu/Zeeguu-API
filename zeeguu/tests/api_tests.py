@@ -402,5 +402,25 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert user.authorize("i@mir.lu", "pass") != None
 
 
+    def test_text_difficulty(self):
+        formData = dict(
+            text='der die das warum, wer nicht fragt bleibt dumm!',
+            personalized='true',
+            method='average')
+        rv = self.api_post('/get_difficulty_for_text/de', formData)
+
+        print 'difficulty: ' + rv.data
+        assert 0.0 <= float(rv.data) <= 1.0
+
+
+    def test_text_learnability(self):
+        formData = dict(
+            text='der die das besteht warum, wer nicht fragt bleibt jeweils sogar dumm!')
+        rv = self.api_post('/get_learnability_for_text/de', formData)
+
+        print 'learnability: ' + rv.data
+        assert 0.0 <= float(rv.data) <= 1.0
+
+
 if __name__ == '__main__':
     unittest.main()
