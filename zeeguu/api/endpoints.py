@@ -650,7 +650,7 @@ def get_learnability_for_text(lang_code):
     Form data:
     :param text: the text to calculate the learnability for
 
-    :return difficulty: percentage of words from the text that the user is currently learning
+    :return learnability: percentage of words from the text that the user is currently learning
     """
     language = Language.find(lang_code)
     if language is None:
@@ -677,7 +677,7 @@ def get_learnability_for_text(lang_code):
         if word in words_learning:
             words_learnability.append(word)
 
-    learnability = len(words_learnability) / float(len(words_learning))
+    learnability = len(words_learnability) / float(len(words))
 
     return str(learnability)
 
