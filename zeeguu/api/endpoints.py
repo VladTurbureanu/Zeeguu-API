@@ -16,11 +16,10 @@ import sqlalchemy.exc
 import urllib
 import zeeguu
 import json
-import goslate
 import datetime
 import re
-from zeeguu.model import RankedWord, Language,Bookmark, Session, Search, UserWord, User, Url, ExerciseBasedProbability, EncounterBasedProbability,KnownWordProbability, Text, ExerciseOutcome
-import re
+from zeeguu.model import RankedWord, Language,Bookmark, Session, Search, UserWord, User, Url, KnownWordProbability, Text
+from zeeguu import util
 
 
 api = flask.Blueprint("api", __name__)
@@ -580,7 +579,7 @@ def get_difficulty_for_text(lang_code):
 
     Form data:
     :param text: the text to calculate the difficulty for
-    :param personalized (optional): calculate difficulty score for a specific user?
+    :param personalized (optional): calculate difficulty score for a specific user? (Enabled by default)
     :param rank_boundary (optional): upper boundary for word frequency rank (between 1 and 10'000)
     :param method (optional): method to calculate the difficulty score (median or average)
 
@@ -611,10 +610,10 @@ def get_difficulty_for_text(lang_code):
     user = flask.g.user
 
     # Calculate difficulty for each word
-    words = split_words_from_text(text)
+    words = util.split_words_from_text(text)
     words_difficulty = []
     for word in words:
-        ranked_word = UserWord.find_rank(word, language)
+        ranked_word = RankedWord.find(word, language)
         user_word = UserWord.find(word, language)
 
         word_difficulty = 1.0 # Value between 0 (easy) and 1 (hard)
@@ -671,7 +670,7 @@ def get_learnability_for_text(lang_code):
             words_learning.append(user_word.word)
 
     # Calculate learnability
-    words = split_words_from_text(text)
+    words = util.split_words_from_text(text)
     words_learnability = []
     for word in words:
         if word in words_learning:
@@ -680,13 +679,6 @@ def get_learnability_for_text(lang_code):
     learnability = len(words_learnability) / float(len(words))
 
     return str(learnability)
-
-
-# TODO: Use existing function
-def split_words_from_text(text):
-    words = []
-    words = re.findall(r'(?u)\w+', text)
-    return words
 
 
 @api.route("/lookup/<from_lang>/<term>/<to_lang>", methods=("POST",))

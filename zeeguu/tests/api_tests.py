@@ -406,10 +406,9 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         formData = dict(
             text='der die das warum, wer nicht fragt bleibt dumm!',
             personalized='true',
-            method='average')
+            method='median')
         rv = self.api_post('/get_difficulty_for_text/de', formData)
 
-        print 'difficulty: ' + rv.data
         assert 0.0 <= float(rv.data) <= 1.0
 
 
@@ -418,7 +417,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             text='der die das besteht warum, wer nicht fragt bleibt jeweils sogar dumm!')
         rv = self.api_post('/get_learnability_for_text/de', formData)
 
-        print 'learnability: ' + rv.data
         assert 0.0 <= float(rv.data) <= 1.0
 
 
