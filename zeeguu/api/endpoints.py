@@ -665,8 +665,9 @@ def get_learnability_for_text(lang_code):
     words_learning = []
     bookmarks = Bookmark.find_by_specific_user(user)
     for bookmark in bookmarks:
+        learning = not bookmark.check_is_latest_outcome_too_easy()
         user_word = bookmark.origin
-        if user_word.language == language:
+        if learning and user_word.language == language:
             words_learning.append(user_word.word)
 
     # Calculate learnability
