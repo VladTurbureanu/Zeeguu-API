@@ -655,7 +655,7 @@ def get_learnability_for_text(lang_code):
     if language is None:
         return 'FAIL'
 
-    text = str(flask.request.form.get('text'))
+    text = flask.request.form.get('text')
     if text is None or text.strip() == "":
         return 'FAIL'
 
