@@ -124,6 +124,7 @@ def create_test_db():
     no = Language("no", "Norwegian")
     ro = Language("ro", "Romanian")
     es = Language("es", "Spanish")
+    es = Language("pt", "Portughese")
 
     zeeguu.db.session.add(en)
     zeeguu.db.session.add(fr)
