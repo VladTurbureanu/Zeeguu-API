@@ -16,11 +16,10 @@ import sqlalchemy.exc
 import urllib
 import zeeguu
 import json
-import goslate
 import datetime
 import re
-from zeeguu.model import RankedWord, Language,Bookmark, Session, Search, UserWord, User, Url, ExerciseBasedProbability, EncounterBasedProbability,KnownWordProbability, Text, ExerciseOutcome
-import re
+from zeeguu.model import RankedWord, Language,Bookmark, Session, Search, UserWord, User, Url, KnownWordProbability, Text
+from zeeguu import util
 
 
 api = flask.Blueprint("api", __name__)
@@ -570,6 +569,117 @@ def get_not_looked_up_words(lang_code):
     return resp
 
 
+@api.route("/get_difficulty_for_text/<lang_code>", methods=("POST",))
+@cross_domain
+@with_session
+def get_difficulty_for_text(lang_code):
+    """
+    URL parameters:
+    :param lang_code: the language of the text
+
+    Form data:
+    :param text: the text to calculate the difficulty for
+    :param personalized (optional): calculate difficulty score for a specific user? (Enabled by default)
+    :param rank_boundary (optional): upper boundary for word frequency rank (between 1 and 10'000)
+    :param method (optional): method to calculate the difficulty score (median or average)
+
+    :return difficulty: Value between 0 (easy) and 1 (hard)
+    """
+    language = Language.find(lang_code)
+    if language is None:
+        return 'FAIL'
+
+    text = str(flask.request.form.get('text'))
+    if text is None or text.strip() == "":
+        return 'FAIL'
+
+    personalized = True
+    if 'personalized' in flask.request.form:
+        personalized = flask.request.form.get('personalized').lower()
+        if personalized == 'false' or personalized == '0':
+            personalized = False
+
+    rank_boundary = 10000
+    if 'rank_boundary' in flask.request.form:
+        rank_boundary = int(flask.request.form.get('rank_boundary'))
+
+    method = 'median'
+    if 'method' in flask.request.form:
+        method = flask.request.form.get('method').lower()
+
+    user = flask.g.user
+
+    # Calculate difficulty for each word
+    words = util.split_words_from_text(text)
+    words_difficulty = []
+    for word in words:
+        ranked_word = RankedWord.find(word, language)
+        user_word = UserWord.find(word, language)
+
+        word_difficulty = 1.0 # Value between 0 (easy) and 1 (hard)
+        if ranked_word is not None:
+            # Check if the user knows the word
+            if personalized and user_word is not None and KnownWordProbability.exists(user, user_word, ranked_word):
+                known_propability = KnownWordProbability.find(user, user_word, ranked_word) # Value between 0 (unknown) and 1 (known)
+                word_difficulty -= known_propability
+            elif ranked_word.rank <= rank_boundary:
+                word_frequency = (10000.0-(ranked_word.rank-1))/10000.0 # Value between 0 (rare) and 1 (frequent)
+                word_difficulty -= word_frequency
+
+        words_difficulty.append(word_difficulty)
+
+    # Difficulty for text
+    if method == 'average':
+        difficulty = sum(words_difficulty) / float(len(words_difficulty))
+    else: # median
+        words_difficulty.sort()
+        center = int(round(len(words_difficulty)/2, 0))
+        difficulty = words_difficulty[center]
+
+    return str(difficulty)
+
+@api.route("/get_learnability_for_text/<lang_code>", methods=("POST",))
+@cross_domain
+@with_session
+def get_learnability_for_text(lang_code):
+    """
+    URL parameters:
+    :param lang_code: the language of the text
+
+    Form data:
+    :param text: the text to calculate the learnability for
+
+    :return learnability: percentage of words from the text that the user is currently learning
+    """
+    language = Language.find(lang_code)
+    if language is None:
+        return 'FAIL'
+
+    text = str(flask.request.form.get('text'))
+    if text is None or text.strip() == "":
+        return 'FAIL'
+
+    user = flask.g.user
+
+    # Get the words the user is currently learning
+    words_learning = []
+    bookmarks = Bookmark.find_by_specific_user(user)
+    for bookmark in bookmarks:
+        learning = not bookmark.check_is_latest_outcome_too_easy()
+        user_word = bookmark.origin
+        if learning and user_word.language == language:
+            words_learning.append(user_word.word)
+
+    # Calculate learnability
+    words = util.split_words_from_text(text)
+    words_learnability = []
+    for word in words:
+        if word in words_learning:
+            words_learnability.append(word)
+
+    learnability = len(words_learnability) / float(len(words))
+
+    return str(learnability)
 
 
 @api.route("/lookup/<from_lang>/<term>/<to_lang>", methods=("POST",))
