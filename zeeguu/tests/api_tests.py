@@ -1,3 +1,4 @@
+# coding=utf-8
 import zeeguu_testcase
 # Always must be imported first
 # it sets the test DB
@@ -404,7 +405,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_text_difficulty(self):
         formData = dict(
-            text='der die das warum, wer nicht fragt bleibt dumm!',
+            text='der die das warum, wer nicht fragt bleibt bewölkt!',
             personalized='true',
             method='median')
         rv = self.api_post('/get_difficulty_for_text/de', formData)
