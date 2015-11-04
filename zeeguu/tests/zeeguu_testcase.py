@@ -58,8 +58,8 @@ class ZeeguuTestCase(unittest.TestCase):
         self.app = None
         self.session = None
 
-    def api_get(self, test_data, formdata='None'):
-        return self.app.get(self.in_session(test_data), data = formdata)
+    def api_get(self, test_data, formdata='None', content_type=None):
+        return self.app.get(self.in_session(test_data), data = formdata, content_type = content_type)
 
-    def api_post(self, test_data, formdata='None'):
-        return self.app.post(self.in_session(test_data), data = formdata)
+    def api_post(self, test_data, formdata='None', content_type=None):
+        return self.app.post(self.in_session(test_data), data = formdata, content_type = content_type)
