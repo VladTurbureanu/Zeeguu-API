@@ -9,24 +9,32 @@ import flask.ext.sqlalchemy
 db = flask.ext.sqlalchemy.SQLAlchemy()
 
 from zeeguu import app
-
-
 app = app.app
 
-
-if os.environ.get("ZEEGUU_TESTING") == "True":
-    app.config.pop("SQLALCHEMY_DATABASE_URI", None)
+def setup_db_connection():
+    # the hostname for the mysql connection strip has to be named differently on different platforms!!!
+    mysql_hostname = "127.0.0.1"
     if platform.uname()[0]=='Darwin':
-        app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://zeeguu_test:zeeguu_test@localhost/zeeguu_test"
+        mysql_hostname = "localhost"
+
+    db_connection_string = "mysql://zeeguu_test:zeeguu_test@"
+
+    if os.environ.get("ZEEGUU_TESTING"):
+        db_name = "zeeguu_test"
+        if os.environ.get("ZEEGUU_PERFORMANCE_TESTING"):
+            db_name = "zeeguu_performance_test"
+        db_connection_string += mysql_hostname+"/"+db_name
+        app.config["SQLALCHEMY_DATABASE_URI"] = db_connection_string
     else:
-        app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://zeeguu_test:zeeguu_test@127.0.0.1/zeeguu_test"
-    print "[ Using the test DB (" + app.config["SQLALCHEMY_DATABASE_URI"] + ") ]"
-else:
-    if not "SQLALCHEMY_DATABASE_URI" in app.config:
-        print "seems like you have no config file..."
-        exit()
+        #  Ooops: we are not testing, and we don't have a DB configured!
+        if not "SQLALCHEMY_DATABASE_URI" in app.config:
+            print "No db configured. You probably have no config file..."
+            exit()
+
+    print "->>  DB Connection String: " + app.config["SQLALCHEMY_DATABASE_URI"]
 
 
+setup_db_connection()
 env = flask.ext.assets.Environment(app)
 env.cache = app.instance_path
 env.directory = os.path.join(app.instance_path, "gen")
