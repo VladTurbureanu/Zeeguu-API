@@ -60,12 +60,18 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_text_learnability(self):
         data = json.dumps(dict(texts=self.texts))
 
-        start = time.clock()
-        rv = self.api_get('/get_learnability_for_text/de', data, 'application/json')
-        end = time.clock()
+        measurements = []
+        for i in xrange(10):
+            start = time.clock()
+            rv = self.api_get('/get_learnability_for_text/de', data, 'application/json')
+            end = time.clock()
 
-        learnabilities = json.loads(rv.data)
-        for learnability in learnabilities:
-            assert 0.0 <= learnability['score'] <= 1.0
+            learnabilities = json.loads(rv.data)
+            for learnability in learnabilities:
+                assert 0.0 <= learnability['score'] <= 1.0
 
-        print str(end - start) + ' seconds'
+            measurements.append(end - start)
+
+        average_time = sum(measurements) / float(len(measurements))
+
+        print str(average_time) + ' seconds'

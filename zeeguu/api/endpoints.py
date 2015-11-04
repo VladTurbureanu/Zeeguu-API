@@ -680,13 +680,13 @@ def get_learnability_for_text(lang_code):
     user = flask.g.user
 
     # Get the words the user is currently learning
-    words_learning = []
+    words_learning = {}
     bookmarks = Bookmark.find_by_specific_user(user)
     for bookmark in bookmarks:
         learning = not bookmark.check_is_latest_outcome_too_easy()
         user_word = bookmark.origin
         if learning and user_word.language == language:
-            words_learning.append(user_word.word)
+            words_learning[user_word.word] = user_word.word
 
     learnabilities = []
     for text in texts:
