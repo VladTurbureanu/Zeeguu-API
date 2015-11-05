@@ -622,7 +622,7 @@ def get_difficulty_for_text(lang_code):
         words = util.split_words_from_text(text['content'])
         words_difficulty = []
         for word in words:
-            ranked_word = RankedWord.find(word, language)
+            ranked_word = RankedWord.find_cache(word, language)
             user_word = UserWord.find(word, language)
 
             word_difficulty = 1.0 # Value between 0 (easy) and 1 (hard)

@@ -10,7 +10,7 @@ import zeeguu_testcase
 # Always must be imported first
 # it sets the test DB
 
-from zeeguu.model import User
+from zeeguu.model import User, RankedWord
 import zeeguu
 import json
 import time
@@ -46,15 +46,23 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
             personalized='true',
             method='median'))
 
-        start = time.clock()
-        rv = self.api_get('/get_difficulty_for_text/de', data, 'application/json')
-        end = time.clock()
+        RankedWord.load_ranked_words()
 
-        difficulties = json.loads(rv.data)
-        for difficulty in difficulties:
-            assert 0.0 <= difficulty['score'] <= 1.0
+        measurements = []
+        for i in xrange(10):
+            start = time.clock()
+            rv = self.api_get('/get_difficulty_for_text/de', data, 'application/json')
+            end = time.clock()
 
-        print str(end - start) + ' seconds'
+            difficulties = json.loads(rv.data)
+            for difficulty in difficulties:
+                assert 0.0 <= difficulty['score'] <= 1.0
+
+            measurements.append(end - start)
+
+        average_time = sum(measurements) / float(len(measurements))
+
+        print "Difficulty: " + str(average_time) + ' seconds'
 
 
     def test_text_learnability(self):
@@ -74,4 +82,4 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         average_time = sum(measurements) / float(len(measurements))
 
-        print str(average_time) + ' seconds'
+        print "Learnability: " + str(average_time) + ' seconds'

@@ -408,13 +408,17 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             texts=[dict(content='Der die das warum, wer nicht fragt bleibt bewölkt!', id=1),
                    dict(content='Dies ist ein Test.', id=2)],
             personalized='true',
-            method='median'))
+            method='average'))
 
         rv = self.api_get('/get_difficulty_for_text/de', data, 'application/json')
 
         difficulties = json.loads(rv.data)
         for difficulty in difficulties:
             assert 0.0 <= difficulty['score'] <= 1.0
+            if difficulty['id'] is 1:
+                assert round(difficulty['score'], 2) == 0.67
+            elif difficulty['id'] is 2:
+                assert difficulty['score'] == 0.50075
 
 
     def test_text_learnability(self):
@@ -427,6 +431,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         learnabilities = json.loads(rv.data)
         for learnability in learnabilities:
             assert 0.0 <= learnability['score'] <= 1.0
+            if learnability['id'] is 3:
+                assert learnability['score'] == 0.25
+            elif learnability['id'] is 4:
+                assert learnability['score'] == 0.0
 
 
 if __name__ == '__main__':

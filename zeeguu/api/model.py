@@ -397,6 +397,9 @@ class RankedWord(db.Model, util.JSONSerializable):
     rank = db.Column(db.Integer)
     db.UniqueConstraint(word, language_id)
 
+    # Ranked words cache
+    ranked_words_de = {}
+
 
     def __init__(self, word, language, rank):
         self.word = word
@@ -430,13 +433,27 @@ class RankedWord(db.Model, util.JSONSerializable):
         except sqlalchemy.orm.exc.NoResultFound:
             return False
 
-
     @classmethod
     def words_list(cls):
         words_list = []
         for word in cls.find_all():
              words_list.append(word.word)
         return words_list
+
+    @classmethod
+    def load_ranked_words(cls):
+        # TODO: Add other languages
+        RankedWord.ranked_words_de = {}
+        ranked_words = RankedWord.find_all(Language.find('de'))
+        for ranked_word in ranked_words:
+            RankedWord.ranked_words_de[ranked_word.word] = ranked_word
+
+    @classmethod
+    def find_cache(cls, word, language):
+        try:
+            return RankedWord.ranked_words_de[word.lower()]
+        except KeyError:
+            return None
 
 class UserWord(db.Model, util.JSONSerializable):
     __tablename__ = 'user_word'
