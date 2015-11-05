@@ -578,7 +578,7 @@ def get_difficulty_for_text(lang_code):
     :param lang_code: the language of the text
 
     Json data:
-    :param texts: array that contains the texts to calculate the difficulty for. Each text consists of an array
+    :param texts: json array that contains the texts to calculate the difficulty for. Each text consists of an array
         with the text itself as 'content' and an additional 'id' which gets roundtripped unchanged
     :param personalized (optional): calculate difficulty score for a specific user? (Enabled by default)
     :param rank_boundary (optional): upper boundary for word frequency rank (between 1 and 10'000)
@@ -662,10 +662,13 @@ def get_learnability_for_text(lang_code):
     URL parameters:
     :param lang_code: the language of the text
 
-    Form data:
-    :param text: the text to calculate the learnability for
+    Json data:
+    :param texts: json array that contains the texts to calculate the learnability for. Each text consists of an array
+        with the text itself as 'content' and an additional 'id' which gets roundtripped unchanged
 
-    :return learnability: percentage of words from the text that the user is currently learning
+    :return learnabilities: json array, contains the learnabilities as arrays with the key 'score' for the learnability
+        value (percentage of words from the text that the user is currently learning), the 'count' of the learned
+        words in the text and the 'id' parameter to identify the corresponding text
     """
     language = Language.find(lang_code)
     if language is None:
@@ -700,9 +703,10 @@ def get_learnability_for_text(lang_code):
             if word in words_learning:
                 words_learnability.append(word)
 
-        learnability = len(words_learnability) / float(len(words))
+        count = len(words_learnability)
+        learnability = count / float(len(words))
 
-        learnabilities.append(dict(score=learnability, id=text['id']))
+        learnabilities.append(dict(score=learnability, count=count, id=text['id']))
 
     return flask.Response(json.dumps(learnabilities), status=200, mimetype='application/json')
 

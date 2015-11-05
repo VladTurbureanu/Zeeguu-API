@@ -46,7 +46,7 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
             personalized='true',
             method='median'))
 
-        RankedWord.load_ranked_words()
+        RankedWord.cache_ranked_words()
 
         measurements = []
         for i in xrange(10):

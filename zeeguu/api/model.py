@@ -397,8 +397,7 @@ class RankedWord(db.Model, util.JSONSerializable):
     rank = db.Column(db.Integer)
     db.UniqueConstraint(word, language_id)
 
-    # Ranked words cache
-    ranked_words_de = {}
+    ranked_words_cache = {}
 
 
     def __init__(self, word, language, rank):
@@ -441,19 +440,22 @@ class RankedWord(db.Model, util.JSONSerializable):
         return words_list
 
     @classmethod
-    def load_ranked_words(cls):
-        # TODO: Add other languages
-        RankedWord.ranked_words_de = {}
-        ranked_words = RankedWord.find_all(Language.find('de'))
-        for ranked_word in ranked_words:
-            RankedWord.ranked_words_de[ranked_word.word] = ranked_word
+    def cache_ranked_words(cls):
+        cls.ranked_words_cache = {}
+        for language in Language.all():
+            ranked_words = cls.find_all(language)
+            for ranked_word in ranked_words:
+                ranked_word_key = language.id + '_' + ranked_word.word
+                cls.ranked_words_cache[ranked_word_key] = ranked_word
 
     @classmethod
     def find_cache(cls, word, language):
         try:
-            return RankedWord.ranked_words_de[word.lower()]
+            ranked_word_key = language.id + '_' + word.lower()
+            return cls.ranked_words_cache[ranked_word_key]
         except KeyError:
             return None
+
 
 class UserWord(db.Model, util.JSONSerializable):
     __tablename__ = 'user_word'

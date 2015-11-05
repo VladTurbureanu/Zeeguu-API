@@ -6,7 +6,7 @@ import zeeguu_testcase
 import unittest
 import zeeguu.populate
 import zeeguu.model
-from zeeguu.model import User
+from zeeguu.model import User, RankedWord
 from zeeguu import util
 import json
 import re
@@ -409,6 +409,8 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                    dict(content='Dies ist ein Test.', id=2)],
             personalized='true',
             method='average'))
+
+        RankedWord.cache_ranked_words()
 
         rv = self.api_get('/get_difficulty_for_text/de', data, 'application/json')
 
