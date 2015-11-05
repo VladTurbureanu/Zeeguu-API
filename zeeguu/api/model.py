@@ -397,6 +397,8 @@ class RankedWord(db.Model, util.JSONSerializable):
     rank = db.Column(db.Integer)
     db.UniqueConstraint(word, language_id)
 
+    ranked_words_cache = {}
+
 
     def __init__(self, word, language, rank):
         self.word = word
@@ -430,13 +432,30 @@ class RankedWord(db.Model, util.JSONSerializable):
         except sqlalchemy.orm.exc.NoResultFound:
             return False
 
-
     @classmethod
     def words_list(cls):
         words_list = []
         for word in cls.find_all():
              words_list.append(word.word)
         return words_list
+
+    @classmethod
+    def cache_ranked_words(cls):
+        cls.ranked_words_cache = {}
+        for language in Language.all():
+            ranked_words = cls.find_all(language)
+            for ranked_word in ranked_words:
+                ranked_word_key = language.id + '_' + ranked_word.word
+                cls.ranked_words_cache[ranked_word_key] = ranked_word
+
+    @classmethod
+    def find_cache(cls, word, language):
+        try:
+            ranked_word_key = language.id + '_' + word.lower()
+            return cls.ranked_words_cache[ranked_word_key]
+        except KeyError:
+            return None
+
 
 class UserWord(db.Model, util.JSONSerializable):
     __tablename__ = 'user_word'
@@ -742,10 +761,21 @@ class KnownWordProbability(db.Model):
             return cls(user, user_word, ranked_word, probability)
 
     @classmethod
-    def find_all_by_user(cls,user):
+    def find_all_by_user(cls, user):
         return cls.query.filter_by(
             user = user
         ).all()
+
+    @classmethod
+    def find_all_by_user_cached(cls, user):
+        known_probabilities_cache = {}
+        known_probabilities = cls.find_all_by_user(user)
+        for known_probability in known_probabilities:
+            user_word = known_probability.user_word
+            # TODO: Why are there many KnownWordProbabilities with no user word in the database?
+            if user_word is not None:
+                known_probabilities_cache[user_word.word] = known_probability.probability
+        return known_probabilities_cache
 
     @classmethod
     def find_all_by_user_with_rank(cls, user):
