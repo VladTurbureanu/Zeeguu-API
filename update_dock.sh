@@ -1,2 +1,2 @@
 git push
-ssh haddock.unibe.ch 'cd zeeguu/web; git pull; ./restart'
+ssh -t haddock.unibe.ch 'cd zeeguu/web; git pull; sudo ./restart.sh'
