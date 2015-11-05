@@ -414,7 +414,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         rv = self.api_post('/get_difficulty_for_text/de', data, 'application/json')
 
-        difficulties = json.loads(rv.data)
+        difficulties = json.loads(rv.data)['difficulties']
         for difficulty in difficulties:
             assert 0.0 <= difficulty['score'] <= 1.0
             if difficulty['id'] is 1:
@@ -430,7 +430,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         rv = self.api_post('/get_learnability_for_text/de', data, 'application/json')
 
-        learnabilities = json.loads(rv.data)
+        learnabilities = json.loads(rv.data)['learnabilities']
         for learnability in learnabilities:
             assert 0.0 <= learnability['score'] <= 1.0
             if learnability['id'] is 3:

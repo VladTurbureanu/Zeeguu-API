@@ -651,7 +651,9 @@ def get_difficulty_for_text(lang_code):
 
         difficulties.append(dict(score=difficulty, id=text['id']))
 
-    return flask.Response(json.dumps(difficulties), status=200, mimetype='application/json')
+    response = json.dumps(dict(difficulties=difficulties))
+
+    return flask.Response(response, status=200, mimetype='application/json')
 
 
 @api.route("/get_learnability_for_text/<lang_code>", methods=("POST",))
@@ -708,7 +710,9 @@ def get_learnability_for_text(lang_code):
 
         learnabilities.append(dict(score=learnability, count=count, id=text['id']))
 
-    return flask.Response(json.dumps(learnabilities), status=200, mimetype='application/json')
+    response = json.dumps(dict(learnabilities=learnabilities))
+
+    return flask.Response(response, status=200, mimetype='application/json')
 
 
 @api.route("/lookup/<from_lang>/<term>/<to_lang>", methods=("POST",))
