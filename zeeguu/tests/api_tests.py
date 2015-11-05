@@ -6,7 +6,7 @@ import zeeguu_testcase
 import unittest
 import zeeguu.populate
 import zeeguu.model
-from zeeguu.model import User
+from zeeguu.model import User, RankedWord
 from zeeguu import util
 import json
 import re
@@ -404,21 +404,39 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_text_difficulty(self):
-        formData = dict(
-            text='der die das warum, wer nicht fragt bleibt bewölkt!',
+        data = json.dumps(dict(
+            texts=[dict(content='Der die das warum, wer nicht fragt bleibt bewölkt!', id=1),
+                   dict(content='Dies ist ein Test.', id=2)],
             personalized='true',
-            method='median')
-        rv = self.api_post('/get_difficulty_for_text/de', formData)
+            method='average'))
 
-        assert 0.0 <= float(rv.data) <= 1.0
+        RankedWord.cache_ranked_words()
+
+        rv = self.api_get('/get_difficulty_for_text/de', data, 'application/json')
+
+        difficulties = json.loads(rv.data)
+        for difficulty in difficulties:
+            assert 0.0 <= difficulty['score'] <= 1.0
+            if difficulty['id'] is 1:
+                assert round(difficulty['score'], 2) == 0.67
+            elif difficulty['id'] is 2:
+                assert difficulty['score'] == 0.50075
 
 
     def test_text_learnability(self):
-        formData = dict(
-            text='der die das besteht warum, wer nicht fragt bleibt jeweils sogar dumm!')
-        rv = self.api_post('/get_learnability_for_text/de', formData)
+        data = json.dumps(dict(
+            texts=[dict(content='Der die das besteht warum, wer nicht fragt bleibt jeweils sogar dumm!', id=3),
+                   dict(content='Dies ist ein weiterer Test!', id=4)]))
 
-        assert 0.0 <= float(rv.data) <= 1.0
+        rv = self.api_get('/get_learnability_for_text/de', data, 'application/json')
+
+        learnabilities = json.loads(rv.data)
+        for learnability in learnabilities:
+            assert 0.0 <= learnability['score'] <= 1.0
+            if learnability['id'] is 3:
+                assert learnability['score'] == 0.25
+            elif learnability['id'] is 4:
+                assert learnability['score'] == 0.0
 
 
 if __name__ == '__main__':
