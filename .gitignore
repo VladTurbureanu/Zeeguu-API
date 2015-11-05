@@ -12,3 +12,4 @@ instance
 zeeguu/static/Zeegg.apk
 
 *.map
+build/*
