@@ -569,7 +569,7 @@ def get_not_looked_up_words(lang_code):
     return resp
 
 
-@api.route("/get_difficulty_for_text/<lang_code>", methods=("GET",))
+@api.route("/get_difficulty_for_text/<lang_code>", methods=("POST",))
 @cross_domain
 @with_session
 def get_difficulty_for_text(lang_code):
@@ -654,7 +654,7 @@ def get_difficulty_for_text(lang_code):
     return flask.Response(json.dumps(difficulties), status=200, mimetype='application/json')
 
 
-@api.route("/get_learnability_for_text/<lang_code>", methods=("GET",))
+@api.route("/get_learnability_for_text/<lang_code>", methods=("POST",))
 @cross_domain
 @with_session
 def get_learnability_for_text(lang_code):

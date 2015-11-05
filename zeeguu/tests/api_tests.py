@@ -412,7 +412,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         RankedWord.cache_ranked_words()
 
-        rv = self.api_get('/get_difficulty_for_text/de', data, 'application/json')
+        rv = self.api_post('/get_difficulty_for_text/de', data, 'application/json')
 
         difficulties = json.loads(rv.data)
         for difficulty in difficulties:
@@ -428,7 +428,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             texts=[dict(content='Der die das besteht warum, wer nicht fragt bleibt jeweils sogar dumm!', id=3),
                    dict(content='Dies ist ein weiterer Test!', id=4)]))
 
-        rv = self.api_get('/get_learnability_for_text/de', data, 'application/json')
+        rv = self.api_post('/get_learnability_for_text/de', data, 'application/json')
 
         learnabilities = json.loads(rv.data)
         for learnability in learnabilities:

@@ -55,7 +55,7 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
         measurements = []
         for i in xrange(10):
             start = time.clock()
-            rv = self.api_get('/get_difficulty_for_text/de', data, 'application/json')
+            rv = self.api_post('/get_difficulty_for_text/de', data, 'application/json')
             end = time.clock()
 
             difficulties = json.loads(rv.data)
@@ -79,7 +79,7 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
         measurements = []
         for i in xrange(10):
             start = time.clock()
-            rv = self.api_get('/get_learnability_for_text/de', data, 'application/json')
+            rv = self.api_post('/get_learnability_for_text/de', data, 'application/json')
             end = time.clock()
 
             learnabilities = json.loads(rv.data)
