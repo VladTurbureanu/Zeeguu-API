@@ -41,8 +41,12 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_text_difficulty(self):
+        text = []
+        for i in xrange(10): # 100 texts
+            text.extend(self.texts)
+
         data = json.dumps(dict(
-            texts=self.texts,
+            texts=text,
             personalized='true',
             method='median'))
 
@@ -66,7 +70,11 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_text_learnability(self):
-        data = json.dumps(dict(texts=self.texts))
+        text = []
+        for i in xrange(10): # 100 texts
+            text.extend(self.texts)
+
+        data = json.dumps(dict(texts=text))
 
         measurements = []
         for i in xrange(10):
