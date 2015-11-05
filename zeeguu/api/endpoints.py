@@ -615,6 +615,7 @@ def get_difficulty_for_text(lang_code):
         method = data['method'].lower()
 
     user = flask.g.user
+    known_probabilities = KnownWordProbability.find_all_by_user_cached(user)
 
     difficulties = []
     for text in texts:
@@ -623,15 +624,17 @@ def get_difficulty_for_text(lang_code):
         words_difficulty = []
         for word in words:
             ranked_word = RankedWord.find_cache(word, language)
-            user_word = UserWord.find(word, language)
 
             word_difficulty = 1.0 # Value between 0 (easy) and 1 (hard)
             if ranked_word is not None:
                 # Check if the user knows the word
-                if personalized and user_word is not None and KnownWordProbability.exists(user, user_word, ranked_word):
-                    known_propability = KnownWordProbability.find(user, user_word, ranked_word) # Value between 0 (unknown) and 1 (known)
-                    if known_propability is float:
-                        word_difficulty -= known_propability
+                try:
+                    known_propability = known_probabilities[word] # Value between 0 (unknown) and 1 (known)
+                except KeyError:
+                    known_propability = None
+
+                if personalized and known_propability is not None:
+                    word_difficulty -= float(known_propability)
                 elif ranked_word.rank <= rank_boundary:
                     word_frequency = (10000.0-(ranked_word.rank-1))/10000.0 # Value between 0 (rare) and 1 (frequent)
                     word_difficulty -= word_frequency
