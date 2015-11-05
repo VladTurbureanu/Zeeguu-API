@@ -58,7 +58,7 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
             rv = self.api_post('/get_difficulty_for_text/de', data, 'application/json')
             end = time.clock()
 
-            difficulties = json.loads(rv.data)
+            difficulties = json.loads(rv.data)['difficulties']
             for difficulty in difficulties:
                 assert 0.0 <= difficulty['score'] <= 1.0
 
@@ -82,7 +82,7 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
             rv = self.api_post('/get_learnability_for_text/de', data, 'application/json')
             end = time.clock()
 
-            learnabilities = json.loads(rv.data)
+            learnabilities = json.loads(rv.data)['learnabilities']
             for learnability in learnabilities:
                 assert 0.0 <= learnability['score'] <= 1.0
 
