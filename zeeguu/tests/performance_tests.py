@@ -91,3 +91,28 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
         average_time = sum(measurements) / float(len(measurements))
 
         print "Learnability: " + str(average_time) + ' seconds'
+
+
+    def test_content_from_url(self):
+        data = json.dumps(dict(
+            urls=[dict(url='http://www.derbund.ch/wirtschaft/unternehmen-und-konjunktur/die-bankenriesen-in-den-bergkantonen/story/26984250', id=1),
+                  dict(url='http://www.computerbase.de/2015-11/bundestag-parlament-beschliesst-das-ende-vom-routerzwang-erneut/', id=2),
+                  dict(url='http://winfuture.de/news,89720.html', id=3), # Partially working, only summary gets extracted
+                  dict(url='http://stadt-bremerhaven.de/android-verteilung-741-prozent-aller-nutzer-haben-kein-lollipop-oder-marshmallow/', id=4), # Partially working, only first paragraph
+                  dict(url='http://www.heise.de/newsticker/meldung/November-Upgrade-fuer-Windows-10-naehert-sich-der-Fertigstellung-2909131.html', id=5),
+                  dict(url='http://www.golem.de/news/lytro-immerge-lytro-stellt-360-grad-lichtfeldkamera-vor-1511-117317.html', id=6),
+                  dict(url='http://www.der-postillon.com/2015/11/frau-von-maus-aufgefressen-weil-sie.html', id=7), # Not working
+                  dict(url='http://www.spiegel.de/politik/deutschland/sterbehilfe-bundestag-verschaerft-regeln-a-1061527.html', id=8),
+                  dict(url='http://www.nzz.ch/international/amerika/das-2-grad-ziel-ist-in-weiter-ferne-1.18642347', id=9),
+                  dict(url='http://www.googlewatchblog.de/2015/11/bericht-google-zukunft-smartphone/', id=10)]))
+
+        start = time.clock()
+        rv = self.api_post('/get_content_from_url', data, 'application/json')
+        end = time.clock()
+
+        urls = json.loads(rv.data)['contents']
+        for url in urls:
+            assert url['content'] is not None
+            assert url['image'] is not None
+
+        print "Content for " + str(len(urls)) + " URLs: " + str(end - start) + ' seconds'
