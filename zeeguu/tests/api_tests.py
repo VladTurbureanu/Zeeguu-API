@@ -439,5 +439,24 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                 assert learnability['score'] == 0.0
 
 
+    def test_content_from_url(self):
+        # parameters
+        manual_check = False
+
+        data = json.dumps(dict(
+            urls=[dict(url='http://www.derbund.ch/wirtschaft/unternehmen-und-konjunktur/die-bankenriesen-in-den-bergkantonen/story/26984250', id=1),
+                  dict(url='http://www.computerbase.de/2015-11/bundestag-parlament-beschliesst-das-ende-vom-routerzwang-erneut/', id=2)]))
+
+        rv = self.api_post('/get_content_from_url', data, 'application/json')
+
+        urls = json.loads(rv.data)['contents']
+        for url in urls:
+            assert url['content'] is not None
+            assert url['image'] is not None
+            if manual_check:
+                print url['content']
+                print url['image']
+
+
 if __name__ == '__main__':
     unittest.main()

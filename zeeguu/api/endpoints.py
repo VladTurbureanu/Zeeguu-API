@@ -715,6 +715,28 @@ def get_learnability_for_text(lang_code):
     return flask.Response(response, status=200, mimetype='application/json')
 
 
+@api.route("/get_content_from_url", methods=("POST",))
+@cross_domain
+def get_content_from_url():
+    data = flask.request.get_json()
+
+    urls = []
+    if 'urls' in data:
+        for url in data['urls']:
+            urls.append(url)
+    else:
+        return 'FAIL'
+
+    contents = []
+    for url in urls:
+        article = util.PageExtractor(url['url'])
+        contents.append(dict(content=article.get_content(), image=article.get_image(), id=url['id']))
+
+    response = json.dumps(dict(contents=contents))
+
+    return flask.Response(response, status=200, mimetype='application/json')
+
+
 @api.route("/lookup/<from_lang>/<term>/<to_lang>", methods=("POST",))
 @cross_domain
 @with_session
