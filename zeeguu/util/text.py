@@ -1,4 +1,6 @@
 import re
+import threading
+import multiprocessing
 from goose import Goose
 
 
@@ -22,3 +24,8 @@ class PageExtractor:
             return self.article.top_image.src
         else:
             return ""
+
+    @classmethod
+    def worker(cls, url, id, result):
+        article = cls(url)
+        result.put(dict(content=article.get_content(), image=article.get_image(), id=id))

@@ -18,6 +18,9 @@ import zeeguu
 import json
 import datetime
 import re
+import time
+import Queue
+import threading
 from zeeguu.model import RankedWord, Language,Bookmark, Session, Search, UserWord, User, Url, KnownWordProbability, Text
 from zeeguu import util
 
@@ -718,7 +721,18 @@ def get_learnability_for_text(lang_code):
 @api.route("/get_content_from_url", methods=("POST",))
 @cross_domain
 def get_content_from_url():
+    """
+    Json data:
+    :param urls: json array that contains the urls to get the article content for. Each url consists of an array
+        with the url itself as 'url' and an additional 'id' which gets roundtripped unchanged
+    :param timeout (optional): maximal time in seconds to wait for the results
+
+    :return contents: json array, contains the contents of the urls that responded within the timeout as arrays
+        with the key 'content' for the article content, the url of the main image as 'image' and the 'id' parameter
+        to identify the corresponding url
+    """
     data = flask.request.get_json()
+    queue = Queue.Queue()
 
     urls = []
     if 'urls' in data:
@@ -727,10 +741,30 @@ def get_content_from_url():
     else:
         return 'FAIL'
 
-    contents = []
+    if 'timeout' in data:
+        timeout = int(data['timeout'])
+    else:
+        timeout = 10
+
+    # Start worker threads to get url contents
+    threads = []
     for url in urls:
-        article = util.PageExtractor(url['url'])
-        contents.append(dict(content=article.get_content(), image=article.get_image(), id=url['id']))
+        thread = threading.Thread(target=util.PageExtractor.worker, args=(url['url'], url['id'], queue))
+        thread.daemon = True
+        threads.append(thread)
+        thread.start()
+
+    # Wait for workers to finish until timeout
+    stop = time.time() + timeout
+    while any(t.isAlive() for t in threads) and time.time() < stop:
+        time.sleep(0.1)
+
+    contents = []
+    for i in xrange(len(urls)):
+        try:
+            contents.append(queue.get_nowait())
+        except Queue.Empty:
+            pass
 
     response = json.dumps(dict(contents=contents))
 
