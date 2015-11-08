@@ -732,7 +732,6 @@ def get_content_from_url():
         to identify the corresponding url
     """
     data = flask.request.get_json()
-    count_before = threading.active_count()
     queue = Queue.Queue()
 
     urls = []
@@ -748,14 +747,16 @@ def get_content_from_url():
         timeout = 10
 
     # Start worker threads to get url contents
+    threads = []
     for url in urls:
         thread = threading.Thread(target=util.PageExtractor.worker, args=(url['url'], url['id'], queue))
         thread.daemon = True
+        threads.append(thread)
         thread.start()
 
     # Wait for workers to finish until timeout
     stop = time.time() + timeout
-    while threading.active_count() is not count_before and time.time() < stop:
+    while any(t.isAlive() for t in threads) and time.time() < stop:
         time.sleep(0.1)
 
     contents = []

@@ -105,7 +105,7 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
                   dict(url='http://www.spiegel.de/politik/deutschland/sterbehilfe-bundestag-verschaerft-regeln-a-1061527.html', id=8),
                   dict(url='http://www.nzz.ch/international/amerika/das-2-grad-ziel-ist-in-weiter-ferne-1.18642347', id=9),
                   dict(url='http://www.googlewatchblog.de/2015/11/bericht-google-zukunft-smartphone/', id=10)],
-            timeout=6))
+            timeout=20))
 
         start = time.clock()
         rv = self.api_post('/get_content_from_url', data, 'application/json')
