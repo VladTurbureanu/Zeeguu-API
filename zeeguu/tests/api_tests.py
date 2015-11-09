@@ -407,8 +407,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         data = json.dumps(dict(
             texts=[dict(content='Der die das warum, wer nicht fragt bleibt bewölkt!', id=1),
                    dict(content='Dies ist ein Test.', id=2)],
-            personalized='true',
-            method='average'))
+            personalized='true'))
 
         RankedWord.cache_ranked_words()
 
@@ -416,11 +415,14 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         difficulties = json.loads(rv.data)['difficulties']
         for difficulty in difficulties:
-            assert 0.0 <= difficulty['score'] <= 1.0
+            assert 0.0 <= difficulty['score_median'] <= 1.0
+            assert 0.0 <= difficulty['score_average'] <= 1.0
             if difficulty['id'] is 1:
-                assert round(difficulty['score'], 2) == 0.67
+                assert difficulty['score_median'] == 1.0
+                assert round(difficulty['score_average'], 2) == 0.67
             elif difficulty['id'] is 2:
-                assert difficulty['score'] == 0.50075
+                assert difficulty['score_median'] == 1.0
+                assert difficulty['score_average'] == 0.50075
 
 
     def test_text_learnability(self):

@@ -585,10 +585,10 @@ def get_difficulty_for_text(lang_code):
         with the text itself as 'content' and an additional 'id' which gets roundtripped unchanged
     :param personalized (optional): calculate difficulty score for a specific user? (Enabled by default)
     :param rank_boundary (optional): upper boundary for word frequency rank (between 1 and 10'000)
-    :param method (optional): method to calculate the difficulty score (median or average)
 
-    :return difficulties: json array, contains the difficulties as arrays with the key 'score' for the difficulty
-        value (between 0 (easy) and 1 (hard)) and the 'id' parameter to identify the corresponding text
+    :return difficulties: json array, contains the difficulties as arrays with the key 'score_median' for the median
+        and 'score_average' for the average difficulty the value (between 0 (easy) and 1 (hard)) and the 'id' parameter
+        to identify the corresponding text
     """
     language = Language.find(lang_code)
     if language is None:
@@ -612,10 +612,6 @@ def get_difficulty_for_text(lang_code):
     rank_boundary = 10000
     if 'rank_boundary' in data:
         rank_boundary = int(data['rank_boundary'])
-
-    method = 'median'
-    if 'method' in data:
-        method = data['method'].lower()
 
     user = flask.g.user
     known_probabilities = KnownWordProbability.find_all_by_user_cached(user)
@@ -644,15 +640,15 @@ def get_difficulty_for_text(lang_code):
 
             words_difficulty.append(word_difficulty)
 
-        # Difficulty for text
-        if method == 'average':
-            difficulty = sum(words_difficulty) / float(len(words_difficulty))
-        else: # median
-            words_difficulty.sort()
-            center = int(round(len(words_difficulty)/2, 0))
-            difficulty = words_difficulty[center]
+        # Median difficulty for text
+        words_difficulty.sort()
+        center = int(round(len(words_difficulty)/2, 0))
+        difficulty_median = words_difficulty[center]
 
-        difficulties.append(dict(score=difficulty, id=text['id']))
+        # Average difficulty for text
+        difficulty_average = sum(words_difficulty) / float(len(words_difficulty))
+
+        difficulties.append(dict(score_median=difficulty_median, score_average=difficulty_average, id=text['id']))
 
     response = json.dumps(dict(difficulties=difficulties))
 

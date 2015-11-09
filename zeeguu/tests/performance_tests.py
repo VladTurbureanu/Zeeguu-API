@@ -47,8 +47,7 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         data = json.dumps(dict(
             texts=text,
-            personalized='true',
-            method='median'))
+            personalized='true'))
 
         # RankedWord.cache_ranked_words()
 
@@ -60,7 +59,8 @@ class Performance_Tests(zeeguu_testcase.ZeeguuTestCase):
 
             difficulties = json.loads(rv.data)['difficulties']
             for difficulty in difficulties:
-                assert 0.0 <= difficulty['score'] <= 1.0
+                assert 0.0 <= difficulty['score_median'] <= 1.0
+                assert 0.0 <= difficulty['score_average'] <= 1.0
 
             measurements.append(end - start)
 
