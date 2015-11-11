@@ -1,7 +1,6 @@
 
 # -*- coding: utf8 -*-
-import re
-
+import sys
 import zeeguu
 from zeeguu import model
 
@@ -9,15 +8,14 @@ from zeeguu import model
 
 def filter_word_list(word_list):
     filtered_word_list = []
-    lowercase_word_list = []
+    lowercase_word_list = set()
     for word in word_list:
-         if word.lower() not in lowercase_word_list:
-            lowercase_word_list.append(word.lower())
-    for lc_word in lowercase_word_list:
-        for word in word_list:
-            if word.lower()  == lc_word:
-                filtered_word_list.append(word)
-                break
+        lowercase_word_list.add(word)
+
+    for word in word_list:
+        if word.lower() in lowercase_word_list:
+            filtered_word_list.append(word)
+
     return filtered_word_list
 
 
@@ -32,24 +30,28 @@ def word_list(lang_code):
 def add_ranked_word_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
+    print "looking for language ..." + lang_code
     from_lang = model.Language.find(lang_code)
     initial_line_number = 1
+
     for word in filter_word_list(word_list(lang_code)):
         r = model.RankedWord(word.lower(), from_lang,initial_line_number)
         zeeguu.db.session.add(r)
         initial_line_number+=1
-    print 'karan the worst'
+        if (initial_line_number % 1000 == 0):
+            print str(initial_line_number // 1000) + "k words done."
     zeeguu.db.session.commit()
+
+    print 'done importing the words in the DB'
+
 
 def change_db(lang_code):
     add_ranked_word_to_db(lang_code)
 
 
-
-
-
-
-
 if __name__ == "__main__":
-    change_db('de')
+    if len(sys.argv)<2:
+        print "pass the language code that you want to import"
+
+    change_db(sys.argv[1])
 

@@ -116,24 +116,28 @@ def create_test_db():
     zeeguu.db.drop_all()
     zeeguu.db.create_all()
 
-    fr = Language("fr", "French")
     de = Language("de", "German")
     dk = Language("dk", "Danish")
     en = Language("en", "English")
+    es = Language("es", "Spanish")
+    fr = Language("fr", "French")
     it = Language("it", "Italian")
     no = Language("no", "Norwegian")
+    nl = Language("nl", "Dutch")
+    pt = Language("pt", "Portughese")
     ro = Language("ro", "Romanian")
-    es = Language("es", "Spanish")
-    es = Language("pt", "Portughese")
 
-    zeeguu.db.session.add(en)
-    zeeguu.db.session.add(fr)
+
     zeeguu.db.session.add(de)
     zeeguu.db.session.add(dk)
-    zeeguu.db.session.add(no)
-    zeeguu.db.session.add(it)
-    zeeguu.db.session.add(ro)
+    zeeguu.db.session.add(en)
     zeeguu.db.session.add(es)
+    zeeguu.db.session.add(fr)
+    zeeguu.db.session.add(it)
+    zeeguu.db.session.add(no)
+    zeeguu.db.session.add(nl)
+    zeeguu.db.session.add(pt)
+    zeeguu.db.session.add(ro)
     zeeguu.db.session.commit()
 
     show_solution = ExerciseOutcome("Show solution")
@@ -203,6 +207,7 @@ def create_test_db():
         'de':'of',
         'et':'and'
             }
+
 
 
 
