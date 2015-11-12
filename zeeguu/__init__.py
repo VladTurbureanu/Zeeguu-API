@@ -33,6 +33,9 @@ def setup_db_connection():
 
     print "->>  DB Connection String: " + app.config["SQLALCHEMY_DATABASE_URI"]
 
+    # getting rid of a warning in new version of SQLAlchemy
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 
 setup_db_connection()
 env = flask.ext.assets.Environment(app)
