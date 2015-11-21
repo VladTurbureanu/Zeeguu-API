@@ -2,7 +2,7 @@
 
 """
 endpoints.py
-This file defines all the Zeeguu API endpoints.
+This file defines most the Zeeguu REST API endpoints.
 
 For an example of endpoint definition, scroll down
 to the definition of the learned_language() function.
