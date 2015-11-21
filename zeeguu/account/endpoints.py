@@ -1,6 +1,8 @@
 # -*- coding: utf8 -*-
 __author__ = 'mir.lu'
 
+# This file contains the REST endpoints for the user login & account management
+
 import functools
 import flask
 import zeeguu
