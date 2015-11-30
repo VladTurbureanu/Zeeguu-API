@@ -610,9 +610,11 @@ def get_difficulty_for_text(lang_code):
         if personalized == 'false' or personalized == '0':
             personalized = False
 
-    rank_boundary = 10000
+    rank_boundary = 10000.0
     if 'rank_boundary' in data:
-        rank_boundary = int(data['rank_boundary'])
+        rank_boundary = float(data['rank_boundary'])
+        if rank_boundary > 10000.0:
+            rank_boundary = 10000.0
 
     user = flask.g.user
     known_probabilities = KnownWordProbability.find_all_by_user_cached(user)
@@ -636,10 +638,13 @@ def get_difficulty_for_text(lang_code):
                 if personalized and known_propability is not None:
                     word_difficulty -= float(known_propability)
                 elif ranked_word.rank <= rank_boundary:
-                    word_frequency = (10000.0-(ranked_word.rank-1))/10000.0 # Value between 0 (rare) and 1 (frequent)
+                    word_frequency = (rank_boundary-(ranked_word.rank-1))/rank_boundary # Value between 0 (rare) and 1 (frequent)
                     word_difficulty -= word_frequency
 
             words_difficulty.append(word_difficulty)
+
+        # Uncomment to print data for histogram generation
+        #text.generate_histogram(words_difficulty)
 
         # Median difficulty for text
         words_difficulty.sort()
