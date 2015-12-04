@@ -779,9 +779,6 @@ def get_content_from_url():
 def lookup(from_lang, term, to_lang):
     """
     Used to log a given search.
-    TODO: See what's the relation between this and goslate,
-     that is, /goslate should already log the search...
-     also, this requires both from and to_lang, but goslate does not.
 
     :param from_lang:
     :param term:
