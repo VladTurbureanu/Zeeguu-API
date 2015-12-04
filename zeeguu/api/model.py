@@ -305,10 +305,38 @@ class User(db.Model):
 #     Reading recommendations
     def recommendations(self):
         recommendations = {
-            'de':
-                [
-                    ['Der Spiegel', 'http://m.spiegel.de', 'news, advanced', 'World News']
-                ]        }
+            'de': [
+                    ['Der Spiegel', 'http://m.spiegel.de', 'German News']
+            ],
+            'dk': [
+                ['DR Forsiden', 'http://www.dr.dk', 'Danish News']
+            ],
+            'nl': [
+                ['Het laatste nieuws', 'http://www.nu.nl/', 'Dutch News']
+            ],
+            'fr': [
+                ['Le Figaro', 'http://www.lefigaro.fr/', 'French News']
+            ],
+            'gr': [
+                ['News 247', 'http://news247.gr/', 'Greek News']
+            ],
+            'it': [
+                ['la Reppublica', 'http://www.repubblica.it/', 'Italian News']
+            ],
+            'no': [
+                ['Dagbladet', 'http://www.nrk.no/', 'Norwegian News']
+            ],
+            'pt': [
+                ['Jornal de Noticias', 'http://www.jn.pt/paginainicial/', 'Portughese News']
+            ],
+            'ro': [
+                ['Mediafax', 'http://www.mediafax.ro/', 'Romanian News']
+            ],
+            'es': [
+                ['El Pais', 'http://elpais.com/', 'Spanish News']
+            ]
+        }
+
         try:
             return recommendations[self.learned_language_id]
         except:
