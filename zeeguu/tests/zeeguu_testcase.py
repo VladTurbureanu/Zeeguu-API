@@ -44,7 +44,6 @@ class ZeeguuTestCase(unittest.TestCase):
         url_with_session = url + "?session=" + self.session
         for each in other_args:
             url_with_session += "&" + each
-        print url_with_session
         return url_with_session
 
 

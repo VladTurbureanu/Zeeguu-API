@@ -403,11 +403,17 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert user.authorize("i@mir.lu", "pass") != None
 
 
+
     def test_text_difficulty(self):
-        data = json.dumps(dict(
-            texts=[dict(content='Der die das warum, wer nicht fragt bleibt bewölkt!', id=1),
-                   dict(content='Dies ist ein Test.', id=2)],
-            personalized='true'))
+        data = """
+            {
+            "texts":
+                [
+                    {"content": "Der die das warum, wer nicht fragt bleibt bew\u00f6lkt!", "id": 1},
+                    {"content": "Dies ist ein Test.", "id": 2}],
+            "personalized": "true"
+            }
+        """
 
         RankedWord.cache_ranked_words()
 
@@ -426,9 +432,14 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_text_learnability(self):
-        data = json.dumps(dict(
-            texts=[dict(content='Der die das besteht warum, wer nicht fragt bleibt jeweils sogar dumm!', id=3),
-                   dict(content='Dies ist ein weiterer Test!', id=4)]))
+        data = """
+            {"texts":
+                [
+                    {"content": "Der die das besteht warum, wer nicht fragt bleibt jeweils sogar dumm!", "id": 3},
+                    {"content": "Dies ist ein weiterer Test!", "id": 4}
+                ]
+            }
+        """
 
         rv = self.api_post('/get_learnability_for_text/de', data, 'application/json')
 
@@ -443,11 +454,9 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_get_lower_bound_percentage_of_vocabulary(self):
         rv_basic = self.api_get('/get_lower_bound_percentage_of_basic_vocabulary')
-        basic_lower_bound = float (rv_basic.data)
-
         rv_extended = self.api_get('/get_lower_bound_percentage_of_extended_vocabulary')
+        basic_lower_bound = float (rv_basic.data)
         extended_lower_bound = float (rv_extended.data)
-
         assert basic_lower_bound > extended_lower_bound > 0
 
 
@@ -458,22 +467,25 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         extended_upper_bound = float (rv_extended.data)
         assert 1 > basic_upper_bound > extended_upper_bound
 
+
     def test_get_percentage_of_probably_known_bookmarked_words(self):
         rv = self.api_get('/get_percentage_of_probably_known_bookmarked_words')
         assert 0 <= float(rv.data) < 1
-
-
-
-
 
 
     def test_content_from_url(self):
         # parameters
         manual_check = False
 
-        data = json.dumps(dict(
-            urls=[dict(url='http://www.derbund.ch/wirtschaft/unternehmen-und-konjunktur/die-bankenriesen-in-den-bergkantonen/story/26984250', id=1),
-                  dict(url='http://www.computerbase.de/2015-11/bundestag-parlament-beschliesst-das-ende-vom-routerzwang-erneut/', id=2)]))
+        data = """
+            {"urls":
+                [
+                    {"url": "http://www.derbund.ch/wirtschaft/unternehmen-und-konjunktur/die-bankenriesen-in-den-bergkantonen/story/26984250", "id": 1},
+
+                    {"url": "http://www.computerbase.de/2015-11/bundestag-parlament-beschliesst-das-ende-vom-routerzwang-erneut/", "id": 2}
+                ]
+            }
+        """
 
         rv = self.api_post('/get_content_from_url', data, 'application/json')
 
