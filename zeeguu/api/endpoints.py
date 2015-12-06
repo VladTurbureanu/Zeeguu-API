@@ -509,29 +509,46 @@ def get_probably_known_words(lang_code):
     resp = flask.Response(js, status=200, mimetype='application/json')
     return resp
 
-@api.route("/get_lower_bound_percentage_of_basic_vocabulary", methods=("GET",))
+
+@api.route("/get_lower_bound_percentage_of_basic_vocabulary", methods=["GET"])
 @cross_domain
 @with_session
 def get_lower_bound_percentage_of_basic_vocabulary():
-    return flask.g.user.get_lower_bound_percentage_of_basic_vocabulary()
+    """
+    :return: string representation of positive sub-unitary float
+    """
+    return str(flask.g.user.get_lower_bound_percentage_of_basic_vocabulary())
+
 
 @api.route("/get_upper_bound_percentage_of_basic_vocabulary", methods=("GET",))
 @cross_domain
 @with_session
 def get_upper_bound_percentage_of_basic_vocabulary():
-    return flask.g.user.get_upper_bound_percentage_of_basic_vocabulary()
+    """
+
+    :return: string representation of positive, sub-unitary float
+    """
+    return str(flask.g.user.get_upper_bound_percentage_of_basic_vocabulary())
 
 @api.route("/get_lower_bound_percentage_of_extended_vocabulary", methods=("GET",))
 @cross_domain
 @with_session
 def get_lower_bound_percentage_of_extended_vocabulary():
-    return flask.g.user.get_lower_bound_percentage_of_extended_vocabulary()
+    """
+
+    :return: string representation of positive sub-unitary float
+    """
+    return str(flask.g.user.get_lower_bound_percentage_of_extended_vocabulary())
 
 @api.route("/get_upper_bound_percentage_of_extended_vocabulary", methods=("GET",))
 @cross_domain
 @with_session
 def get_upper_bound_percentage_of_extended_vocabulary():
-    return flask.g.user.get_upper_bound_percentage_of_extended_vocabulary()
+    """
+
+    :return: string representation of positive sub-unitary float
+    """
+    return str(flask.g.user.get_upper_bound_percentage_of_extended_vocabulary())
 
 
 # returns the percentage of how many bookmarks are known to the user out of all the bookmarks
@@ -539,7 +556,11 @@ def get_upper_bound_percentage_of_extended_vocabulary():
 @cross_domain
 @with_session
 def get_percentage_of_probably_known_bookmarked_words():
-    return flask.g.user.get_percentage_of_probably_known_bookmarked_words()
+    """
+
+    :return: string representation of positive sub-unitary float
+    """
+    return str(flask.g.user.get_percentage_of_probably_known_bookmarked_words())
 
 @api.route("/get_learned_bookmarks/<lang>", methods=("GET",))
 @cross_domain
@@ -817,20 +838,4 @@ def lookup_preferred(from_lang, term):
 @with_session
 def validate():
     return "OK"
-
-
-@api.route("/get_page/<path:url>", methods=["GET"])
-@cross_domain
-@with_session
-def get_page(url):
-
-    # url = flask.request.form['url']
-    opener = urllib2.build_opener()
-    opener.addheaders = [('User-Agent', 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_0 like Mac OS X; en-us) AppleWebKit/532.9 (KHTML, like Gecko) Version/4.0.5 Mobile/8A293 Safari/6531.22.7')]
-    print urllib.unquote(url)
-    page = opener.open(urllib.unquote(url))
-    content = ""
-    for line in page:
-        content += line
-    return content
 
