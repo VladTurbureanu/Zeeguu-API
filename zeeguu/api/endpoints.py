@@ -610,6 +610,7 @@ def get_difficulty_for_text(lang_code):
 
     For an example of how the Json data looks like, see
         ../tests/api_tests.py#test_txt_difficulty(self):
+        [see here](../tests/api_tests.py)
 
     :return difficulties: json array, contains the difficulties as arrays with the key 'score_median' for the median
         and 'score_average' for the average difficulty the value (between 0 (easy) and 1 (hard)) and the 'id' parameter
