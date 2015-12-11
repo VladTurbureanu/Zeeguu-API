@@ -282,6 +282,7 @@ def translate_from_to (word, from_lang_code,to_lang_code):
 		"&format=text".encode('utf8')+\
 		"&source="+from_lang_code.encode('utf8')+\
 		"&key="+api_key
+	print url
 	result=json.loads(urllib2.urlopen(url).read())
 	translation = result['data']['translations'][0]['translatedText']
 	return translation
@@ -297,6 +298,7 @@ def translate(from_lang_code,to_lang_code):
     :param to_lang_code:
     :return:
     """
+    #print str(flask.request.get_data())
     context = flask.request.form.get('context', '')
     url = flask.request.form.get('url','')
     word = flask.request.form['word']
