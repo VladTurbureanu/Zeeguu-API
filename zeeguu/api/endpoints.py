@@ -13,6 +13,7 @@ import functools
 
 import flask
 import urllib2
+from urllib import quote_plus, unquote_plus
 import sqlalchemy.exc
 import urllib
 import zeeguu
@@ -166,12 +167,6 @@ def available_languages():
     return json.dumps(available_language_codes)
 
 
-# TO DO: This function looks quite ugly here.
-# Need a better place to put it.
-def decode_word(word):
-    return word.replace("+", " ")
-
-
 @api.route("/add_user/<email>", methods=["POST"])
 @cross_domain
 def add_user(email):
@@ -277,7 +272,7 @@ def translate_from_to (word, from_lang_code,to_lang_code):
 	# Note, that there is quote and quote_plus. The Google API prefers quote_plus,
 	# This seems to be the convention for info submitted from forms via GET.
 	url = translate_url + \
-		"?q="+ word.encode('utf8') +\
+		"?q="+ quote_plus(word.encode('utf8')) +\
 		"&target="+to_lang_code.encode('utf8')+\
 		"&format=text".encode('utf8')+\
 		"&source="+from_lang_code.encode('utf8')+\
@@ -302,7 +297,7 @@ def translate(from_lang_code,to_lang_code):
     context = flask.request.form.get('context', '')
     url = flask.request.form.get('url','')
     word = flask.request.form['word']
-    word = re.sub(r'%20', "+", word)
+    #word = re.sub(r' ', "+", word)
     return translate_from_to(word, from_lang_code, to_lang_code)
 
 
@@ -337,8 +332,8 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
     from_lang = Language.find(from_lang_code)
     to_lang = Language.find(to_lang_code)
 
-    word = (decode_word(term))
-    translation_word = decode_word(translation)
+    word = (unquote_plus(term))
+    translation_word = unquote_plus(translation)
     user_word = UserWord.find(word,from_lang)
     translation = UserWord.find(translation_word,to_lang)
 
@@ -827,7 +822,7 @@ def lookup(from_lang, term, to_lang):
         user.read(text)
     else:
         text = None
-    word = decode_word(term)
+    word = unquote_plus(term)
     rank = UserWord.find_rank(word, to_lang)
     user.searches.append(
         Search(user, UserWord.find(word, from_lang),
