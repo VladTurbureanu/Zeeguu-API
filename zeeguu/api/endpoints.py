@@ -608,7 +608,7 @@ def get_difficulty_for_text(lang_code):
     :param rank_boundary (optional): upper boundary for word frequency rank (between 1 and 10'000)
 
     For an example of how the Json data looks like, see
-        api_tests/test_txt_difficulty(self):
+        ../tests/api_tests.py#test_txt_difficulty(self):
 
     :return difficulties: json array, contains the difficulties as arrays with the key 'score_median' for the median
         and 'score_average' for the average difficulty the value (between 0 (easy) and 1 (hard)) and the 'id' parameter
@@ -696,7 +696,7 @@ def get_learnability_for_text(lang_code):
     :param texts: json array that contains the texts to calculate the learnability for. Each text consists of an array
         with the text itself as 'content' and an additional 'id' which gets roundtripped unchanged
         For an example of how the Json data looks like, see
-            api_tests/test_text_learnability(self):
+            ../tests/api_tests.py#test_text_learnability(self):
 
 
     :return learnabilities: json array, contains the learnabilities as arrays with the key 'score' for the learnability
@@ -754,7 +754,7 @@ def get_content_from_url():
     :param urls: json array that contains the urls to get the article content for. Each url consists of an array
         with the url itself as 'url' and an additional 'id' which gets roundtripped unchanged.
         For an example of how the Json data looks like, see
-            api_tests/test_content_from_url(self):
+            ../tests/api_tests.py#test_content_from_url(self):
 
     :param timeout (optional): maximal time in seconds to wait for the results
 
@@ -762,7 +762,6 @@ def get_content_from_url():
         with the key 'content' for the article content, the url of the main image as 'image' and the 'id' parameter
         to identify the corresponding url
 
-    :example api_tests.py/test_content_from_url(self):
     """
     data = flask.request.get_json()
     queue = Queue.Queue()
