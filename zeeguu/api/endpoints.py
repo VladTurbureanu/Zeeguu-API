@@ -168,7 +168,7 @@ def available_languages():
 
 @api.route("/available_native_languages", methods=["GET"])
 @cross_domain
-def available_languages():
+def available_native_languages():
     """
     :return: jason with language codes for the
     supported native languages. curently only english...
