@@ -69,6 +69,11 @@ def cross_domain(view):
 
     return wrapped_view
 
+def json_result(dictionary):
+    js = json.dumps(dictionary)
+    resp = flask.Response(js, status=200, mimetype='application/json')
+    return resp
+
 
 
 @api.route("/learned_language", methods=["GET"])
@@ -133,9 +138,7 @@ def learned_and_native_language():
     res = {"native": flask.g.user.native_language_id,
                  "learned": flask.g.user.learned_language_id}
 
-    js = json.dumps(res)
-    resp = flask.Response(js, status=200, mimetype='application/json')
-    return resp
+    return json_result(res)
 
 
 
@@ -228,10 +231,7 @@ def studied_words():
     """
     Returns a list of the words that the user is currently studying.
     """
-    js = json.dumps(flask.g.user.user_words())
-    resp = flask.Response(js, status=200, mimetype='application/json')
-    return resp
-
+    return json_result(flask.g.user.user_words())
 
 
 @api.route("/bookmarks_by_day/<return_context>", methods=["GET"])
@@ -272,9 +272,9 @@ def bookmarks_by_day(return_context):
         date_entry['bookmarks'] = bookmarks
         dates.append(date_entry)
 
-    js = json.dumps(dates)
-    resp = flask.Response(js, status=200, mimetype='application/json')
-    return resp
+    return json_result(dates)
+
+
 
 def translate_from_to (word, from_lang_code,to_lang_code):
 	translate_url = "https://www.googleapis.com/language/translate/v2"
@@ -288,90 +288,111 @@ def translate_from_to (word, from_lang_code,to_lang_code):
 		"&format=text".encode('utf8')+\
 		"&source="+from_lang_code.encode('utf8')+\
 		"&key="+api_key
-	print url
+	# print url
 	result=json.loads(urllib2.urlopen(url).read())
 	translation = result['data']['translations'][0]['translatedText']
 	return translation
 
 
-
-@api.route ("/translate/<from_lang_code>/<to_lang_code>", methods=["POST"])
+@api.route ("/translate_and_bookmark/<from_lang_code>/<to_lang_code>", methods=["POST"])
 @cross_domain
 @with_session
-def translate(from_lang_code,to_lang_code):
+def translate_and_bookmark(from_lang_code,to_lang_code):
     """
-    This assumes that you pass the context and url in the post parameter
-    :param word:
+    This expects in the post parameter the following:
+        - word (to translate)
+        - context (surrounding paragraph of the original word )
+        - url (of the origin)
+        - title (of the origin page)
     :param from_lang_code:
     :param to_lang_code:
     :return:
     """
 
-    #print str(flask.request.get_data())
-    context = flask.request.form.get('context', '')
-    url = flask.request.form.get('url','')
-    word = flask.request.form['word']
-    translation = translate_from_to(word, from_lang_code, to_lang_code)
+    word_str = (unquote_plus(flask.request.form['word']))
+
+    url_str = flask.request.form.get('url','')
+    title_str = flask.request.form.get('title','')
+    context_str = flask.request.form.get('context', '')
+
+    # Call the translate API
+    translation_str = translate_from_to(word_str, from_lang_code, to_lang_code)
+    translation_str = unquote_plus(translation_str)
+
+    id = bookmark_with_context(from_lang_code, to_lang_code, word_str, url_str, title_str, context_str, translation_str)
+
+    return json_result(
+            {"bookmark_id": id,
+            "translation": translation_str
+    })
 
 
-    # This is normally done by the @with_user wrapper
-    # but because we want to allow translations also w/o
-    # the user being logged for the dictionary app
-    #session_id = int(flask.request.args['session'])
-    #session = Session.query.get(session_id)
-    if flask.g.user and not word == translation:
-        #flask.g.user = session.user
-        id = bookmark_with_context(from_lang_code, word, to_lang_code, translation)
+def bookmark_with_context(from_lang_code, to_lang_code, word_str, url_str, title_str, context_str, translation_str):
 
-    return translation
+    """
+        This function will lookup a given word-text pair, and if found, it will return
+     that bookmark rather than a new one
+
+    :param from_lang_code:
+    :param to_lang_code:
+    :param word_str:
+    :param url_str:
+    :param title_str:
+    :param context_str:
+    :param translation_str:
+    :return:
+    """
+    from_lang = Language.find(from_lang_code)
+    to_lang = Language.find(to_lang_code)
+
+    user_word = UserWord.find(word_str, from_lang)
+
+    url = Url.find(url_str, title_str)
+    zeeguu.db.session.add(url)
+    zeeguu.db.session.commit()
+
+    context = Text.find(context_str, from_lang, url)
+    zeeguu.db.session.add(context)
+    zeeguu.db.session.commit()
+
+    translation = UserWord.find(translation_str, to_lang)
 
 
+    try:
+        bookmark = Bookmark.find_all_by_user_word_and_text(flask.g.user, user_word, context)[0]
+    except Exception:
+        bookmark = Bookmark(user_word, translation, flask.g.user, context, datetime.datetime.now())
+        zeeguu.db.session.add(bookmark)
+        bookmark.calculate_probabilities_after_adding_a_bookmark(flask.g.user, bookmark.origin.language)
+        zeeguu.db.session.commit()
+
+    return str(bookmark.id)
 
 
 @api.route("/bookmark_with_context/<from_lang_code>/<term>/<to_lang_code>/<translation>",
            methods=["POST"])
 @cross_domain
 @with_session
-def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
+def bookmark_with_context_api(from_lang_code, term, to_lang_code, translation):
     """
-    The preferred way of a user saving a word/translation/context to his
-    profile.
+    The preferred way of a user saving a word/translation/context to his  profile.
     :param from_lang_code:
     :param term:
     :param to_lang_code:
     :param translation:
-    :return:
+    :return: Response containing the bookmark id
     """
 
-    if 'title' in flask.request.form:
-        bookmarked_url_title = flask.request.form['title']
-    else:
-        bookmarked_url_title = ''
+    word_str = (unquote_plus(term))
+    translation_str = unquote_plus(translation)
 
-    bookmarked_url = flask.request.form['url']
-    context = flask.request.form['context']
+    url_str = flask.request.form.get('url','')
+    title_str = flask.request.form.get('title','')
+    context_str = flask.request.form.get('context', '')
 
+    id = bookmark_with_context(from_lang_code, to_lang_code, word_str, url_str, title_str, context_str, translation_str)
 
-    url = Url.find(bookmarked_url, bookmarked_url_title)
-
-    from_lang = Language.find(from_lang_code)
-    to_lang = Language.find(to_lang_code)
-
-    word = (unquote_plus(term))
-    translation_word = unquote_plus(translation)
-    user_word = UserWord.find(word,from_lang)
-    translation = UserWord.find(translation_word,to_lang)
-
-    # search = Search.query.filter_by(
-    #     user=flask.g.user, user_word=user_word, language=to_lang
-    # ).order_by(Search.id.desc()).first()
-
-    #create the text entity first
-    new_text = Text(context, from_lang, url)
-    bookmark = Bookmark(user_word, translation, flask.g.user, new_text, datetime.datetime.now())
-    zeeguu.db.session.add(bookmark)
-    bookmark.calculate_probabilities_after_adding_a_bookmark(flask.g.user, bookmark.origin.language)
-    return str(bookmark.id)
+    return id
 
 
 @api.route("/delete_bookmark/<bookmark_id>",
@@ -380,12 +401,9 @@ def bookmark_with_context(from_lang_code, term, to_lang_code, translation):
 @with_session
 def delete_bookmark(bookmark_id):
 
-
     bookmark = Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
-
-
 
     try:
         zeeguu.db.session.delete(bookmark)
@@ -412,9 +430,8 @@ def get_exercise_log_for_bookmark(bookmark_id):
          exercise_dict['exercise_log_solving_speed'] = exercise.solving_speed
          exercise_dict['time'] = exercise.time.strftime('%m/%d/%Y')
          exercise_log_dict.append(exercise_dict)
-    js = json.dumps(exercise_log_dict)
-    resp = flask.Response(js, status=200, mimetype='application/json')
-    return resp
+
+    return json_result(exercise_log_dict)
 
 
 @api.route("/add_new_translation_to_bookmark/<word_translation>/<bookmark_id>",
@@ -478,25 +495,22 @@ def get_translations_for_bookmark(bookmark_id):
          translation_dict['language'] = translation.language.name
          translation_dict['ranked_word'] = translation.rank
          translation_dict_list.append(translation_dict)
-    js = json.dumps(translation_dict_list)
-    resp = flask.Response(js, status=200, mimetype='application/json')
-    return resp
+
+    return json_result(translation_dict_list)
+
 
 @api.route("/get_not_encountered_words/<lang_code>", methods=("GET",))
 @cross_domain
 @with_session
 def get_not_encountered_words(lang_code):
-    js = json.dumps(flask.g.user.get_not_encountered_words(Language.find(lang_code)))
-    resp = flask.Response(js, status=200, mimetype='application/json')
-    return resp
+    return json_result(flask.g.user.get_not_encountered_words(Language.find(lang_code)))
+
 
 @api.route("/get_known_bookmarks/<lang_code>", methods=("GET",))
 @cross_domain
 @with_session
 def get_known_bookmarks(lang_code):
-    js = json.dumps(flask.g.user.get_known_bookmarks(Language.find(lang_code)))
-    resp = flask.Response(js, status=200, mimetype='application/json')
-    return resp
+    return json_result(flask.g.user.get_known_bookmarks(Language.find(lang_code)))
 
 
 @api.route("/get_known_words/<lang_code>", methods=("GET",))
@@ -518,17 +532,15 @@ def get_known_words(lang_code):
     filtered_known_words_from_user = list(set(filtered_known_words_from_user))
     for word in filtered_known_words_from_user:
         filtered_known_words_dict_list.append( {'word': word} )
-    js = json.dumps(filtered_known_words_dict_list)
-    resp = flask.Response(js, status=200, mimetype='application/json')
-    return resp
+    return json_result(filtered_known_words_dict_list)
+
+
 
 @api.route("/get_probably_known_words/<lang_code>", methods=("GET",))
 @cross_domain
 @with_session
 def get_probably_known_words(lang_code):
-    js = json.dumps(flask.g.user.get_probably_known_words(Language.find(lang_code)))
-    resp = flask.Response(js, status=200, mimetype='application/json')
-    return resp
+    return json_result(flask.g.user.get_probably_known_words(Language.find(lang_code)))
 
 
 @api.route("/get_lower_bound_percentage_of_basic_vocabulary", methods=["GET"])
@@ -583,6 +595,8 @@ def get_percentage_of_probably_known_bookmarked_words():
     """
     return str(flask.g.user.get_percentage_of_probably_known_bookmarked_words())
 
+
+
 @api.route("/get_learned_bookmarks/<lang>", methods=("GET",))
 @cross_domain
 @with_session
@@ -602,17 +616,14 @@ def get_learned_bookmarks(lang):
         learned_bookmarks_dict['text'] = bookmark.text.content
         learned_bookmarks_dict_list.append(learned_bookmarks_dict)
 
-    js = json.dumps(learned_bookmarks_dict_list)
-    resp = flask.Response(js, status=200, mimetype='application/json')
-    return resp
+    return json_result(learned_bookmarks_dict_list)
+
 
 @api.route("/get_not_looked_up_words/<lang_code>", methods=("GET",))
 @cross_domain
 @with_session
 def get_not_looked_up_words(lang_code):
-    js = json.dumps(flask.g.user.get_not_looked_up_words(Language.find(lang_code)))
-    resp = flask.Response(js, status=200, mimetype='application/json')
-    return resp
+    return json_result(flask.g.user.get_not_looked_up_words(Language.find(lang_code)))
 
 
 @api.route("/get_difficulty_for_text/<lang_code>", methods=("POST",))
@@ -701,9 +712,7 @@ def get_difficulty_for_text(lang_code):
 
         difficulties.append(dict(score_median=difficulty_median, score_average=difficulty_average, id=text['id']))
 
-    response = json.dumps(dict(difficulties=difficulties))
-
-    return flask.Response(response, status=200, mimetype='application/json')
+    return json_result(dict(difficulties=difficulties))
 
 
 @api.route("/get_learnability_for_text/<lang_code>", methods=("POST",))
@@ -763,9 +772,7 @@ def get_learnability_for_text(lang_code):
 
         learnabilities.append(dict(score=learnability, count=count, id=text['id']))
 
-    response = json.dumps(dict(learnabilities=learnabilities))
-
-    return flask.Response(response, status=200, mimetype='application/json')
+    return json_result(dict(learnabilities=learnabilities))
 
 
 @api.route("/get_content_from_url", methods=("POST",))
@@ -820,9 +827,7 @@ def get_content_from_url():
         except Queue.Empty:
             pass
 
-    response = json.dumps(dict(contents=contents))
-
-    return flask.Response(response, status=200, mimetype='application/json')
+    return json_result(dict(contents=contents))
 
 
 @api.route("/validate")
@@ -831,3 +836,31 @@ def get_content_from_url():
 def validate():
     return "OK"
 
+
+
+
+# Deprecated API
+# Do not rely on these ones, they will soon be discontinued
+#
+# Sincerely your's,
+# Tom Petty and the Zeeguus
+
+@api.route ("/translate/<from_lang_code>/<to_lang_code>", methods=["POST"])
+@cross_domain
+def translate(from_lang_code,to_lang_code):
+    """
+    This will be deprecated soon...
+    # TODO: Zeeguu Translate for Android should stop relying on this
+    :param word:
+    :param from_lang_code:
+    :param to_lang_code:
+    :return:
+    """
+
+    #print str(flask.request.get_data())
+    context = flask.request.form.get('context', '')
+    url = flask.request.form.get('url','')
+    word = flask.request.form['word']
+    translation = translate_from_to(word, from_lang_code, to_lang_code)
+
+    return translation

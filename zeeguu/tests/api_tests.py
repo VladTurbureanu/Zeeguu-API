@@ -6,7 +6,7 @@ import zeeguu_testcase
 import unittest
 import zeeguu.populate
 import zeeguu.model
-from zeeguu.model import User, RankedWord
+from zeeguu.model import User, RankedWord, Text, Language, Url, Bookmark, UserWord
 from zeeguu import util
 import json
 import re
@@ -35,16 +35,13 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             url='http://mir.lu',
             context='somewhere over the rainbowwwwwwwww',
             title="lal")
-        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
         t = zeeguu.model.Url.find("android:app","Songs by Iz")
-
         assert t != None
 
-        rv = self.api_get('/get_known_bookmarks/de')
-        print rv.data + "<---"
+        bookmarks = self.api_get_json('/get_learned_bookmarks/de')
+        assert any(u'sondern' in y.values() for y in bookmarks )
 
-        assert 'sondern' in rv.data
-        assert 'Zeeguu for Android' in rv.data
 
 
     def test_bookmark_without_title_should_fail(self):
@@ -280,6 +277,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             url='http://mir.lu',
             context='somewhere over the rainbowwwwwwwww')
         rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        print rv.data
         latest_bookmark_id = json.loads(rv.data)
         #rv = self.api_get('/bookmarks_by_day/with_context')
         #bookmarks_by_day = json.loads(rv.data)
@@ -372,9 +370,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         print rv.data
 
     def test_get_bookmarks_by_date(self):
-        rv = self.api_get('/bookmarks_by_day/with_context')
-
-        elements = json.loads(rv.data)
+        elements  = self.api_get_json ('/bookmarks_by_day/with_context')
         some_date = elements[0]
         assert some_date ["date"]
 
@@ -384,8 +380,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         # if we don't pass the context argument, we don't get
         # the context
-        rv = self.api_get('/bookmarks_by_day/no_context')
-        elements = json.loads(rv.data)
+        elements = self.api_get_json ('/bookmarks_by_day/no_context')
         some_date = elements[0]
         some_contrib = some_date ["bookmarks"][0]
         assert not "context" in some_contrib
@@ -481,6 +476,50 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.api_post('/translate/de/en', formData)
         print rv.data
 
+
+
+    def test_same_text_does_not_get_created_multiple_Times(self):
+
+        context = u'Die kleine Jägermeister'
+        url = Url.find('http://mir.lu')
+        source_language = Language.find('de')
+
+        formData = dict(
+            url=url.url,
+            context=context,
+            word="Die")
+
+        self.api_post('/translate_and_bookmark/de/en', formData)
+        text1 = Text.find(context, source_language, url)
+        self.api_post('/translate_and_bookmark/de/en', formData)
+        text2 = Text.find(context, source_language, url)
+        assert (text1 == text2)
+
+
+
+
+    def test_translate_and_bookmark(self):
+
+        formData = dict(
+            url='http://mir.lu',
+            context=u'Die kleine Jägermeister',
+            word="Die")
+        rv = self.api_post('/translate_and_bookmark/de/en', formData)
+        bookmark1 = json.loads(rv.data)
+        formData = dict(
+            url='http://mir.lu',
+            context=u'Die kleine Jägermeister',
+            word="Die")
+        rv = self.api_post('/translate_and_bookmark/de/en', formData)
+        bookmark2 = json.loads(rv.data)
+        formData = dict(
+            url='http://mir.lu',
+            context=u'Die kleine Jägermeister',
+            word="Die")
+        rv = self.api_post('/translate_and_bookmark/de/en', formData)
+        bookmark3 = json.loads(rv.data)
+
+        assert (bookmark1["bookmark_id"] == bookmark2["bookmark_id"] == bookmark3["bookmark_id"])
 
 
 
