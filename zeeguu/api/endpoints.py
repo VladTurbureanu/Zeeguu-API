@@ -297,7 +297,7 @@ def translate_from_to (word, from_lang_code,to_lang_code):
 
 @api.route ("/translate/<from_lang_code>/<to_lang_code>", methods=["POST"])
 @cross_domain
-# @with_user
+@with_session
 def translate(from_lang_code,to_lang_code):
     """
     This assumes that you pass the context and url in the post parameter
@@ -317,12 +317,11 @@ def translate(from_lang_code,to_lang_code):
     # This is normally done by the @with_user wrapper
     # but because we want to allow translations also w/o
     # the user being logged for the dictionary app
-    session_id = int(flask.request.args['session'])
-    session = Session.query.get(session_id)
-    if session and not word == translation:
-        flask.g.user = session.user
-        it = bookmark_with_context(from_lang_code, word, to_lang_code, translation)
-        print id
+    #session_id = int(flask.request.args['session'])
+    #session = Session.query.get(session_id)
+    if flask.g.user and not word == translation:
+        #flask.g.user = session.user
+        id = bookmark_with_context(from_lang_code, word, to_lang_code, translation)
 
     return translation
 
