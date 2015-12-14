@@ -321,7 +321,8 @@ def translate(from_lang_code,to_lang_code):
     session = Session.query.get(session_id)
     if session and not word == translation:
         flask.g.user = session.user
-        bookmark_with_context(from_lang_code, word, to_lang_code, translation)
+        it = bookmark_with_context(from_lang_code, word, to_lang_code, translation)
+        print id
 
     return translation
 
