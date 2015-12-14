@@ -30,6 +30,14 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.app.get('/recognize')
         assert 'Redirecting' in rv.data
 
+
+    def test_logout_API(self):
+        rv = self.api_get('/logout_session')
+        assert rv.data == "OK"
+        rv = self.api_get('/validate')
+        assert rv.status== "401 UNAUTHORIZED"
+
+
     def test_bookmark_from_android(self):
         formData = dict(
             url='http://mir.lu',

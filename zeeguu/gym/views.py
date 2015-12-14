@@ -86,6 +86,7 @@ def login():
 
 @gym.route("/logout")
 def logout():
+    # Note, that there is also an API endpoint for logout called logout_session
     flask.session.pop("user", None)
     return flask.redirect(flask.url_for("gym.home"))
 

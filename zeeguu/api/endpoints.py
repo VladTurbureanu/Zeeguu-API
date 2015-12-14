@@ -839,6 +839,25 @@ def validate():
 
 
 
+@api.route("/logout_session",
+           methods=["GET"])
+@cross_domain
+@with_session
+def logout():
+    # Note: the gym uses another logout endpoint.
+
+    try:
+        session_id = int(flask.request.args['session'])
+    except:
+        flask.abort(401)
+    session = Session.query.get(session_id)
+
+    # print "about to expire session..." + str(session_id)
+    zeeguu.db.session.delete(session)
+    zeeguu.db.session.commit()
+
+    return "OK"
+
 
 # Deprecated API
 # Do not rely on these ones, they will soon be discontinued
