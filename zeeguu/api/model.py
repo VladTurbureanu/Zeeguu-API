@@ -1013,6 +1013,10 @@ class Bookmark(db.Model):
         return cls.query.filter().all()
 
     @classmethod
+    def find_all_for_text(cls,text):
+        return cls.query.filter(cls.text == text).all()
+
+    @classmethod
     def find(cls, b_id):
         return cls.query.filter_by(
             id= b_id
@@ -1185,6 +1189,11 @@ class Text(db.Model):
         shorter_text = ' '.join(limited_words)
 
         return shorter_text
+
+    def all_bookmarks(self):
+        return Bookmark.find_all_for_text(self)
+
+
 
     @classmethod
     def find(cls, text, language, url):
