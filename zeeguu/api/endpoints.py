@@ -307,22 +307,20 @@ def translate(from_lang_code,to_lang_code):
     :return:
     """
 
-    # This is normally done by the @with_user wrapper
-    # but because we want to allow translations also w/o
-    # the user being logged for the dictionary app
-    session_id = int(flask.request.args['session'])
-    session = Session.query.get(session_id)
-    if session is None:
-        flask.abort(401)
-    flask.g.user = session.user
-
     #print str(flask.request.get_data())
     context = flask.request.form.get('context', '')
     url = flask.request.form.get('url','')
     word = flask.request.form['word']
     translation = translate_from_to(word, from_lang_code, to_lang_code)
 
-    if flask.g.user and not word == translation:
+
+    # This is normally done by the @with_user wrapper
+    # but because we want to allow translations also w/o
+    # the user being logged for the dictionary app
+    session_id = int(flask.request.args['session'])
+    session = Session.query.get(session_id)
+    if session and not word == translation:
+        flask.g.user = session.user
         bookmark_with_context(from_lang_code, word, to_lang_code, translation)
 
     return translation
