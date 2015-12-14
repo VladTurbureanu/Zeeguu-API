@@ -859,7 +859,7 @@ class Url(db.Model):
 
 
     @classmethod
-    def find(cls, url, title):
+    def find(cls, url, title = ""):
         try:
             return (cls.query.filter(cls.url == url)
                              .one())
@@ -1025,6 +1025,14 @@ class Bookmark(db.Model):
             origin = word
         ).all()
 
+    @classmethod
+    def find_all_by_user_word_and_text(cls, user, word, text):
+        return cls.query.filter_by(
+            user = user,
+            origin = word,
+            text = text
+        ).all()
+
 
 
 
@@ -1143,7 +1151,7 @@ class Text(db.Model):
         self.content_hash = util.text_hash(content)
 
     def __repr__(self):
-        return '<Text %r>' % (self.language.short)
+        return '<Text %r>' % (self.content)
 
     def words(self):
         for word in re.split(re.compile(u"[^\\w]+", re.U), self.content):
@@ -1179,11 +1187,18 @@ class Text(db.Model):
         return shorter_text
 
     @classmethod
-    def find(cls, text, language):
+    def find(cls, text, language, url):
+        """
+        :param text: string
+        :param language: Language (object)
+        :param url: Url (object)
+        :return:
+        """
+
         try:
             query = (
-                cls.query.filter(cls.language == language)
-                         .filter(cls.content_hash == util.text_hash(text))
+                cls.query.filter(cls.content_hash == util.text_hash(text))
+            #     For some reason, here we can't filter by the url...
             )
             if query.count() > 0:
                 query = query.filter(cls.content == text)
@@ -1191,10 +1206,11 @@ class Text(db.Model):
                     return query.one()
                 except sqlalchemy.orm.exc.NoResultFound:
                     pass
-            return cls(text, language)
+            return cls(text, language, url)
         except:
             import traceback
             traceback.print_exc()
+
 
 
 class Search(db.Model):
