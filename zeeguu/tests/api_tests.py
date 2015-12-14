@@ -473,6 +473,17 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert 0 <= float(rv.data) < 1
 
 
+    def test_translate(self):
+        formData = dict(
+            url='http://mir.lu',
+            context=u'Die kleine Jägermeister',
+            word="Die")
+        rv = self.api_post('/translate/de/en', formData)
+        print rv.data
+
+
+
+
     def test_content_from_url(self):
         # parameters
         manual_check = False

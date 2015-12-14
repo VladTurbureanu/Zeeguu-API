@@ -293,6 +293,8 @@ def translate_from_to (word, from_lang_code,to_lang_code):
 	translation = result['data']['translations'][0]['translatedText']
 	return translation
 
+
+
 @api.route ("/translate/<from_lang_code>/<to_lang_code>", methods=["POST"])
 @cross_domain
 # @with_user
@@ -304,12 +306,17 @@ def translate(from_lang_code,to_lang_code):
     :param to_lang_code:
     :return:
     """
+
     #print str(flask.request.get_data())
     context = flask.request.form.get('context', '')
     url = flask.request.form.get('url','')
     word = flask.request.form['word']
-    #word = re.sub(r' ', "+", word)
-    return translate_from_to(word, from_lang_code, to_lang_code)
+    translation = translate_from_to(word, from_lang_code, to_lang_code)
+
+    if flask.g.user and not word == translation:
+        bookmark_with_context(from_lang_code, word, to_lang_code, translation)
+
+    return translation
 
 
 
@@ -809,45 +816,6 @@ def get_content_from_url():
     response = json.dumps(dict(contents=contents))
 
     return flask.Response(response, status=200, mimetype='application/json')
-
-
-@api.route("/lookup/<from_lang>/<term>/<to_lang>", methods=("POST",))
-@cross_domain
-@with_session
-def lookup(from_lang, term, to_lang):
-    """
-    Used to log a given search.
-
-    :param from_lang:
-    :param term:
-    :param to_lang:
-    :return:
-    """
-    from_lang = Language.find(from_lang)
-    if not isinstance(to_lang, Language):
-        to_lang = Language.find(to_lang)
-    user = flask.g.user
-    content = flask.request.form.get("text")
-    if content is not None:
-        text = Text.find(content, from_lang)
-        user.read(text)
-    else:
-        text = None
-    word = unquote_plus(term)
-    rank = UserWord.find_rank(word, to_lang)
-    user.searches.append(
-        Search(user, UserWord.find(word, from_lang),
-                     to_lang, text)
-    )
-    zeeguu.db.session.commit()
-    return "OK"
-
-
-@api.route("/lookup/<from_lang>/<term>", methods=("POST",))
-@cross_domain
-@with_session
-def lookup_preferred(from_lang, term):
-    return lookup(from_lang, term, flask.g.user.learned_language)
 
 
 @api.route("/validate")
