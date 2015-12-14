@@ -308,7 +308,7 @@ class User(db.Model):
             'de': [
                     ['Der Spiegel', 'http://m.spiegel.de', 'German News']
             ],
-            'dk': [
+            'da': [
                 ['DR Forsiden', 'http://www.dr.dk', 'Danish News']
             ],
             'nl': [

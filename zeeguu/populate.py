@@ -117,7 +117,7 @@ def create_test_db():
     zeeguu.db.create_all()
 
     de = Language("de", "German")
-    dk = Language("dk", "Danish")
+    da = Language("da", "Danish")
     en = Language("en", "English")
     es = Language("es", "Spanish")
     fr = Language("fr", "French")
@@ -129,7 +129,7 @@ def create_test_db():
 
 
     zeeguu.db.session.add(de)
-    zeeguu.db.session.add(dk)
+    zeeguu.db.session.add(da)
     zeeguu.db.session.add(en)
     zeeguu.db.session.add(es)
     zeeguu.db.session.add(fr)
