@@ -496,6 +496,36 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert (text1 == text2)
 
 
+    def test_delete_bookmark(self):
+
+        formData = dict(
+            url='http://mir.lu',
+            context=u'Die kleine Jägermeister',
+            word="Die")
+        bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', formData)
+        b1 = Bookmark.find(bookmark1["bookmark_id"])
+        print b1.text
+        print b1.text.id
+
+        formData = dict(
+            url='http://mir.lu',
+            context=u'Die kleine Jägermeister',
+            word="kleine")
+        bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', formData)
+        b2 = Bookmark.find(bookmark2["bookmark_id"])
+        print b2.text
+        print b2.text.id
+
+        assert len (b2.text.all_bookmarks()) == 2
+        self.api_post("delete_bookmark/27")
+        assert len (b2.text.all_bookmarks()) == 1
+
+
+
+
+
+
+
 
 
     def test_translate_and_bookmark(self):

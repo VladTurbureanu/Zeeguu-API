@@ -305,28 +305,34 @@ def select_next_card_aware_of_days(cards):
 @gym.route("/gym/delete_bookmark/<bookmark_id>", methods=("POST",))
 @login_first
 def delete(bookmark_id):
+
+    # Beware, the there is another delete_bookmark in the zeeguu API!!!
     session = model.db.session
     bookmark = model.Bookmark.query.get(bookmark_id)
     if bookmark == None:
         return "Not found"
 
+
     text = model.Text.query.get(bookmark.text.id)
-    url = text.url
 
     # delete the associated cards
     cards = model.Card.query.filter_by(bookmark_id=bookmark.id).all()
     for card in cards:
         session.delete(card)
 
-    # contrib goes, and so does the associated text
+    # bookmark goes
     session.delete(bookmark)
-    session.delete(text)
     session.commit()
 
-    # url only if there are no more texts for it
-    if not url.texts:
-        session.delete(url)
+    # If no more bookmarks point to the text, text goes too
+    if not (text.all_bookmarks()):
+        session.delete(text)
         session.commit()
+
+    # url = text.url
+    # if not url.texts:
+    #     session.delete(url)
+    #     session.commit()
     return "OK"
 
 

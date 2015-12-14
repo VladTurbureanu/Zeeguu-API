@@ -401,6 +401,7 @@ def bookmark_with_context_api(from_lang_code, term, to_lang_code, translation):
 @with_session
 def delete_bookmark(bookmark_id):
 
+    # Beware, the web app uses the /delete_bookmark endpoint from the gym API
     bookmark = Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
