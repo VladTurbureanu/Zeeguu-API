@@ -873,9 +873,9 @@ def get_user_details():
     return json_result(flask.g.user.details_as_dictionary())
 
 
-
-# Deprecated API
-# Do not rely on these ones, they will soon be discontinued
+# Warning:
+# Might be deprecated at some point... or at least, reduced to translating single words...
+# It would make more sense to use translate_and_bookmark instead
 #
 # Sincerely your's,
 # Tom Petty and the Zeeguus

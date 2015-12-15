@@ -560,7 +560,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert details["name"]
         assert details["email"]
 
-        
+
     def test_content_from_url(self):
         # parameters
         manual_check = False
