@@ -60,6 +60,14 @@ class User(db.Model):
         print word.word + " is now starred for user " + self.name
         # TODO: Does this work without a commit here? To double check.
 
+    def details_as_dictionary(self):
+        return dict (
+            email=self.email,
+            name=self.name,
+            learned_language=self.learned_language_id,
+            native_language=self.native_language_id
+        )
+
 
     def set_learned_language(self, code):
         self.learned_language = Language.find(code)

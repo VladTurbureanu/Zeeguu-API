@@ -859,6 +859,21 @@ def logout():
     return "OK"
 
 
+@api.route("/get_user_details", methods=("GET",))
+@cross_domain
+@with_session
+def get_user_details():
+    """
+    after the login, this information might be useful to be displayed
+    by an app
+    :param lang_code:
+    :return:
+    """
+    print flask.g.user.details_as_dictionary()
+    return json_result(flask.g.user.details_as_dictionary())
+
+
+
 # Deprecated API
 # Do not rely on these ones, they will soon be discontinued
 #

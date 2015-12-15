@@ -529,13 +529,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert len (b2.text.all_bookmarks()) == 1
 
 
-
-
-
-
-
-
-
     def test_translate_and_bookmark(self):
 
         formData = dict(
@@ -560,7 +553,14 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert (bookmark1["bookmark_id"] == bookmark2["bookmark_id"] == bookmark3["bookmark_id"])
 
 
+    def test_get_user_details(self):
 
+        details = self.api_get_json('/get_user_details')
+        assert details
+        assert details["name"]
+        assert details["email"]
+
+        
     def test_content_from_url(self):
         # parameters
         manual_check = False
