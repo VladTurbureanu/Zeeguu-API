@@ -20,30 +20,6 @@ def setup():
     else:
         flask.g.user = None
 
-
-@account.route("/reset_pass", methods=("GET", "POST"))
-def reset_password():
-    form = flask.request.form
-    if flask.request.method == "POST":
-        print "POST request"
-
-    if flask.request.method == "POST" and form.get("reset_pass", False):
-        try:
-            password = form.get("password", None)
-            email = form.get("email", None)
-            if len(password) < 4:
-                flask.flash("Password must be at least 4 characters long")
-                return flask.render_template("reset_pass.html",flashed_messages=flask.get_flashed_messages())
-            user = model.User.find(email)
-            user.update_password(password)
-            zeeguu.db.session.commit()
-            return flask.redirect(flask.url_for("account.my_account"))
-        except:
-            flask.flash("Could not update your password.")
-            return flask.render_template("reset_pass.html",flashed_messages=flask.get_flashed_messages())
-    return flask.render_template("reset_pass.html")
-
-
 @account.route("/my_account", methods=["GET"])
 def my_account():
     if not flask.g.user:

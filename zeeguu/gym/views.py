@@ -1,18 +1,17 @@
 import json
 from functools import wraps
-import random
-
-from datetime import timedelta, date
 import flask
-import decimal
+from datetime import timedelta, date
 
 from zeeguu import model
 from zeeguu.model import UserWord, Bookmark, User, Text
 import random
 import datetime
 
+from zeeguu.gym import gym
 
-gym = flask.Blueprint("gym", __name__)
+
+
 
 class UserVisibleException (Exception):
     def __init__(self, value):
@@ -432,3 +431,5 @@ def unstarred_word(word_id,user_id):
     model.db.session.commit()
     print word + " is now *unstarred* for user " + user.name
     return "OK"
+
+
