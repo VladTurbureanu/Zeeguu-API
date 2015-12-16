@@ -8,15 +8,17 @@ import flask
 from flask import flash
 
 import zeeguu
-from zeeguu import model
+from zeeguu import db
 
-# gym blueprint is defined in the __init__ of the gym module
-from zeeguu.gym import gym
+from zeeguu.account.model import UniqueCode
+
+# the account blueprint is defined in the __init__ of the module
+from zeeguu.account import acc
 
 from smtplib import SMTP
 
 
-@gym.route("/reset_pass", methods=("POST","GET",))
+@acc.route("/reset_pass", methods=("POST", "GET",))
 def reset_password():
 
     """
@@ -75,7 +77,7 @@ def change_password_if_code_is_correct(code, email, password):
     :param password: string
     :return:
     """
-    last_code = model.UniqueCode.last_code(email)
+    last_code = UniqueCode.last_code(email)
     if code == last_code:
         if len(password) < 4:
             flash("Password must be at least 4 characters long")
@@ -83,14 +85,14 @@ def change_password_if_code_is_correct(code, email, password):
                                          code_active=True,
                                          email=email,
                                          code=code)
-        user = model.User.find(email)
+        user = zeeguu.model.User.find(email)
         user.update_password(password)
-        model.db.session.commit()
+        db.session.commit()
 
         # Delete all the codes for this user
-        for x in model.UniqueCode.all_codes_for(email):
-            model.db.session.delete(x)
-        model.db.session.commit()
+        for x in UniqueCode.all_codes_for(email):
+            db.session.delete(x)
+        db.session.commit()
 
         flash("Password was reset successfully!")
         return flask.redirect('login')
@@ -112,9 +114,9 @@ def generate_code_and_send_email(user_email):
     """
 
     # Generate one-time code
-    code = model.UniqueCode(user_email)
-    model.db.session.add(code)
-    model.db.session.commit()
+    code = UniqueCode(user_email)
+    db.session.add(code)
+    db.session.commit()
 
     # Send email
     server = SMTP('smtp.gmail.com:587')

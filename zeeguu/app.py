@@ -5,9 +5,9 @@ import os.path
 import flask
 
 import zeeguu
-import zeeguu.gym.views
+from zeeguu.gym import gym
+from zeeguu.account import acc
 import zeeguu.api.endpoints
-import zeeguu.account.endpoints
 
 
 class CrossDomainApp(flask.Flask):
@@ -37,7 +37,7 @@ app.config.from_pyfile("config.cfg", silent=True) #config.cfg is in the instance
 instance = flask.Blueprint("instance", __name__, static_folder=instance_path(app))
 
 app.register_blueprint(instance)
-app.register_blueprint(zeeguu.gym.views.gym)
+app.register_blueprint(gym)
 app.register_blueprint(zeeguu.api.endpoints.api)
-app.register_blueprint(zeeguu.account.endpoints.account)
+app.register_blueprint(acc)
 

@@ -19,14 +19,8 @@
 
                     <p id="authentification-box-title">Create Account</p>
 
-                    {% if flashed_messages %}
-                    {% for message in flashed_messages %}
-                    <div class="bg-warning" id="login-error">
-                        {{ message }}
-                    </div>
-                    {% endfor %}
-                    {% endif %}
 
+                    {{ flash_messages () }}
 
                     <div class="input-group ">
                       <label for="code" class="control-label">Invite Code

@@ -11,8 +11,6 @@ import datetime
 from zeeguu.gym import gym
 
 
-
-
 class UserVisibleException (Exception):
     def __init__(self, value):
         self.value = value

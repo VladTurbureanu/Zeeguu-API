@@ -32,9 +32,7 @@ class Card(db.Model):
     def star(self):
         word = self.bookmark.origin
         self.bookmark.user.starred_words.append(word)
-        print "starred the hell out of... " + self.bookmark.origin.word
 
     def unstar(self):
         word = self.bookmark.origin
         self.bookmark.user.starred_words.remove(word)
-        print "just unstarred ..." + self.bookmark.origin.word
