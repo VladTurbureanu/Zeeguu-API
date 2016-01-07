@@ -268,7 +268,7 @@ def bookmarks_by_day(return_context):
                 bookmark['context'] = b.text.content
             bookmarks.append(bookmark)
         date_entry = {}
-        date_entry['date'] = date.strftime("%A, %d %B")
+        date_entry['date'] = date.strftime("%A, %d %B %Y")
         date_entry['bookmarks'] = bookmarks
         dates.append(date_entry)
 
