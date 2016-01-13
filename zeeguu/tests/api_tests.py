@@ -64,44 +64,41 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         latest_bookmark_id = int(first_date["bookmarks"][0]['id'])
         assert latest_bookmark_id  == added_bookmark_id
 
+
     def test_get_probably_known(self):
-        rv = self.api_get('/get_probably_known_words/de')
-        probably_known_words = json.loads(rv.data)
+
+        probably_known_words = self.api_get_json('/get_probably_known_words/de')
+
+        # Initially none of the words is known
         assert not any(word['word'] == 'gute' for word in probably_known_words)
         assert not any(word['word'] == 'nacht' for word in probably_known_words)
         assert not any(word['word'] == 'sondern' for word in probably_known_words)
-        formData = dict(
+
+        exampleFormData = dict(
             url='http://mir.lu',
             context='gute nacht sondern')
-        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
-        self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ rv.data)
-        rv1 = self.api_get('/get_probably_known_words/de')
-        probably_known_words = json.loads(rv1.data)
+
+        # Bookmark sondern
+        sondernId = (self.api_post('/bookmark_with_context/de/sondern/en/but', exampleFormData)).data
+
+
+        # User declares that sondern is "Too Easy" in an exercise
+        self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ sondernId)
+        # Thus, sondern goes to the Probably known words
+        probably_known_words = self.api_get_json('/get_probably_known_words/de')
         assert any(word['word'] == 'sondern' for word in probably_known_words)
-        self.api_post('/gym/create_new_exercise/Show solution/Recognize/10000/'+ rv.data)
-        rv = self.api_get('/get_probably_known_words/de')
-        probably_known_words = json.loads(rv.data)
+
+        # User requests "Show solution" for sondern
+        self.api_post('/gym/create_new_exercise/Show solution/Recognize/10000/'+ sondernId)
+        # Thus sondern goes to unknown words again
+        probably_known_words = self.api_get_json('/get_probably_known_words/de')
         assert not any(word['word'] == 'sondern' for word in probably_known_words)
-        formData = dict(
-            url='http://mir.lu',
-            context='gute nacht sondern')
-        self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
-        formData = dict(
-            url='http://mir.lu',
-            context='gute nacht sondern')
-        self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
-        formData = dict(
-            url='http://mir.lu',
-            context='gute nacht sondern')
-        self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
-        formData = dict(
-            url='http://mir.lu',
-            context='gute nacht sondern')
-        self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
-        rv = self.api_get('/get_probably_known_words/de')
-        probably_known_words = json.loads(rv.data)
-        assert any(word['word'] == 'gute' for word in probably_known_words)
-        assert any(word['word'] == 'nacht' for word in probably_known_words)
+
+        # Bookmarking the word several other times...
+        self.api_post('/bookmark_with_context/de/sondern/en/but', exampleFormData)
+        self.api_post('/bookmark_with_context/de/sondern/en/but', exampleFormData)
+        # doesn't change anything evidently. ML: Why is this?
+        probably_known_words = self.api_get_json('/get_probably_known_words/de')
         assert not any(word['word'] == 'sondern' for word in probably_known_words)
 
 
@@ -498,9 +495,9 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             word="Die")
 
         self.api_post('/translate_and_bookmark/de/en', formData)
-        text1 = Text.find(context, source_language, url)
+        text1 = Text.find_or_create(context, source_language, url)
         self.api_post('/translate_and_bookmark/de/en', formData)
-        text2 = Text.find(context, source_language, url)
+        text2 = Text.find_or_create(context, source_language, url)
         assert (text1 == text2)
 
 
@@ -584,6 +581,13 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             if manual_check:
                 print url['content']
                 print url['image']
+
+
+    def test_get_visited_urls(self):
+
+        details = self.api_get_json('/get_visited_urls_with_feeds')
+        print details
+
 
 
 if __name__ == '__main__':

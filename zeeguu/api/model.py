@@ -1202,7 +1202,7 @@ class Text(db.Model):
 
 
     @classmethod
-    def find(cls, text, language, url):
+    def find_or_create(cls, text, language, url):
         """
         :param text: string
         :param language: Language (object)
