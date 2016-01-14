@@ -839,6 +839,34 @@ class KnownWordProbability(db.Model):
             cls.user == user).filter(cls.probability >=0.9).all()
 
 
+class DomainName(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+    __tablename__ = 'domain_name'
+
+    id = db.Column(db.Integer, primary_key=True)
+    domainNameString = db.Column(db.String(2083))
+
+    def __init__(self, url):
+        self.domainNameString = self.extract_domain_name(url)
+
+    def extract_domain_name(self, url):
+        protocol_re = '(.*://)?'
+        domain_re = '([^/?]*)'
+
+        domain = re.findall(protocol_re + domain_re, url)[0]
+        return domain[0] + domain[1]
+
+    @classmethod
+    def find(cls, domain_url):
+        try:
+            return (cls.query.filter(cls.domainNameString == domain_url)
+                             .one())
+        except sqlalchemy.orm.exc.NoResultFound:
+            # print "tried, but didn't find " + domain_url
+            return cls(domain_url)
+
+
+
 
 class Url(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
@@ -1274,113 +1302,6 @@ class Search(db.Model):
 
     def __repr__(self):
         return '<Search %r>' % (self.user_word.word)
-
-
-# Wed, Jan 13
-# Adding the URL model
-
-
-class DomainName(db.Model):
-    __table_args__ = {'mysql_collate': 'utf8_bin'}
-    __tablename__ = 'domain_name'
-
-    id = db.Column(db.Integer, primary_key=True)
-    domainNameString = db.Column(db.String(2083))
-
-    def __init__(self, url):
-        self.domainNameString = self.extract_domain_name(url)
-
-    def extract_domain_name(self, url):
-        protocol_re = '(.*://)?'
-        domain_re = '([^/?]*)'
-
-        domain = re.findall(protocol_re + domain_re, url)[0]
-        return domain[0] + domain[1]
-
-    @classmethod
-    def find(cls, domain_url):
-        try:
-            return (cls.query.filter(cls.domainNameString == domain_url)
-                             .one())
-        except sqlalchemy.orm.exc.NoResultFound:
-            # print "tried, but didn't find " + domain_url
-            return cls(domain_url)
-
-
-
-class RSSFeed(db.Model):
-    __table_args__ = {'mysql_collate': 'utf8_bin'}
-    __tablename__ = 'rss_feed'
-
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    title = db.Column(db.String(2083))
-
-    language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
-    language = db.relationship("Language")
-
-    url_id = db.Column(db.Integer, db.ForeignKey("url.id"))
-    url = db.relationship("Url")
-
-
-    def __init__(self, url, title, language = None):
-        self.url = url
-        self.title = title
-        self.language = language
-
-    @classmethod
-    def find_or_create(cls, url, title, language):
-        try:
-            return (cls.query.filter(cls.url == url)
-                                .filter(cls.title == title)
-                                .filter(cls.language == language)
-                                .one())
-        except sqlalchemy.orm.exc.NoResultFound:
-            return cls(url, title, language)
-
-
-
-class RSSFeedRegistration(db.Model):
-    __table_args__ = {'mysql_collate': 'utf8_bin'}
-    __tablename__ = 'rss_feed_registration'
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    user = db.relationship("User")
-
-    rss_feed_id = db.Column(db.Integer, db.ForeignKey("rss_feed.id"))
-    rss_feed = relationship("RSSFeed")
-
-    def __init__(self, user, feed):
-        self.user = user
-        self.rss_feed = feed
-
-
-    @classmethod
-    def find_or_create(cls, user, feed):
-        try:
-            return (cls.query.filter(cls.user == user)
-                                .filter(cls.rss_feed == feed)
-                                .one())
-        except sqlalchemy.orm.exc.NoResultFound:
-            return cls(user, feed)
-
-    @classmethod
-    def feeds_for_user(cls, user):
-        """
-        would have been nicer to define a method on the User class get feeds,
-        but that would pollute the user model, and it's not nice.
-        :param user:
-        :return:
-        """
-        return (cls.query.filter(cls.user == user))
-
-    @classmethod
-    def with_id(cls, id):
-        return (cls.query.filter(cls.id == id)).one()
-
 
 
 

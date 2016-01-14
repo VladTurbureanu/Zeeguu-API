@@ -898,9 +898,12 @@ def get_feeds_for_url():
                 feed_url = domain + feed_url
 
             feed = feedparser.parse(feed_url).feed
-            feed_data.append({"url": feed_url,
+            feed_data.append({
+                     "url": feed_url,
                      "title":feed.title,
-                     "description": feed.description
+                     "description": feed.description,
+                     "image_url": feed.image["href"],
+                     "language":feed.language
                      })
 
         return json_result(feed_data)
@@ -917,19 +920,8 @@ def get_feeds_for_user():
     """
     :return:
     """
-
     registrations = RSSFeedRegistration.feeds_for_user(flask.g.user)
-
-    return json_result(
-        [
-            {
-             "id":registration.id,
-             "title":registration.rss_feed.title,
-             "url": registration.rss_feed.url.as_string()
-            }
-         for registration in registrations
-        ]
-    )
+    return json_result([reg.rss_feed.as_dictionary() for reg in registrations])
 
 
 
@@ -946,13 +938,20 @@ def add_feeds_for_user():
 
     for urlString in json_array_with_feeds:
         feed = feedparser.parse(urlString).feed
+        feed_image_url_string = feed.image["href"]
 
         lan = Language.find(feed.language)
         url = Url.find(urlString)
-        feedObject = RSSFeed.find_or_create(url, feed.title, lan)
+        zeeguu.db.session.add (url)
+        # Important to commit this url first; otherwise we end up creating
+        # two domains with the same name for both the urls...
+        zeeguu.db.session.commit()
+
+        feed_image_url = Url.find(feed_image_url_string)
+        feedObject = RSSFeed.find_or_create(url, feed.title, feed_image_url, lan)
         feedRegistration = RSSFeedRegistration.find_or_create(flask.g.user, feedObject)
 
-        zeeguu.db.session.add_all ( [url, feedObject, feedRegistration] )
+        zeeguu.db.session.add_all ( [feed_image_url, feedObject, feedRegistration] )
         zeeguu.db.session.commit()
 
     return "OK"
