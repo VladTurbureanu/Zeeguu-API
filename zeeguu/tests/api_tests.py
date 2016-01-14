@@ -6,7 +6,7 @@ import zeeguu_testcase
 import unittest
 import zeeguu.populate
 import zeeguu.model
-from zeeguu.model import User, RankedWord, Text, Language, Url, Bookmark, UserWord
+from zeeguu.model import User, RankedWord, Text, Language, Url, Bookmark, RSSFeedRegistration
 from zeeguu import util
 import json
 import re
@@ -590,6 +590,41 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         feeds = self.api_post_json('/get_feeds_for_url', formData)
         assert (len(feeds) > 1)
         assert (feeds[0]["title"])
+        return feeds
+
+
+    def test_add_feeds_for_user(self):
+
+        feeds = self.test_get_feeds_for_url()
+        feed_urls = [feed["url"] for feed in feeds]
+
+
+        formData = dict(
+            feeds=json.dumps(feed_urls))
+        self.api_post('/add_feeds_for_user', formData)
+
+        feeds = self.api_get_json("get_feeds_for_user")
+        # Assumes that the derspiegel site will always have two feeds
+        assert len(feeds) == 2
+
+
+    def test_delete_feeds_from_user(self):
+
+        self.test_add_feeds_for_user()
+        # After this test, we will have two feeds for the user
+
+        # Now delete one
+        self.api_get("delete_feed_for_user/1")
+
+        feeds = self.api_get_json("get_feeds_for_user")
+        assert len(feeds) == 1
+
+        # Now delete the second
+        self.api_get("delete_feed_for_user/2")
+
+        feeds = self.api_get_json("get_feeds_for_user")
+        assert len(feeds) == 0
+
 
 
 

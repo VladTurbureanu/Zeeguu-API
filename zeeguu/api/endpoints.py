@@ -23,7 +23,7 @@ import re
 import time
 import Queue
 import threading
-from zeeguu.model import RankedWord, Language,Bookmark, Session, Search, UserWord, User, Url, KnownWordProbability, Text
+from zeeguu.model import RankedWord, Language,Bookmark, Session, Search, UserWord, User, Url, KnownWordProbability, Text, RSSFeed, RSSFeedRegistration
 from zeeguu import util
 import urllib2
 import feedparser
@@ -877,23 +877,6 @@ def get_user_details():
     return json_result(flask.g.user.details_as_dictionary())
 
 
-@api.route("/get_visited_urls_with_feeds", methods=("GET",))
-@cross_domain
-@with_session
-def get_visited_urls_with_feeds():
-    """
-    :return:
-    """
-    return json_result(
-        [
-            {"title":"Der Spiegel",
-             "url:":"www.derspiegel.de",
-             "visits":20},
-            {"title":"Der Bund",
-             "url":"www.derbund.ch",
-             "visits": 10}
-        ]
-    )
 
 
 @api.route("/get_feeds_for_url", methods=("POST",))
@@ -938,11 +921,18 @@ def get_feeds_for_user():
     :return:
     """
 
-    json_array_with_feeds = flask.request.form.get('feeds','')
+    registrations = RSSFeedRegistration.feeds_for_user(flask.g.user)
 
-    # ...
-
-    return "OK"
+    return json_result(
+        [
+            {
+             "id":registration.id,
+             "title":registration.rss_feed.title,
+             "url": registration.rss_feed.url.as_string()
+            }
+         for registration in registrations
+        ]
+    )
 
 
 
@@ -951,25 +941,40 @@ def get_feeds_for_user():
 @with_session
 def add_feeds_for_user():
     """
+    post parameter: feeds - list of feed urls
     :return:
     """
 
-    json_array_with_feeds = flask.request.form.get('feeds','')
+    json_array_with_feeds = json.loads(flask.request.form.get('feeds',''))
 
-    # ...
+    for urlString in json_array_with_feeds:
+        print "+" + urlString
+        feed = feedparser.parse(urlString).feed
+        lan = Language.find(feed.language)
+
+        url = Url.find(urlString)
+
+
+        feedObject = RSSFeed.find_or_create(url, feed.title, lan)
+
+        feedRegistration = RSSFeedRegistration.find_or_create(flask.g.user, feedObject)
+        zeeguu.db.session.add_all ( [url, feedObject, feedRegistration] )
+        zeeguu.db.session.commit()
 
     return "OK"
 
 
-@api.route("/delete_feeds_for_user/<id>", methods=("GET",))
+@api.route("/delete_feed_for_user/<id>", methods=("GET",))
 @cross_domain
 @with_session
-def delete_feeds_for_user():
+def delete_feed_for_user(id):
     """
     :return:
     """
 
-    # ...
+    registrationToDelete = RSSFeedRegistration.with_id(id)
+    zeeguu.db.session.delete(registrationToDelete)
+    zeeguu.db.session.commit()
 
     return "OK"
 
