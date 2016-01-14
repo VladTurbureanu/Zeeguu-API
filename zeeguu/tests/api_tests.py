@@ -58,8 +58,8 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             context='somewhere over the rainbowwwwwwwww')
         rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
         added_bookmark_id = int(rv.data)
-        rv = self.api_get('/bookmarks_by_day/with_context')
-        elements = json.loads(rv.data)
+        elements = self.api_get_json('/bookmarks_by_day/with_context')
+
         first_date = elements[0]
         latest_bookmark_id = int(first_date["bookmarks"][0]['id'])
         assert latest_bookmark_id  == added_bookmark_id
@@ -486,11 +486,11 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_same_text_does_not_get_created_multiple_Times(self):
 
         context = u'Die kleine Jägermeister'
-        url = Url.find('http://mir.lu')
+        url = Url.find('http://mir.lu/stories/german/jagermeister', "Die Kleine Jagermeister (Mircea's Stories)")
         source_language = Language.find('de')
 
         formData = dict(
-            url=url.url,
+            url=url.as_string(),
             context=context,
             word="Die")
 
@@ -583,10 +583,14 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                 print url['image']
 
 
-    def test_get_visited_urls(self):
+    def test_get_feeds_for_url(self):
 
-        details = self.api_get_json('/get_visited_urls_with_feeds')
-        print details
+        formData = dict(
+            url='http://derspiegel.de')
+        feeds = self.api_post_json('/get_feeds_for_url', formData)
+        assert (len(feeds) > 1)
+        assert (feeds[0]["title"])
+
 
 
 

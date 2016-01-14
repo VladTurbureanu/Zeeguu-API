@@ -180,6 +180,25 @@ class Dbtest(ZeeguuTestCase):
         print self.mir.frequent_domains()
 
 
+    def test_one_domain_multiple_urls(self):
+        # Funny thing: you have to make sure to commit ASAP
+        # otherwise, you end up having two domain name objects
+        # because each Url creates one...
+        u1 = model.Url("https://mir.lu/tralala/trilili", "")
+        db.session.add(u1)
+        db.session.commit()
+
+
+        u2 = model.Url("https://mir.lu/tralala/trilili2", "")
+        db.session.add(u2)
+        db.session.commit()
+
+        d = model.DomainName.find("https://mir.lu")
+        print d.domainNameString
+
+
+
+
 
 
     # User Date No_ bookmarks

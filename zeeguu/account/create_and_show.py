@@ -13,14 +13,6 @@ from zeeguu.model import User
 from zeeguu.account import acc
 
 
-@acc.route("/my_account", methods=["GET"])
-def my_account():
-    if not flask.g.user:
-        return flask.redirect(flask.url_for("gym.login"))
-
-    return flask.render_template("my_account.html", user=flask.g.user)
-
-
 @acc.route("/create_account", methods=("GET", "POST"))
 def create_account():
 
@@ -70,4 +62,11 @@ def create_account():
 
     return flask.render_template("create_account.html", **template_arguments)
 
+
+@acc.route("/my_account", methods=["GET"])
+def my_account():
+    if not flask.g.user:
+        return flask.redirect(flask.url_for("gym.login"))
+
+    return flask.render_template("my_account.html", user=flask.g.user)
 

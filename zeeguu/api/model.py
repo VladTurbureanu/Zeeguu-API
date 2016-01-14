@@ -843,31 +843,54 @@ class KnownWordProbability(db.Model):
 class Url(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
     id = db.Column(db.Integer, primary_key=True)
-    url = db.Column(db.String(2083))
     title = db.Column(db.String(2083))
 
+    path = db.Column(db.String(2083))
+
+    domainName_id = db.Column(db.Integer, db.ForeignKey("domain_name.id"))
+    domain = db.relationship("DomainName")
+
+
     def __init__(self, url, title):
-        self.url= url
+        self.path = Url.get_path(url)
+        self.domain = DomainName.find(Url.get_domain(url))
         self.title = title
+
 
     def title_if_available(self):
         if self.title != "":
             return self.title
         return self.url
 
+    def as_string(self):
+        return self.domain.domainNameString + self.path
 
-    def domain(self):
+    @classmethod
+    def get_domain(self, url):
         protocol_re = '(.*://)?'
         domain_re = '([^/?]*)'
+        path_re = '(.*)'
 
-        domain = re.findall(protocol_re + domain_re, self.url)[0]
+        domain = re.findall(protocol_re + domain_re, url)[0]
         return domain[0] + domain[1]
+
+
+    @classmethod
+    def get_path(self, url):
+        protocol_re = '(.*://)?'
+        domain_re = '([^/?]*)'
+        path_re = '(.*)'
+
+        domain = re.findall(protocol_re + domain_re + path_re, url)[0]
+        return domain[2]
 
 
     @classmethod
     def find(cls, url, title = ""):
         try:
-            return (cls.query.filter(cls.url == url)
+            d = DomainName.find(Url.get_domain(url))
+            return (cls.query.filter(cls.path == Url.get_path(url))
+                             .filter(cls.domain == d)
                              .one())
         except sqlalchemy.orm.exc.NoResultFound:
             return cls(url, title)
@@ -1251,5 +1274,63 @@ class Search(db.Model):
 
     def __repr__(self):
         return '<Search %r>' % (self.user_word.word)
+
+
+# Wed, Jan 13
+# Adding the URL model
+
+
+class DomainName(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+    __tablename__ = 'domain_name'
+
+    id = db.Column(db.Integer, primary_key=True)
+    domainNameString = db.Column(db.String(2083))
+
+    def __init__(self, url):
+        self.domainNameString = self.extract_domain_name(url)
+
+    def extract_domain_name(self, url):
+        protocol_re = '(.*://)?'
+        domain_re = '([^/?]*)'
+
+        domain = re.findall(protocol_re + domain_re, url)[0]
+        return domain[0] + domain[1]
+
+    @classmethod
+    def find(cls, domain_url):
+        try:
+            return (cls.query.filter(cls.domainNameString == domain_url)
+                             .one())
+        except sqlalchemy.orm.exc.NoResultFound:
+            # print "tried, but didn't find " + domain_url
+            return cls(domain_url)
+
+
+
+class RSSFeed(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_bin'}
+    __tablename__ = 'rss_feed'
+
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    url = db.Column(db.String(2083))
+    title = db.Column(db.String(2083))
+
+    language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
+    language = db.relationship("Language")
+
+    domainName_id = db.Column(db.Integer, db.ForeignKey("domain_name.id"))
+    domain = db.relationship("DomainName")
+
+
+    def __init__(self, url, title, language):
+        self.url = url
+        self.title = title
+        self.language = language
+
+
+
 
 

@@ -25,6 +25,10 @@ import Queue
 import threading
 from zeeguu.model import RankedWord, Language,Bookmark, Session, Search, UserWord, User, Url, KnownWordProbability, Text
 from zeeguu import util
+import urllib2
+import feedparser
+from BeautifulSoup import BeautifulSoup
+
 
 
 api = flask.Blueprint("api", __name__)
@@ -262,7 +266,7 @@ def bookmarks_by_day(return_context):
             bookmark['from_lang'] = b.origin.language_id
             bookmark['to_lang'] = b.translation().language.id
             bookmark['title'] = b.text.url.title
-            bookmark['url'] = b.text.url.url
+            bookmark['url'] = b.text.url.as_string()
 
             if with_context:
                 bookmark['context'] = b.text.content
@@ -351,7 +355,7 @@ def bookmark_with_context(from_lang_code, to_lang_code, word_str, url_str, title
     zeeguu.db.session.add(url)
     zeeguu.db.session.commit()
 
-    context = Text.find(context_str, from_lang, url)
+    context = Text.find_or_create(context_str, from_lang, url)
     zeeguu.db.session.add(context)
     zeeguu.db.session.commit()
 
@@ -871,6 +875,106 @@ def get_user_details():
     """
     print flask.g.user.details_as_dictionary()
     return json_result(flask.g.user.details_as_dictionary())
+
+
+@api.route("/get_visited_urls_with_feeds", methods=("GET",))
+@cross_domain
+@with_session
+def get_visited_urls_with_feeds():
+    """
+    :return:
+    """
+    return json_result(
+        [
+            {"title":"Der Spiegel",
+             "url:":"www.derspiegel.de",
+             "visits":20},
+            {"title":"Der Bund",
+             "url":"www.derbund.ch",
+             "visits": 10}
+        ]
+    )
+
+
+@api.route("/get_feeds_for_url", methods=("POST",))
+@cross_domain
+@with_session
+def get_feeds_for_url():
+    """
+    :return:
+    """
+    domain = flask.request.form.get('url','')
+
+    try:
+        feed_data = []
+        page = urllib2.urlopen(domain)
+        soup = BeautifulSoup(page)
+        feed_urls = soup.findAll("link", type="application/rss+xml")
+
+        for feed_url in feed_urls:
+            feed_url = feed_url["href"]
+            if feed_url[0] == "/":
+                feed_url = domain + feed_url
+
+            feed = feedparser.parse(feed_url).feed
+            feed_data.append({"url": feed_url,
+                     "title":feed.title,
+                     "description": feed.description
+                     })
+
+        return json_result(feed_data)
+
+    except Exception as e:
+        print e
+        return json_result([])
+
+
+
+@api.route("/get_feeds_for_user", methods=("GET",))
+@cross_domain
+@with_session
+def get_feeds_for_user():
+    """
+    :return:
+    """
+
+    json_array_with_feeds = flask.request.form.get('feeds','')
+
+    # ...
+
+    return "OK"
+
+
+
+@api.route("/add_feeds_for_user", methods=("POST",))
+@cross_domain
+@with_session
+def add_feeds_for_user():
+    """
+    :return:
+    """
+
+    json_array_with_feeds = flask.request.form.get('feeds','')
+
+    # ...
+
+    return "OK"
+
+
+@api.route("/delete_feeds_for_user/<id>", methods=("GET",))
+@cross_domain
+@with_session
+def delete_feeds_for_user():
+    """
+    :return:
+    """
+
+    # ...
+
+    return "OK"
+
+
+
 
 
 # Warning:
