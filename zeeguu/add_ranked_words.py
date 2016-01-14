@@ -4,7 +4,7 @@ import re
 
 import zeeguu
 import sys
-from zeeguu.model import RankedWord, Language
+from zeeguu.api.model_core import RankedWord, Language
 
 
 def filter_word_list(word_list):

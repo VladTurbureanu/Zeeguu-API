@@ -4,7 +4,7 @@ import flask
 from datetime import timedelta, date
 
 from zeeguu import model
-from zeeguu.model import UserWord, Bookmark, User, Text
+from zeeguu.api.model_core import UserWord, Bookmark, User, Text
 import random
 import datetime
 

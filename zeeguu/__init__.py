@@ -49,6 +49,6 @@ env.append_path(os.path.join(
 db.init_app(app)
 db.create_all(app=app)
 
-from zeeguu.model import RankedWord
+from zeeguu.api.model_core import RankedWord
 with app.app_context():
     RankedWord.cache_ranked_words()

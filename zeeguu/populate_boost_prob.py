@@ -3,7 +3,10 @@
 import re
 import zeeguu
 import decimal
-from zeeguu.model import RankedWord, Language,Bookmark, UserWord, User, ExerciseBasedProbability, EncounterBasedProbability,KnownWordProbability
+from zeeguu.api.model_core import RankedWord, Language, Bookmark, \
+    UserWord, User, ExerciseBasedProbability, \
+    EncounterBasedProbability,\
+    KnownWordProbability
 
 
 

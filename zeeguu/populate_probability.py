@@ -2,8 +2,8 @@
 # -*- coding: utf8 -*-
 import re
 import zeeguu
-from zeeguu.model import RankedWord, Language,Bookmark,User,ExerciseBasedProbability, EncounterBasedProbability
-from re import compile as _Re
+from zeeguu.api.model_core import RankedWord, Language, Bookmark,\
+    User,ExerciseBasedProbability, EncounterBasedProbability
 
 
 

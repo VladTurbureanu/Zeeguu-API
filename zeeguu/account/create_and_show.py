@@ -7,8 +7,8 @@ import flask
 from flask import flash
 import zeeguu
 import sqlalchemy.exc
-from zeeguu.model import Language
-from zeeguu.model import User
+from zeeguu.api.model_core import Language
+from zeeguu.api.model_core import User
 
 from zeeguu.account import acc
 

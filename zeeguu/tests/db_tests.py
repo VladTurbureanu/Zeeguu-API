@@ -9,7 +9,7 @@ import zeeguu_testcase
 from zeeguu_testcase import ZeeguuTestCase
 import unittest
 from zeeguu import model, db
-from zeeguu.model import UserWord, Language, User
+from zeeguu.api.model_core import UserWord, Language
 import datetime
 import random
 

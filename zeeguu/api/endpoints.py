@@ -10,20 +10,18 @@ to the definition of the learned_language() function.
 
 """
 import functools
-
 import flask
-import urllib2
 from urllib import quote_plus, unquote_plus
 import sqlalchemy.exc
-import urllib
 import zeeguu
 import json
 import datetime
-import re
 import time
 import Queue
 import threading
-from zeeguu.model import RankedWord, Language,Bookmark, Session, Search, UserWord, User, Url, KnownWordProbability, Text, RSSFeed, RSSFeedRegistration
+from zeeguu.api.model_core import RankedWord, Language, Bookmark, \
+    Session, UserWord, User, Url, KnownWordProbability, Text
+from zeeguu.api.model_feeds import RSSFeed, RSSFeedRegistration
 from zeeguu import util
 import urllib2
 import feedparser
@@ -908,7 +906,6 @@ def get_feeds_for_url():
         return json_result(feed_data)
 
     except Exception as e:
-        print e
         return json_result([])
 
 
@@ -948,16 +945,13 @@ def add_feeds_for_user():
     json_array_with_feeds = json.loads(flask.request.form.get('feeds',''))
 
     for urlString in json_array_with_feeds:
-        print "+" + urlString
         feed = feedparser.parse(urlString).feed
+
         lan = Language.find(feed.language)
-
         url = Url.find(urlString)
-
-
         feedObject = RSSFeed.find_or_create(url, feed.title, lan)
-
         feedRegistration = RSSFeedRegistration.find_or_create(flask.g.user, feedObject)
+
         zeeguu.db.session.add_all ( [url, feedObject, feedRegistration] )
         zeeguu.db.session.commit()
 

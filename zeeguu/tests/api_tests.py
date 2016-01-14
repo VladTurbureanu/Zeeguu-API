@@ -6,7 +6,8 @@ import zeeguu_testcase
 import unittest
 import zeeguu.populate
 import zeeguu.model
-from zeeguu.model import User, RankedWord, Text, Language, Url, Bookmark, RSSFeedRegistration
+from zeeguu.api.model_core import User, RankedWord, Text, Language, Url, \
+    Bookmark
 from zeeguu import util
 import json
 import re

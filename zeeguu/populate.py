@@ -3,7 +3,8 @@ import re
 
 import zeeguu
 import datetime
-from zeeguu.model import RankedWord, Language,Bookmark, UserWord, User, Url, ExerciseBasedProbability, EncounterBasedProbability,KnownWordProbability, Text, ExerciseOutcome, ExerciseSource
+from zeeguu.api.model_core import RankedWord, Language, Bookmark, \
+    UserWord, User, Url, Text, ExerciseOutcome, ExerciseSource
 
 
 WORD_PATTERN = re.compile("\[?([^{\[]+)\]?( {[^}]+})?( \[[^\]]\])?")
