@@ -532,20 +532,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             url='http://mir.lu',
             context=u'Die kleine Jägermeister',
             word="Die")
-        rv = self.api_post('/translate_and_bookmark/de/en', formData)
-        bookmark1 = json.loads(rv.data)
-        formData = dict(
-            url='http://mir.lu',
-            context=u'Die kleine Jägermeister',
-            word="Die")
-        rv = self.api_post('/translate_and_bookmark/de/en', formData)
-        bookmark2 = json.loads(rv.data)
-        formData = dict(
-            url='http://mir.lu',
-            context=u'Die kleine Jägermeister',
-            word="Die")
-        rv = self.api_post('/translate_and_bookmark/de/en', formData)
-        bookmark3 = json.loads(rv.data)
+
+        bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', formData)
+        bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', formData)
+        bookmark3  = self.api_post_json('/translate_and_bookmark/de/en', formData)
 
         assert (bookmark1["bookmark_id"] == bookmark2["bookmark_id"] == bookmark3["bookmark_id"])
 
