@@ -574,17 +574,17 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                 # print url['image']
 
 
-    def test_get_feeds_for_url(self):
+    def test_get_feeds_at_url(self):
 
         formData = dict(
             url='http://derspiegel.de')
-        feeds = self.api_post_json('/get_feeds_for_url', formData)
+        feeds = self.api_post_json('/get_feeds_at_url', formData)
         assert (len(feeds) > 1)
         assert (feeds[0]["title"])
         return feeds
 
 
-    def test_add_feeds_for_user(self):
+    def test_start_following_feeds(self):
 
         feeds = self.test_get_feeds_for_url()
         feed_urls = [feed["url"] for feed in feeds]
@@ -592,31 +592,42 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         formData = dict(
             feeds=json.dumps(feed_urls))
-        self.api_post('/add_feeds_for_user', formData)
+        self.api_post('/start_following_feeds', formData)
 
-        feeds = self.api_get_json("get_feeds_for_user")
+        feeds = self.api_get_json("get_feeds_being_followed")
         # Assumes that the derspiegel site will always have two feeds
         assert len(feeds) == 2
 
 
-    def test_delete_feeds_from_user(self):
+    def test_stop_following_feed(self):
 
-        self.test_add_feeds_for_user()
+        self.test_start_following_feeds()
         # After this test, we will have two feeds for the user
 
         # Now delete one
-        self.api_get("delete_feed_for_user/1")
+        response = self.api_get("stop_following_feed/1")
+        assert response.data == "OK"
 
-        feeds = self.api_get_json("get_feeds_for_user")
+        feeds = self.api_get_json("get_feeds_being_followed")
         assert len(feeds) == 1
 
         # Now delete the second
-        self.api_get("delete_feed_for_user/2")
+        self.api_get("stop_following_feed/2")
+        assert response.data == "OK"
 
-        feeds = self.api_get_json("get_feeds_for_user")
+        feeds = self.api_get_json("get_feeds_being_followed")
         assert len(feeds) == 0
 
 
+    def test_get_feed_items(self):
+
+        self.test_start_following_feeds()
+        # After this test, we will have two feeds for the user
+
+        feed_items = self.api_get_json("get_feed_items/1")
+        assert len(feed_items) > 0
+        assert feed_items[0]["title"]
+        assert feed_items[0]["summary"]
 
 
 

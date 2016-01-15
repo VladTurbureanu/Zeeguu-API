@@ -2,6 +2,8 @@
 from zeeguu import db
 from sqlalchemy.orm import relationship
 import sqlalchemy.orm.exc
+import feedparser
+import json
 
 
 class RSSFeed(db.Model):
@@ -38,6 +40,21 @@ class RSSFeed(db.Model):
                 language = self.language.name,
                 image_url = self.image_url.as_string()
         )
+
+    def feed_items(self):
+        feed_data = feedparser.parse(self.url.as_string())
+        feed_items = [
+            dict(
+                    title   =   item.title,
+                    url     =   item.link,
+                    content =   item.content,
+                    summary =   item.summary,
+                    published=  item.published
+            )
+            for item in feed_data.entries]
+
+        return feed_items
+
 
     @classmethod
     def find_or_create(cls, url, title, image_url, language):

@@ -876,12 +876,13 @@ def get_user_details():
 
 
 
-@api.route("/get_feeds_for_url", methods=("POST",))
+@api.route("/get_feeds_at_url", methods=("POST",))
 @cross_domain
 @with_session
-def get_feeds_for_url():
+def get_feeds_at_url():
     """
-    :return:
+    :return: a list of feeds that can be found at the given URL
+    Empty list if soemething
     """
     domain = flask.request.form.get('url','')
 
@@ -908,28 +909,42 @@ def get_feeds_for_url():
         return json_result(feed_data)
 
     except Exception as e:
+        print e
         return json_result([])
 
 
 
-@api.route("/get_feeds_for_user", methods=("GET",))
+@api.route("/get_feeds_being_followed", methods=("GET",))
 @cross_domain
 @with_session
-def get_feeds_for_user():
+def get_feeds_being_followed():
     """
-    :return:
+    A user might be following multiple feeds at once.
+    This endpoint returns them as a list.
+
+    :return: a json list with feeds for which the user is registered;
+     every feed in this list is a dictionary with the following info:
+                id = unique id of the feed; uniquely identifies feed in other endpoints
+                title = <unicode string>
+                url = ...
+                language = ...
+                image_url = ...
     """
     registrations = RSSFeedRegistration.feeds_for_user(flask.g.user)
     return json_result([reg.rss_feed.as_dictionary() for reg in registrations])
 
 
 
-@api.route("/add_feeds_for_user", methods=("POST",))
+@api.route("/start_following_feeds", methods=("POST",))
 @cross_domain
 @with_session
-def add_feeds_for_user():
+def start_following_feeds():
     """
-    post parameter: feeds - list of feed urls
+    A user can start following multiple feeds at once.
+
+    The feeds are passed as the post parameter :feeds:
+     which contains a json list with URLs for the feeds to be followed.
+
     :return:
     """
 
@@ -956,22 +971,41 @@ def add_feeds_for_user():
     return "OK"
 
 
-@api.route("/delete_feed_for_user/<id>", methods=("GET",))
+@api.route("/stop_following_feed/<feed_id>", methods=("GET",))
 @cross_domain
 @with_session
-def delete_feed_for_user(id):
+def stop_following_feed(feed_id):
     """
-    :return:
+    A user can stop following the feed with a given ID
+    :return: OK / ERROR
     """
 
-    registrationToDelete = RSSFeedRegistration.with_id(id)
+    registrationToDelete = RSSFeedRegistration.with_id(feed_id)
     zeeguu.db.session.delete(registrationToDelete)
     zeeguu.db.session.commit()
 
     return "OK"
 
 
+@api.route("/get_feed_items/<feed_id>", methods=("GET",))
+@cross_domain
+@with_session
+def get_feed_items_for(feed_id):
+    """
+    Get a list of feed items for a given feed ID
 
+    :return: json list of dicts, with the following info:
+                    title   = <unicode string>
+                    url     = <unicode string>
+                    content = <list> e.g.:
+                        [{u'base': u'http://www.spiegel.de/schlagzeilen/index.rss',
+                         u'type': u'text/html', u'language': None, u'value': u'\xdcberwachungskameras, die bei Aldi verkauft wurden, haben offenbar ein Sicherheitsproblem: Hat man kein Passwort festgelegt, \xfcbertragen sie ihre Aufnahmen ungesch\xfctzt ins Netz - und verraten au\xdferdem WLAN- und E-Mail-Passw\xf6rter.'}]
+                    summary = <unicode string>
+                    published= <unicode string> e.g.
+                        'Fri, 15 Jan 2016 15:26:51 +0100'
+    """
+    registration = RSSFeedRegistration.with_id(feed_id)
+    return json_result(registration.rss_feed.feed_items())
 
 
 # Warning:
