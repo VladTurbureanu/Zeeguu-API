@@ -569,9 +569,9 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         for url in urls:
             assert url['content'] is not None
             assert url['image'] is not None
-            # if manual_check:
-                # print url['content']
-                # print url['image']
+            if manual_check:
+                print url['content']
+                print url['image']
 
 
     def test_get_feeds_at_url(self):
@@ -586,7 +586,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_start_following_feeds(self):
 
-        feeds = self.test_get_feeds_for_url()
+        feeds = self.test_get_feeds_at_url()
         feed_urls = [feed["url"] for feed in feeds]
 
 
