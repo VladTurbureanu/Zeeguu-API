@@ -844,10 +844,10 @@ class DomainName(db.Model):
     __tablename__ = 'domain_name'
 
     id = db.Column(db.Integer, primary_key=True)
-    domainNameString = db.Column(db.String(2083))
+    domain_name = db.Column(db.String(2083))
 
     def __init__(self, url):
-        self.domainNameString = self.extract_domain_name(url)
+        self.domain_name = self.extract_domain_name(url)
 
     def extract_domain_name(self, url):
         protocol_re = '(.*://)?'
@@ -859,7 +859,7 @@ class DomainName(db.Model):
     @classmethod
     def find(cls, domain_url):
         try:
-            return (cls.query.filter(cls.domainNameString == domain_url)
+            return (cls.query.filter(cls.domain_name == domain_url)
                              .one())
         except sqlalchemy.orm.exc.NoResultFound:
             # print "tried, but didn't find " + domain_url
@@ -875,8 +875,12 @@ class Url(db.Model):
 
     path = db.Column(db.String(2083))
 
-    domainName_id = db.Column(db.Integer, db.ForeignKey("domain_name.id"))
+    url = db.Column(db.String(2083))
+
+    domain_name_id = db.Column(db.Integer, db.ForeignKey("domain_name.id"))
     domain = db.relationship("DomainName")
+
+
 
 
     def __init__(self, url, title):
@@ -891,7 +895,7 @@ class Url(db.Model):
         return self.url
 
     def as_string(self):
-        return self.domain.domainNameString + self.path
+        return self.domain.domain_name + self.path
 
     @classmethod
     def get_domain(self, url):
