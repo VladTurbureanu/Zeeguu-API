@@ -871,7 +871,6 @@ def get_user_details():
     :param lang_code:
     :return:
     """
-    print flask.g.user.details_as_dictionary()
     return json_result(flask.g.user.details_as_dictionary())
 
 

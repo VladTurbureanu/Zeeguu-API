@@ -205,7 +205,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         #assert sondernExampleData["context"] == bookmarks_by_day[0]['bookmarks'][1]['context']
         assert any (context ['context'] == sondernExampleData["context"] for context in bookmarks_by_day[0]['bookmarks'])
         latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][0]['id']
-        print bookmarks_by_day[0]
+        # print bookmarks_by_day[0]
 
         second_latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][1]['id']
         rv = self.api_get('/get_exercise_log_for_bookmark/'+str(latest_bookmark_id))
@@ -283,7 +283,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             url='http://mir.lu',
             context='somewhere over the rainbowwwwwwwww')
         rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
-        print rv.data
+        # print rv.data
         latest_bookmark_id = json.loads(rv.data)
         #rv = self.api_get('/bookmarks_by_day/with_context')
         #bookmarks_by_day = json.loads(rv.data)
@@ -358,7 +358,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_available_languages(self):
         rv = self.api_get('/available_languages')
-        print rv.data
+        # print rv.data
 
 
     def test_create_user(self):
@@ -367,13 +367,13 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             password= "lala"
         )
         rv = self.api_post('/add_user/i@i.la',formData)
-        print rv.data
+        # print rv.data
         assert rv.data > 1
 
 
     def test_get_language(self):
         rv = self.api_get('/learned_language')
-        print rv.data
+        # print rv.data
 
     def test_get_bookmarks_by_date(self):
         elements  = self.api_get_json ('/bookmarks_by_day/with_context')
@@ -480,7 +480,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             context=u'Die kleine Jägermeister',
             word="Die")
         rv = self.api_post('/translate/de/en', formData)
-        print rv.data
+        # print rv.data
 
 
 
@@ -510,8 +510,8 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             word="Die")
         bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', formData)
         b1 = Bookmark.find(bookmark1["bookmark_id"])
-        print b1.text
-        print b1.text.id
+        # print b1.text
+        # print b1.text.id
 
         formData = dict(
             url='http://mir.lu',
@@ -519,8 +519,8 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             word="kleine")
         bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', formData)
         b2 = Bookmark.find(bookmark2["bookmark_id"])
-        print b2.text
-        print b2.text.id
+        # print b2.text
+        # print b2.text.id
 
         assert len (b2.text.all_bookmarks()) == 2
         self.api_post("delete_bookmark/27")
@@ -569,9 +569,9 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         for url in urls:
             assert url['content'] is not None
             assert url['image'] is not None
-            if manual_check:
-                print url['content']
-                print url['image']
+            # if manual_check:
+                # print url['content']
+                # print url['image']
 
 
     def test_get_feeds_for_url(self):
