@@ -922,9 +922,12 @@ def stop_following_feed(feed_id):
     :return: OK / ERROR
     """
 
-    registrationToDelete = RSSFeedRegistration.with_id(feed_id)
-    zeeguu.db.session.delete(registrationToDelete)
-    zeeguu.db.session.commit()
+    try:
+        registrationToDelete = RSSFeedRegistration.with_id(feed_id)
+        zeeguu.db.session.delete(registrationToDelete)
+        zeeguu.db.session.commit()
+    except sqlalchemy.orm.exc.NoResultFound as e:
+        return "OOPS. FEED AIN'T BEING THERE"
 
     return "OK"
 

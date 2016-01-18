@@ -620,6 +620,17 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert len(feeds) == 0
 
 
+    def test_multiple_stop_following_same_feed(self):
+
+        self.test_stop_following_feed()
+        # After this test, we will have removed both the feeds
+
+        # Now try to delete the first one more time
+        response = self.api_get("stop_following_feed/1")
+        assert response.data == "OOPS. FEED AIN'T BEING THERE"
+
+
+
     def test_get_feed_items(self):
 
         self.test_start_following_feeds()
