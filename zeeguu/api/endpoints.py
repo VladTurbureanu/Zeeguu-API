@@ -904,7 +904,7 @@ def start_following_feeds():
         zeeguu.db.session.commit()
 
         feed_image_url = Url.find(feed_image_url_string)
-        feedObject = RSSFeed.find_or_create(url, feed.title, feed_image_url, lan)
+        feedObject = RSSFeed.find_or_create(url, feed.title, feed.description, feed_image_url, lan)
         feedRegistration = RSSFeedRegistration.find_or_create(flask.g.user, feedObject)
 
         zeeguu.db.session.add_all([feed_image_url, feedObject, feedRegistration])

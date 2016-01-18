@@ -14,6 +14,7 @@ class RSSFeed(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     title = db.Column(db.String(2083))
+    description = db.Column(db.String(2083))
 
     language_id = db.Column(db.String(2), db.ForeignKey("language.id"))
     language = db.relationship("Language")
@@ -24,20 +25,20 @@ class RSSFeed(db.Model):
     image_url_id = db.Column(db.Integer, db.ForeignKey("url.id"))
     image_url = db.relationship("Url", foreign_keys='RSSFeed.image_url_id')
 
-
-
-    def __init__(self, url, title, image_url = None, language = None):
+    def __init__(self, url, title, description, image_url = None, language = None):
         self.url = url
         self.image_url = image_url
         self.title = title
         self.language = language
+        self.description = description
 
     def as_dictionary(self):
         return dict(
                 id = self.id,
                 title = self.title,
                 url = self.url.as_string(),
-                language = self.language.name,
+                description = self.description,
+                language = self.language.id,
                 image_url = self.image_url.as_string()
         )
 
@@ -57,15 +58,16 @@ class RSSFeed(db.Model):
 
 
     @classmethod
-    def find_or_create(cls, url, title, image_url, language):
+    def find_or_create(cls, url, title, description, image_url, language):
         try:
             return (cls.query.filter(cls.url == url)
                                 .filter(cls.title == title)
                                 .filter(cls.language == language)
                                 .filter(cls.image_url == image_url)
+                                .filter(cls.description == description)
                                 .one())
         except sqlalchemy.orm.exc.NoResultFound:
-            return cls(url, title, image_url, language)
+            return cls(url, title, description, image_url, language)
 
 
 

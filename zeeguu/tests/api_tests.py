@@ -597,6 +597,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         feeds = self.api_get_json("get_feeds_being_followed")
         # Assumes that the derspiegel site will always have two feeds
         assert len(feeds) == 2
+        assert feeds[0]["language"] == "de"
 
 
     def test_stop_following_feed(self):
