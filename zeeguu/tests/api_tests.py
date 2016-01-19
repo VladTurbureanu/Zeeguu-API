@@ -574,6 +574,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                 print url['image']
 
     # From here on we have several tests for the RSS feed related endpoints
+    # .....................................................................
 
     def test_get_feeds_at_url(self):
 
