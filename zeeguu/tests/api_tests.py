@@ -548,7 +548,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert details["name"]
         assert details["email"]
 
-
+    # getting content from url
     def test_content_from_url(self):
         # parameters
         manual_check = False
@@ -573,6 +573,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                 print url['content']
                 print url['image']
 
+    # From here on we have several tests for the RSS feed related endpoints
 
     def test_get_feeds_at_url(self):
 
