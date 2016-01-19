@@ -576,18 +576,32 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_get_feeds_at_url(self):
 
-        formData = dict(
-            url='http://derspiegel.de')
-        feeds = self.api_post_json('/get_feeds_at_url', formData)
-        # assert (len(feeds) > 1)
-        assert (feeds[0]["title"])
-        return feeds
+        resulting_feeds = []
+
+        urls_to_test = ["http://derspiegel.de",
+                        "http://tageschau.de",
+                        "http://derbund.ch",
+                        "http://zeit.de",
+                        "http://www.handelsblatt.com"]
+
+        for each_url in urls_to_test:
+            formData = dict(
+                url=each_url)
+            feeds = self.api_post_json('/get_feeds_at_url', formData)
+            resulting_feeds += feeds
+
+            # following assertion makes sure that we find at least on feed
+            # in each o the urls_to_test
+            assert (feeds[0]["title"])
+
+        # following assertion assumes that each site has at least one feed
+        assert len(resulting_feeds) >= 4
+        return resulting_feeds
 
     def test_start_following_feeds(self):
 
         feeds = self.test_get_feeds_at_url()
         feed_urls = [feed["url"] for feed in feeds]
-
 
         formData = dict(
             feeds=json.dumps(feed_urls))
@@ -601,21 +615,24 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_stop_following_feed(self):
 
         self.test_start_following_feeds()
-        # After this test, we will have two feeds for the user
+        # After this test, we will have a bunch of feeds for the user
+
+        feeds = self.api_get_json("get_feeds_being_followed")
+        initial_feed_count = len(feeds)
 
         # Now delete one
         response = self.api_get("stop_following_feed/1")
         assert response.data == "OK"
 
         feeds = self.api_get_json("get_feeds_being_followed")
-        assert len(feeds) == 1
+        assert len(feeds) == initial_feed_count - 1
 
         # Now delete the second
         self.api_get("stop_following_feed/2")
         assert response.data == "OK"
 
         feeds = self.api_get_json("get_feeds_being_followed")
-        assert len(feeds) == 0
+        assert len(feeds) == initial_feed_count - 2
 
     def test_multiple_stop_following_same_feed(self):
 
