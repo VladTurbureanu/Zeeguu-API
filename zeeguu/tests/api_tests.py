@@ -18,7 +18,7 @@ sondernExampleData = dict(
     url='http://mir.lu/examples_with_karan',
     context='Wir arbeiten nicht sondern schlafen')
 
-strassenExampleFormData = dict(
+strassenExampleform_data = dict(
     url='http://mir.lu',
     context='chilling on the streets')
 
@@ -40,11 +40,11 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_bookmark_from_android(self):
-        formData = dict(
+        form_data = dict(
             url='http://mir.lu',
             context='somewhere over the rainbowwwwwwwww',
             title="lal")
-        self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        self.api_post('/bookmark_with_context/de/sondern/en/but', form_data)
         t = zeeguu.model.Url.find("android:app","Songs by Iz")
         assert t != None
 
@@ -54,10 +54,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_bookmark_without_title_should_fail(self):
-        formData = dict(
+        form_data = dict(
             url='http://mir.lu',
             context='somewhere over the rainbowwwwwwwww')
-        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', form_data)
         added_bookmark_id = int(rv.data)
         elements = self.api_get_json('/bookmarks_by_day/with_context')
 
@@ -75,12 +75,12 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert not any(word['word'] == 'nacht' for word in probably_known_words)
         assert not any(word['word'] == 'sondern' for word in probably_known_words)
 
-        exampleFormData = dict(
+        exampleform_data = dict(
             url='http://mir.lu',
             context='gute nacht sondern')
 
         # Bookmark sondern
-        sondernId = (self.api_post('/bookmark_with_context/de/sondern/en/but', exampleFormData)).data
+        sondernId = (self.api_post('/bookmark_with_context/de/sondern/en/but', exampleform_data)).data
 
 
         # User declares that sondern is "Too Easy" in an exercise
@@ -96,8 +96,8 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert not any(word['word'] == 'sondern' for word in probably_known_words)
 
         # Bookmarking the word several other times...
-        self.api_post('/bookmark_with_context/de/sondern/en/but', exampleFormData)
-        self.api_post('/bookmark_with_context/de/sondern/en/but', exampleFormData)
+        self.api_post('/bookmark_with_context/de/sondern/en/but', exampleform_data)
+        self.api_post('/bookmark_with_context/de/sondern/en/but', exampleform_data)
         # doesn't change anything evidently. ML: Why is this?
         probably_known_words = self.api_get_json('/get_probably_known_words/de')
         assert not any(word['word'] == 'sondern' for word in probably_known_words)
@@ -196,7 +196,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_get_known_bookmarks(self):
         self.api_post('/bookmark_with_context/de/sondern/en/but rather', sondernExampleData)
-        self.api_post('/bookmark_with_context/de/strassen/en/streets', strassenExampleFormData)
+        self.api_post('/bookmark_with_context/de/strassen/en/streets', strassenExampleform_data)
 
         rv = self.api_get('/bookmarks_by_day/with_context')
         bookmarks_by_day = json.loads(rv.data)
@@ -234,14 +234,14 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_get_known_words(self):
         rv = self.api_post('/bookmark_with_context/de/sondern/en/but', sondernExampleData)
-        formData = dict(
+        form_data = dict(
             url='http://mir.lu',
             context='saying hi to girls')
-        rv = self.api_post('/bookmark_with_context/de/maedchen/en/girls', formData)
-        formData = dict(
+        rv = self.api_post('/bookmark_with_context/de/maedchen/en/girls', form_data)
+        form_data = dict(
             url='http://mir.lu',
             context='chilling with the girls')
-        rv = self.api_post('/bookmark_with_context/de/maedchen/en/girls', formData)
+        rv = self.api_post('/bookmark_with_context/de/maedchen/en/girls', form_data)
         rv = self.api_get('/bookmarks_by_day/with_context')
         bookmarks_by_day = json.loads(rv.data)
         latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][0]['id']
@@ -279,10 +279,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_get_learned_bookmarks(self):
-        formData = dict(
+        form_data = dict(
             url='http://mir.lu',
             context='somewhere over the rainbowwwwwwwww')
-        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', formData)
+        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', form_data)
         # print rv.data
         latest_bookmark_id = json.loads(rv.data)
         #rv = self.api_get('/bookmarks_by_day/with_context')
@@ -292,10 +292,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         learned_bookmarks = json.loads(rv.data)
         assert any(bookmark['id'] == latest_bookmark_id for bookmark in learned_bookmarks)
         learned_bookmarks_count = len(learned_bookmarks)
-        formData = dict(
+        form_data = dict(
             url='http://mir.lu',
             context='chilling on the streets')
-        rv = self.api_post('/bookmark_with_context/de/strassen/en/streets', formData)
+        rv = self.api_post('/bookmark_with_context/de/strassen/en/streets', form_data)
         new_latest_bookmark_id = json.loads(rv.data)
         #rv = self.api_get('/bookmarks_by_day/with_context')
         #bookmarks_by_day = json.loads(rv.data)
@@ -334,10 +334,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert not 'es' in bookmark_content_words
         assert not 'an' in bookmark_content_words
         assert not 'auch' in bookmark_content_words
-        formData = dict(
+        form_data = dict(
             url='http://mir.lu',
             context='es an auch')
-        rv = self.api_post('/bookmark_with_context/de/auch/en/also', formData)
+        rv = self.api_post('/bookmark_with_context/de/auch/en/also', form_data)
         rv = self.api_get('/get_not_looked_up_words/de')
         estimated_user_voc_after = json.loads(rv.data)
         assert len(estimated_user_voc_after)==len(estimated_user_voc_before)+2
@@ -362,11 +362,11 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_create_user(self):
-        formData = dict(
+        form_data = dict(
             username= "gigi",
             password= "lala"
         )
-        rv = self.api_post('/add_user/i@i.la',formData)
+        rv = self.api_post('/add_user/i@i.la',form_data)
         # print rv.data
         assert rv.data > 1
 
@@ -475,11 +475,11 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_translate(self):
-        formData = dict(
+        form_data = dict(
             url='http://mir.lu',
             context=u'Die kleine Jägermeister',
             word="Die")
-        rv = self.api_post('/translate/de/en', formData)
+        rv = self.api_post('/translate/de/en', form_data)
         # print rv.data
 
 
@@ -490,34 +490,34 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         url = Url.find('http://mir.lu/stories/german/jagermeister', "Die Kleine Jagermeister (Mircea's Stories)")
         source_language = Language.find('de')
 
-        formData = dict(
+        form_data = dict(
             url=url.as_string(),
             context=context,
             word="Die")
 
-        self.api_post('/translate_and_bookmark/de/en', formData)
+        self.api_post('/translate_and_bookmark/de/en', form_data)
         text1 = Text.find_or_create(context, source_language, url)
-        self.api_post('/translate_and_bookmark/de/en', formData)
+        self.api_post('/translate_and_bookmark/de/en', form_data)
         text2 = Text.find_or_create(context, source_language, url)
         assert (text1 == text2)
 
 
     def test_delete_bookmark(self):
 
-        formData = dict(
+        form_data = dict(
             url='http://mir.lu',
             context=u'Die kleine Jägermeister',
             word="Die")
-        bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', formData)
+        bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
         b1 = Bookmark.find(bookmark1["bookmark_id"])
         # print b1.text
         # print b1.text.id
 
-        formData = dict(
+        form_data = dict(
             url='http://mir.lu',
             context=u'Die kleine Jägermeister',
             word="kleine")
-        bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', formData)
+        bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
         b2 = Bookmark.find(bookmark2["bookmark_id"])
         # print b2.text
         # print b2.text.id
@@ -529,14 +529,14 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_translate_and_bookmark(self):
 
-        formData = dict(
+        form_data = dict(
             url='http://mir.lu',
             context=u'Die kleine Jägermeister',
             word="Die")
 
-        bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', formData)
-        bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', formData)
-        bookmark3  = self.api_post_json('/translate_and_bookmark/de/en', formData)
+        bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
+        bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
+        bookmark3  = self.api_post_json('/translate_and_bookmark/de/en', form_data)
 
         assert (bookmark1["bookmark_id"] == bookmark2["bookmark_id"] == bookmark3["bookmark_id"])
 
@@ -586,9 +586,9 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                         "http://www.handelsblatt.com"]
 
         for each_url in urls_to_test:
-            formData = dict(
+            form_data = dict(
                 url=each_url)
-            feeds = self.api_post_json('/get_feeds_at_url', formData)
+            feeds = self.api_post_json('/get_feeds_at_url', form_data)
             resulting_feeds += feeds
 
             # following assertion makes sure that we find at least on feed
@@ -604,9 +604,9 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         feeds = self.test_get_feeds_at_url()
         feed_urls = [feed["url"] for feed in feeds]
 
-        formData = dict(
+        form_data = dict(
             feeds=json.dumps(feed_urls))
-        self.api_post('/start_following_feeds', formData)
+        self.api_post('/start_following_feeds', form_data)
 
         feeds = self.api_get_json("get_feeds_being_followed")
         # Assumes that the derspiegel site will always have two feeds
@@ -638,7 +638,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_multiple_stop_following_same_feed(self):
 
         self.test_stop_following_feed()
-        # After this test, we will have removed both the feeds
+        # After this test, we will have removed both the feeds 1 and 2
 
         # Now try to delete the first one more time
         response = self.api_get("stop_following_feed/1")
