@@ -896,7 +896,11 @@ def start_following_feeds():
         feed = feedparser.parse(urlString).feed
         feed_image_url_string = feed.image["href"]
 
-        lan = Language.find(feed.language)
+        # feed.language conforms to
+        # http://www.rssboard.org/rss-language-codes
+        # sometimes it is of the form de-de, de-au providing a hint of dialect
+        # thus, we only pick the first two letters of this code
+        lan = Language.find(feed.language[:2])
         url = Url.find(urlString)
         zeeguu.db.session.add(url)
         # Important to commit this url first; otherwise we end up creating

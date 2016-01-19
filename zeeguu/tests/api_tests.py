@@ -577,11 +577,22 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_get_feeds_at_url(self):
 
         formData = dict(
-            url='http://derspiegel.de')
+            url='http://zeit.de')
         feeds = self.api_post_json('/get_feeds_at_url', formData)
-        assert (len(feeds) > 1)
+        # assert (len(feeds) > 1)
         assert (feeds[0]["title"])
+        print feeds[0]
         return feeds
+
+    def test_start_following_feed_with_strange_language_code(self):
+        feed_urls = ["http://newsfeed.zeit.de/index"]
+
+        formData = dict(
+            feeds=json.dumps(feed_urls))
+        self.api_post('/start_following_feeds', formData)
+
+        feeds = self.api_get_json("get_feeds_being_followed")
+        assert feeds[0]["language"] == "de"
 
 
     def test_start_following_feeds(self):
