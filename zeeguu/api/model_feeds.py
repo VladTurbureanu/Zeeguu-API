@@ -111,3 +111,7 @@ class RSSFeedRegistration(db.Model):
     def with_id(cls, id):
         return (cls.query.filter(cls.id == id)).one()
 
+    @classmethod
+    def with_feed_id(cls, id, user):
+        return (cls.query.filter(cls.rss_feed_id == id))\
+                        .filter(cls.user_id == user.id).one()

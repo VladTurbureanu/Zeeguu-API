@@ -923,7 +923,7 @@ def stop_following_feed(feed_id):
     """
 
     try:
-        registrationToDelete = RSSFeedRegistration.with_id(feed_id)
+        registrationToDelete = RSSFeedRegistration.with_feed_id(feed_id, flask.g.user)
         zeeguu.db.session.delete(registrationToDelete)
         zeeguu.db.session.commit()
     except sqlalchemy.orm.exc.NoResultFound as e:
