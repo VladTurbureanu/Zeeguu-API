@@ -577,23 +577,11 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_get_feeds_at_url(self):
 
         formData = dict(
-            url='http://zeit.de')
+            url='http://derspiegel.de')
         feeds = self.api_post_json('/get_feeds_at_url', formData)
         # assert (len(feeds) > 1)
         assert (feeds[0]["title"])
-        print feeds[0]
         return feeds
-
-    def test_start_following_feed_with_strange_language_code(self):
-        feed_urls = ["http://newsfeed.zeit.de/index"]
-
-        formData = dict(
-            feeds=json.dumps(feed_urls))
-        self.api_post('/start_following_feeds', formData)
-
-        feeds = self.api_get_json("get_feeds_being_followed")
-        assert feeds[0]["language"] == "de"
-
 
     def test_start_following_feeds(self):
 
@@ -609,7 +597,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         # Assumes that the derspiegel site will always have two feeds
         assert len(feeds) >= 1
         assert feeds[0]["language"] == "de"
-
 
     def test_stop_following_feed(self):
 
@@ -630,7 +617,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         feeds = self.api_get_json("get_feeds_being_followed")
         assert len(feeds) == 0
 
-
     def test_multiple_stop_following_same_feed(self):
 
         self.test_stop_following_feed()
@@ -639,8 +625,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         # Now try to delete the first one more time
         response = self.api_get("stop_following_feed/1")
         assert response.data == "OOPS. FEED AIN'T BEING THERE"
-
-
 
     def test_get_feed_items(self):
 
