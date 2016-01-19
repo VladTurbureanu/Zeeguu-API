@@ -949,7 +949,7 @@ def get_feed_items_for(feed_id):
                     published= <unicode string> e.g.
                         'Fri, 15 Jan 2016 15:26:51 +0100'
     """
-    registration = RSSFeedRegistration.with_id(feed_id)
+    registration = RSSFeedRegistration.with_feed_id(feed_id, flask.g.user)
     return json_result(registration.rss_feed.feed_items())
 
 
