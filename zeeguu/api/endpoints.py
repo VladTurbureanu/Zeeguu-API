@@ -842,12 +842,13 @@ def get_feeds_at_url():
                 feed_url = domain + feed_url
 
             feed = feedparser.parse(feed_url).feed
+
             feed_data.append({
                 "url": feed_url,
-                "title": feed.title,
-                "description": feed.description,
-                "image_url": feed.image["href"],
-                "language": feed.language
+                "title": feed.get("title",""),
+                "description": feed.get("description",""),
+                "image_url": feed.get("image",""),
+                "language": feed.get("language","")
             })
 
         return json_result(feed_data)

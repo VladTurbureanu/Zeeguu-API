@@ -46,11 +46,11 @@ class RSSFeed(db.Model):
         feed_data = feedparser.parse(self.url.as_string())
         feed_items = [
             dict(
-                    title   =   item.title,
-                    url     =   item.link,
-                    content =   item.content,
-                    summary =   item.summary,
-                    published=  item.published
+                    title   =   item.get("title",""),
+                    url     =   item.get("link",""),
+                    content =   item.get("content",""),
+                    summary =   item.get("summary",""),
+                    published=  item.get("published","")
             )
             for item in feed_data.entries]
 
