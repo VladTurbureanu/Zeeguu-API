@@ -3,7 +3,6 @@ from zeeguu import db
 from sqlalchemy.orm import relationship
 import sqlalchemy.orm.exc
 import feedparser
-import json
 
 
 class RSSFeed(db.Model):

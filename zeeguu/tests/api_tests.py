@@ -576,6 +576,21 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     # From here on we have several tests for the RSS feed related endpoints
     # .....................................................................
 
+    def test_get_feeds_at_inexistent_source(self):
+
+        resulting_feeds = []
+
+        url_to_test = ["http://nothingtofind.is"]
+
+        form_data = dict(
+            url=url_to_test)
+        feeds = self.api_post_json('/get_feeds_at_url', form_data)
+        resulting_feeds += feeds
+
+
+        assert len(resulting_feeds) == 0
+
+
     def test_get_feeds_at_url(self):
 
         resulting_feeds = []
@@ -585,6 +600,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                         "http://derbund.ch",
                         "http://zeit.de",
                         "http://www.handelsblatt.com"]
+
 
         for each_url in urls_to_test:
             form_data = dict(
