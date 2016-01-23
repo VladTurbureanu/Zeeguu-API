@@ -3,7 +3,8 @@ from BeautifulSoup import BeautifulSoup
 import urllib2
 import feedparser
 
-def retrieve_feeds_at_url(domain):
+
+def list_of_feeds_at_url(domain):
     """
     a list of feed sthat can be found at the given url,
     or an empty list if something goes wrong
@@ -36,3 +37,17 @@ def retrieve_feeds_at_url(domain):
     except Exception as e:
         print e
         return []
+
+
+def two_letter_language_code(feed):
+    """
+        feed.language conforms to
+        http://www.rssboard.org/rss-language-codes
+        sometimes it is of the form de-de, de-au providing a hint of dialect
+        thus, we only pick the first two letters of this code
+
+    :param feed:
+    :return:
+    """
+    return feed.language[:2]
+

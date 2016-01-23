@@ -28,6 +28,9 @@ from zeeguu.api.model_feeds import RSSFeed, RSSFeedRegistration
 
 from endpoint_utils import cross_domain, with_session, json_result
 
+from feedparser_extensions import two_letter_language_code, list_of_feeds_at_url
+
+
 api = flask.Blueprint("api", __name__)
 
 @api.route("/learned_language", methods=["GET"])
@@ -827,10 +830,8 @@ def get_feeds_at_url():
     :return: a list of feeds that can be found at the given URL
     Empty list if soemething
     """
-    from feedparser_extensions import retrieve_feeds_at_url
-
     domain = flask.request.form.get('url', '')
-    return json_result(retrieve_feeds_at_url(domain))
+    return json_result(list_of_feeds_at_url(domain))
 
 
 
@@ -876,13 +877,9 @@ def start_following_feeds():
         if "image" in feed:
             feed_image_url_string = feed.image["href"]
 
-        # feed.language conforms to
-        # http://www.rssboard.org/rss-language-codes
-        # sometimes it is of the form de-de, de-au providing a hint of dialect
-        # thus, we only pick the first two letters of this code
         lan = None
         if "language" in feed:
-            lan = Language.find(feed.language[:2])
+            lan = Language.find(two_letter_language_code(feed))
 
         url = Url.find(urlString)
         zeeguu.db.session.add(url)
