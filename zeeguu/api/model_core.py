@@ -172,10 +172,6 @@ class User(db.Model):
         counter = Counter(domains)
         return counter.most_common()
 
-
-
-
-
     def unique_urls(self):
         urls = set()
         for b in self.all_bookmarks():
@@ -204,13 +200,8 @@ class User(db.Model):
         return not_encountered_words_dict_list
 
 
-
     def get_not_encountered_words_count(self):
         return len(self.get_not_encountered_words(self.learned_language))
-
-
-
-
 
     def get_known_bookmarks(self,lang):
         bookmarks = flask.g.user.all_bookmarks()
@@ -307,7 +298,6 @@ class User(db.Model):
             return 0
 
 
-
 #     Reading recommendations
     def recommendations(self):
         recommendations = {
@@ -348,10 +338,14 @@ class User(db.Model):
         except:
             return []
 
-
-
-
-
+    def learned_bookmarks(self, lang):
+        bookmarks = self.all_bookmarks()
+        too_easy_bookmarks = []
+        for bookmark in bookmarks:
+            if bookmark.check_is_latest_outcome_too_easy() and bookmark.origin.language == lang:
+                too_easy_bookmarks.append(bookmark)
+        learned_bookmarks = [bookmark for bookmark in bookmarks if bookmark not in too_easy_bookmarks]
+        return learned_bookmarks
 
 
 class Session(db.Model):

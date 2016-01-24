@@ -553,21 +553,13 @@ def get_percentage_of_probably_known_bookmarked_words():
 @with_session
 def get_learned_bookmarks(lang):
     lang = Language.find(lang)
-    bookmarks = flask.g.user.all_bookmarks()
-    too_easy_bookmarks = []
-    learned_bookmarks_dict_list = []
-    for bookmark in bookmarks:
-        if bookmark.check_is_latest_outcome_too_easy() and bookmark.origin.language == lang:
-            too_easy_bookmarks.append(bookmark)
-    learned_bookmarks = [bookmark for bookmark in bookmarks if bookmark not in too_easy_bookmarks]
-    for bookmark in learned_bookmarks:
-        learned_bookmarks_dict = {}
-        learned_bookmarks_dict['id'] = bookmark.id
-        learned_bookmarks_dict['origin'] = bookmark.origin.word
-        learned_bookmarks_dict['text'] = bookmark.text.content
-        learned_bookmarks_dict_list.append(learned_bookmarks_dict)
 
-    return json_result(learned_bookmarks_dict_list)
+    bk_list = [dict (id = bookmark.id,
+                     origin = bookmark.origin.word,
+                     text = bookmark.text.content
+                     ) for bookmark in flask.g.user.learned_bookmarks(lang)]
+
+    return json_result(bk_list )
 
 
 @api.route("/get_not_looked_up_words/<lang_code>", methods=("GET",))
