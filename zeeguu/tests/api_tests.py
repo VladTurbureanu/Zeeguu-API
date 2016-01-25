@@ -577,18 +577,12 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     # .....................................................................
 
     def test_get_feeds_at_inexistent_source(self):
-
-        resulting_feeds = []
-
-        url_to_test = ["http://nothingtofind.is"]
+        url_to_test = ["http://nothinghere.is"]
 
         form_data = dict(
             url=url_to_test)
         feeds = self.api_post_json('/get_feeds_at_url', form_data)
-        resulting_feeds += feeds
-
-
-        assert len(resulting_feeds) == 0
+        assert len(feeds) == 0
 
 
     def test_get_feeds_at_url(self):
