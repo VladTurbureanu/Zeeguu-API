@@ -577,11 +577,8 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     # .....................................................................
 
     def test_get_feeds_at_inexistent_source(self):
-        url_to_test = ["http://nothinghere.is"]
 
-        form_data = dict(
-            url=url_to_test)
-        feeds = self.api_post_json('/get_feeds_at_url', form_data)
+        feeds = self.api_post_json('/get_feeds_at_url', dict(url="http://nothinghere.is"))
         assert len(feeds) == 0
 
 
@@ -597,9 +594,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
         for each_url in urls_to_test:
-            form_data = dict(
-                url=each_url)
-            feeds = self.api_post_json('/get_feeds_at_url', form_data)
+            feeds = self.api_post_json('/get_feeds_at_url', dict(url=each_url))
             resulting_feeds += feeds
 
             # following assertion makes sure that we find at least on feed
