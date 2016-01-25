@@ -434,9 +434,7 @@ def delete_translation_from_bookmark(bookmark_id, translation_word):
 @cross_domain
 @with_session
 def get_translations_for_bookmark(bookmark_id):
-    bookmark = Bookmark.query.filter_by(
-            id=bookmark_id
-    ).first()
+    bookmark = Bookmark.query.filter_by(id=bookmark_id).first()
 
     result = [
         dict(id=translation.id,
