@@ -437,17 +437,15 @@ def get_translations_for_bookmark(bookmark_id):
     bookmark = Bookmark.query.filter_by(
             id=bookmark_id
     ).first()
-    translation_dict_list = []
-    translation_list = bookmark.translations_list
-    for translation in translation_list:
-        translation_dict = {}
-        translation_dict['id'] = translation.id
-        translation_dict['word'] = translation.word
-        translation_dict['language'] = translation.language.name
-        translation_dict['ranked_word'] = translation.rank
-        translation_dict_list.append(translation_dict)
 
-    return json_result(translation_dict_list)
+    result = [
+        dict(id=translation.id,
+                 word=translation.word,
+                 language=translation.language.name,
+                 ranked_word=translation.rank)
+        for translation in bookmark.translations_list]
+
+    return json_result(result)
 
 
 @api.route("/get_not_encountered_words/<lang_code>", methods=("GET",))
