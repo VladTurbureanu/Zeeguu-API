@@ -592,7 +592,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                         "http://zeit.de",
                         "http://www.handelsblatt.com"]
 
-
         for each_url in urls_to_test:
             feeds = self.api_post_json('/get_feeds_at_url', dict(url=each_url))
             resulting_feeds += feeds
