@@ -508,15 +508,14 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             url='http://mir.lu',
             context=u'Die kleine Jägermeister',
             word="Die")
+        print form_data
         bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
         b1 = Bookmark.find(bookmark1["bookmark_id"])
         # print b1.text
         # print b1.text.id
 
-        form_data = dict(
-            url='http://mir.lu',
-            context=u'Die kleine Jägermeister',
-            word="kleine")
+        form_data["word"] = "kleine"
+        print form_data
         bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
         b2 = Bookmark.find(bookmark2["bookmark_id"])
         # print b2.text

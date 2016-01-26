@@ -14,7 +14,7 @@ import threading
 import Queue
 
 from urllib import quote_plus, unquote_plus
-import urllib2
+from urllib2 import urlopen
 
 import flask
 import sqlalchemy.exc
@@ -93,9 +93,9 @@ def learned_and_native_language():
     Get the native language of the user in session
     :return:
     """
-    res = {"native": flask.g.user.native_language_id,
-           "learned": flask.g.user.learned_language_id}
-
+    u = flask.g.user
+    res = dict(native = u.native_language_id,
+               learned =  u.learned_language_id)
     return json_result(res)
 
 
@@ -242,7 +242,7 @@ def translate_from_to(word, from_lang_code, to_lang_code):
           "&source=" + from_lang_code.encode('utf8') + \
           "&key=" + api_key
     # print url
-    result = json.loads(urllib2.urlopen(url).read())
+    result = json.loads(urlopen(url).read())
     translation = result['data']['translations'][0]['translatedText']
     return translation
 
@@ -274,10 +274,9 @@ def translate_and_bookmark(from_lang_code, to_lang_code):
 
     id = bookmark_with_context(from_lang_code, to_lang_code, word_str, url_str, title_str, context_str, translation_str)
 
-    return json_result(
-            {"bookmark_id": id,
-             "translation": translation_str
-             })
+    return json_result(dict(
+                            bookmark_id = id,
+                            translation = translation_str))
 
 
 def bookmark_with_context(from_lang_code, to_lang_code, word_str, url_str, title_str, context_str, translation_str):
@@ -368,19 +367,16 @@ def delete_bookmark(bookmark_id):
 @cross_domain
 @with_session
 def get_exercise_log_for_bookmark(bookmark_id):
-    bookmark = Bookmark.query.filter_by(
-            id=bookmark_id
-    ).first()
+    bookmark = Bookmark.query.filter_by(id=bookmark_id).first()
+
     exercise_log_dict = []
     exercise_log = bookmark.exercise_log
     for exercise in exercise_log:
-        exercise_dict = {}
-        exercise_dict['id'] = exercise.id
-        exercise_dict['outcome'] = exercise.outcome.outcome
-        exercise_dict['source'] = exercise.source.source
-        exercise_dict['exercise_log_solving_speed'] = exercise.solving_speed
-        exercise_dict['time'] = exercise.time.strftime('%m/%d/%Y')
-        exercise_log_dict.append(exercise_dict)
+        exercise_log_dict.append(dict(id = exercise.id,
+                                      outcome = exercise.outcome.outcome,
+                                      source = exercise.source.source,
+                                      exercise_log_solving_speed = exercise.solving_speed,
+                                      time = exercise.time.strftime('%m/%d/%Y')))
 
     return json_result(exercise_log_dict)
 
