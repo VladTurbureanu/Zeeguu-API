@@ -94,8 +94,8 @@ def learned_and_native_language():
     :return:
     """
     u = flask.g.user
-    res = dict(native = u.native_language_id,
-               learned =  u.learned_language_id)
+    res = dict( native  = u.native_language_id,
+                learned = u.learned_language_id)
     return json_result(res)
 
 
