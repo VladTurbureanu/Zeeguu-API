@@ -136,7 +136,6 @@ class User(db.Model):
     def word_count(self):
         return len(self.user_words())
 
-
     def bookmarks_by_date(self):
         def extract_day_from_date(bookmark):
     		return (bookmark, bookmark.time.replace(bookmark.time.year, bookmark.time.month, bookmark.time.day,0,0,0,0))
@@ -150,6 +149,33 @@ class User(db.Model):
         sorted_dates = bookmarks_by_date.keys()
         sorted_dates.sort(reverse=True)
         return bookmarks_by_date, sorted_dates
+
+    def bookmarks_by_day(self, with_context):
+        bookmarks_by_date, sorted_dates = self.bookmarks_by_date()
+
+        dates = []
+        for date in sorted_dates:
+            bookmarks = []
+            for b in bookmarks_by_date[date]:
+                bookmark = dict(
+                    id=b.id,
+                    to=b.translation_words_list(),
+                    from_lang=b.origin.language_id,
+                    to_lang=b.translation().language.id,
+                    title=b.text.url.title,
+                    url=b.text.url.as_string()
+                )
+                bookmark["from"] = b.origin.word
+                if with_context:
+                    bookmark['context'] = b.text.content
+                bookmarks.append(bookmark)
+            date_entry = dict(
+                date=date.strftime("%A, %d %B %Y"),
+                bookmarks=bookmarks
+            )
+            dates.append(date_entry)
+        return dates
+
 
 
     # returns only HTTP domains. in this way we filter

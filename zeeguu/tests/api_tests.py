@@ -13,16 +13,13 @@ import json
 import re
 import time
 
-
-sondernExampleData = dict(
+sondern_example_data = dict(
     url='http://mir.lu/examples_with_karan',
     context='Wir arbeiten nicht sondern schlafen')
 
-strassenExampleform_data = dict(
+strassen_example_form_data = dict(
     url='http://mir.lu',
     context='chilling on the streets')
-
-
 
 class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
@@ -102,22 +99,17 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         probably_known_words = self.api_get_json('/get_probably_known_words/de')
         assert not any(word['word'] == 'sondern' for word in probably_known_words)
 
-
-
-
-
-
     def test_delete_bookmark(self):
-        rv = self.api_get('/bookmarks_by_day/with_context')
-        bookmarks_by_day_dict_before_delete = json.loads(rv.data)
+        bookmarks_by_day_dict_before_delete = self.api_get_json('/bookmarks_by_day/with_context')
         bookmarks_on_first_date_before_delete = bookmarks_by_day_dict_before_delete[0]['bookmarks']
-        first_bookmark_on_first_date_id = bookmarks_on_first_date_before_delete [0] ['id']
+        first_bookmark_on_first_date_id = bookmarks_on_first_date_before_delete[0]['id']
+
         assert any(bookmark['id'] == first_bookmark_on_first_date_id for bookmark in bookmarks_on_first_date_before_delete)
         assert first_bookmark_on_first_date_id is not None
-        rv = self.api_post('/delete_bookmark/'+ str(first_bookmark_on_first_date_id))
-        assert rv.data == "OK"
-        rv = self.api_get('/bookmarks_by_day/with_context')
-        bookmarks_by_day_dict_after_delete = json.loads(rv.data)
+
+        assert "OK" == self.api_post('/delete_bookmark/'+ str(first_bookmark_on_first_date_id)).data
+
+        bookmarks_by_day_dict_after_delete = self.api_get_json('/bookmarks_by_day/with_context')
         bookmarks_on_first_date_after_delete = bookmarks_by_day_dict_after_delete[0]['bookmarks']
         assert not any(bookmark['id'] == first_bookmark_on_first_date_id for bookmark in bookmarks_on_first_date_after_delete)
 
@@ -195,15 +187,15 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_get_known_bookmarks(self):
-        self.api_post('/bookmark_with_context/de/sondern/en/but rather', sondernExampleData)
-        self.api_post('/bookmark_with_context/de/strassen/en/streets', strassenExampleform_data)
+        self.api_post('/bookmark_with_context/de/sondern/en/but rather', sondern_example_data)
+        self.api_post('/bookmark_with_context/de/strassen/en/streets', strassen_example_form_data)
 
         rv = self.api_get('/bookmarks_by_day/with_context')
         bookmarks_by_day = json.loads(rv.data)
         assert any(context['context'] ==  'chilling on the streets' for context in bookmarks_by_day[0]['bookmarks'])
         #assert 'chilling on the streets' == bookmarks_by_day[0]['bookmarks'][0]['context']
         #assert sondernExampleData["context"] == bookmarks_by_day[0]['bookmarks'][1]['context']
-        assert any (context ['context'] == sondernExampleData["context"] for context in bookmarks_by_day[0]['bookmarks'])
+        assert any (context ['context'] == sondern_example_data["context"] for context in bookmarks_by_day[0]['bookmarks'])
         latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][0]['id']
         # print bookmarks_by_day[0]
 
@@ -229,52 +221,56 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         known_bookmarks_after = json.loads(rv4.data)
         assert not any(bookmark['id'] == second_latest_bookmark_id for bookmark in known_bookmarks_after)
 
-
-
-
     def test_get_known_words(self):
-        rv = self.api_post('/bookmark_with_context/de/sondern/en/but', sondernExampleData)
         form_data = dict(
-            url='http://mir.lu',
-            context='saying hi to girls')
-        rv = self.api_post('/bookmark_with_context/de/maedchen/en/girls', form_data)
-        form_data = dict(
-            url='http://mir.lu',
-            context='chilling with the girls')
-        rv = self.api_post('/bookmark_with_context/de/maedchen/en/girls', form_data)
-        rv = self.api_get('/bookmarks_by_day/with_context')
-        bookmarks_by_day = json.loads(rv.data)
-        latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][0]['id']
-        second_latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][1]['id']
-        third_latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][2]['id']
-        latest_bookmark_word = bookmarks_by_day[0]['bookmarks'][0]['from']
-        second_latest_bookmark_word = bookmarks_by_day[0]['bookmarks'][1]['from']
-        third_latest_bookmark_word = bookmarks_by_day[0]['bookmarks'][2]['from']
-        rv = self.api_get('/get_known_words/de')
-        known_words = json.loads(rv.data)
+            url='http://mir.lu')
+
+        self.api_post('/bookmark_with_context/de/sondern/en/but', sondern_example_data)
+
+        form_data["context"]="saying hi to the girls"
+        self.api_post('/bookmark_with_context/de/maedchen/en/girls', form_data)
+
+        form_data["context"]="chilling with the girls"
+        self.api_post('/bookmark_with_context/de/maedchen/en/girls', form_data)
+
+        first_day = self.api_get_json('/bookmarks_by_day/with_context')[0]
+
+        latest_bookmark_id = first_day['bookmarks'][0]['id']
+        second_latest_bookmark_id = first_day['bookmarks'][1]['id']
+        third_latest_bookmark_id = first_day['bookmarks'][2]['id']
+        latest_bookmark_word = first_day['bookmarks'][0]['from']
+        second_latest_bookmark_word = first_day['bookmarks'][1]['from']
+        third_latest_bookmark_word = first_day['bookmarks'][2]['from']
+
+        known_words = self.api_get_json('/get_known_words/de')
+
         known_words_count_before = len(known_words)
         assert not any(word['from'] == latest_bookmark_word for word in known_words)
-        rv = self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ str(latest_bookmark_id))
-        rv = self.api_get('/get_known_words/de')
-        known_words = json.loads(rv.data)
-        assert any(word['word'] == latest_bookmark_word for word in known_words)
+
+        self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ str(latest_bookmark_id))
+
+        known_words = self.api_get_json('/get_known_words/de')
+
         assert known_words_count_before +1 == len(known_words)
-        rv = self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ str(second_latest_bookmark_id))
-        rv = self.api_get('/get_known_words/de')
-        known_words = json.loads(rv.data)
+        assert any(word['word'] == latest_bookmark_word for word in known_words)
+
+        self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ str(second_latest_bookmark_id))
+        known_words  = self.api_get_json ('/get_known_words/de')
+
         assert any(word['word'] == latest_bookmark_word for word in known_words)
         assert any(word['word'] == second_latest_bookmark_word for word in known_words)
         assert known_words_count_before +1 == len(known_words)
-        rv = self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ str(third_latest_bookmark_id))
-        rv = self.api_get('/get_known_words/de')
-        known_words = json.loads(rv.data)
+
+        self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ str(third_latest_bookmark_id))
+        known_words = self.api_get_json('/get_known_words/de')
+
         assert known_words_count_before +2 == len(known_words)
         assert any(word['word'] == latest_bookmark_word for word in known_words)
         assert any(word['word'] == third_latest_bookmark_word for word in known_words)
-        time.sleep(5) # delays for 5 seconds
-        rv = self.api_post('/gym/create_new_exercise/Show solution/Recognize/10000/'+ str(third_latest_bookmark_id))
-        rv = self.api_get('/get_known_words/de')
-        known_words = json.loads(rv.data)
+
+        time.sleep(2) # delays for 2 seconds required for show solution
+        self.api_post('/gym/create_new_exercise/Show solution/Recognize/10000/'+ str(third_latest_bookmark_id))
+        known_words = self.api_get_json('/get_known_words/de')
         assert not any(word['word'] == third_latest_bookmark_word for word in known_words)
 
 
@@ -285,9 +281,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.api_post('/bookmark_with_context/de/sondern/en/but', form_data)
         # print rv.data
         latest_bookmark_id = json.loads(rv.data)
-        #rv = self.api_get('/bookmarks_by_day/with_context')
-        #bookmarks_by_day = json.loads(rv.data)
-        #latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][0]['id']
         rv = self.api_get('/get_learned_bookmarks/de')
         learned_bookmarks = json.loads(rv.data)
         assert any(bookmark['id'] == latest_bookmark_id for bookmark in learned_bookmarks)
@@ -297,9 +290,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             context='chilling on the streets')
         rv = self.api_post('/bookmark_with_context/de/strassen/en/streets', form_data)
         new_latest_bookmark_id = json.loads(rv.data)
-        #rv = self.api_get('/bookmarks_by_day/with_context')
-        #bookmarks_by_day = json.loads(rv.data)
-        #new_latest_bookmark_id = bookmarks_by_day[0]['bookmarks'][1]['id']
         rv = self.api_get('/get_learned_bookmarks/de')
         learned_bookmarks = json.loads(rv.data)
         assert learned_bookmarks_count +1 == len(learned_bookmarks)
@@ -508,7 +498,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             url='http://mir.lu',
             context=u'Die kleine Jägermeister',
             word="Die")
-        print form_data
+        # print form_data
         bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
         b1 = Bookmark.find(bookmark1["bookmark_id"])
         # print b1.text
@@ -661,4 +651,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    # unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(API_Tests)
+    unittest.TextTestRunner(verbosity=2).run(suite)
+

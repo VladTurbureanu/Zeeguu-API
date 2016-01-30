@@ -13,12 +13,12 @@ import time
 import threading
 import Queue
 
-from urllib import quote_plus, unquote_plus
-from urllib2 import urlopen
-
 import flask
 import sqlalchemy.exc
 import feedparser
+
+from urllib import unquote_plus
+
 
 import zeeguu
 from zeeguu import util
@@ -30,8 +30,11 @@ from endpoint_utils import cross_domain, with_session, json_result
 
 from feedparser_extensions import two_letter_language_code, list_of_feeds_at_url
 
+from translation_service import translate_from_to
+
 
 api = flask.Blueprint("api", __name__)
+
 
 @api.route("/learned_language", methods=["GET"])
 @cross_domain
@@ -202,49 +205,9 @@ def bookmarks_by_day(return_context):
 
     """
     with_context = return_context == "with_context"
-
-    bookmarks_by_date, sorted_dates = flask.g.user.bookmarks_by_date()
-
-    dates = []
-    for date in sorted_dates:
-        bookmarks = []
-        for b in bookmarks_by_date[date]:
-            bookmark = {}
-            bookmark['id'] = b.id
-            bookmark['from'] = b.origin.word
-            bookmark['to'] = b.translation_words_list()
-            bookmark['from_lang'] = b.origin.language_id
-            bookmark['to_lang'] = b.translation().language.id
-            bookmark['title'] = b.text.url.title
-            bookmark['url'] = b.text.url.as_string()
-
-            if with_context:
-                bookmark['context'] = b.text.content
-            bookmarks.append(bookmark)
-        date_entry = {}
-        date_entry['date'] = date.strftime("%A, %d %B %Y")
-        date_entry['bookmarks'] = bookmarks
-        dates.append(date_entry)
-
-    return json_result(dates)
+    return json_result(flask.g.user.bookmarks_by_day(with_context))
 
 
-def translate_from_to(word, from_lang_code, to_lang_code):
-    translate_url = "https://www.googleapis.com/language/translate/v2"
-    api_key = zeeguu.app.config.get("TRANSLATE_API_KEY")
-
-    # Note, that there is quote and quote_plus. The Google API prefers quote_plus,
-    # This seems to be the convention for info submitted from forms via GET.
-    url = translate_url + \
-          "?q=" + quote_plus(word.encode('utf8')) + \
-          "&target=" + to_lang_code.encode('utf8') + \
-          "&format=text".encode('utf8') + \
-          "&source=" + from_lang_code.encode('utf8') + \
-          "&key=" + api_key
-    # print url
-    result = json.loads(urlopen(url).read())
-    translation = result['data']['translations'][0]['translatedText']
-    return translation
 
 
 @api.route("/translate_and_bookmark/<from_lang_code>/<to_lang_code>", methods=["POST"])
