@@ -79,7 +79,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         # Bookmark sondern
         sondernId = (self.api_post('/bookmark_with_context/de/sondern/en/but', exampleform_data)).data
 
-
         # User declares that sondern is "Too Easy" in an exercise
         self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ sondernId)
         # Thus, sondern goes to the Probably known words
@@ -98,7 +97,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         # doesn't change anything evidently. ML: Why is this?
         probably_known_words = self.api_get_json('/get_probably_known_words/de')
         assert not any(word['word'] == 'sondern' for word in probably_known_words)
-
 
     def test_create_new_exercise(self):
         rv = self.api_post('/gym/create_new_exercise/Correct/Recognize/10000/2')
@@ -146,25 +144,20 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         translations_dict_of_bookmark = json.loads(rv.data)
         assert not any(translation['word'] == first_word_translation_of_bookmark for translation in translations_dict_of_bookmark)
 
-
-
-
-
-
     def test_get_translations_for_bookmark(self):
-       rv = self.api_get('/get_translations_for_bookmark/2')
-       translations_dict_bookmark_before_add = json.loads(rv.data)
-       assert len(translations_dict_bookmark_before_add) ==1
-       first_translation_word = translations_dict_bookmark_before_add[0]['word']
-       assert any(translation['word'] == first_translation_word for translation in translations_dict_bookmark_before_add)
-       rv = self.api_post('/add_new_translation_to_bookmark/women/2')
-       assert rv.data == "OK"
-       rv = self.api_get('/get_translations_for_bookmark/2')
-       translations_dict_bookmark_after_add = json.loads(rv.data)
-       assert len(translations_dict_bookmark_after_add) ==2
-       assert first_translation_word!= 'women'
-       assert any(translation['word'] == first_translation_word for translation in translations_dict_bookmark_after_add)
-       assert any(translation['word'] == 'women' for translation in translations_dict_bookmark_after_add)
+        translations_dict_bookmark_before_add = self.api_get_json('/get_translations_for_bookmark/2')
+        assert len(translations_dict_bookmark_before_add) ==1
+
+        first_translation_word = translations_dict_bookmark_before_add[0]['word']
+        assert any(translation['word'] == first_translation_word for translation in translations_dict_bookmark_before_add)
+        rv = self.api_post('/add_new_translation_to_bookmark/women/2')
+        assert rv.data == "OK"
+        rv = self.api_get('/get_translations_for_bookmark/2')
+        translations_dict_bookmark_after_add = json.loads(rv.data)
+        assert len(translations_dict_bookmark_after_add) ==2
+        assert first_translation_word!= 'women'
+        assert any(translation['word'] == first_translation_word for translation in translations_dict_bookmark_after_add)
+        assert any(translation['word'] == 'women' for translation in translations_dict_bookmark_after_add)
 
 
     def test_get_known_bookmarks(self):
