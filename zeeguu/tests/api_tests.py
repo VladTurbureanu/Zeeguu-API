@@ -99,19 +99,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         probably_known_words = self.api_get_json('/get_probably_known_words/de')
         assert not any(word['word'] == 'sondern' for word in probably_known_words)
 
-    def test_delete_bookmark(self):
-        bookmarks_by_day_dict_before_delete = self.api_get_json('/bookmarks_by_day/with_context')
-        bookmarks_on_first_date_before_delete = bookmarks_by_day_dict_before_delete[0]['bookmarks']
-        first_bookmark_on_first_date_id = bookmarks_on_first_date_before_delete[0]['id']
-
-        assert any(bookmark['id'] == first_bookmark_on_first_date_id for bookmark in bookmarks_on_first_date_before_delete)
-        assert first_bookmark_on_first_date_id is not None
-
-        assert "OK" == self.api_post('/delete_bookmark/'+ str(first_bookmark_on_first_date_id)).data
-
-        bookmarks_by_day_dict_after_delete = self.api_get_json('/bookmarks_by_day/with_context')
-        bookmarks_on_first_date_after_delete = bookmarks_by_day_dict_after_delete[0]['bookmarks']
-        assert not any(bookmark['id'] == first_bookmark_on_first_date_id for bookmark in bookmarks_on_first_date_after_delete)
 
     def test_create_new_exercise(self):
         rv = self.api_post('/gym/create_new_exercise/Correct/Recognize/10000/2')
@@ -161,12 +148,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
 
-
-    def test_delete_bookmark(self):
-        rv = self.api_post('/delete_bookmark/2')
-        assert rv.data =='OK'
-        rv = self.api_post('/delete_bookmark/2')
-        assert rv.data == "FAIL"
 
 
 
@@ -492,24 +473,42 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert (text1 == text2)
 
 
-    def test_delete_bookmark(self):
+    def test_delete_bookmark1(self):
+        bookmarks_by_day_dict_before_delete = self.api_get_json('/bookmarks_by_day/with_context')
+        bookmarks_on_first_date_before_delete = bookmarks_by_day_dict_before_delete[0]['bookmarks']
+        first_bookmark_on_first_date_id = bookmarks_on_first_date_before_delete[0]['id']
+
+        assert any(bookmark['id'] == first_bookmark_on_first_date_id for bookmark in bookmarks_on_first_date_before_delete)
+        assert first_bookmark_on_first_date_id is not None
+
+        assert "OK" == self.api_post('/delete_bookmark/'+ str(first_bookmark_on_first_date_id)).data
+
+        bookmarks_by_day_dict_after_delete = self.api_get_json('/bookmarks_by_day/with_context')
+        bookmarks_on_first_date_after_delete = bookmarks_by_day_dict_after_delete[0]['bookmarks']
+        assert not any(bookmark['id'] == first_bookmark_on_first_date_id for bookmark in bookmarks_on_first_date_after_delete)
+
+
+    def test_delete_bookmark2(self):
+        rv = self.api_post('/delete_bookmark/2')
+        assert rv.data =='OK'
+        rv = self.api_post('/delete_bookmark/2')
+        assert rv.data == "FAIL"
+
+
+    def test_delete_bookmark3(self):
 
         form_data = dict(
             url='http://mir.lu',
             context=u'Die kleine Jägermeister',
             word="Die")
-        # print form_data
+
         bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
         b1 = Bookmark.find(bookmark1["bookmark_id"])
-        # print b1.text
-        # print b1.text.id
 
         form_data["word"] = "kleine"
-        print form_data
+        
         bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
         b2 = Bookmark.find(bookmark2["bookmark_id"])
-        # print b2.text
-        # print b2.text.id
 
         assert len (b2.text.all_bookmarks()) == 2
         self.api_post("delete_bookmark/27")
