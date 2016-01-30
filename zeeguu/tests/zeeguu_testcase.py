@@ -62,6 +62,9 @@ class ZeeguuTestCase(unittest.TestCase):
     def api_get(self, test_data, formdata='None', content_type=None):
         return self.app.get(self.in_session(test_data), data = formdata, content_type = content_type)
 
+    def api_get_data(self, test_data, formdata='None', content_type=None):
+        return self.api_get(test_data, formdata, content_type).data
+
     def api_get_json(self, test_data, formdata='None', content_type=None):
         rv = self.api_get(test_data, formdata, content_type)
         return json.loads(rv.data)

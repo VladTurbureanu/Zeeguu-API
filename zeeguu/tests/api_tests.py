@@ -25,16 +25,12 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_logout(self):
         self.logout()
-        rv = self.app.get('/recognize')
-        assert 'Redirecting' in rv.data
-
+        assert 'Redirecting' in self.api_get_data('/recognize')
 
     def test_logout_API(self):
-        rv = self.api_get('/logout_session')
-        assert rv.data == "OK"
+        assert "OK" == self.api_get_data('/logout_session')
         rv = self.api_get('/validate')
         assert rv.status== "401 UNAUTHORIZED"
-
 
     def test_bookmark_from_android(self):
         form_data = dict(
@@ -43,12 +39,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             title="lal")
         self.api_post('/bookmark_with_context/de/sondern/en/but', form_data)
         t = zeeguu.model.Url.find("android:app","Songs by Iz")
-        assert t != None
+        assert t
 
         bookmarks = self.api_get_json('/get_learned_bookmarks/de')
         assert any(u'sondern' in y.values() for y in bookmarks )
-
-
 
     def test_bookmark_without_title_should_fail(self):
         form_data = dict(
@@ -61,7 +55,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         first_date = elements[0]
         latest_bookmark_id = int(first_date["bookmarks"][0]['id'])
         assert latest_bookmark_id  == added_bookmark_id
-
 
     def test_get_probably_known(self):
 
@@ -76,7 +69,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             url='http://mir.lu',
             context='gute nacht sondern')
 
-        # Bookmark sondern
+        # Bookmark 'sondern'
         sondernId = (self.api_post('/bookmark_with_context/de/sondern/en/but', exampleform_data)).data
 
         # User declares that sondern is "Too Easy" in an exercise
@@ -105,15 +98,15 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert rv.data =="FAIL"
 
     def test_get_exercise_log_for_bookmark(self):
-       rv = self.api_get('/get_exercise_log_for_bookmark/3')
-       assert "Correct" not in rv.data
-       rv = self.api_post('/gym/create_new_exercise/Correct/Recognize/10000/3')
-       assert rv.data =="OK"
-       rv = self.api_post('/gym/create_new_exercise/Typo/Translate/10000/3')
-       assert rv.data =="OK"
-       rv = self.api_get('/get_exercise_log_for_bookmark/3')
-       assert "Correct" in rv.data
-       assert "Translate" in rv.data
+        assert "Correct" not in self.api_get_data('/get_exercise_log_for_bookmark/3')
+
+        self.api_post('/gym/create_new_exercise/Correct/Recognize/10000/3')
+        self.api_post('/gym/create_new_exercise/Typo/Translate/10000/3')
+
+        exercise_log = self.api_get_data('/get_exercise_log_for_bookmark/3')
+
+        assert "Correct" in exercise_log
+        assert "Translate" in exercise_log
 
     def test_add_new_translation_to_bookmark(self):
         rv = self.api_post('/add_new_translation_to_bookmark/women/1')
