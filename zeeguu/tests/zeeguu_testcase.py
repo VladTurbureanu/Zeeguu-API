@@ -72,6 +72,9 @@ class ZeeguuTestCase(unittest.TestCase):
     def api_post(self, test_data, formdata='None', content_type=None):
         return self.app.post(self.in_session(test_data), data = formdata, content_type = content_type)
 
+    def data_of_api_post(self, test_data, formdata='None', content_type=None):
+        return self.app.post(self.in_session(test_data), data = formdata, content_type = content_type).data
+
     def api_post_json(self, test_data, formdata='None', content_type=None):
         rv = self.app.post(self.in_session(test_data), data = formdata, content_type = content_type)
         return json.loads(rv.data)

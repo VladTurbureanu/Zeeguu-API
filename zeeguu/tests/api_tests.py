@@ -109,32 +109,31 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert "Translate" in exercise_log
 
     def test_add_new_translation_to_bookmark(self):
-        rv = self.api_post('/add_new_translation_to_bookmark/women/1')
-        assert rv.data =="OK"
-        rv = self.api_get('/get_translations_for_bookmark/2')
-        translations_dict_of_bookmark = json.loads(rv.data)
+        assert "OK" == self.data_of_api_post('/add_new_translation_to_bookmark/women/1')
+
+        translations_dict_of_bookmark = self.api_get_json('/get_translations_for_bookmark/2')
         first_translation_word_of_bookmark = translations_dict_of_bookmark[0]['word']
-        rv = self.api_post('/add_new_translation_to_bookmark/'+str(first_translation_word_of_bookmark)+'/2')
-        assert rv.data == 'FAIL'
+
+        assert 'FAIL' == self.data_of_api_post('/add_new_translation_to_bookmark/'+str(first_translation_word_of_bookmark)+'/2')
 
     def test_delete_translation_from_bookmark(self):
-        rv = self.api_get('/get_translations_for_bookmark/2')
-        translations_dict_of_bookmark = json.loads(rv.data)
+        translations_dict_of_bookmark = self.api_get_json('/get_translations_for_bookmark/2')
         first_word_translation_of_bookmark = translations_dict_of_bookmark[0]['word']
-        rv = self.api_post('/delete_translation_from_bookmark/2/'+str(first_word_translation_of_bookmark))
-        assert rv.data =='FAIL'
-        rv = self.api_post('/add_new_translation_to_bookmark/women/2')
-        rv = self.api_get('/get_translations_for_bookmark/2')
-        translations_dict_of_bookmark = json.loads(rv.data)
+
+        assert 'FAIL' == self.data_of_api_post('/delete_translation_from_bookmark/2/'+str(first_word_translation_of_bookmark))
+        self.api_post('/add_new_translation_to_bookmark/women/2')
+
+        translations_dict_of_bookmark  = self.api_get_json('/get_translations_for_bookmark/2')
         first_word_translation_of_bookmark = translations_dict_of_bookmark[0]['word']
+
+        assert len(translations_dict_of_bookmark) == 2
         assert any (translation['word'] == first_word_translation_of_bookmark for translation in translations_dict_of_bookmark)
         assert any(translation['word'] == 'women' for translation in translations_dict_of_bookmark)
-        rv = self.api_post('/delete_translation_from_bookmark/2/wome')
-        assert rv.data == 'FAIL'
-        rv = self.api_post('/delete_translation_from_bookmark/2/'+str(first_word_translation_of_bookmark))
-        assert rv.data =='OK'
-        rv = self.api_get('/get_translations_for_bookmark/2')
-        translations_dict_of_bookmark = json.loads(rv.data)
+
+        assert 'FAIL' == self.data_of_api_post('/delete_translation_from_bookmark/2/wome')
+        assert 'OK' == self.data_of_api_post('/delete_translation_from_bookmark/2/'+str(first_word_translation_of_bookmark))
+
+        translations_dict_of_bookmark = self.api_get_json('/get_translations_for_bookmark/2')
         assert not any(translation['word'] == first_word_translation_of_bookmark for translation in translations_dict_of_bookmark)
 
     def test_get_translations_for_bookmark(self):
