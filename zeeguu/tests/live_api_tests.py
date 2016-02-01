@@ -7,6 +7,7 @@ USER=zeeguu.app.config.get("TEST_USER")
 PASS=zeeguu.app.config.get("TEST_PASS")
 ZSRV="https://zeeguu.unibe.ch/"
 
+
 class Live_API_Tests(unittest.TestCase):
 
     def test_login(self):
@@ -38,15 +39,19 @@ class Live_API_Tests(unittest.TestCase):
         print url_with_session
         return url_with_session
 
+    def zurl(self, url):
+        return self.in_session(self.test_get_session(), ZSRV+url)
+
     def test_content_from_url(self):
         manual_check = False
 
         data = dict(urls=[
                     dict(url="http://www.derbund.ch/wirtschaft/unternehmen-und-konjunktur/die-bankenriesen-in-den-bergkantonen/story/26984250",
-                         id=1)])
+                         id=1),
+                    dict(url="http://www.computerbase.de/2015-11/bundestag-parlament-beschliesst-das-ende-vom-routerzwang-erneut/",
+                         id=2)])
 
-        r = requests.post(self.in_session(self.test_get_session(), ZSRV+'get_content_from_url'),
-                          json=data)
+        r = requests.post(self.zurl('get_content_from_url'), json=data)
 
         urls = r.json()['contents']
         for url in urls:
@@ -55,6 +60,14 @@ class Live_API_Tests(unittest.TestCase):
             if manual_check:
                 print url['content']
                 print url['image']
+
+        print urls
+        return urls
+
+    def test_get_learnability(self):
+        r = requests.post(self.zurl('/get_learnability_for_text/de'), json=dict(texts=self.test_content_from_url()))
+        print r.text
+
 
 
 
