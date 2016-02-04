@@ -31,7 +31,7 @@ def set_default_exercise_based_prob():
                     if bookmarks_by_user_and_word:
                         prob.probability = total_prob/len(bookmarks_by_user_and_word)
                     zeeguu.db.session.commit()
-    print 'job1'
+    print ('job1')
 
 
 def set_default_encounter_based_prob():
@@ -46,7 +46,7 @@ def set_default_encounter_based_prob():
             if b < a:
                 prob.probability = b + c
                 zeeguu.db.session.commit()
-    print 'job2'
+    print ('job2')
 
 def set_know_word_prob():
     zeeguu.app.test_request_context().push()
@@ -81,7 +81,7 @@ def set_know_word_prob():
                 known_word_probability_obj = KnownWordProbability(user,user_word,ranked_word,prob.probability)
                 zeeguu.db.session.add(known_word_probability_obj)
                 zeeguu.db.session.commit()
-    print 'job3'
+    print ('job3')
 
 
 

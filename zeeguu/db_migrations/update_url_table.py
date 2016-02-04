@@ -29,6 +29,6 @@ def set_default_exercise_based_prob():
 if __name__ == "__main__":
     try:
         set_default_exercise_based_prob()
-        print "Migration OK"
+        print ("Migration OK")
     except Exception:
-        print "Ooops"
+        print ("Ooops")

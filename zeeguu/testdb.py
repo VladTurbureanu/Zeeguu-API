@@ -96,12 +96,12 @@ if __name__ == "__main__":
     session = zeeguu.db.session
     session.add(user)
     print (zeeguu.db.session.commit())
-    print "user4 added"
+    print ("user4 added")
 
     user = model.User.find("user4@localhost.com")
     zeeguu.db.session.delete(user)
     print (zeeguu.db.session.commit())
-    print "user4 removed"
+    print ("user4 removed")
 
     create_url_and_texts()
     t1, t2, url = get_url_and_texts()
@@ -112,17 +112,17 @@ if __name__ == "__main__":
     session.delete(t2)
     session.commit()
     if not url.texts:
-        print "no more texts..."
+        print ("no more texts...")
     session.delete(url)
     session.commit()
 
-    print "===after delete..."
+    print ("===after delete...")
     t1, t2, url = get_url_and_texts()
     if t1:
-        print t1.content
+        print (t1.content)
     if t2:
-        print t2.content
+        print (t2.content)
     if url:
-        print url.url
+        print (url.url)
 
 

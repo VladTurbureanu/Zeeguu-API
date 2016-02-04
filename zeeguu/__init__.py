@@ -28,10 +28,10 @@ def setup_db_connection():
     else:
         #  Ooops: we are not testing, and we don't have a DB configured!
         if not "SQLALCHEMY_DATABASE_URI" in app.config:
-            print "No db configured. You probably have no config file..."
+            print ("No db configured. You probably have no config file...")
             exit()
 
-    print "->>  DB Connection String: " + app.config["SQLALCHEMY_DATABASE_URI"]
+    print ("->>  DB Connection String: " + app.config["SQLALCHEMY_DATABASE_URI"])
 
     # getting rid of a warning in new version of SQLAlchemy
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

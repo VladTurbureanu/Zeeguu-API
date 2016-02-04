@@ -153,7 +153,7 @@ class Dbtest(ZeeguuTestCase):
                                     .join(model.UserWord, model.Bookmark.origin)
         ).all()
 
-        print random.choice(bookmarks).origin.word
+        print (random.choice(bookmarks).origin.word)
 
 
     def test_url_domain(self):
@@ -177,7 +177,7 @@ class Dbtest(ZeeguuTestCase):
         assert not(any("android" in dom[0] for dom in self.mir.recent_domains_with_times()))
 
     def test_frequent_domains(self):
-        print self.mir.frequent_domains()
+        print (self.mir.frequent_domains())
 
 
     def test_one_domain_multiple_urls(self):
@@ -194,7 +194,7 @@ class Dbtest(ZeeguuTestCase):
         db.session.commit()
 
         d = model.DomainName.find("https://mir.lu")
-        print d.domainNameString
+        print (d.domainNameString)
 
 
 

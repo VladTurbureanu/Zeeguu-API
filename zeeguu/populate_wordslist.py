@@ -30,7 +30,7 @@ def word_list(lang_code):
 def add_ranked_word_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
-    print "looking for language ..." + lang_code
+    print ("looking for language ..." + lang_code)
     from_lang = model.Language.find(lang_code)
     initial_line_number = 1
 
@@ -39,10 +39,10 @@ def add_ranked_word_to_db(lang_code):
         zeeguu.db.session.add(r)
         initial_line_number+=1
         if (initial_line_number % 1000 == 0):
-            print str(initial_line_number // 1000) + "k words done."
+            print (str(initial_line_number // 1000) + "k words done.")
     zeeguu.db.session.commit()
 
-    print 'done importing the words in the DB'
+    print ('done importing the words in the DB')
 
 
 def change_db(lang_code):
@@ -51,7 +51,7 @@ def change_db(lang_code):
 
 if __name__ == "__main__":
     if len(sys.argv)<2:
-        print "pass the language code that you want to import"
+        print ("pass the language code that you want to import")
 
     change_db(sys.argv[1])
 

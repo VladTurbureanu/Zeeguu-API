@@ -543,8 +543,8 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             assert url['content'] is not None
             assert url['image'] is not None
             if manual_check:
-                print url['content']
-                print url['image']
+                print (url['content'])
+                print (url['image'])
 
     # From here on we have several tests for the RSS feed related endpoints
     # .....................................................................

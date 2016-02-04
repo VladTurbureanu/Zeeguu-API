@@ -55,7 +55,7 @@ class User(db.Model):
 
     def star(self, word):
         self.starred_words.append(word)
-        print word.word + " is now starred for user " + self.name
+        print (word.word + " is now starred for user " + self.name)
         # TODO: Does this work without a commit here? To double check.
 
     def details_as_dictionary(self):
