@@ -124,7 +124,7 @@ def available_languages():
     supported languages.
     e.g. ["en", "fr", "de", "it", "no", "ro"]
     """
-    available_language_codes = map((lambda x: x.id), (Language.available_languages()))
+    available_language_codes = map((lambda x: x.id), Language.available_languages())
     return json.dumps(available_language_codes)
 
 
@@ -136,7 +136,7 @@ def available_native_languages():
     supported native languages. curently only english...
     e.g. ["en", "fr", "de", "it", "no", "ro"]
     """
-    available_language_codes = map((lambda x: x.id), (Language.native_languages()))
+    available_language_codes = map((lambda x: x.id), Language.native_languages())
     return json.dumps(available_language_codes)
 
 

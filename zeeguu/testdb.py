@@ -40,8 +40,8 @@ def populate(from_, to, dict_file):
 def clean_word(word):
     match = re.match(WORD_PATTERN, word)
     if match is None:
-        print word
-        return word.decode("utf8")
+        print (word)
+        return (word.decode("utf8"))
     return match.group(1).decode("utf8")
 
 
