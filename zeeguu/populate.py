@@ -76,14 +76,10 @@ def clean_word(word):
         return word.decode("utf8")
     return match.group(1).decode("utf8")
 
-
-
 def add_bookmark(user, original_language, original_word, translation_language, translation_word,  date, the_context, the_url, the_url_title):
 
-    url = Url.find (the_url, the_url_title)
-    text = Text(the_context, translation_language, url)
-
-
+    url = Url.find (the_url)
+    text = Text.find_or_create(the_context, translation_language, url)
 
     if RankedWord.exists(original_word.lower(), original_language):
         rank1 = UserWord.find_rank(original_word.lower(), original_language)
@@ -111,6 +107,7 @@ def add_probability_to_existing_words_of_user(user,bookmark,language):
 
 
 def create_test_db():
+    print "in crate test db..."
     zeeguu.app.test_request_context().push()
 
     zeeguu.db.session.commit()
@@ -200,22 +197,18 @@ def create_test_db():
 
 
 
-
-
-
     french_dict = {
         'jambes':'legs',
         'de':'of',
         'et':'and'
             }
 
-
-
-
     story_url = 'http://www.gutenberg.org/files/23393/23393-h/23393-h.htm'
     japanese_story = [
             # ['recht', 'right', 'Du hast recht', story_url],
-            ['hauen', 'to chop', 'Da waren einmal zwei Holzhauer können', story_url],
+            ['Holzhauer', 'wood choppers', 'Da waren einmal zwei Holzhauer können', story_url],
+            ['Da', 'there', 'Da waren einmal zwei Holzhauer können', story_url],
+            ['zwei', 'two', 'Da waren einmal zwei Holzhauer können', story_url],
             [u'Wald','to arrive', u'Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren. Um in den Walden zu gelangen, mußten sie einen großen Fluß passieren', story_url],
             ['eingerichtet','established',u'Um in den Wald zu gelangen, mußten sie einen großen Fluß passieren, über den eine Fähre eingerichtet war', story_url],
             [u'vorläufig','temporary',u'von der er des rasenden Sturmes wegen vorläufig nicht zurück konnte', story_url],
@@ -229,15 +222,15 @@ def create_test_db():
     add_ranked_word_to_db('de')
 
     for key in today_dict:
-        add_bookmark(user, de, key, en, today_dict[key], jan111, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung fur das finanzsystem habe, sagte holder, ohne namen von banken zu nennen" + key,
+        add_bookmark(user, de, key, en, today_dict[key], jan111, "Keine bank durfe auf immunitat pochen, nur weil sie eine besonders herausgehobene bedeutung fur das finanzsystem habe, sagte holder, ohne namen von banken zu nennen",
                          "http://url2", "title of url2")
 
     for key in dict:
-        add_bookmark(user, de, key, en, dict[key], ian101, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. "+key,
+        add_bookmark(user, de, key, en, dict[key], ian101, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. ",
                          "http://url1", "title of url1")
 
     for key in french_dict:
-        add_bookmark(user, de, key, en, french_dict[key], ian101, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. "+key,
+        add_bookmark(user, de, key, en, french_dict[key], ian101, "Deutlich uber dem medianlohn liegen beispielsweise forschung und entwicklung, tabakverarbeitung, pharma oder bankenwesen, am unteren ende der skala liegen die tieflohnbranchen detailhandel, gastronomie oder personliche dienstleistungen. ",
                          "http://url1", "title of url1")
     for w in japanese_story:
         add_bookmark(user, de, w[0], en, w[1],jan14, w[2],w[3], "japanese story")
@@ -247,4 +240,5 @@ def create_test_db():
 
 
 if __name__ == "__main__":
+    "in populate..."
     create_test_db()

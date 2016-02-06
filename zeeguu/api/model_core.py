@@ -1212,9 +1212,6 @@ bookmark_exercise_mapping = Table('bookmark_exercise_mapping', db.Model.metadata
     Column('exercise_id', Integer, ForeignKey('exercise.id'))
 )
 
-
-
-
 class Text(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
 
@@ -1241,7 +1238,6 @@ class Text(db.Model):
     def words(self):
         for word in re.split(re.compile(u"[^\\w]+", re.U), self.content):
             yield UserWord.find(word, self.language)
-
 
     def shorten_word_context(self, given_word, max_word_count):
         # shorter_text = ""
@@ -1274,8 +1270,6 @@ class Text(db.Model):
     def all_bookmarks(self):
         return Bookmark.find_all_for_text(self)
 
-
-
     @classmethod
     def find_or_create(cls, text, language, url):
         """
@@ -1288,7 +1282,7 @@ class Text(db.Model):
         try:
             query = (
                 cls.query.filter(cls.content_hash == util.text_hash(text))
-            #     For some reason, here we can't filter by the url...
+                # For some reason, here we can't filter by the url...
             )
             if query.count() > 0:
                 query = query.filter(cls.content == text)

@@ -3,22 +3,16 @@ from functools import wraps
 import flask
 from datetime import timedelta, date
 
-from zeeguu import model
-from zeeguu.api.model_core import UserWord, Bookmark, User, Text
+from zeeguu.api.model_core import UserWord, Bookmark, User, Text, ExerciseSource, ExerciseOutcome, Exercise, ExerciseBasedProbability, RankedWord, EncounterBasedProbability, KnownWordProbability
+from zeeguu.gym.model import Card
+from zeeguu.api.model_core import db
 import random
 import datetime
 
 from zeeguu.gym import gym
 
-
-class UserVisibleException (Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
-
+from question_selection_strategies import new_random_question
+from user_message import UserVisibleException
 
 def login_first(fun):
     """
@@ -119,67 +113,8 @@ def bookmarks():
 @gym.route("/gym/question/<from_lang>/<to_lang>")
 @login_first
 def question(from_lang, to_lang):
-    # from_lang = model.Language.find(from_lang)
-    # to_lang = model.Language.find(to_lang)
+    return json.dumps(new_random_question())
 
-    bookmarks = (
-        model.Bookmark
-            .query.filter_by(user=flask.g.user)
-            .join(UserWord, Bookmark.origin)
-            .join(model.Language, UserWord.language)
-            .filter(UserWord.language == flask.g.user.learned_language)
-
-    ).all()
-
-
-    tested_word = random.choice(bookmarks)
-
-    # question = tested_word.origin
-    answer = tested_word.translation()
-
-    # if question.language != from_lang:
-    #     question, answer = answer, question
-
-    return json.dumps({
-        "question": tested_word.origin.word,
-        "example":tested_word.text.content,
-        "url":tested_word.text.url.url,
-        "answer": answer.word,
-        "id": tested_word.id,
-        "rank": tested_word.origin.importance_level(),
-        "reason": "Random Word",
-        "starred": False
-    })
-
-
-
-def question_new():
-    bookmarks = (
-        model.Bookmark
-            .query.filter_by(user=flask.g.user)
-            .join(UserWord, Bookmark.origin)
-            .join(model.Language, UserWord.language)
-            .join(Text, Bookmark.text)
-            .filter(UserWord.language == flask.g.user.learned_language)
-            .filter(Text.content != "")
-    ).all()
-
-    if len(bookmarks) == 0:
-        raise UserVisibleException("It seems you have nothing to learn...")
-
-    bookmark = random.choice(bookmarks)
-
-    return {
-        "question": bookmark.translations_rendered_as_text(),
-        "example":bookmark.text.content,
-        "url":bookmark.text.url.url,
-        "answer": bookmark.origin.word,
-        "bookmark_id": bookmark.id,
-        "id": bookmark.id,
-        "rank": bookmark.origin.importance_level(),
-        "reason": "Random Word",
-        "starred": False
-    }
 
 @gym.route("/recognize")
 @login_first
@@ -188,7 +123,7 @@ def recognize():
         return flask.render_template(
                 "recognize.html",
                 user=flask.g.user,
-                question = question_new())
+                question = new_random_question())
 
     except UserVisibleException as e:
         return  flask.render_template(
@@ -203,7 +138,7 @@ def m_recognize():
                     "recognize.html",
                     mobile=True,
                     user=flask.g.user,
-                    question = question_new())
+                    question = new_random_question())
         except UserVisibleException as e:
             return  flask.render_template(
                     "message.html",
@@ -248,7 +183,7 @@ def study_before_play():
 
 
     try:
-        new_question = question_new()
+        new_question = new_random_question()
         return flask.render_template("recognize.html",
                                      question = new_question,
                                      user=flask.g.user,
@@ -258,63 +193,21 @@ def study_before_play():
         return flask.redirect(url_to_redirect_to)
 
 
-
-def redisplay_card_simple(cards):
-    cards.sort(key=lambda x: x.last_seen)
-    card = cards[1]
-    return card
-
-
-def select_next_card_aware_of_days(cards):
-
-    interesting_intervals = [1,2,7,31]
-    interesting_dates = [date.today() - timedelta(days=x) for x in interesting_intervals]
-
-
-    interesting_cards = [card for card in cards if card.last_seen.date() in interesting_dates]
-    interesting_cards.sort(key=lambda card: card.bookmark.origin.importance_level())
-
-    if interesting_cards:
-        card = interesting_cards[0]
-        card.set_reason("seen on: " + card.last_seen.strftime("%d/%m/%y"))
-        return card
-
-    cards_not_seen_today = [card for card in cards if card.last_seen.date() != date.today()]
-    cards_not_seen_today.sort(key=lambda card: card.bookmark.origin.importance_level())
-
-    if cards_not_seen_today:
-        card = cards_not_seen_today[0]
-        card.set_reason("seen on: " + card.last_seen.strftime("%d/%m/%y"))
-        return card
-
-    # All cards were seen today. Just return a random one
-    if cards:
-        card = random.choice(cards)
-        card.set_reason("random word: all others are seen today.")
-        return card
-
-    return None
-
-
-
-
-
-
 @gym.route("/gym/delete_bookmark/<bookmark_id>", methods=("POST",))
 @login_first
 def delete(bookmark_id):
 
     # Beware, the there is another delete_bookmark in the zeeguu API!!!
-    session = model.db.session
-    bookmark = model.Bookmark.query.get(bookmark_id)
+    session = db.session
+    bookmark = Bookmark.query.get(bookmark_id)
     if bookmark == None:
         return "Not found"
 
 
-    text = model.Text.query.get(bookmark.text.id)
+    text = Text.query.get(bookmark.text.id)
 
     # delete the associated cards
-    cards = model.Card.query.filter_by(bookmark_id=bookmark.id).all()
+    cards = Card.query.filter_by(bookmark_id=bookmark.id).all()
     for card in cards:
         session.delete(card)
 
@@ -338,79 +231,79 @@ def delete(bookmark_id):
 def submit_answer(answer, expected,question_id):
     if answer.lower() == expected.lower() \
             or (answer+".").lower() == expected.lower():
-        # correct(question_id, "Web::Recognize", model.ExerciseOutcome.find("Correct"), None)
+        # correct(question_id, "Web::Recognize", ExerciseOutcome.find("Correct"), None)
         return "CORRECT"
     else:
-        # wrong(question_id, "Web::Recognize", model.ExerciseOutcome.find("Wrong"), None)
+        # wrong(question_id, "Web::Recognize", ExerciseOutcome.find("Wrong"), None)
         return "WRONG"
 
 
 @gym.route("/gym/create_new_exercise/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<bookmark_id>",
            methods=["POST"])
 def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,bookmark_id):
-    bookmark = model.Bookmark.query.filter_by(
+    bookmark = Bookmark.query.filter_by(
         id=bookmark_id
     ).first()
-    new_source = model.ExerciseSource.query.filter_by(
+    new_source = ExerciseSource.query.filter_by(
         source=exercise_source
     ).first()
-    new_outcome=model.ExerciseOutcome.query.filter_by(
+    new_outcome=ExerciseOutcome.query.filter_by(
         outcome=exercise_outcome
     ).first()
     if new_source is None or new_outcome is None :
          return "FAIL"
-    exercise = model.Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
+    exercise = Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
     bookmark.add_new_exercise(exercise)
-    model.db.session.add(exercise)
-    model.db.session.commit()
-    bookmarks = model.Bookmark.find_all_by_user_and_word(flask.g.user,bookmark.origin)
-    ex_prob = model.ExerciseBasedProbability.find(flask.g.user, bookmark.origin)
+    db.session.add(exercise)
+    db.session.commit()
+    bookmarks = Bookmark.find_all_by_user_and_word(flask.g.user,bookmark.origin)
+    ex_prob = ExerciseBasedProbability.find(flask.g.user, bookmark.origin)
     total_prob = 0
     for b in bookmarks:
         ex_prob.calculate_known_bookmark_probability(b)
         total_prob +=float(ex_prob.probability)
     ex_prob.probability = total_prob/len(bookmarks)
-    model.db.session.commit()
-    if model.RankedWord.exists(bookmark.origin.word,bookmark.origin.language):
-        ranked_word = model.RankedWord.find(bookmark.origin.word, bookmark.origin.language)
-        if model.EncounterBasedProbability.exists(flask.g.user,ranked_word):
-            enc_prob = model.EncounterBasedProbability.find(flask.g.user,ranked_word)
-            known_word_prob = model.KnownWordProbability.find(flask.g.user,bookmark.origin,ranked_word)
-            known_word_prob.probability = model.KnownWordProbability.calculateKnownWordProb(ex_prob.probability,enc_prob.probability)
+    db.session.commit()
+    if RankedWord.exists(bookmark.origin.word,bookmark.origin.language):
+        ranked_word = RankedWord.find(bookmark.origin.word, bookmark.origin.language)
+        if EncounterBasedProbability.exists(flask.g.user,ranked_word):
+            enc_prob = EncounterBasedProbability.find(flask.g.user,ranked_word)
+            known_word_prob = KnownWordProbability.find(flask.g.user,bookmark.origin,ranked_word)
+            known_word_prob.probability = KnownWordProbability.calculateKnownWordProb(ex_prob.probability,enc_prob.probability)
         else:
-            known_word_prob = model.KnownWordProbability.find(flask.g.user,bookmark.origin,ranked_word)
+            known_word_prob = KnownWordProbability.find(flask.g.user,bookmark.origin,ranked_word)
             known_word_prob.probability = ex_prob.probability
-    model.db.session.commit()
+    db.session.commit()
     return "OK"
 
 
 @gym.route("/gym/exercise_outcome/<bookmark_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
 def correct(bookmark_id, exercise_source, exercise_outcome, exercise_solving_speed):
-    # bookmark = model.Bookmark.query.get(bookmark_id)
+    # bookmark = Bookmark.query.get(bookmark_id)
     # bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)
-    # model.db.session.commit()
+    # db.session.commit()
     return "OK"
 
 
 @gym.route("/gym/wrong/<bookmark_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
 def wrong(bookmark_id, exercise_source, exercise_outcome, exercise_solving_speed):
-    # bookmark = model.Bookmark.query.get(bookmark_id)
+    # bookmark = Bookmark.query.get(bookmark_id)
     # bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)
-    # model.db.session.commit()
+    # db.session.commit()
     return "OK"
 
 @gym.route("/gym/starred_card/<card_id>", methods=("POST",))
 def starred(card_id):
-    card = model.Card.query.get(card_id)
+    card = Card.query.get(card_id)
     card.star()
-    model.db.session.commit()
+    db.session.commit()
     return "OK"
 
 @gym.route("/gym/unstarred_card/<card_id>", methods=("POST",))
 def unstarred(card_id):
-    card = model.Card.query.get(card_id)
+    card = Card.query.get(card_id)
     card.unstar()
-    model.db.session.commit()
+    db.session.commit()
     return "OK"
 
 @gym.route("/gym/starred_word/<word_id>/<user_id>", methods=("POST",))
@@ -418,7 +311,7 @@ def starred_word(word_id,user_id):
     word = UserWord.query.get(word_id)
     user = User.find_by_id(user_id)
     user.star(word)
-    model.db.session.commit()
+    db.session.commit()
     return "OK"
 
 @gym.route("/gym/unstarred_word/<word_id>/<user_id>", methods=("POST",))
@@ -426,7 +319,7 @@ def unstarred_word(word_id,user_id):
     word = UserWord.query.get(word_id)
     user = User.find_by_id(user_id)
     user.starred_words.remove(word)
-    model.db.session.commit()
+    db.session.commit()
     print word + " is now *unstarred* for user " + user.name
     return "OK"
 
