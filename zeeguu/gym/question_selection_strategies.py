@@ -23,6 +23,7 @@ def new_random_question():
 
     for each in bookmark.text.all_bookmarks():
         if not bookmark.translations_rendered_as_text() == each.translations_rendered_as_text():
+            print "should append a new translation..."
             text_to_display = text_to_display.replace (each.origin.word, each.origin.word + " ("+each.translations_rendered_as_text()+")")
 
 
