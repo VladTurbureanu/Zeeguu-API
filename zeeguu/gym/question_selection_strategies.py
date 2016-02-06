@@ -19,8 +19,6 @@ def new_random_question():
 
     bookmark = random.choice(bookmarks)
 
-    print "in question new... for " + bookmark.origin.word
-
     text_to_display = bookmark.text.content
 
     for each in bookmark.text.all_bookmarks():
