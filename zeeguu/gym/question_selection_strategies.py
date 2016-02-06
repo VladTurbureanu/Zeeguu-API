@@ -22,7 +22,7 @@ def new_random_question():
     text_to_display = bookmark.text.content
 
     for each in bookmark.text.all_bookmarks():
-        if not bookmark.translations_rendered_as_text == each.translations_rendered_as_text:
+        if not bookmark.translations_rendered_as_text() == each.translations_rendered_as_text():
             text_to_display = text_to_display.replace (each.origin.word, each.origin.word + " ("+each.translations_rendered_as_text()+")")
 
 
