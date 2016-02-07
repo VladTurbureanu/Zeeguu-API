@@ -1,12 +1,9 @@
 import json
-from functools import wraps
 import flask
-from datetime import timedelta, date
 
 from zeeguu.api.model_core import UserWord, Bookmark, User, Text, ExerciseSource, ExerciseOutcome, Exercise, ExerciseBasedProbability, RankedWord, EncounterBasedProbability, KnownWordProbability
 from zeeguu.gym.model import Card
 from zeeguu.api.model_core import db
-import random
 import datetime
 
 from zeeguu.gym import gym
@@ -14,29 +11,7 @@ from zeeguu.gym import gym
 from question_selection_strategies import new_random_question
 from user_message import UserVisibleException
 
-def login_first(fun):
-    """
-    Makes sure that the user is logged_in.
-    If not, appends the intended url to the login url,
-    and redirects to login.
-    """
-    @wraps(fun)
-    def decorated_function(*args, **kwargs):
-        if flask.g.user:
-            return fun(*args, **kwargs)
-        else:
-            next_url = flask.request.url
-            login_url = '%s?next=%s' % (flask.url_for('gym.login'), next_url)
-            return flask.redirect(login_url)
-    return decorated_function
-
-
-@gym.before_request
-def setup():
-    if "user" in flask.session:
-        flask.g.user = User.query.get(flask.session["user"])
-    else:
-        flask.g.user = None
+from views_utils import login_first
 
 
 @gym.route("/")
@@ -81,6 +56,7 @@ def logout():
     flask.session.pop("user", None)
     return flask.redirect(flask.url_for("gym.home"))
 
+
 @gym.route("/logged_in")
 def logged_in():
     if flask.session.get("user", None):
@@ -100,14 +76,11 @@ def bookmarks():
             urls_by_date.setdefault(date, set()).add(bookmark.text.url)
             bookmarks_by_url.setdefault(bookmark.text.url,[]).append(bookmark)
 
-
-
     return flask.render_template("bookmarks.html",
                                  bookmarks_by_url=bookmarks_by_url,
                                  urls_by_date=urls_by_date,
                                  sorted_dates=dates,
                                  user = flask.g.user)
-
 
 
 @gym.route("/gym/question/<from_lang>/<to_lang>")
@@ -126,9 +99,7 @@ def recognize():
                 question = new_random_question())
 
     except UserVisibleException as e:
-        return  flask.render_template(
-                "message.html",
-                message = e.value)
+        return flask.render_template("message.html",message = e.value)
 
 @gym.route("/m_recognize")
 def m_recognize():
@@ -140,16 +111,15 @@ def m_recognize():
                     user=flask.g.user,
                     question = new_random_question())
         except UserVisibleException as e:
-            return  flask.render_template(
-                    "message.html",
-                    mobile=True,
-                    message = e.value)
+            return flask.render_template("message.html",mobile=True, message=e.value)
     else:
         return "not logged in..."
+
 
 @gym.route ("/browser_home/expanded/")
 def browser_home_expand():
     return browser_home(42)
+
 
 @gym.route ("/browser_home/")
 def browser_home(item_count = 3):
@@ -200,9 +170,8 @@ def delete(bookmark_id):
     # Beware, the there is another delete_bookmark in the zeeguu API!!!
     session = db.session
     bookmark = Bookmark.query.get(bookmark_id)
-    if bookmark == None:
+    if not bookmark:
         return "Not found"
-
 
     text = Text.query.get(bookmark.text.id)
 

@@ -2,6 +2,7 @@ import flask
 from zeeguu.api.model_core import UserWord, Bookmark, User, Text, Language
 from user_message import UserVisibleException
 import random
+from datetime import timedelta, date
 
 def new_random_question():
     bookmarks = (
