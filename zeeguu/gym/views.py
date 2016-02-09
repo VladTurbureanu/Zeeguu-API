@@ -210,9 +210,8 @@ def submit_answer(answer, expected,question_id):
 @gym.route("/gym/create_new_exercise/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<bookmark_id>",
            methods=["POST"])
 def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,bookmark_id):
-    bookmark = Bookmark.query.filter_by(
-        id=bookmark_id
-    ).first()
+    bookmark = Bookmark.find(bookmark_id)
+    
     new_source = ExerciseSource.query.filter_by(
         source=exercise_source
     ).first()
