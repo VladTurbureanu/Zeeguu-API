@@ -107,6 +107,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         assert "Correct" in exercise_log
         assert "Translate" in exercise_log
+        print exercise_log
 
     def test_add_new_translation_to_bookmark(self):
         assert "OK" == self.data_of_api_post('/add_new_translation_to_bookmark/women/1')
@@ -479,7 +480,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.api_post('/delete_bookmark/2')
         assert rv.data == "FAIL"
 
-
+    #
     def test_delete_bookmark3(self):
 
         form_data = dict(
@@ -488,7 +489,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             word="Die")
 
         bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
-        b1 = Bookmark.find(bookmark1["bookmark_id"])
+        Bookmark.find(bookmark1["bookmark_id"])
 
         form_data["word"] = "kleine"
         
@@ -496,7 +497,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         b2 = Bookmark.find(bookmark2["bookmark_id"])
 
         assert len (b2.text.all_bookmarks()) == 2
-        self.api_post("delete_bookmark/27")
+        self.api_post("delete_bookmark/"+str(b2.id))
         assert len (b2.text.all_bookmarks()) == 1
 
 

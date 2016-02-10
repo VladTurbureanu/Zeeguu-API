@@ -107,7 +107,6 @@ def add_probability_to_existing_words_of_user(user,bookmark,language):
 
 
 def create_test_db():
-    print "in crate test db..."
     zeeguu.app.test_request_context().push()
 
     zeeguu.db.session.commit()

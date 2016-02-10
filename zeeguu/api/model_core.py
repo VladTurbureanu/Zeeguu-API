@@ -1206,6 +1206,14 @@ class ExerciseSource(db.Model):
     def __init__(self,source):
         self.source = source
 
+    @classmethod
+    def find_by_source(cls, source):
+        new_source = ExerciseSource.query.filter_by(
+            source=source
+        ).first()
+        return new_source
+
+
 
 bookmark_exercise_mapping = Table('bookmark_exercise_mapping', db.Model.metadata,
     Column('bookmark_id', Integer, ForeignKey('bookmark.id')),

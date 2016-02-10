@@ -210,39 +210,34 @@ def submit_answer(answer, expected,question_id):
 @gym.route("/gym/create_new_exercise/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<bookmark_id>",
            methods=["POST"])
 def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,bookmark_id):
-    bookmark = Bookmark.find(bookmark_id)
-    
-    new_source = ExerciseSource.query.filter_by(
-        source=exercise_source
-    ).first()
-    new_outcome=ExerciseOutcome.query.filter_by(
-        outcome=exercise_outcome
-    ).first()
-    if new_source is None or new_outcome is None :
-         return "FAIL"
-    exercise = Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
-    bookmark.add_new_exercise(exercise)
-    db.session.add(exercise)
-    db.session.commit()
-    bookmarks = Bookmark.find_all_by_user_and_word(flask.g.user,bookmark.origin)
-    ex_prob = ExerciseBasedProbability.find(flask.g.user, bookmark.origin)
-    total_prob = 0
-    for b in bookmarks:
-        ex_prob.calculate_known_bookmark_probability(b)
-        total_prob +=float(ex_prob.probability)
-    ex_prob.probability = total_prob/len(bookmarks)
-    db.session.commit()
-    if RankedWord.exists(bookmark.origin.word,bookmark.origin.language):
-        ranked_word = RankedWord.find(bookmark.origin.word, bookmark.origin.language)
-        if EncounterBasedProbability.exists(flask.g.user,ranked_word):
-            enc_prob = EncounterBasedProbability.find(flask.g.user,ranked_word)
-            known_word_prob = KnownWordProbability.find(flask.g.user,bookmark.origin,ranked_word)
-            known_word_prob.probability = KnownWordProbability.calculateKnownWordProb(ex_prob.probability,enc_prob.probability)
-        else:
-            known_word_prob = KnownWordProbability.find(flask.g.user,bookmark.origin,ranked_word)
-            known_word_prob.probability = ex_prob.probability
-    db.session.commit()
-    return "OK"
+    """
+    In the model parlance, an exercise is an entry in a table that
+    logs the performance of an exercise. Every such performance, has a source, and an outcome.
+
+    :param exercise_outcome:
+    :param exercise_source:
+    :param exercise_solving_speed:
+    :param bookmark_id:
+    :return:
+    """
+
+    try:
+        bookmark = Bookmark.find(bookmark_id)
+        new_source = ExerciseSource.find_by_source(exercise_source)
+        new_outcome=ExerciseOutcome.find(exercise_outcome)
+
+        if new_source == None or new_outcome == None:
+            return "FAIL"
+
+        exercise = Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
+        bookmark.add_new_exercise(exercise)
+        db.session.add_all([exercise, bookmark])
+        db.session.commit()
+
+        # some_method_that_appears_to_not_do_anything(bookmark)
+        return "OK"
+    except:
+        return "FAIL"
 
 
 @gym.route("/gym/exercise_outcome/<bookmark_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
