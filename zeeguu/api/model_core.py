@@ -264,14 +264,15 @@ class User(db.Model):
 
 
     def get_probably_known_words(self, lang):
-        known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
+        probabilities = KnownWordProbability.get_probably_known_words(self)
+
         probable_known_words_dict_list = []
-        for known_word_prob in known_word_prob_of_user:
+        for prob in probabilities:
             probable_known_word_dict = {}
-            if known_word_prob.ranked_word is not None and known_word_prob.ranked_word.language == lang:
-                probable_known_word_dict['word'] = known_word_prob.ranked_word.word
+            if prob.ranked_word is not None and prob.ranked_word.language == lang:
+                probable_known_word_dict['word'] = prob.ranked_word.word
             else:
-                probable_known_word_dict['word'] = known_word_prob.user_word.word
+                probable_known_word_dict['word'] = prob.user_word.word
             probable_known_words_dict_list.append(probable_known_word_dict)
         return probable_known_words_dict_list
 
@@ -1166,6 +1167,8 @@ class Exercise(db.Model):
         self.source = source
         self.solving_speed = solving_speed
         self.time = time
+
+
 
 
 class ExerciseOutcome(db.Model):

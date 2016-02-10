@@ -13,6 +13,8 @@ from user_message import UserVisibleException
 
 from views_utils import login_first
 
+from knowledge_estimator import update_probabilities_for_word
+
 
 @gym.route("/")
 def home():
@@ -224,20 +226,21 @@ def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,
     try:
         bookmark = Bookmark.find(bookmark_id)
         new_source = ExerciseSource.find_by_source(exercise_source)
-        new_outcome=ExerciseOutcome.find(exercise_outcome)
+        new_outcome = ExerciseOutcome.find(exercise_outcome)
 
-        if new_source == None or new_outcome == None:
+        if not new_source or not new_outcome:
             return "FAIL"
 
         exercise = Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
         bookmark.add_new_exercise(exercise)
-        db.session.add_all([exercise, bookmark])
+        db.session.add(exercise)
         db.session.commit()
 
-        # some_method_that_appears_to_not_do_anything(bookmark)
+        update_probabilities_for_word(bookmark.origin)
         return "OK"
     except:
         return "FAIL"
+
 
 
 @gym.route("/gym/exercise_outcome/<bookmark_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))

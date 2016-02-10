@@ -56,6 +56,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         latest_bookmark_id = int(first_date["bookmarks"][0]['id'])
         assert latest_bookmark_id  == added_bookmark_id
 
+    # note that this is about PROBABLY KNOWN WORDS.... KNOWN WORDS are tested elsewhere!
     def test_get_probably_known(self):
 
         probably_known_words = self.api_get_json('/get_probably_known_words/de')
@@ -70,16 +71,21 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             context='gute nacht sondern')
 
         # Bookmark 'sondern'
-        sondernId = (self.api_post('/bookmark_with_context/de/sondern/en/but', exampleform_data)).data
+        sondern_id = (self.api_post('/bookmark_with_context/de/sondern/en/but', exampleform_data)).data
 
-        # User declares that sondern is "Too Easy" in an exercise
-        self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ sondernId)
+        # User does three correct exercises
+        user_recognizes_sondern = '/gym/create_new_exercise/Correct/Recognize/10000/'+str(sondern_id)
+        assert self.api_post(user_recognizes_sondern).data == "OK"
+        assert self.api_post(user_recognizes_sondern).data == "OK"
+        assert self.api_post(user_recognizes_sondern).data == "OK"
+
         # Thus, sondern goes to the Probably known words
         probably_known_words = self.api_get_json('/get_probably_known_words/de')
+
         assert any(word['word'] == 'sondern' for word in probably_known_words)
 
         # User requests "Show solution" for sondern
-        self.api_post('/gym/create_new_exercise/Show solution/Recognize/10000/'+ sondernId)
+        self.api_post('/gym/create_new_exercise/Show solution/Recognize/10000/'+ sondern_id)
         # Thus sondern goes to unknown words again
         probably_known_words = self.api_get_json('/get_probably_known_words/de')
         assert not any(word['word'] == 'sondern' for word in probably_known_words)
