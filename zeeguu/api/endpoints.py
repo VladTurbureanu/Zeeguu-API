@@ -32,6 +32,9 @@ from feedparser_extensions import two_letter_language_code, list_of_feeds_at_url
 
 from translation_service import translate_from_to
 
+from difficulty_computer import compute_difficulty_of_texts
+
+REFERENCE_VOCABULARY_SIZE = 10000.0
 
 api = flask.Blueprint("api", __name__)
 
@@ -134,7 +137,7 @@ def available_native_languages():
     """
     :return: jason with language codes for the
     supported native languages. curently only english...
-    e.g. ["en", "fr", "de", "it", "no", "ro"]
+    e.g. ["en", "fr", "de", "it", "no", "ro"]unquote_plus(flask.r
     """
     available_language_codes = map((lambda x: x.id), Language.native_languages())
     return json.dumps(available_language_codes)
@@ -225,7 +228,7 @@ def translate_and_bookmark(from_lang_code, to_lang_code):
     :return:
     """
 
-    word_str = (unquote_plus(flask.request.form['word']))
+    word_str = unquote_plus(flask.request.form['word'])
 
     url_str = flask.request.form.get('url', '')
     title_str = flask.request.form.get('title', '')
@@ -296,7 +299,7 @@ def bookmark_with_context_api(from_lang_code, term, to_lang_code, translation):
     :return: Response containing the bookmark id
     """
 
-    word_str = (unquote_plus(term))
+    word_str = unquote_plus(term)
     translation_str = unquote_plus(translation)
 
     url_str = flask.request.form.get('url', '')
@@ -546,17 +549,17 @@ def get_difficulty_for_text(lang_code):
         to identify the corresponding text
     """
     language = Language.find(lang_code)
-    if language is None:
+    if not language:
         return 'FAIL'
 
     data = flask.request.get_json()
 
-    texts = []
-    if 'texts' in data:
-        for text in data['texts']:
-            texts.append(text)
-    else:
+    if not 'texts' in data:
         return 'FAIL'
+
+    texts = []
+    for text in data['texts']:
+        texts.append(text)
 
     personalized = True
     if 'personalized' in data:
@@ -564,54 +567,19 @@ def get_difficulty_for_text(lang_code):
         if personalized == 'false' or personalized == '0':
             personalized = False
 
-    rank_boundary = 10000.0
+    rank_boundary = REFERENCE_VOCABULARY_SIZE
     if 'rank_boundary' in data:
         rank_boundary = float(data['rank_boundary'])
-        if rank_boundary > 10000.0:
-            rank_boundary = 10000.0
+        if rank_boundary > REFERENCE_VOCABULARY_SIZE:
+            rank_boundary = REFERENCE_VOCABULARY_SIZE
 
     user = flask.g.user
     known_probabilities = KnownWordProbability.find_all_by_user_cached(user)
 
-    difficulties = []
-    for text in texts:
-        # Calculate difficulty for each word
-        words = util.split_words_from_text(text['content'])
-        words_difficulty = []
-        for word in words:
-            ranked_word = RankedWord.find_cache(word, language)
-
-            word_difficulty = 1.0  # Value between 0 (easy) and 1 (hard)
-            if ranked_word is not None:
-                # Check if the user knows the word
-                try:
-                    known_propability = known_probabilities[word]  # Value between 0 (unknown) and 1 (known)
-                except KeyError:
-                    known_propability = None
-
-                if personalized and known_propability is not None:
-                    word_difficulty -= float(known_propability)
-                elif ranked_word.rank <= rank_boundary:
-                    word_frequency = (rank_boundary - (
-                    ranked_word.rank - 1)) / rank_boundary  # Value between 0 (rare) and 1 (frequent)
-                    word_difficulty -= word_frequency
-
-            words_difficulty.append(word_difficulty)
-
-        # Uncomment to print data for histogram generation
-        # text.generate_histogram(words_difficulty)
-
-        # Median difficulty for text
-        words_difficulty.sort()
-        center = int(round(len(words_difficulty) / 2, 0))
-        difficulty_median = words_difficulty[center]
-
-        # Average difficulty for text
-        difficulty_average = sum(words_difficulty) / float(len(words_difficulty))
-
-        difficulties.append(dict(score_median=difficulty_median, score_average=difficulty_average, id=text['id']))
+    difficulties = compute_difficulty_of_texts(known_probabilities, language, personalized, rank_boundary, texts)
 
     return json_result(dict(difficulties=difficulties))
+
 
 
 @api.route("/get_learnability_for_text/<lang_code>", methods=("POST",))

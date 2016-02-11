@@ -45,6 +45,7 @@ def reset_password():
         except:
             flash("Something went wrong")
             return flask.render_template("reset_pass.html",message=True)
+
     flash("This will be fast. We promise.")
     return flask.render_template("reset_pass.html")
 

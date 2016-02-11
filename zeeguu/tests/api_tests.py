@@ -366,8 +366,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         assert user.authorize("i@mir.lu", "pass") != None
 
-
-
     def test_text_difficulty(self):
         data = """
             {
