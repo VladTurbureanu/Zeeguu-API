@@ -1,25 +1,37 @@
+# -*- coding: utf8 -*-
+#
+# This file encapsulates the algorithm for computing the difficulty of
+# a given text taking.
+#
+# The algorithm was extracted from a really impressive single method
+# that used to live in the /get_difficulty_for_text endpoint implementation
+#
+# Algo was initially written by Linus Schab
+#
+# __author__ = 'mircea'
+#
+
 from zeeguu import util
 from zeeguu.api.model_core import RankedWord
 
+def text_difficulty(known_probabilities, language, personalized, rank_boundary, text):
+    """
 
-def compute_difficulty_of_texts(known_probabilities, language, personalized, rank_boundary, texts):
-    difficulties = []
-    for text in texts:
-        difficulty_scores = compute_difficulty_for_text(known_probabilities, language, personalized, rank_boundary,
-                                                        text)
+    :param known_probabilities:
+    :param language:
+    :param personalized:
+    :param rank_boundary:
+    :param text:
+    :return:
+    """
 
-        difficulties.append(difficulty_scores)
-    return difficulties
-
-
-def compute_difficulty_for_text(known_probabilities, language, personalized, rank_boundary, text):
     # Calculate difficulty for each word
     words = util.split_words_from_text(text['content'])
     word_difficulties = []
 
     for word in words:
         ranked_word = RankedWord.find_cache(word, language)
-        word_difficulty = compute_word_difficulty(known_probabilities, personalized, rank_boundary, ranked_word, word)
+        word_difficulty = word_difficulty(known_probabilities, personalized, rank_boundary, ranked_word, word)
         word_difficulties.append(word_difficulty)
 
     # Uncomment to print data for histogram generation
@@ -34,13 +46,23 @@ def compute_difficulty_for_text(known_probabilities, language, personalized, ran
     return difficulty_scores
 
 
-def compute_word_difficulty(known_probabilities, personalized, rank_boundary, ranked_word, word):
+def word_difficulty(known_probabilities, personalized, rank_boundary, ranked_word, word):
+    """
+    # estimate the difficulty of a word, given:
+        :param known_probabilities:
+        :param personalized:
+        :param rank_boundary:
+        :param ranked_word:
+        :param word:
 
-    # Value between 0 (easy) and 1 (hard). Assume hard
-    word_difficulty = 1.0
+    :return: a normalized value where 0 is (easy) and 1 is (hard)
+    """
+
+    # Assume word is difficult and unknown
+    estimated_difficulty = 1.0
 
     if not ranked_word:
-        return word_difficulty
+        return estimated_difficulty
 
     # Check if the user knows the word
     try:
@@ -49,10 +71,10 @@ def compute_word_difficulty(known_probabilities, personalized, rank_boundary, ra
         known_probability = None
 
     if personalized and known_probability is not None:
-        word_difficulty -= float(known_probability)
+        estimated_difficulty -= float(known_probability)
     elif ranked_word.rank <= rank_boundary:
         word_frequency = (rank_boundary - (
             ranked_word.rank - 1)) / rank_boundary  # Value between 0 (rare) and 1 (frequent)
-        word_difficulty -= word_frequency
-    return word_difficulty
+        estimated_difficulty -= word_frequency
+    return estimated_difficulty
 

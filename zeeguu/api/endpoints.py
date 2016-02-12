@@ -5,7 +5,7 @@
 # For an example of endpoint definition, scroll down
 # to the definition of the learned_language() function.
 #
-# __author__ = 'mir.lu'
+# __author__ = 'mircea'
 
 import json
 import datetime
@@ -32,7 +32,7 @@ from feedparser_extensions import two_letter_language_code, list_of_feeds_at_url
 
 from translation_service import translate_from_to
 
-from difficulty_computer import compute_difficulty_of_texts
+from zeeguu.language.text_difficulty import text_difficulty
 
 REFERENCE_VOCABULARY_SIZE = 10000.0
 
@@ -576,7 +576,14 @@ def get_difficulty_for_text(lang_code):
     user = flask.g.user
     known_probabilities = KnownWordProbability.find_all_by_user_cached(user)
 
-    difficulties = compute_difficulty_of_texts(known_probabilities, language, personalized, rank_boundary, texts)
+    difficulties = [
+        text_difficulty(
+            known_probabilities,
+            language,
+            personalized,
+            rank_boundary,
+            text)
+        for text in texts]
 
     return json_result(dict(difficulties=difficulties))
 
