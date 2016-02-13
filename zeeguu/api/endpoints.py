@@ -7,32 +7,27 @@
 #
 # __author__ = 'mircea'
 
-import json
-import datetime
-import time
-import threading
 import Queue
-
-import flask
-import sqlalchemy.exc
-import feedparser
-
+import json
+import threading
+import time
 from urllib import unquote_plus
 
+import datetime
+import feedparser
+import flask
+import sqlalchemy.exc
 
 import zeeguu
+from endpoint_utils import cross_domain, with_session, json_result
+from feedparser_extensions import two_letter_language_code, list_of_feeds_at_url
+from translation_service import translate_from_to
 from zeeguu import util
 from zeeguu.api.model_core import RankedWord, Language, Bookmark, UserWord
 from zeeguu.api.model_core import Session, User, Url, KnownWordProbability, Text
 from zeeguu.api.model_feeds import RSSFeed, RSSFeedRegistration
-
-from endpoint_utils import cross_domain, with_session, json_result
-
-from feedparser_extensions import two_letter_language_code, list_of_feeds_at_url
-
-from translation_service import translate_from_to
-
 from zeeguu.language.text_difficulty import text_difficulty
+from zeeguu.language.text_learnability import text_learnability
 
 REFERENCE_VOCABULARY_SIZE = 10000.0
 
@@ -634,15 +629,7 @@ def get_learnability_for_text(lang_code):
 
     learnabilities = []
     for text in texts:
-        # Calculate learnability
-        words = util.split_words_from_text(text['content'])
-        words_learnability = []
-        for word in words:
-            if word in words_learning:
-                words_learnability.append(word)
-
-        count = len(words_learnability)
-        learnability = count / float(len(words))
+        count, learnability = text_learnability(text, words_learning)
 
         learnabilities.append(dict(score=learnability, count=count, id=text['id']))
 
