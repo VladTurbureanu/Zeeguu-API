@@ -603,6 +603,8 @@ def get_learnability_for_text(lang_code):
         value (percentage of words from the text that the user is currently learning), the 'count' of the learned
         words in the text and the 'id' parameter to identify the corresponding text
     """
+    user = flask.g.user
+
     language = Language.find(lang_code)
     if language is None:
         return 'FAIL'
@@ -616,21 +618,9 @@ def get_learnability_for_text(lang_code):
     else:
         return 'FAIL'
 
-    user = flask.g.user
-
-    # Get the words the user is currently learning
-    words_learning = {}
-    bookmarks = Bookmark.find_by_specific_user(user)
-    for bookmark in bookmarks:
-        learning = not bookmark.check_is_latest_outcome_too_easy()
-        user_word = bookmark.origin
-        if learning and user_word.language == language:
-            words_learning[user_word.word] = user_word.word
-
     learnabilities = []
     for text in texts:
-        count, learnability = text_learnability(text, words_learning)
-
+        count, learnability = text_learnability(text, user.words_being_learned(language))
         learnabilities.append(dict(score=learnability, count=count, id=text['id']))
 
     return json_result(dict(learnabilities=learnabilities))

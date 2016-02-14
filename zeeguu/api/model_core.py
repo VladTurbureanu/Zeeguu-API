@@ -311,7 +311,6 @@ class User(db.Model):
                 count_not_looked_up_words_with_rank +=1
         return round(float(count_not_looked_up_words_with_rank)/10000*100,2)
 
-
     def get_percentage_of_probably_known_bookmarked_words(self):
         high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
         count_high_known_word_prob_of_user =0
@@ -323,6 +322,17 @@ class User(db.Model):
             return round(float(count_high_known_word_prob_of_user)/count_bookmarks_of_user*100,2)
         else:
             return 0
+
+    def words_being_learned(self, language):
+        # Get the words the user is currently learning
+        words_learning = {}
+        bookmarks = Bookmark.find_by_specific_user(self)
+        for bookmark in bookmarks:
+            learning = not bookmark.check_is_latest_outcome_too_easy()
+            user_word = bookmark.origin
+            if learning and user_word.language == language:
+                words_learning[user_word.word] = user_word.word
+        return words_learning
 
 
 #     Reading recommendations
@@ -1331,10 +1341,5 @@ class Search(db.Model):
 
     def __repr__(self):
         return '<Search %r>' % (self.user_word.word)
-
-
-
-
-
 
 
