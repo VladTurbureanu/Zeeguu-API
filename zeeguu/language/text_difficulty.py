@@ -31,8 +31,8 @@ def text_difficulty(known_probabilities, language, personalized, rank_boundary, 
 
     for word in words:
         ranked_word = RankedWord.find_cache(word, language)
-        word_difficulty = word_difficulty(known_probabilities, personalized, rank_boundary, ranked_word, word)
-        word_difficulties.append(word_difficulty)
+        difficulty = word_difficulty(known_probabilities, personalized, rank_boundary, ranked_word, word)
+        word_difficulties.append(difficulty)
 
     # Uncomment to print data for histogram generation
     # text.generate_histogram(word_difficulties)
