@@ -1,7 +1,15 @@
-from urllib2 import urlopen
-from urllib import quote_plus, unquote_plus
-import zeeguu
+# -*- coding: utf8 -*-
+#
+# Dispatching translation requests to the Google Translate backend
+# or loading some of the locally cached translations
+#
+# __author__ = 'mircea'
+#
+
 import json
+import zeeguu
+from urllib import quote_plus
+from urllib2 import urlopen
 
 
 def get_cached_translation_if_available(word, from_lang_code, to_lang_code):
@@ -9,13 +17,12 @@ def get_cached_translation_if_available(word, from_lang_code, to_lang_code):
     # test cases even when there is no available internet connection
     # In the future we should move this to the DB...
 
-    testing_translations = [
+    cached_translations = [
         dict(fro="Die", lang="de", to_lang="en", to="the"),
         dict(fro="kleine", lang="de", to_lang="en", to="small")
     ]
 
-    print "to translate->    " + word
-    for test_translation in testing_translations:
+    for test_translation in cached_translations:
         if test_translation["fro"] == word and \
                 test_translation["lang"] == from_lang_code and \
                 test_translation["to_lang"] == to_lang_code:
@@ -24,7 +31,6 @@ def get_cached_translation_if_available(word, from_lang_code, to_lang_code):
 
 
 def translate_from_to(word, from_lang_code, to_lang_code):
-
     available, translation = get_cached_translation_if_available(word, from_lang_code, to_lang_code)
     if available:
         return translation

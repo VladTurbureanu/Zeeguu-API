@@ -6,13 +6,14 @@
 # The algorithm was extracted from a really impressive single method
 # that used to live in the /get_difficulty_for_text endpoint implementation
 #
-# Algo was initially written by Linus Schab
+# Original algo implementation was initially written by Linus Schab
 #
 # __author__ = 'mircea'
 #
 
 from zeeguu import util
 from zeeguu.api.model_core import RankedWord
+
 
 def text_difficulty(known_probabilities, language, personalized, rank_boundary, text):
     """
