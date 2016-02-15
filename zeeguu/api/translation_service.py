@@ -41,11 +41,11 @@ def translate_from_to(word, from_lang_code, to_lang_code):
     # Note, that there is quote and quote_plus. The Google API prefers quote_plus,
     # This seems to be the convention for info submitted from forms via GET.
     url = translate_url + \
-          "?q=" + quote_plus(word.encode('utf8')) + \
-          "&target=" + to_lang_code.encode('utf8') + \
-          "&format=text".encode('utf8') + \
-          "&source=" + from_lang_code.encode('utf8') + \
-          "&key=" + api_key
+        "?q=" + quote_plus(word.encode('utf8')) + \
+        "&target=" + to_lang_code.encode('utf8') + \
+        "&format=text".encode('utf8') + \
+        "&source=" + from_lang_code.encode('utf8') + \
+        "&key=" + api_key
 
     result = json.loads(urlopen(url).read())
     translation = result['data']['translations'][0]['translatedText']
