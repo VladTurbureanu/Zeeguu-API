@@ -13,9 +13,12 @@ from urllib2 import urlopen
 
 
 def get_cached_translation_if_available(word, from_lang_code, to_lang_code):
-    # We want to be able to translate several words that are required in the
-    # test cases even when there is no available internet connection
-    # In the future we should move this to the DB...
+    """get_cached_translation_if_available('Die', 'de', 'en') -> 'the'
+
+    We want to be able to translate several words that are required in the
+    test cases even when there is no available internet connection
+    In the future we should move this to the DB.
+    """
 
     cached_translations = [
         dict(fro="Die", lang="de", to_lang="en", to="the"),
@@ -31,6 +34,13 @@ def get_cached_translation_if_available(word, from_lang_code, to_lang_code):
 
 
 def translate_from_to(word, from_lang_code, to_lang_code):
+    """ translate_from_to('Der', 'de', 'en') -> 'the'
+    :param word: expected to be an unicode string
+    :param from_lang_code:
+    :param to_lang_code:
+    :return:
+    """
+
     available, translation = get_cached_translation_if_available(word, from_lang_code, to_lang_code)
     if available:
         return translation
@@ -38,8 +48,11 @@ def translate_from_to(word, from_lang_code, to_lang_code):
     translate_url = "https://www.googleapis.com/language/translate/v2"
     api_key = zeeguu.app.config.get("TRANSLATE_API_KEY")
 
-    # Note, that there is quote and quote_plus. The Google API prefers quote_plus,
-    # This seems to be the convention for info submitted from forms via GET.
+    # quote replaces the unicode codes in \x notation with %20 notation.
+    # quote_plus replaces spaces with +
+    # The Google API prefers quote_plus,
+    # This seems to be the (general) convention for info submitted
+    # from forms with the GET method
     url = translate_url + \
         "?q=" + quote_plus(word.encode('utf8')) + \
         "&target=" + to_lang_code.encode('utf8') + \

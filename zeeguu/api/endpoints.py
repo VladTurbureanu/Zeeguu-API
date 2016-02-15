@@ -5,7 +5,8 @@
 # For an example of endpoint definition, scroll down
 # to the definition of the learned_language() function.
 #
-# __author__ = 'mircea'
+# __author__ = '(mostly)mircea'
+# with contributions from Karan S, and Linus S
 
 import Queue
 import json
@@ -19,15 +20,18 @@ import flask
 import sqlalchemy.exc
 
 import zeeguu
+import translation_service
+
 from endpoint_utils import cross_domain, with_session, json_result
 from feedparser_extensions import two_letter_language_code, list_of_feeds_at_url
-from translation_service import translate_from_to
 from zeeguu import util
 from zeeguu.api.model_core import RankedWord, Language, Bookmark, UserWord
 from zeeguu.api.model_core import Session, User, Url, KnownWordProbability, Text
 from zeeguu.api.model_feeds import RSSFeed, RSSFeedRegistration
 from zeeguu.language.text_difficulty import text_difficulty
 from zeeguu.language.text_learnability import text_learnability
+
+from flask import request
 
 REFERENCE_VOCABULARY_SIZE = 10000.0
 
@@ -145,8 +149,8 @@ def add_user(email):
     Creates user, then redirects to the get_session
     endpoint. Returns a session
     """
-    password = flask.request.form.get("password", None)
-    username = flask.request.form.get("username", None)
+    password = request.form.get("password", None)
+    username = request.form.get("username", None)
     if password is None:
         flask.abort(400)
     try:
@@ -169,7 +173,7 @@ def get_session(email):
     along all the other requests that are annotated
     with @with_user in this file
     """
-    password = flask.request.form.get("password", None)
+    password = request.form.get("password", None)
     if password is None:
         flask.abort(400)
     user = User.authorize(email, password)
@@ -223,14 +227,14 @@ def translate_and_bookmark(from_lang_code, to_lang_code):
     :return:
     """
 
-    word_str = unquote_plus(flask.request.form['word'])
+    word_str = unquote_plus(request.form['word'])
 
-    url_str = flask.request.form.get('url', '')
-    title_str = flask.request.form.get('title', '')
-    context_str = flask.request.form.get('context', '')
+    url_str = request.form.get('url', '')
+    title_str = request.form.get('title', '')
+    context_str = request.form.get('context', '')
 
     # Call the translate API
-    translation_str = translate_from_to(word_str, from_lang_code, to_lang_code)
+    translation_str = translation_service.translate_from_to(word_str, from_lang_code, to_lang_code)
     translation_str = unquote_plus(translation_str)
 
     id = bookmark_with_context(from_lang_code, to_lang_code, word_str, url_str, title_str, context_str, translation_str)
@@ -297,9 +301,9 @@ def bookmark_with_context_api(from_lang_code, term, to_lang_code, translation):
     word_str = unquote_plus(term)
     translation_str = unquote_plus(translation)
 
-    url_str = flask.request.form.get('url', '')
-    title_str = flask.request.form.get('title', '')
-    context_str = flask.request.form.get('context', '')
+    url_str = request.form.get('url', '')
+    title_str = request.form.get('title', '')
+    context_str = request.form.get('context', '')
 
     id = bookmark_with_context(from_lang_code, to_lang_code, word_str, url_str, title_str, context_str, translation_str)
 
@@ -421,22 +425,11 @@ def get_known_bookmarks(lang_code):
 @cross_domain
 @with_session
 def get_known_words(lang_code):
-    lang_id = Language.find(lang_code)
-    bookmarks = flask.g.user.all_bookmarks()
-    known_words = []
-    filtered_known_words_from_user = []
-    filtered_known_words_dict_list = []
-    for bookmark in bookmarks:
-        if bookmark.check_is_latest_outcome_too_easy():
-            known_words.append(bookmark.origin.word)
-    for word_known in known_words:
-        if RankedWord.exists(word_known, lang_id):
-            filtered_known_words_from_user.append(word_known)
-            zeeguu.db.session.commit()
-    filtered_known_words_from_user = list(set(filtered_known_words_from_user))
-    for word in filtered_known_words_from_user:
-        filtered_known_words_dict_list.append({'word': word})
-    return json_result(filtered_known_words_dict_list)
+    """
+    :param lang_code: only show the words for a given language (e.g. 'de')
+    :return: Returns all the bookmarks of a given user in the given lang
+    """
+    return json_result(flask.g.user.known_words_list(lang_code))
 
 
 @api.route("/get_probably_known_words/<lang_code>", methods=("GET",))
@@ -547,7 +540,7 @@ def get_difficulty_for_text(lang_code):
     if not language:
         return 'FAIL'
 
-    data = flask.request.get_json()
+    data = request.get_json()
 
     if not 'texts' in data:
         return 'FAIL'
@@ -583,7 +576,6 @@ def get_difficulty_for_text(lang_code):
     return json_result(dict(difficulties=difficulties))
 
 
-
 @api.route("/get_learnability_for_text/<lang_code>", methods=("POST",))
 @cross_domain
 @with_session
@@ -609,7 +601,7 @@ def get_learnability_for_text(lang_code):
     if language is None:
         return 'FAIL'
 
-    data = flask.request.get_json()
+    data = request.get_json()
 
     texts = []
     if 'texts' in data:
@@ -643,7 +635,7 @@ def get_content_from_url():
         to identify the corresponding url
 
     """
-    data = flask.request.get_json()
+    data = request.get_json()
     queue = Queue.Queue()
 
     urls = []
@@ -696,7 +688,7 @@ def logout():
     # Note: the gym uses another logout endpoint.
 
     try:
-        session_id = int(flask.request.args['session'])
+        session_id = int(request.args['session'])
     except:
         flask.abort(401)
     session = Session.query.get(session_id)
@@ -729,7 +721,7 @@ def get_feeds_at_url():
     :return: a list of feeds that can be found at the given URL
     Empty list if soemething
     """
-    domain = flask.request.form.get('url', '')
+    domain = request.form.get('url', '')
     return json_result(list_of_feeds_at_url(domain))
 
 
@@ -767,7 +759,7 @@ def start_following_feeds():
     :return:
     """
 
-    json_array_with_feeds = json.loads(flask.request.form.get('feeds', ''))
+    json_array_with_feeds = json.loads(request.form.get('feeds', ''))
 
     for urlString in json_array_with_feeds:
         feed = feedparser.parse(urlString).feed
@@ -806,8 +798,8 @@ def stop_following_feed(feed_id):
     """
 
     try:
-        registrationToDelete = RSSFeedRegistration.with_feed_id(feed_id, flask.g.user)
-        zeeguu.db.session.delete(registrationToDelete)
+        to_delete = RSSFeedRegistration.with_feed_id(feed_id, flask.g.user)
+        zeeguu.db.session.delete(to_delete)
         zeeguu.db.session.commit()
     except sqlalchemy.orm.exc.NoResultFound as e:
         return "OOPS. FEED AIN'T BEING THERE"
@@ -855,10 +847,10 @@ def translate(from_lang_code, to_lang_code):
     :return:
     """
 
-    # print str(flask.request.get_data())
-    context = flask.request.form.get('context', '')
-    url = flask.request.form.get('url', '')
-    word = flask.request.form['word']
-    translation = translate_from_to(word, from_lang_code, to_lang_code)
+    # print str(request.get_data())
+    context = request.form.get('context', '')
+    url = request.form.get('url', '')
+    word = request.form['word']
+    translation = translation_service.translate_from_to(word, from_lang_code, to_lang_code)
 
     return translation

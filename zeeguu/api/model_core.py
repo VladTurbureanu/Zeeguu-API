@@ -334,6 +334,25 @@ class User(db.Model):
                 words_learning[user_word.word] = user_word.word
         return words_learning
 
+    def known_words_list(self, lang_code):
+        lang_id = Language.find(lang_code)
+        bookmarks = self.all_bookmarks()
+        known_words = []
+        filtered_known_words_from_user = []
+        filtered_known_words_dict_list = []
+        for bookmark in bookmarks:
+            if bookmark.check_is_latest_outcome_too_easy():
+                known_words.append(bookmark.origin.word)
+        for word_known in known_words:
+            if RankedWord.exists(word_known, lang_id):
+                filtered_known_words_from_user.append(word_known)
+                zeeguu.db.session.commit()
+        filtered_known_words_from_user = list(set(filtered_known_words_from_user))
+        for word in filtered_known_words_from_user:
+            filtered_known_words_dict_list.append({'word': word})
+        return filtered_known_words_dict_list
+
+
 
 #     Reading recommendations
     def recommendations(self):
