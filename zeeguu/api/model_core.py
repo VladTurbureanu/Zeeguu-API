@@ -18,7 +18,6 @@ starred_words_association_table = Table('starred_words_association', db.Model.me
 )
 
 
-
 class User(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
 
@@ -86,7 +85,6 @@ class User(db.Model):
     def find_by_id(cls, id):
         return User.query.filter(User.id == id).one()
 
-
     @sqlalchemy.orm.validates("email")
     def validate_email(self, col, email):
         if "@" not in email:
@@ -120,9 +118,9 @@ class User(db.Model):
                 return user
         except sqlalchemy.orm.exc.NoResultFound:
             return None
-	
+
     def bookmarks_chronologically(self):
-	    return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
+        return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
 
     def user_words(self):
         return map((lambda x: x.origin.word), self.all_bookmarks())
@@ -138,7 +136,7 @@ class User(db.Model):
 
     def bookmarks_by_date(self):
         def extract_day_from_date(bookmark):
-    		return (bookmark, bookmark.time.replace(bookmark.time.year, bookmark.time.month, bookmark.time.day,0,0,0,0))
+            return (bookmark, bookmark.time.replace(bookmark.time.year, bookmark.time.month, bookmark.time.day,0,0,0,0))
 
         bookmarks = self.all_bookmarks()
         bookmarks_by_date = dict()
@@ -176,8 +174,6 @@ class User(db.Model):
             dates.append(date_entry)
         return dates
 
-
-
     # returns only HTTP domains. in this way we filter
     # out empty domains, and others like the android:
     # that we use for internal tracking...
@@ -211,148 +207,6 @@ class User(db.Model):
                 urls_to_words.setdefault(bookmark.text.url,0)
                 urls_to_words [bookmark.text.url] += bookmark.origin.importance_level()
         return sorted(urls_to_words, key=urls_to_words.get, reverse=True)
-
-    def get_not_encountered_words(self, lang):
-        not_encountered_words_dict_list = []
-        all_ranks = RankedWord.find_all(lang)
-        known_word_probs = KnownWordProbability.find_all_by_user_with_rank(self)
-        for p in known_word_probs:
-            if p.ranked_word in all_ranks:
-                all_ranks.remove(p.ranked_word)
-        for rank in all_ranks:
-            not_encountered_word_dict = {}
-            not_encountered_word_dict['word'] = rank.word
-            not_encountered_words_dict_list.append(not_encountered_word_dict)
-        return not_encountered_words_dict_list
-
-
-    def get_not_encountered_words_count(self):
-        return len(self.get_not_encountered_words(self.learned_language))
-
-    def get_known_bookmarks(self,lang):
-        bookmarks = flask.g.user.all_bookmarks()
-        known_bookmarks=[]
-        for bookmark in bookmarks:
-            if bookmark.check_is_latest_outcome_too_easy() and lang ==bookmark.origin.language:
-                    known_bookmark_dict = {
-                        'id': bookmark.id,
-                        'origin': bookmark.origin.word,
-                        'text': bookmark.text.content,
-                        'time': bookmark.time.strftime('%m/%d/%Y')}
-                    known_bookmarks.append(known_bookmark_dict)
-        return known_bookmarks
-
-    def get_known_bookmarks_count(self):
-        return len(self.get_known_bookmarks(self.learned_language))
-
-
-    def get_not_looked_up_words(self, lang):
-
-        filtered_words_known_from_user_dict_list =[]
-        enc_probs = EncounterBasedProbability.find_all_by_user(flask.g.user)
-        for enc_prob in enc_probs:
-            if enc_prob.ranked_word.language == lang:
-                filtered_words_known_from_user_dict_list.append( {'word': enc_prob.ranked_word.word} )
-        return filtered_words_known_from_user_dict_list
-
-    def get_not_looked_up_words_for_learned_language(self):
-        return self.get_not_looked_up_words(self.learned_language)
-
-
-    def get_not_looked_up_words_count(self):
-        return len(self.get_not_looked_up_words_for_learned_language())
-
-
-    def get_probably_known_words(self, lang):
-        probabilities = KnownWordProbability.get_probably_known_words(self)
-
-        probable_known_words_dict_list = []
-        for prob in probabilities:
-            probable_known_word_dict = {}
-            if prob.ranked_word is not None and prob.ranked_word.language == lang:
-                probable_known_word_dict['word'] = prob.ranked_word.word
-            else:
-                probable_known_word_dict['word'] = prob.user_word.word
-            probable_known_words_dict_list.append(probable_known_word_dict)
-        return probable_known_words_dict_list
-
-    def get_probably_known_words_count(self):
-        return len(self.get_probably_known_words(self.learned_language))
-
-    def get_lower_bound_percentage_of_basic_vocabulary(self):
-        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
-        count_high_known_word_prob_of_user_ranked = 0
-        for prob in high_known_word_prob_of_user:
-            if prob.ranked_word is not None and prob.ranked_word.rank <=3000:
-                count_high_known_word_prob_of_user_ranked +=1
-        return round(float(count_high_known_word_prob_of_user_ranked)/3000*100,2)
-
-    def get_upper_bound_percentage_of_basic_vocabulary(self):
-        count_not_looked_up_words_with_rank = 0
-        not_looked_up_words = EncounterBasedProbability.find_all_by_user(self)
-        for prob in not_looked_up_words:
-            if prob.ranked_word.rank <=3000:
-                count_not_looked_up_words_with_rank +=1
-        return round(float(count_not_looked_up_words_with_rank)/3000*100,2)
-
-    def get_lower_bound_percentage_of_extended_vocabulary(self):
-        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
-        count_high_known_word_prob_of_user_ranked = 0
-        for prob in high_known_word_prob_of_user:
-            if prob.ranked_word is not None and prob.ranked_word.rank <=10000:
-                count_high_known_word_prob_of_user_ranked +=1
-        return round(float(count_high_known_word_prob_of_user_ranked)/10000*100,2)
-
-    def get_upper_bound_percentage_of_extended_vocabulary(self):
-        count_not_looked_up_words_with_rank = 0
-        not_looked_up_words = EncounterBasedProbability.find_all_by_user(self)
-        for prob in not_looked_up_words:
-            if prob.ranked_word.rank <=10000:
-                count_not_looked_up_words_with_rank +=1
-        return round(float(count_not_looked_up_words_with_rank)/10000*100,2)
-
-    def get_percentage_of_probably_known_bookmarked_words(self):
-        high_known_word_prob_of_user = KnownWordProbability.get_probably_known_words(self)
-        count_high_known_word_prob_of_user =0
-        count_bookmarks_of_user = len(self.all_bookmarks())
-        for prob in high_known_word_prob_of_user:
-            if prob.user_word is not None:
-                count_high_known_word_prob_of_user +=1
-        if count_bookmarks_of_user <> 0:
-            return round(float(count_high_known_word_prob_of_user)/count_bookmarks_of_user*100,2)
-        else:
-            return 0
-
-    def words_being_learned(self, language):
-        # Get the words the user is currently learning
-        words_learning = {}
-        bookmarks = Bookmark.find_by_specific_user(self)
-        for bookmark in bookmarks:
-            learning = not bookmark.check_is_latest_outcome_too_easy()
-            user_word = bookmark.origin
-            if learning and user_word.language == language:
-                words_learning[user_word.word] = user_word.word
-        return words_learning
-
-    def known_words_list(self, lang_code):
-        lang_id = Language.find(lang_code)
-        bookmarks = self.all_bookmarks()
-        known_words = []
-        filtered_known_words_from_user = []
-        filtered_known_words_dict_list = []
-        for bookmark in bookmarks:
-            if bookmark.check_is_latest_outcome_too_easy():
-                known_words.append(bookmark.origin.word)
-        for word_known in known_words:
-            if RankedWord.exists(word_known, lang_id):
-                filtered_known_words_from_user.append(word_known)
-                zeeguu.db.session.commit()
-        filtered_known_words_from_user = list(set(filtered_known_words_from_user))
-        for word in filtered_known_words_from_user:
-            filtered_known_words_dict_list.append({'word': word})
-        return filtered_known_words_dict_list
-
-
 
 #     Reading recommendations
     def recommendations(self):
@@ -394,14 +248,6 @@ class User(db.Model):
         except:
             return []
 
-    def learned_bookmarks(self, lang):
-        bookmarks = self.all_bookmarks()
-        too_easy_bookmarks = []
-        for bookmark in bookmarks:
-            if bookmark.check_is_latest_outcome_too_easy() and bookmark.origin.language == lang:
-                too_easy_bookmarks.append(bookmark)
-        learned_bookmarks = [bookmark for bookmark in bookmarks if bookmark not in too_easy_bookmarks]
-        return learned_bookmarks
 
 
 class Session(db.Model):
@@ -916,8 +762,6 @@ class DomainName(db.Model):
             return cls(domain_url)
 
 
-
-
 class Url(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
     id = db.Column(db.Integer, primary_key=True)
@@ -930,14 +774,10 @@ class Url(db.Model):
     domain_name_id = db.Column(db.Integer, db.ForeignKey("domain_name.id"))
     domain = db.relationship("DomainName")
 
-
-
-
     def __init__(self, url, title):
         self.path = Url.get_path(url)
         self.domain = DomainName.find(Url.get_domain(url))
         self.title = title
-
 
     def title_if_available(self):
         if self.title != "":

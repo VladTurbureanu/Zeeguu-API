@@ -23,7 +23,7 @@
         <h3>Vocabulary</h3>
 
          <h4>
-            - Not Looked Up Words: {{ user.get_not_looked_up_words_count() }}
+            - Not Looked Up Words: {{ estimator.get_not_looked_up_words_count() }}
         </h4>
 
         <h5>
@@ -31,7 +31,7 @@
         </h5>
 
         <h4>
-            - Not Encountered Words: {{ user.get_not_encountered_words_count() }}
+            - Not Encountered Words: {{ estimator.get_not_encountered_words_count() }}
         </h4>
 
         <h5>
@@ -41,7 +41,7 @@
 
 
          <h4>
-            - Percentage of Basic Vocabulary Known: {{ user.get_lower_bound_percentage_of_basic_vocabulary()}}% - {{user.get_upper_bound_percentage_of_basic_vocabulary() }}%
+            - Percentage of Basic Vocabulary Known: {{ estimator.get_lower_bound_percentage_of_basic_vocabulary()}}% - {{estimator.get_upper_bound_percentage_of_basic_vocabulary() }}%
         </h4>
 
         <h5>
@@ -49,7 +49,7 @@
         </h5>
 
         <h4>
-            - Percentage of Extended Vocabulary Known: {{ user.get_lower_bound_percentage_of_extended_vocabulary()}}% - {{user.get_upper_bound_percentage_of_extended_vocabulary() }}%
+            - Percentage of Extended Vocabulary Known: {{ estimator.get_lower_bound_percentage_of_extended_vocabulary()}}% - {{estimator.get_upper_bound_percentage_of_extended_vocabulary() }}%
         </h4>
 
         <h5>
@@ -68,7 +68,7 @@
         </h5>
 
         <h4>
-            - Probably Known Words: {{ user.get_probably_known_words_count() }}
+            - Probably Known Words: {{ estimator.get_probably_known_words_count() }}
         </h4>
 
         <h5>
@@ -76,7 +76,7 @@
         </h5>
 
         <h4>
-            - Words Already Learned: {{ user.get_known_bookmarks_count() }}
+            - Words Already Learned: {{ estimator.get_known_bookmarks_count() }}
         </h4>
 
         <h5>
@@ -85,7 +85,7 @@
 
 
         <h4>
-            - Percentage of Probably Known Bookmarks: {{ user.get_percentage_of_probably_known_bookmarked_words() }}%
+            - Percentage of Probably Known Bookmarks: {{ estimator.get_percentage_of_probably_known_bookmarked_words() }}%
         </h4>
 
         <h5>

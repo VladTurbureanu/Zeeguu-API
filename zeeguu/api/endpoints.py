@@ -30,6 +30,8 @@ from zeeguu.api.model_core import Session, User, Url, KnownWordProbability, Text
 from zeeguu.api.model_feeds import RSSFeed, RSSFeedRegistration
 from zeeguu.language.text_difficulty import text_difficulty
 from zeeguu.language.text_learnability import text_learnability
+from zeeguu.language import knowledge_estimator
+
 
 from flask import request
 
@@ -418,7 +420,7 @@ def get_not_encountered_words(lang_code):
 @cross_domain
 @with_session
 def get_known_bookmarks(lang_code):
-    return json_result(flask.g.user.get_known_bookmarks(Language.find(lang_code)))
+    return json_result(get_known_bookmarks(flask.g.user, Language.find(lang_code)))
 
 
 @api.route("/get_known_words/<lang_code>", methods=("GET",))
@@ -429,7 +431,7 @@ def get_known_words(lang_code):
     :param lang_code: only show the words for a given language (e.g. 'de')
     :return: Returns all the bookmarks of a given user in the given lang
     """
-    return json_result(flask.g.user.known_words_list(lang_code))
+    return json_result(knowledge_estimator.known_words_list(flask.g.user, lang_code))
 
 
 @api.route("/get_probably_known_words/<lang_code>", methods=("GET",))

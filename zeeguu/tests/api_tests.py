@@ -115,13 +115,13 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert "Translate" in exercise_log
         print exercise_log
 
-    def test_add_new_translation_to_bookmark(self):
-        assert "OK" == self.data_of_api_post('/add_new_translation_to_bookmark/women/1')
-
-        translations_dict_of_bookmark = self.api_get_json('/get_translations_for_bookmark/2')
-        first_translation_word_of_bookmark = translations_dict_of_bookmark[0]['word']
-
-        assert 'FAIL' == self.data_of_api_post('/add_new_translation_to_bookmark/'+str(first_translation_word_of_bookmark)+'/2')
+    # def test_add_new_translation_to_bookmark(self):
+    #     assert "OK" == self.data_of_api_post('/add_new_translation_to_bookmark/women/1')
+    #
+    #     translations_dict_of_bookmark = self.api_get_json('/get_translations_for_bookmark/2')
+    #     first_translation_word_of_bookmark = translations_dict_of_bookmark[0]['word']
+    #
+    #     assert 'FAIL' == self.data_of_api_post('/add_new_translation_to_bookmark/'+str(first_translation_word_of_bookmark)+'/2')
 
     def test_delete_translation_from_bookmark(self):
         translations_dict_of_bookmark = self.api_get_json('/get_translations_for_bookmark/2')

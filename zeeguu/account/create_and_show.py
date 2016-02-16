@@ -1,4 +1,6 @@
 # -*- coding: utf8 -*-
+from zeeguu.language.knowledge_estimator import SethiKnowledgeEstimator
+
 __author__ = 'mir.lu'
 
 # This file contains the REST endpoints for the user login & account management
@@ -68,5 +70,7 @@ def my_account():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
 
-    return flask.render_template("my_account.html", user=flask.g.user)
+    return flask.render_template("my_account.html",
+                                 user=flask.g.user,
+                                 estimator=SethiKnowledgeEstimator(flask.g.user))
 
