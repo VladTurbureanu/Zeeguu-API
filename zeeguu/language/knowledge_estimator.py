@@ -1,15 +1,13 @@
 from zeeguu.api.model_core import Language, RankedWord, KnownWordProbability, EncounterBasedProbability, Bookmark
-import zeeguu
+# import zeeguu
 
 
 class SethiKnowledgeEstimator(object):
 
-    def __init__(self, user, lang_code = None):
+    def __init__(self, user, lang_code):
         self.user = user
-        if lang_code:
-            self.lang_code = lang_code
-        else:
-            self.lang_code = user.learned_language
+        self.lang_code = lang_code
+        self.language = Language.find(self.lang_code)
 
     def known_words_list(self):
         lang_id = Language.find(self.lang_code)
@@ -23,7 +21,7 @@ class SethiKnowledgeEstimator(object):
         for word_known in known_words:
             if RankedWord.exists(word_known, lang_id):
                 filtered_known_words_from_user.append(word_known)
-                zeeguu.db.session.commit()
+                # zeeguu.db.session.commit()
         filtered_known_words_from_user = list(set(filtered_known_words_from_user))
         for word in filtered_known_words_from_user:
             filtered_known_words_dict_list.append({'word': word})
@@ -39,7 +37,7 @@ class SethiKnowledgeEstimator(object):
         bookmarks = self.user.all_bookmarks()
         known_bookmarks=[]
         for bookmark in bookmarks:
-            if bookmark.check_is_latest_outcome_too_easy() and self.lang_code == bookmark.origin.language:
+            if bookmark.check_is_latest_outcome_too_easy() and self.language == bookmark.origin.language:
                     known_bookmark_dict = {
                         'id': bookmark.id,
                         'origin': bookmark.origin.word,
@@ -61,13 +59,13 @@ class SethiKnowledgeEstimator(object):
         bookmarks = self.user.all_bookmarks()
         too_easy_bookmarks = []
         for bookmark in bookmarks:
-            if bookmark.check_is_latest_outcome_too_easy() and bookmark.origin.language == self.lang_code:
+            if bookmark.check_is_latest_outcome_too_easy() and bookmark.origin.language == self.language:
                 too_easy_bookmarks.append(bookmark)
         return [bookmark for bookmark in bookmarks if bookmark not in too_easy_bookmarks]
 
     def get_not_encountered_words(self):
         not_encountered_words_dict_list = []
-        all_ranks = RankedWord.find_all(self.lang_code)
+        all_ranks = RankedWord.find_all(self.language)
         known_word_probs = KnownWordProbability.find_all_by_user_with_rank(self.user)
         for p in known_word_probs:
             if p.ranked_word in all_ranks:
@@ -85,7 +83,7 @@ class SethiKnowledgeEstimator(object):
         filtered_words_known_from_user_dict_list =[]
         enc_probs = EncounterBasedProbability.find_all_by_user(self.user)
         for enc_prob in enc_probs:
-            if enc_prob.ranked_word.language == self.lang_code:
+            if enc_prob.ranked_word.language == self.language:
                 filtered_words_known_from_user_dict_list.append( {'word': enc_prob.ranked_word.word} )
         return filtered_words_known_from_user_dict_list
 
@@ -101,7 +99,7 @@ class SethiKnowledgeEstimator(object):
         probable_known_words_dict_list = []
         for prob in probabilities:
             probable_known_word_dict = {}
-            if prob.ranked_word is not None and prob.ranked_word.language == self.lang_code:
+            if prob.ranked_word is not None and prob.ranked_word.language == self.language:
                 probable_known_word_dict['word'] = prob.ranked_word.word
             else:
                 probable_known_word_dict['word'] = prob.user_word.word

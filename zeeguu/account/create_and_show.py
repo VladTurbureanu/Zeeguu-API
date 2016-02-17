@@ -70,7 +70,8 @@ def my_account():
     if not flask.g.user:
         return flask.redirect(flask.url_for("gym.login"))
 
+    # estimator = SethiKnowledgeEstimator(flask.g.user, flask.g.user.learned_language_id)
     return flask.render_template("my_account.html",
                                  user=flask.g.user,
-                                 estimator=SethiKnowledgeEstimator(flask.g.user))
+                                 estimator=None)
 
