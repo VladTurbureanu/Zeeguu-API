@@ -38,8 +38,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             context='somewhere over the rainbowwwwwwwww',
             title="lal")
         self.api_post('/bookmark_with_context/de/sondern/en/but', form_data)
-        t = zeeguu.model.Url.find("android:app","Songs by Iz")
-        assert t
+
+        with zeeguu.app.app_context():
+            t = zeeguu.model.Url.find("android:app","Songs by Iz")
+            assert t
 
         bookmarks = self.api_get_json('/get_learned_bookmarks/de')
         assert any(u'sondern' in y.values() for y in bookmarks )
@@ -113,7 +115,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         assert "Correct" in exercise_log
         assert "Translate" in exercise_log
-        print exercise_log
 
     # def test_add_new_translation_to_bookmark(self):
     #     assert "OK" == self.data_of_api_post('/add_new_translation_to_bookmark/women/1')
@@ -310,13 +311,13 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_set_language(self):
-        rv = self.api_post('/learned_language/it')
-        rv = self.api_post('/native_language/fr')
+        rv = self.api_post('/learned_language/fr')
+        rv = self.api_post('/native_language/nl')
         assert "OK" in rv.data
         rv = self.api_get('/learned_language')
-        assert rv.data== "it"
-        rv = self.api_get('/native_language')
         assert rv.data== "fr"
+        rv = self.api_get('/native_language')
+        assert rv.data== "nl"
 
 
     def test_available_languages(self):
@@ -358,13 +359,13 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_password_hash(self):
         p1 = "test"
         p2 = "pass"
-        user = User.find("i@mir.lu")
+        with zeeguu.app.app_context():
+            user = User.find("i@mir.lu")
+            hash1 = util.password_hash(p1,user.password_salt)
+            hash2 = util.password_hash(p2, user.password_salt)
+            assert hash1 != hash2
 
-        hash1 = util.password_hash(p1,user.password_salt)
-        hash2 = util.password_hash(p2, user.password_salt)
-        assert hash1 != hash2
-
-        assert user.authorize("i@mir.lu", "pass") != None
+            assert user.authorize("i@mir.lu", "pass") != None
 
     def test_text_difficulty(self):
         data = """
@@ -448,19 +449,20 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     def test_same_text_does_not_get_created_multiple_Times(self):
 
         context = u'Die kleine Jägermeister'
-        url = Url.find('http://mir.lu/stories/german/jagermeister', "Die Kleine Jagermeister (Mircea's Stories)")
-        source_language = Language.find('de')
+        with zeeguu.app.app_context():
+            url = Url.find('http://mir.lu/stories/german/jagermeister', "Die Kleine Jagermeister (Mircea's Stories)")
+            source_language = Language.find('de')
 
-        form_data = dict(
-            url=url.as_string(),
-            context=context,
-            word="Die")
+            form_data = dict(
+                url=url.as_string(),
+                context=context,
+                word="Die")
 
-        self.api_post('/translate_and_bookmark/de/en', form_data)
-        text1 = Text.find_or_create(context, source_language, url)
-        self.api_post('/translate_and_bookmark/de/en', form_data)
-        text2 = Text.find_or_create(context, source_language, url)
-        assert (text1 == text2)
+            self.api_post('/translate_and_bookmark/de/en', form_data)
+            text1 = Text.find_or_create(context, source_language, url)
+            self.api_post('/translate_and_bookmark/de/en', form_data)
+            text2 = Text.find_or_create(context, source_language, url)
+            assert (text1 == text2)
 
 
     def test_delete_bookmark1(self):
@@ -486,23 +488,23 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     #
     def test_delete_bookmark3(self):
+        with zeeguu.app.app_context():
+            form_data = dict(
+                url='http://mir.lu',
+                context=u'Die kleine Jägermeister',
+                word="Die")
 
-        form_data = dict(
-            url='http://mir.lu',
-            context=u'Die kleine Jägermeister',
-            word="Die")
+            bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
+            Bookmark.find(bookmark1["bookmark_id"])
 
-        bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
-        Bookmark.find(bookmark1["bookmark_id"])
+            form_data["word"] = "kleine"
 
-        form_data["word"] = "kleine"
-        
-        bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
-        b2 = Bookmark.find(bookmark2["bookmark_id"])
+            bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
+            b2 = Bookmark.find(bookmark2["bookmark_id"])
 
-        assert len (b2.text.all_bookmarks()) == 2
-        self.api_post("delete_bookmark/"+str(b2.id))
-        assert len (b2.text.all_bookmarks()) == 1
+            assert len (b2.text.all_bookmarks()) == 2
+            self.api_post("delete_bookmark/"+str(b2.id))
+            assert len (b2.text.all_bookmarks()) == 1
 
 
     def test_translate_and_bookmark(self):
@@ -582,7 +584,8 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert len(resulting_feeds) >= 4
         return resulting_feeds
 
-    def test_start_following_feeds(self):
+
+    def start_following_feeds(self):
 
         feeds = self.test_get_feeds_at_url()
         feed_urls = [feed["url"] for feed in feeds]
@@ -598,7 +601,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_stop_following_feed(self):
 
-        self.test_start_following_feeds()
+        self.start_following_feeds()
         # After this test, we will have a bunch of feeds for the user
 
         feeds = self.api_get_json("get_feeds_being_followed")
@@ -629,7 +632,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_get_feed_items(self):
 
-        self.test_start_following_feeds()
+        self.start_following_feeds()
         # After this test, we will have two feeds for the user
 
         feed_items = self.api_get_json("get_feed_items/1")
@@ -642,5 +645,5 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 if __name__ == '__main__':
     # unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(API_Tests)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    unittest.TextTestRunner(verbosity=3).run(suite)
 

@@ -1,5 +1,6 @@
 import json
 import flask
+import zeeguu
 
 from zeeguu.api.model_core import UserWord, Bookmark, User, Text, ExerciseSource, ExerciseOutcome, Exercise, ExerciseBasedProbability, RankedWord, EncounterBasedProbability, KnownWordProbability
 from zeeguu.gym.model import Card
@@ -170,7 +171,6 @@ def study_before_play():
 def delete(bookmark_id):
 
     # Beware, the there is another delete_bookmark in the zeeguu API!!!
-    session = db.session
     bookmark = Bookmark.query.get(bookmark_id)
     if not bookmark:
         return "Not found"
@@ -180,16 +180,16 @@ def delete(bookmark_id):
     # delete the associated cards
     cards = Card.query.filter_by(bookmark_id=bookmark.id).all()
     for card in cards:
-        session.delete(card)
+        zeeguu.db.session.delete(card)
 
     # bookmark goes
-    session.delete(bookmark)
-    session.commit()
+    zeeguu.db.session.delete(bookmark)
+    zeeguu.db.session.commit()
 
     # If no more bookmarks point to the text, text goes too
     if not (text.all_bookmarks()):
-        session.delete(text)
-        session.commit()
+        zeeguu.db.session.delete(text)
+        zeeguu.db.session.commit()
 
     # url = text.url
     # if not url.texts:
@@ -233,8 +233,8 @@ def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,
 
         exercise = Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
         bookmark.add_new_exercise(exercise)
-        db.session.add(exercise)
-        db.session.commit()
+        zeeguu.db.session.add(exercise)
+        zeeguu.db.session.commit()
 
         update_probabilities_for_word(bookmark.origin)
         return "OK"
@@ -262,14 +262,14 @@ def wrong(bookmark_id, exercise_source, exercise_outcome, exercise_solving_speed
 def starred(card_id):
     card = Card.query.get(card_id)
     card.star()
-    db.session.commit()
+    zeeguu.db.session.commit()
     return "OK"
 
 @gym.route("/gym/unstarred_card/<card_id>", methods=("POST",))
 def unstarred(card_id):
     card = Card.query.get(card_id)
     card.unstar()
-    db.session.commit()
+    zeeguu.db.session.commit()
     return "OK"
 
 @gym.route("/gym/starred_word/<word_id>/<user_id>", methods=("POST",))
@@ -277,7 +277,7 @@ def starred_word(word_id,user_id):
     word = UserWord.query.get(word_id)
     user = User.find_by_id(user_id)
     user.star(word)
-    db.session.commit()
+    zeeguu.db.session.commit()
     return "OK"
 
 @gym.route("/gym/unstarred_word/<word_id>/<user_id>", methods=("POST",))
@@ -285,7 +285,7 @@ def unstarred_word(word_id,user_id):
     word = UserWord.query.get(word_id)
     user = User.find_by_id(user_id)
     user.starred_words.remove(word)
-    db.session.commit()
+    zeeguu.db.session.commit()
     print word + " is now *unstarred* for user " + user.name
     return "OK"
 

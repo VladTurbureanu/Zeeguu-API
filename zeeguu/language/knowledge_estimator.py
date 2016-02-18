@@ -4,9 +4,12 @@ from zeeguu.api.model_core import Language, RankedWord, KnownWordProbability, En
 
 class SethiKnowledgeEstimator(object):
 
-    def __init__(self, user, lang_code):
+    def __init__(self, user, lang_code = None):
         self.user = user
-        self.lang_code = lang_code
+        if lang_code:
+            self.lang_code = lang_code
+        else:
+            self.lang_code = self.user.learned_language_id
         self.language = Language.find(self.lang_code)
 
     def known_words_list(self):

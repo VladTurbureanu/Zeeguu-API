@@ -22,12 +22,13 @@ import sqlalchemy.exc
 import zeeguu
 import translation_service
 
-from endpoint_utils import cross_domain, with_session, json_result
+from route_wrappers import cross_domain, with_session, json_result
 from feedparser_extensions import two_letter_language_code, list_of_feeds_at_url
 from zeeguu import util
 from zeeguu.api.model_core import RankedWord, Language, Bookmark, UserWord
 from zeeguu.api.model_core import Session, User, Url, KnownWordProbability, Text
 from zeeguu.api.model_feeds import RSSFeed, RSSFeedRegistration
+from zeeguu.language.knowledge_estimator import SethiKnowledgeEstimator
 from zeeguu.language.text_difficulty import text_difficulty
 from zeeguu.language.text_learnability import text_learnability
 from zeeguu.language import knowledge_estimator
@@ -420,7 +421,8 @@ def get_not_encountered_words(lang_code):
 @cross_domain
 @with_session
 def get_known_bookmarks(lang_code):
-    return json_result(get_known_bookmarks(flask.g.user, Language.find(lang_code)))
+    e = SethiKnowledgeEstimator(flask.g.user, lang_code)
+    return json_result(e.get_known_bookmarks())
 
 
 @api.route("/get_known_words/<lang_code>", methods=("GET",))
@@ -431,14 +433,16 @@ def get_known_words(lang_code):
     :param lang_code: only show the words for a given language (e.g. 'de')
     :return: Returns all the bookmarks of a given user in the given lang
     """
-    return json_result(knowledge_estimator.known_words_list(flask.g.user, lang_code))
+    e = SethiKnowledgeEstimator(flask.g.user, lang_code)
+    return json_result(e.known_words_list())
 
 
 @api.route("/get_probably_known_words/<lang_code>", methods=("GET",))
 @cross_domain
 @with_session
 def get_probably_known_words(lang_code):
-    return json_result(flask.g.user.get_probably_known_words(Language.find(lang_code)))
+    e = SethiKnowledgeEstimator(flask.g.user, lang_code)
+    return json_result(e.get_probably_known_words())
 
 
 @api.route("/get_lower_bound_percentage_of_basic_vocabulary", methods=["GET"])
@@ -448,7 +452,8 @@ def get_lower_bound_percentage_of_basic_vocabulary():
     """
     :return: string representation of positive sub-unitary float
     """
-    return str(flask.g.user.get_lower_bound_percentage_of_basic_vocabulary())
+    e = SethiKnowledgeEstimator(flask.g.user)
+    return str(e.get_lower_bound_percentage_of_basic_vocabulary())
 
 
 @api.route("/get_upper_bound_percentage_of_basic_vocabulary", methods=("GET",))
@@ -459,7 +464,8 @@ def get_upper_bound_percentage_of_basic_vocabulary():
 
     :return: string representation of positive, sub-unitary float
     """
-    return str(flask.g.user.get_upper_bound_percentage_of_basic_vocabulary())
+    e = SethiKnowledgeEstimator(flask.g.user)
+    return str(e.get_upper_bound_percentage_of_basic_vocabulary())
 
 
 @api.route("/get_lower_bound_percentage_of_extended_vocabulary", methods=("GET",))
@@ -470,7 +476,8 @@ def get_lower_bound_percentage_of_extended_vocabulary():
 
     :return: string representation of positive sub-unitary float
     """
-    return str(flask.g.user.get_lower_bound_percentage_of_extended_vocabulary())
+    e = SethiKnowledgeEstimator(flask.g.user)
+    return str(e.get_lower_bound_percentage_of_extended_vocabulary())
 
 
 @api.route("/get_upper_bound_percentage_of_extended_vocabulary", methods=("GET",))
@@ -481,7 +488,8 @@ def get_upper_bound_percentage_of_extended_vocabulary():
 
     :return: string representation of positive sub-unitary float
     """
-    return str(flask.g.user.get_upper_bound_percentage_of_extended_vocabulary())
+    e = SethiKnowledgeEstimator(flask.g.user)
+    return str(e.get_upper_bound_percentage_of_extended_vocabulary())
 
 
 # returns the percentage of how many bookmarks are known to the user out of all the bookmarks
@@ -493,7 +501,8 @@ def get_percentage_of_probably_known_bookmarked_words():
 
     :return: string representation of positive sub-unitary float
     """
-    return str(flask.g.user.get_percentage_of_probably_known_bookmarked_words())
+    e = SethiKnowledgeEstimator(flask.g.user)
+    return str(e.get_percentage_of_probably_known_bookmarked_words())
 
 
 @api.route("/get_learned_bookmarks/<lang>", methods=("GET",))
@@ -502,10 +511,11 @@ def get_percentage_of_probably_known_bookmarked_words():
 def get_learned_bookmarks(lang):
     lang = Language.find(lang)
 
+    estimator = SethiKnowledgeEstimator(flask.g.user, lang.id)
     bk_list = [dict (id = bookmark.id,
                      origin = bookmark.origin.word,
                      text = bookmark.text.content
-                     ) for bookmark in flask.g.user.learned_bookmarks(lang)]
+                     ) for bookmark in estimator.learned_bookmarks()]
 
     return json_result(bk_list )
 
@@ -514,7 +524,8 @@ def get_learned_bookmarks(lang):
 @cross_domain
 @with_session
 def get_not_looked_up_words(lang_code):
-    return json_result(flask.g.user.get_not_looked_up_words(Language.find(lang_code)))
+    e = SethiKnowledgeEstimator(flask.g.user)
+    return json_result(e.get_not_looked_up_words())
 
 
 @api.route("/get_difficulty_for_text/<lang_code>", methods=("POST",))

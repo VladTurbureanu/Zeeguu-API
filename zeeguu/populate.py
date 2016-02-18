@@ -107,11 +107,6 @@ def add_probability_to_existing_words_of_user(user,bookmark,language):
 
 
 def create_test_db():
-    zeeguu.app.test_request_context().push()
-
-    zeeguu.db.session.commit()
-    zeeguu.db.drop_all()
-    zeeguu.db.create_all()
 
     de = Language("de", "German")
     da = Language("da", "Danish")
@@ -136,6 +131,7 @@ def create_test_db():
     zeeguu.db.session.add(ro)
     zeeguu.db.session.commit()
 
+
     show_solution = ExerciseOutcome("Show solution")
     retry = ExerciseOutcome("Retry")
     correct = ExerciseOutcome("Correct")
@@ -156,19 +152,15 @@ def create_test_db():
     zeeguu.db.session.add(recognize)
     zeeguu.db.session.add(translate)
 
-
-
     user = User("i@mir.lu", "Mircea", "pass", de, ro)
     user2 = User("i@ada.lu", "Ada", "pass", fr)
 
     zeeguu.db.session.add(user)
     zeeguu.db.session.add(user2)
 
-
     jan111 = datetime.date(2011,01,01)
     ian101 = datetime.date(2001,01,01)
     jan14 = datetime.date(2014,1,14)
-
 
     today_dict = {
         'sogar':'actually',

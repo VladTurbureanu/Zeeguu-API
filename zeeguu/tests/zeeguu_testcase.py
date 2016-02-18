@@ -21,6 +21,22 @@ import json
 
 class ZeeguuTestCase(unittest.TestCase):
 
+    def setUp(self):
+        # Initial cleanup
+        zeeguu.db.drop_all(app=zeeguu.app)
+        # Creating the tables again
+        zeeguu.db.create_all(app=zeeguu.app)
+
+        with zeeguu.app.app_context():
+            zeeguu.populate.create_test_db()
+
+        self.app = zeeguu.app.test_client()
+        self.session = self.get_session()
+
+    def tearDown(self):
+        self.app = None
+        self.session = None
+
     def login(self, email, password):
         return self.app.post('/login', data=dict(
             login=True, #/login tests for the existence of "login" in this dict
@@ -49,15 +65,7 @@ class ZeeguuTestCase(unittest.TestCase):
         return url_with_session
 
 
-    def setUp(self):
-        # zeeguu.app.config['TESTING'] = True
-        self.app = zeeguu.app.test_client()
-        zeeguu.populate.create_test_db()
-        self.session = self.get_session()
 
-    def tearDown(self):
-        self.app = None
-        self.session = None
 
     def api_get(self, test_data, formdata='None', content_type=None):
         return self.app.get(self.in_session(test_data), data = formdata, content_type = content_type)

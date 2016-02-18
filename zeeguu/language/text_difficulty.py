@@ -11,40 +11,32 @@
 # __author__ = 'mircea'
 #
 
-from zeeguu import util
+from zeeguu.util import split_words_from_text
 from zeeguu.api.model_core import RankedWord
 
 
-def text_difficulty(known_probabilities, language, personalized, rank_boundary, text):
+def text_difficulty(text, language, known_probabilities, rank_boundary, personalized):
     """
-
-    :param known_probabilities:
-    :param language:
-    :param personalized:
-    :param rank_boundary:
-    :param text:
+    :param known_probabilities: the probabilities that the user knows individual words
+    :param language: the learned language
+    :param personalized: if true, the text_difficulty is computed with personalization
+    :param rank_boundary: 10.000 words
+    :param text: text to analyse
     :return:
     """
+    word_difficulties = []
 
     # Calculate difficulty for each word
-    words = util.split_words_from_text(text['content'])
-    word_difficulties = []
+    words = split_words_from_text(text['content'])
 
     for word in words:
         ranked_word = RankedWord.find_cache(word, language)
         difficulty = word_difficulty(known_probabilities, personalized, rank_boundary, ranked_word, word)
         word_difficulties.append(difficulty)
 
-    # Uncomment to print data for histogram generation
-    # text.generate_histogram(word_difficulties)
-    # Median difficulty for text
-    word_difficulties.sort()
-    center = int(round(len(word_difficulties) / 2, 0))
-    difficulty_median = word_difficulties[center]
     # Average difficulty for text
     difficulty_average = sum(word_difficulties) / float(len(word_difficulties))
-    difficulty_scores = dict(score_median=difficulty_median, score_average=difficulty_average, id=text['id'])
-    return difficulty_scores
+    return difficulty_average
 
 
 def word_difficulty(known_probabilities, personalized, rank_boundary, ranked_word, word):
