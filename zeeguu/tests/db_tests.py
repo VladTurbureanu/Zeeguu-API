@@ -2,6 +2,7 @@
 
 # Always must be imported first
 # it sets the test DB
+from zeeguu.the_librarian.website_recommender import recent_domains_with_times, frequent_domains
 
 __author__ = 'mircea'
 import zeeguu_testcase
@@ -169,15 +170,14 @@ class Dbtest(ZeeguuTestCase):
         url = model.Url("", "Mir News")
         assert url.domain() == ""
 
-
     def test_user_recently_visited_domains(self):
-        assert len(self.mir.recent_domains_with_times()) == 3
+        assert len(recent_domains_with_times(self.mir)) == 3
 
     def test_user_recently_visited_domains_does_not_include_android(self):
-        assert not(any("android" in dom[0] for dom in self.mir.recent_domains_with_times()))
+        assert not(any("android" in dom[0] for dom in recent_domains_with_times(self.mir)))
 
     def test_frequent_domains(self):
-        print (self.mir.frequent_domains())
+        print (frequent_domains(self.mir))
 
 
     def test_one_domain_multiple_urls(self):

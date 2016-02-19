@@ -625,7 +625,8 @@ def get_learnability_for_text(lang_code):
 
     learnabilities = []
     for text in texts:
-        count, learnability = text_learnability(text, user.words_being_learned(language))
+        e = SethiKnowledgeEstimator(user)
+        count, learnability = text_learnability(text, e.words_being_learned(language))
         learnabilities.append(dict(score=learnability, count=count, id=text['id']))
 
     return json_result(dict(learnabilities=learnabilities))

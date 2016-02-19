@@ -65,25 +65,11 @@ class User(db.Model):
             native_language=self.native_language_id
         )
 
-
     def set_learned_language(self, code):
         self.learned_language = Language.find(code)
 
     def set_native_language(self, code):
         self.native_language = Language.find(code)
-
-    @classmethod
-    def find_all(cls):
-        return User.query.all()
-
-
-    @classmethod
-    def find(cls, email):
-        return User.query.filter(User.email == email).one()
-
-    @classmethod
-    def find_by_id(cls, id):
-        return User.query.filter(User.id == id).one()
 
     @sqlalchemy.orm.validates("email")
     def validate_email(self, col, email):
@@ -109,30 +95,11 @@ class User(db.Model):
         )
         self.password = util.password_hash(password, self.password_salt)
 
-    @classmethod
-    def authorize(cls, email, password):
-        try:
-            user = cls.query.filter(cls.email == email).one()
-            if user.password == util.password_hash(password,
-                                                   user.password_salt):
-                return user
-        except sqlalchemy.orm.exc.NoResultFound:
-            return None
-
-    def bookmarks_chronologically(self):
-        return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
-
-    def user_words(self):
-        return map((lambda x: x.origin.word), self.all_bookmarks())
-
     def all_bookmarks(self):
         return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
 
-    def bookmark_count(self):
-        return len(self.all_bookmarks())
-
-    def word_count(self):
-        return len(self.user_words())
+    def bookmarks_chronologically(self):
+        return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
 
     def bookmarks_by_date(self):
         def extract_day_from_date(bookmark):
@@ -174,80 +141,36 @@ class User(db.Model):
             dates.append(date_entry)
         return dates
 
-    # returns only HTTP domains. in this way we filter
-    # out empty domains, and others like the android:
-    # that we use for internal tracking...
-    # Returns: list of tuples (domain, date)
-    def recent_domains_with_times(self):
-        domains = []
-        domains_and_times = []
-        for b in self.bookmarks_chronologically():
-            if not b.text.url.domain() in domains\
-                and 'http' in b.text.url.domain():
-                    domains_and_times.append([b.text.url.domain(), b.time])
-                    domains.append(b.text.url.domain())
-        return domains_and_times
+    def user_words(self):
+        return map((lambda x: x.origin.word), self.all_bookmarks())
 
-    def frequent_domains(self):
-        domains = map (lambda b: b.text.url.domain(), self.bookmarks_chronologically())
-        from collections import Counter
-        counter = Counter(domains)
-        return counter.most_common()
+    def bookmark_count(self):
+        return len(self.all_bookmarks())
 
-    def unique_urls(self):
-        urls = set()
-        for b in self.all_bookmarks():
-            urls.add(b.text.url)
-        return urls
+    def word_count(self):
+        return len(self.user_words())
 
-    def recommended_urls(self):
-        urls_to_words = {}
-        for bookmark in self.all_bookmarks():
-            if bookmark.text.url.url != "undefined":
-                urls_to_words.setdefault(bookmark.text.url,0)
-                urls_to_words [bookmark.text.url] += bookmark.origin.importance_level()
-        return sorted(urls_to_words, key=urls_to_words.get, reverse=True)
+    @classmethod
+    def find_all(cls):
+        return User.query.all()
 
-#     Reading recommendations
-    def recommendations(self):
-        recommendations = {
-            'de': [
-                    ['Der Spiegel', 'http://m.spiegel.de', 'German News']
-            ],
-            'da': [
-                ['DR Forsiden', 'http://www.dr.dk', 'Danish News']
-            ],
-            'nl': [
-                ['Het laatste nieuws', 'http://www.nu.nl/', 'Dutch News']
-            ],
-            'fr': [
-                ['Le Figaro', 'http://www.lefigaro.fr/', 'French News']
-            ],
-            'gr': [
-                ['News 247', 'http://news247.gr/', 'Greek News']
-            ],
-            'it': [
-                ['la Reppublica', 'http://www.repubblica.it/', 'Italian News']
-            ],
-            'no': [
-                ['Dagbladet', 'http://www.nrk.no/', 'Norwegian News']
-            ],
-            'pt': [
-                ['Jornal de Noticias', 'http://www.jn.pt/paginainicial/', 'Portughese News']
-            ],
-            'ro': [
-                ['Mediafax', 'http://www.mediafax.ro/', 'Romanian News']
-            ],
-            'es': [
-                ['El Pais', 'http://elpais.com/', 'Spanish News']
-            ]
-        }
+    @classmethod
+    def find(cls, email):
+        return User.query.filter(User.email == email).one()
 
+    @classmethod
+    def find_by_id(cls, id):
+        return User.query.filter(User.id == id).one()
+
+    @classmethod
+    def authorize(cls, email, password):
         try:
-            return recommendations[self.learned_language_id]
-        except:
-            return []
-
+            user = cls.query.filter(cls.email == email).one()
+            if user.password == util.password_hash(password,
+                                                   user.password_salt):
+                return user
+        except sqlalchemy.orm.exc.NoResultFound:
+            return None
 
 
 class Session(db.Model):

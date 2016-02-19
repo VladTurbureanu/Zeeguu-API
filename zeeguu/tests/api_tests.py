@@ -378,7 +378,8 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             }
         """
 
-        RankedWord.cache_ranked_words()
+        with zeeguu.app.app_context():
+            RankedWord.cache_ranked_words()
 
         rv = self.api_post('/get_difficulty_for_text/de', data, 'application/json')
 
