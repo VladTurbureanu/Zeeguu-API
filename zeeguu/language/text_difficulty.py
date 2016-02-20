@@ -11,7 +11,7 @@
 # __author__ = 'mircea'
 #
 
-from zeeguu.util import split_words_from_text
+from zeeguu.the_librarian.text import split_words_from_text
 from zeeguu.api.model_core import RankedWord
 
 

@@ -1,4 +1,4 @@
-from zeeguu import util
+from zeeguu.the_librarian.text import split_words_from_text
 
 
 def text_learnability(text, words_learning):
@@ -11,7 +11,7 @@ def text_learnability(text, words_learning):
     :return:
     """
     # Calculate learnability
-    words = util.split_words_from_text(text['content'])
+    words = split_words_from_text(text['content'])
     words_learnability = []
     for word in words:
         if word in words_learning:

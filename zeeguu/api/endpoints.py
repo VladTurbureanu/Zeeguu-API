@@ -36,6 +36,8 @@ from zeeguu.language import knowledge_estimator
 
 from flask import request
 
+from zeeguu.the_librarian.page_content_extractor import PageExtractor
+
 REFERENCE_VOCABULARY_SIZE = 10000.0
 
 api = flask.Blueprint("api", __name__)
@@ -667,7 +669,7 @@ def get_content_from_url():
     # Start worker threads to get url contents
     threads = []
     for url in urls:
-        thread = threading.Thread(target=util.PageExtractor.worker, args=(url['url'], url['id'], queue))
+        thread = threading.Thread(target=PageExtractor.worker, args=(url['url'], url['id'], queue))
         thread.daemon = True
         threads.append(thread)
         thread.start()
