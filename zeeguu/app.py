@@ -18,6 +18,7 @@ class CrossDomainApp(flask.Flask):
         rv.headers['Access-Control-Allow-Origin'] = "*"
         return rv
 
+
 # create the instance folder and return the path
 def instance_path(app):
     path = os.path.join(app.instance_path, "gen")

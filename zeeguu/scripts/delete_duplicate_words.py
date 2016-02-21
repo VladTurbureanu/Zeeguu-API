@@ -17,7 +17,5 @@ def delete_duplicates(lang_code):
     zeeguu.db.session.commit()
 
 
-
-
 if __name__ == "__main__":
    delete_duplicates('de')

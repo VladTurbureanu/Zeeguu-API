@@ -14,7 +14,7 @@ from user_message import UserVisibleException
 
 from views_utils import login_first
 
-from knowledge_estimator import update_probabilities_for_word
+from zeeguu.language.knowledge_estimator import update_probabilities_for_word
 from zeeguu.the_librarian.website_recommender import recent_domains_with_times, frequent_domains, recommendations
 
 
