@@ -71,12 +71,12 @@ def logged_in():
 @gym.route("/bookmarks")
 @login_first
 def bookmarks():
-    bookmarks,dates = flask.g.user.bookmarks_by_date()
+    bookmarks_list,dates = flask.g.user.bookmarks_by_date()
 
     urls_by_date = {}
     bookmarks_by_url = {}
     for date in dates:
-        for bookmark in bookmarks[date]:
+        for bookmark in bookmarks_list[date]:
             urls_by_date.setdefault(date, set()).add(bookmark.text.url)
             bookmarks_by_url.setdefault(bookmark.text.url,[]).append(bookmark)
 
@@ -84,7 +84,7 @@ def bookmarks():
                                  bookmarks_by_url=bookmarks_by_url,
                                  urls_by_date=urls_by_date,
                                  sorted_dates=dates,
-                                 user = flask.g.user)
+                                 user=flask.g.user)
 
 
 @gym.route("/gym/question/<from_lang>/<to_lang>")

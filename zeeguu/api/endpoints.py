@@ -206,16 +206,13 @@ def studied_words():
 def bookmarks_by_day(return_context):
     """
     Returns the bookmarks of this user organized by date
-    If <return_context> is "with_context" it also returns the
+    :param return_context: If "with_context" it also returns the
     text where the bookmark was found. If <return_context>
     is anything else, the context is not returned.
 
     """
     with_context = return_context == "with_context"
     return json_result(flask.g.user.bookmarks_by_day(with_context))
-
-
-
 
 @api.route("/translate_and_bookmark/<from_lang_code>/<to_lang_code>", methods=["POST"])
 @cross_domain
