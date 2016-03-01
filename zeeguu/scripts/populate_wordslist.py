@@ -35,7 +35,7 @@ def add_ranked_word_to_db(lang_code):
     initial_line_number = 1
 
     for word in filter_word_list(word_list(lang_code)):
-        r = model.RankedWord(word.lower(), from_lang,initial_line_number)
+        r = zeeguu.api.model_core.RankedWord(word.lower(), from_lang,initial_line_number)
         zeeguu.db.session.add(r)
         initial_line_number+=1
         if (initial_line_number % 1000 == 0):

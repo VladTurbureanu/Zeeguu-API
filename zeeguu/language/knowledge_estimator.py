@@ -1,6 +1,6 @@
 import flask
 
-from zeeguu import RankedWord, db
+from zeeguu import db
 from zeeguu.api.model_core import Language, RankedWord, KnownWordProbability, EncounterBasedProbability, Bookmark, \
     ExerciseBasedProbability
 

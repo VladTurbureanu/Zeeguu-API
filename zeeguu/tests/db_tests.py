@@ -13,6 +13,7 @@ from zeeguu import model, db
 from zeeguu.api.model_core import UserWord, Language
 import datetime
 import random
+import zeeguu
 
 
 class Dbtest(ZeeguuTestCase):
@@ -86,7 +87,7 @@ class Dbtest(ZeeguuTestCase):
 
     def test_preferred_words(self):
         word = "hauen"
-        if(model.RankedWord.exists(word.lower(), self.de)):
+        if(zeeguu.api.model_core.RankedWord.exists(word.lower(), self.de)):
             rank = model.UserWord.find_rank(word.lower(), self.de)
             someword = model.UserWord.find(word,self.de)
         else:
@@ -125,7 +126,7 @@ class Dbtest(ZeeguuTestCase):
 
     def test_importance_level(self):
         word = "beschloss"
-        if(model.RankedWord.exists(word.lower(), self.de)):
+        if zeeguu.api.model_core.RankedWord.exists(word.lower(), self.de):
             rank = model.UserWord.find_rank(word.lower(), self.de)
             new_word = model.UserWord.find(word,self.de)
         else:

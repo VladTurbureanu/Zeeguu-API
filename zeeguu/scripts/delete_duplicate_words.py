@@ -9,7 +9,7 @@ def delete_duplicates(lang_code):
     zeeguu.db.session.commit()
     word_temp_list = []
     language_id = model.Language.find(lang_code)
-    for rank in model.RankedWord.find_all(language_id):
+    for rank in zeeguu.api.model_core.RankedWord.find_all(language_id):
         if rank.word not in word_temp_list:
             word_temp_list.append(rank.word)
         else:

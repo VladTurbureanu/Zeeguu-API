@@ -2,7 +2,7 @@ import json
 import flask
 import zeeguu
 
-from zeeguu.api.model_core import UserWord, Bookmark, User, Text, ExerciseSource, ExerciseOutcome, Exercise, ExerciseBasedProbability, RankedWord, EncounterBasedProbability, KnownWordProbability
+from zeeguu.api.model_core import UserWord, Bookmark, User, Text, ExerciseSource, ExerciseOutcome, Exercise
 from zeeguu.gym.model import Card
 from zeeguu.api.model_core import db
 import datetime
