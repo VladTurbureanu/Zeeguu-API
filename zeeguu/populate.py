@@ -53,7 +53,7 @@ def filter_word_list(word_list):
     return filtered_word_list
 
 def test_word_list(lang_code):
-    words_file = open(zeeguu.app.config.get("LANGUAGES_FOLDER")+lang_code+"-test.txt")
+    words_file = open("languages/"+lang_code+"-test.txt")
     words_list = words_file.read().splitlines()
     return words_list
 

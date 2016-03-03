@@ -23,7 +23,9 @@ def setup_db_connection():
         db_name = "zeeguu_test"
         if os.environ.get("ZEEGUU_PERFORMANCE_TESTING"):
             db_name = "zeeguu_performance_test"
+        db_connection_string += mysql_hostname+"/"+db_name
         db_connection_string = "mysql://travis:@127.0.0.1/"+db_name
+
         app.config["SQLALCHEMY_DATABASE_URI"] = db_connection_string
     else:
         #  Ooops: we are not testing, and we don't have a DB configured!
