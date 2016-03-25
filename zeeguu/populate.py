@@ -52,8 +52,23 @@ def filter_word_list(word_list):
                 break
     return filtered_word_list
 
+
+def path_of_language_resources():
+    """
+    the easiest way to make sure that the langauge dictionary files
+    are found when running the test cases, either from IDE or from the
+    command line is to
+    - compute the path relative to this file
+    :return:
+    """
+    import os
+    path = os.path.dirname(__file__)
+    return path+"/../languages/"
+
+
 def test_word_list(lang_code):
-    words_file = open("languages/"+lang_code+"-test.txt")
+
+    words_file = open(path_of_language_resources()+lang_code+"-test.txt")
     words_list = words_file.read().splitlines()
     return words_list
 
@@ -107,6 +122,8 @@ def add_probability_to_existing_words_of_user(user,bookmark,language):
 
 
 def create_test_db():
+
+
 
     de = Language("de", "German")
     da = Language("da", "Danish")
