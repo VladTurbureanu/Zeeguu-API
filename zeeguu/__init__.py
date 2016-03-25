@@ -11,11 +11,34 @@ db = flask.ext.sqlalchemy.SQLAlchemy()
 from zeeguu import app
 app = app.app
 
-def setup_db_connection():
-    # the hostname for the mysql connection strip has to be named differently on different platforms!!!
-    mysql_hostname = "127.0.0.1"
-    if platform.uname()[0]=='Darwin':
+
+def platform_is_osx():
+    """
+    :return:
+    """
+    return platform.uname()[0]=='Darwin'
+
+
+def get_platform_specific_mysql_hostname():
+    """
+    the hostname for the mysql connection string has to be named differently on different platforms!
+    :return:
+    """
+    if platform_is_osx():
         mysql_hostname = "localhost"
+    else:
+        mysql_hostname = "127.0.0.1"
+    return mysql_hostname
+
+
+def setup_db_connection():
+    """
+
+    :return: does not return anything.
+     pure side effects :)
+    """
+
+    mysql_hostname = get_platform_specific_mysql_hostname()
 
     db_connection_string = "mysql://zeeguu_test:zeeguu_test@"
 
@@ -24,7 +47,7 @@ def setup_db_connection():
         if os.environ.get("ZEEGUU_PERFORMANCE_TESTING"):
             db_name = "zeeguu_performance_test"
         db_connection_string += mysql_hostname+"/"+db_name
-        db_connection_string = "mysql://travis:@127.0.0.1/"+db_name
+        # db_connection_string = "mysql://travis:@127.0.0.1/"+db_name
 
         app.config["SQLALCHEMY_DATABASE_URI"] = db_connection_string
     else:
