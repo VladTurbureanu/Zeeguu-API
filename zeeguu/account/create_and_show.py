@@ -38,7 +38,7 @@ def create_account():
     language = Language.find(form.get("language", None))
     native_language = Language.find(form.get("native_language", None))
 
-    if not (code == "Kairo" or code == "unibe" or code == "rug"):
+    if not (code == "Kairo" or code == "unibe" or code == "rug" or code =="42"):
         flash("Invitation code is not recognized. Please contact us.")
 
     elif password is None or email is None or name is None:
