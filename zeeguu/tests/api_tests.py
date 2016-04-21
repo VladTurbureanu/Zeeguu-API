@@ -580,7 +580,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
             # following assertion makes sure that we find at least on feed
             # in each o the urls_to_test
-            print feeds[0]
             assert (feeds[0]["title"])
 
         # following assertion assumes that each site has at least one feed
