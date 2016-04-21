@@ -366,32 +366,34 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
             assert user.authorize("i@mir.lu", "pass") != None
 
-    # def test_text_difficulty(self):
-    #     data = """
-    #         {
-    #         "texts":
-    #             [
-    #                 {"content": "Der die das warum, wer nicht fragt bleibt bew\u00f6lkt!", "id": 1},
-    #                 {"content": "Dies ist ein Test.", "id": 2}],
-    #         "personalized": "true"
-    #         }
-    #     """
-    #
-    #     with zeeguu.app.app_context():
-    #         RankedWord.cache_ranked_words()
-    #
-    #     rv = self.api_post('/get_difficulty_for_text/de', data, 'application/json')
-    #
-    #     difficulties = json.loads(rv.data)['difficulties']
-    #     for difficulty in difficulties:
-    #         assert 0.0 <= difficulty['score_median'] <= 1.0
-    #         assert 0.0 <= difficulty['score_average'] <= 1.0
-    #         if difficulty['id'] is 1:
-    #             assert difficulty['score_median'] == 1.0
-    #             assert round(difficulty['score_average'], 2) == 0.67
-    #         elif difficulty['id'] is 2:
-    #             assert difficulty['score_median'] == 1.0
-    #             assert difficulty['score_average'] == 0.50075
+    def test_text_difficulty(self):
+        data = """
+            {
+            "texts":
+                [
+                    {"content": "Der die das warum, wer nicht fragt bleibt bew\u00f6lkt!", "id": 1},
+                    {"content": "Dies ist ein Test.", "id": 2}],
+            "personalized": "true"
+            }
+        """
+
+        with zeeguu.app.app_context():
+            RankedWord.cache_ranked_words()
+
+        rv = self.api_post('/get_difficulty_for_text/de', data, 'application/json')
+
+        difficulties = json.loads(rv.data)['difficulties']
+        print difficulties
+
+        for difficulty in difficulties:
+            assert 0.0 <= difficulty['score_median'] <= 1.0
+            assert 0.0 <= difficulty['score_average'] <= 1.0
+            if difficulty['id'] is 1:
+                assert difficulty['score_median'] == 1.0
+                assert round(difficulty['score_average'], 2) == 0.67
+            elif difficulty['id'] is 2:
+                assert difficulty['score_median'] == 1.0
+                assert difficulty['score_average'] == 0.50075
 
 
     def test_text_learnability(self):
@@ -578,6 +580,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
             # following assertion makes sure that we find at least on feed
             # in each o the urls_to_test
+            print feeds[0]
             assert (feeds[0]["title"])
 
         # following assertion assumes that each site has at least one feed

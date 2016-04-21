@@ -36,7 +36,15 @@ def text_difficulty(text, language, known_probabilities, rank_boundary, personal
 
     # Average difficulty for text
     difficulty_average = sum(word_difficulties) / float(len(word_difficulties))
-    return difficulty_average
+
+    # Median difficulty
+    word_difficulties.sort()
+    center = int(round(len(word_difficulties) / 2, 0))
+    difficulty_median = word_difficulties[center]
+
+    difficulty_scores = dict(score_median=difficulty_median, score_average=difficulty_average, id=text['id'])
+
+    return difficulty_scores
 
 
 def word_difficulty(known_probabilities, personalized, rank_boundary, ranked_word, word):

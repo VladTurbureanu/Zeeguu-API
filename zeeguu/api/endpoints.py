@@ -578,11 +578,12 @@ def get_difficulty_for_text(lang_code):
 
     difficulties = [
         text_difficulty(
-            known_probabilities,
+            text,
             language,
-            personalized,
+            known_probabilities,
             rank_boundary,
-            text)
+            personalized
+            )
         for text in texts]
 
     return json_result(dict(difficulties=difficulties))
