@@ -29,6 +29,7 @@ def discrete_text_difficulty(median_difficulty, average_difficulty):
         return "MEDIUM"
     return "HARD"
 
+
 def text_difficulty(text, language, known_probabilities, rank_boundary, personalized):
     """
     :param known_probabilities: the probabilities that the user knows individual words
@@ -36,7 +37,10 @@ def text_difficulty(text, language, known_probabilities, rank_boundary, personal
     :param personalized: if true, the text_difficulty is computed with personalization
     :param rank_boundary: 10.000 words
     :param text: text to analyse
-    :return:
+    :return: a dictionary with three items for every text:
+      1. score_average - average difficulty of the words in the text
+      2. score_median - median difficulty of the words in the text
+      3. estimated_difficulty - oen of three "EASY", "MEDIUM", "HARD"
     """
     word_difficulties = []
 

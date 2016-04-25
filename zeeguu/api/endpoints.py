@@ -544,9 +544,11 @@ def get_difficulty_for_text(lang_code):
     For an example of how the Json data looks like, see
         ../tests/api_tests.py#test_txt_difficulty(self):
 
-    :return difficulties: json array, contains the difficulties as arrays with the key 'score_median' for the median
-        and 'score_average' for the average difficulty the value (between 0 (easy) and 1 (hard)) and the 'id' parameter
-        to identify the corresponding text
+    :return difficulties: json array, which contains for each text:
+      * estimated_difficulty - one of three: "EASY", "MEDIUM", "HARD"
+      * id - identifies the text
+      * [deprecated] score_average - average difficulty of the words in the text
+      * [deprecated] score_median - median difficulty of the words in the text
     """
     language = Language.find(lang_code)
     if not language:
