@@ -15,6 +15,20 @@ from zeeguu.the_librarian.text import split_words_from_text
 from zeeguu.api.model_core import RankedWord
 
 
+def discrete_text_difficulty(median_difficulty, average_difficulty):
+    """
+
+    :param median_difficulty:
+    :param average_difficulty:
+    :return: a symbolic representation of the estimated difficulty
+     the values are between "EASY", "MEDIUM", and "HARD"
+    """
+    if (average_difficulty < 0.3):
+        return "EASY"
+    if (average_difficulty < 0.4):
+        return "MEDIUM"
+    return "HARD"
+
 def text_difficulty(text, language, known_probabilities, rank_boundary, personalized):
     """
     :param known_probabilities: the probabilities that the user knows individual words
@@ -42,7 +56,13 @@ def text_difficulty(text, language, known_probabilities, rank_boundary, personal
     center = int(round(len(word_difficulties) / 2, 0))
     difficulty_median = word_difficulties[center]
 
-    difficulty_scores = dict(score_median=difficulty_median, score_average=difficulty_average, id=text['id'])
+    #
+
+    difficulty_scores = dict(
+        score_median=difficulty_median,
+        score_average=difficulty_average,
+        estimated_difficulty=discrete_text_difficulty(difficulty_average, difficulty_median),
+        id=text['id'])
 
     return difficulty_scores
 

@@ -372,7 +372,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             "texts":
                 [
                     {"content": "Der die das warum, wer nicht fragt bleibt bew\u00f6lkt!", "id": 1},
-                    {"content": "Dies ist ein Test.", "id": 2}],
+                    {"content": "Das ist ein Test.", "id": 2}],
             "personalized": "true"
             }
         """
@@ -383,17 +383,15 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         rv = self.api_post('/get_difficulty_for_text/de', data, 'application/json')
 
         difficulties = json.loads(rv.data)['difficulties']
-        print difficulties
+        first_text_difficulty = difficulties[0]
+        second_text_difficulty = difficulties[1]
 
-        for difficulty in difficulties:
-            assert 0.0 <= difficulty['score_median'] <= 1.0
-            assert 0.0 <= difficulty['score_average'] <= 1.0
-            if difficulty['id'] is 1:
-                assert difficulty['score_median'] == 1.0
-                assert round(difficulty['score_average'], 2) == 0.67
-            elif difficulty['id'] is 2:
-                assert difficulty['score_median'] == 1.0
-                assert difficulty['score_average'] == 0.50075
+        assert round(first_text_difficulty ['score_average'], 2) == 0.67
+        assert first_text_difficulty['estimated_difficulty'] == 'HARD'
+
+        assert second_text_difficulty['estimated_difficulty'] == 'EASY'
+
+
 
 
     def test_text_learnability(self):
