@@ -373,7 +373,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                 [
                     {"content": "Der die das warum, wer nicht fragt bleibt bew\u00f6lkt!", "id": 1},
                     {"content": "Das ist ein Test.", "id": 2}],
-            "personalized": "true"
+            "difficulty_computer": "default"
             }
         """
 

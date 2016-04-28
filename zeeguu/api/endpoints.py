@@ -538,7 +538,7 @@ def get_difficulty_for_text(lang_code):
     Json data:
     :param texts: json array that contains the texts to calculate the difficulty for. Each text consists of an array
         with the text itself as 'content' and an additional 'id' which gets roundtripped unchanged
-    :param personalized (optional): calculate difficulty score for a specific user? (Enabled by default)
+    :param difficulty_computer (optional): calculate difficulty score using a specific algorithm
     :param rank_boundary (optional): upper boundary for word frequency rank (between 1 and 10'000)
 
     For an example of how the Json data looks like, see
@@ -563,11 +563,9 @@ def get_difficulty_for_text(lang_code):
     for text in data['texts']:
         texts.append(text)
 
-    personalized = True
-    if 'personalized' in data:
-        personalized = data['personalized'].lower()
-        if personalized == 'false' or personalized == '0':
-            personalized = False
+    difficulty_computer = 'default'
+    if 'difficulty_computer' in data:
+        difficulty_computer = data['difficulty_computer'].lower()
 
     rank_boundary = REFERENCE_VOCABULARY_SIZE
     if 'rank_boundary' in data:
@@ -584,7 +582,7 @@ def get_difficulty_for_text(lang_code):
             language,
             known_probabilities,
             rank_boundary,
-            personalized
+            difficulty_computer
             )
         for text in texts]
 

@@ -30,11 +30,12 @@ def discrete_text_difficulty(median_difficulty, average_difficulty):
     return "HARD"
 
 
-def text_difficulty(text, language, known_probabilities, rank_boundary, personalized):
+def text_difficulty(text, language, known_probabilities, rank_boundary, difficulty_computer):
     """
     :param known_probabilities: the probabilities that the user knows individual words
     :param language: the learned language
-    :param personalized: if true, the text_difficulty is computed with personalization
+    :param difficulty_computer: if known the name of the algo used to compute the difficulty.
+        currently only default is implemented
     :param rank_boundary: 10.000 words
     :param text: text to analyse
     :return: a dictionary with three items for every text:
@@ -49,7 +50,7 @@ def text_difficulty(text, language, known_probabilities, rank_boundary, personal
 
     for word in words:
         ranked_word = RankedWord.find_cache(word, language)
-        difficulty = word_difficulty(known_probabilities, personalized, rank_boundary, ranked_word, word)
+        difficulty = word_difficulty(known_probabilities, True, rank_boundary, ranked_word, word)
         word_difficulties.append(difficulty)
 
     # Average difficulty for text
