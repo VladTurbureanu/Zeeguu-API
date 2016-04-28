@@ -38,7 +38,6 @@ from flask import request
 
 from zeeguu.the_librarian.page_content_extractor import PageExtractor
 
-REFERENCE_VOCABULARY_SIZE = 10000.0
 
 api = flask.Blueprint("api", __name__)
 
@@ -539,7 +538,8 @@ def get_difficulty_for_text(lang_code):
     :param texts: json array that contains the texts to calculate the difficulty for. Each text consists of an array
         with the text itself as 'content' and an additional 'id' which gets roundtripped unchanged
     :param difficulty_computer (optional): calculate difficulty score using a specific algorithm
-    :param rank_boundary (optional): upper boundary for word frequency rank (between 1 and 10'000)
+    :param rank_boundary (deprecated): upper boundary for word frequency rank (between 1 and 10'000)
+    :param personalized (deprecated): by default we always compute the personalized difficulty
 
     For an example of how the Json data looks like, see
         ../tests/api_tests.py#test_txt_difficulty(self):
@@ -567,24 +567,19 @@ def get_difficulty_for_text(lang_code):
     if 'difficulty_computer' in data:
         difficulty_computer = data['difficulty_computer'].lower()
 
-    rank_boundary = REFERENCE_VOCABULARY_SIZE
-    if 'rank_boundary' in data:
-        rank_boundary = float(data['rank_boundary'])
-        if rank_boundary > REFERENCE_VOCABULARY_SIZE:
-            rank_boundary = REFERENCE_VOCABULARY_SIZE
-
     user = flask.g.user
     known_probabilities = KnownWordProbability.find_all_by_user_cached(user)
 
-    difficulties = [
-        text_difficulty(
-            text,
-            language,
-            known_probabilities,
-            rank_boundary,
-            difficulty_computer
-            )
-        for text in texts]
+    difficulties = []
+    for text in texts:
+        difficulty = text_difficulty(
+                text["content"],
+                language,
+                known_probabilities,
+                difficulty_computer
+                )
+        difficulty["id"] = text["id"]
+        difficulties.append(difficulty)
 
     return json_result(dict(difficulties=difficulties))
 
@@ -634,6 +629,7 @@ def get_learnability_for_text(lang_code):
 
 @api.route("/get_content_from_url", methods=("POST",))
 @cross_domain
+@with_session
 def get_content_from_url():
     """
     Json data:
@@ -643,6 +639,8 @@ def get_content_from_url():
             ../tests/api_tests.py#test_content_from_url(self):
 
     :param timeout (optional): maximal time in seconds to wait for the results
+
+    :param lang_code (optional): If the user sends along the language, then we compute the difficulty of the texts
 
     :return contents: json array, contains the contents of the urls that responded within the timeout as arrays
         with the key 'content' for the article content, the url of the main image as 'image' and the 'id' parameter
@@ -683,6 +681,22 @@ def get_content_from_url():
             contents.append(queue.get_nowait())
         except Queue.Empty:
             pass
+
+    # If the user sends along the language, then we can compute the difficulty
+    if 'lang_code' in data:
+        lang_code = data['lang_code']
+        language = Language.find(lang_code)
+        if language is not None:
+            print "got language"
+            user = flask.g.user
+            known_probabilities = KnownWordProbability.find_all_by_user_cached(user)
+            for each_content_dict in contents:
+                    difficulty = text_difficulty(
+                            each_content_dict["content"],
+                            language,
+                            known_probabilities
+                            )
+                    each_content_dict["difficulty"] = difficulty
 
     return json_result(dict(contents=contents))
 

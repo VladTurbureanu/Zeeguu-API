@@ -15,6 +15,8 @@ from zeeguu.the_librarian.text import split_words_from_text
 from zeeguu.api.model_core import RankedWord
 
 
+REFERENCE_VOCABULARY_SIZE = 10000.0
+
 def discrete_text_difficulty(median_difficulty, average_difficulty):
     """
 
@@ -30,12 +32,13 @@ def discrete_text_difficulty(median_difficulty, average_difficulty):
     return "HARD"
 
 
-def text_difficulty(text, language, known_probabilities, rank_boundary, difficulty_computer):
+def text_difficulty(text, language, known_probabilities, difficulty_computer = 'default', rank_boundary = REFERENCE_VOCABULARY_SIZE):
     """
     :param known_probabilities: the probabilities that the user knows individual words
     :param language: the learned language
     :param difficulty_computer: if known the name of the algo used to compute the difficulty.
         currently only default is implemented
+    :param personalized (deprecated)
     :param rank_boundary: 10.000 words
     :param text: text to analyse
     :return: a dictionary with three items for every text:
@@ -46,7 +49,7 @@ def text_difficulty(text, language, known_probabilities, rank_boundary, difficul
     word_difficulties = []
 
     # Calculate difficulty for each word
-    words = split_words_from_text(text['content'])
+    words = split_words_from_text(text)
 
     for word in words:
         ranked_word = RankedWord.find_cache(word, language)
@@ -66,8 +69,7 @@ def text_difficulty(text, language, known_probabilities, rank_boundary, difficul
     difficulty_scores = dict(
         score_median=difficulty_median,
         score_average=difficulty_average,
-        estimated_difficulty=discrete_text_difficulty(difficulty_average, difficulty_median),
-        id=text['id'])
+        estimated_difficulty=discrete_text_difficulty(difficulty_average, difficulty_median))
 
     return difficulty_scores
 

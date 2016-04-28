@@ -64,25 +64,22 @@ class ZeeguuTestCase(unittest.TestCase):
             url_with_session += "&" + each
         return url_with_session
 
-
-
-
     def api_get(self, test_data, formdata='None', content_type=None):
         return self.app.get(self.in_session(test_data), data = formdata, content_type = content_type)
 
-    def api_get_data(self, test_data, formdata='None', content_type=None):
+    def raw_data_from_api_get(self, test_data, formdata='None', content_type=None):
         return self.api_get(test_data, formdata, content_type).data
 
-    def api_get_json(self, test_data, formdata='None', content_type=None):
+    def json_from_api_get(self, test_data, formdata='None', content_type=None):
         rv = self.api_get(test_data, formdata, content_type)
         return json.loads(rv.data)
 
     def api_post(self, test_data, formdata='None', content_type=None):
         return self.app.post(self.in_session(test_data), data = formdata, content_type = content_type)
 
-    def data_of_api_post(self, test_data, formdata='None', content_type=None):
+    def raw_data_from_api_post(self, test_data, formdata='None', content_type=None):
         return self.app.post(self.in_session(test_data), data = formdata, content_type = content_type).data
 
-    def api_post_json(self, test_data, formdata='None', content_type=None):
+    def json_from_api_post(self, test_data, formdata='None', content_type=None):
         rv = self.app.post(self.in_session(test_data), data = formdata, content_type = content_type)
         return json.loads(rv.data)

@@ -25,10 +25,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_logout(self):
         self.logout()
-        assert 'Redirecting' in self.api_get_data('/recognize')
+        assert 'Redirecting' in self.raw_data_from_api_get('/recognize')
 
     def test_logout_API(self):
-        assert "OK" == self.api_get_data('/logout_session')
+        assert "OK" == self.raw_data_from_api_get('/logout_session')
         rv = self.api_get('/validate')
         assert rv.status== "401 UNAUTHORIZED"
 
@@ -43,7 +43,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             t = zeeguu.model.Url.find("android:app","Songs by Iz")
             assert t
 
-        bookmarks = self.api_get_json('/get_learned_bookmarks/de')
+        bookmarks = self.json_from_api_get('/get_learned_bookmarks/de')
         assert any(u'sondern' in y.values() for y in bookmarks )
 
     def test_bookmark_without_title_should_fail(self):
@@ -52,7 +52,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             context='somewhere over the rainbowwwwwwwww')
         rv = self.api_post('/bookmark_with_context/de/sondern/en/but', form_data)
         added_bookmark_id = int(rv.data)
-        elements = self.api_get_json('/bookmarks_by_day/with_context')
+        elements = self.json_from_api_get('/bookmarks_by_day/with_context')
 
         first_date = elements[0]
         latest_bookmark_id = int(first_date["bookmarks"][0]['id'])
@@ -61,7 +61,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     # note that this is about PROBABLY KNOWN WORDS.... KNOWN WORDS are tested elsewhere!
     def test_get_probably_known(self):
 
-        probably_known_words = self.api_get_json('/get_probably_known_words/de')
+        probably_known_words = self.json_from_api_get('/get_probably_known_words/de')
 
         # Initially none of the words is known
         assert not any(word['word'] == 'gute' for word in probably_known_words)
@@ -82,21 +82,21 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert self.api_post(user_recognizes_sondern).data == "OK"
 
         # Thus, sondern goes to the Probably known words
-        probably_known_words = self.api_get_json('/get_probably_known_words/de')
+        probably_known_words = self.json_from_api_get('/get_probably_known_words/de')
 
         assert any(word['word'] == 'sondern' for word in probably_known_words)
 
         # User requests "Show solution" for sondern
         self.api_post('/gym/create_new_exercise/Show solution/Recognize/10000/'+ sondern_id)
         # Thus sondern goes to unknown words again
-        probably_known_words = self.api_get_json('/get_probably_known_words/de')
+        probably_known_words = self.json_from_api_get('/get_probably_known_words/de')
         assert not any(word['word'] == 'sondern' for word in probably_known_words)
 
         # Bookmarking the word several other times...
         self.api_post('/bookmark_with_context/de/sondern/en/but', exampleform_data)
         self.api_post('/bookmark_with_context/de/sondern/en/but', exampleform_data)
         # doesn't change anything evidently. ML: Why is this?
-        probably_known_words = self.api_get_json('/get_probably_known_words/de')
+        probably_known_words = self.json_from_api_get('/get_probably_known_words/de')
         assert not any(word['word'] == 'sondern' for word in probably_known_words)
 
     def test_create_new_exercise(self):
@@ -106,12 +106,12 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert rv.data =="FAIL"
 
     def test_get_exercise_log_for_bookmark(self):
-        assert "Correct" not in self.api_get_data('/get_exercise_log_for_bookmark/3')
+        assert "Correct" not in self.raw_data_from_api_get('/get_exercise_log_for_bookmark/3')
 
         self.api_post('/gym/create_new_exercise/Correct/Recognize/10000/3')
         self.api_post('/gym/create_new_exercise/Typo/Translate/10000/3')
 
-        exercise_log = self.api_get_data('/get_exercise_log_for_bookmark/3')
+        exercise_log = self.raw_data_from_api_get('/get_exercise_log_for_bookmark/3')
 
         assert "Correct" in exercise_log
         assert "Translate" in exercise_log
@@ -125,27 +125,27 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
     #     assert 'FAIL' == self.data_of_api_post('/add_new_translation_to_bookmark/'+str(first_translation_word_of_bookmark)+'/2')
 
     def test_delete_translation_from_bookmark(self):
-        translations_dict_of_bookmark = self.api_get_json('/get_translations_for_bookmark/2')
+        translations_dict_of_bookmark = self.json_from_api_get('/get_translations_for_bookmark/2')
         first_word_translation_of_bookmark = translations_dict_of_bookmark[0]['word']
 
-        assert 'FAIL' == self.data_of_api_post('/delete_translation_from_bookmark/2/'+str(first_word_translation_of_bookmark))
+        assert 'FAIL' == self.raw_data_from_api_post('/delete_translation_from_bookmark/2/' + str(first_word_translation_of_bookmark))
         self.api_post('/add_new_translation_to_bookmark/women/2')
 
-        translations_dict_of_bookmark  = self.api_get_json('/get_translations_for_bookmark/2')
+        translations_dict_of_bookmark  = self.json_from_api_get('/get_translations_for_bookmark/2')
         first_word_translation_of_bookmark = translations_dict_of_bookmark[0]['word']
 
         assert len(translations_dict_of_bookmark) == 2
         assert any (translation['word'] == first_word_translation_of_bookmark for translation in translations_dict_of_bookmark)
         assert any(translation['word'] == 'women' for translation in translations_dict_of_bookmark)
 
-        assert 'FAIL' == self.data_of_api_post('/delete_translation_from_bookmark/2/wome')
-        assert 'OK' == self.data_of_api_post('/delete_translation_from_bookmark/2/'+str(first_word_translation_of_bookmark))
+        assert 'FAIL' == self.raw_data_from_api_post('/delete_translation_from_bookmark/2/wome')
+        assert 'OK' == self.raw_data_from_api_post('/delete_translation_from_bookmark/2/' + str(first_word_translation_of_bookmark))
 
-        translations_dict_of_bookmark = self.api_get_json('/get_translations_for_bookmark/2')
+        translations_dict_of_bookmark = self.json_from_api_get('/get_translations_for_bookmark/2')
         assert not any(translation['word'] == first_word_translation_of_bookmark for translation in translations_dict_of_bookmark)
 
     def test_get_translations_for_bookmark(self):
-        translations_dict_bookmark_before_add = self.api_get_json('/get_translations_for_bookmark/2')
+        translations_dict_bookmark_before_add = self.json_from_api_get('/get_translations_for_bookmark/2')
         assert len(translations_dict_bookmark_before_add) ==1
 
         first_translation_word = translations_dict_bookmark_before_add[0]['word']
@@ -207,7 +207,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         form_data["context"]="chilling with the girls"
         self.api_post('/bookmark_with_context/de/maedchen/en/girls', form_data)
 
-        first_day = self.api_get_json('/bookmarks_by_day/with_context')[0]
+        first_day = self.json_from_api_get('/bookmarks_by_day/with_context')[0]
 
         latest_bookmark_id = first_day['bookmarks'][0]['id']
         second_latest_bookmark_id = first_day['bookmarks'][1]['id']
@@ -216,27 +216,27 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         second_latest_bookmark_word = first_day['bookmarks'][1]['from']
         third_latest_bookmark_word = first_day['bookmarks'][2]['from']
 
-        known_words = self.api_get_json('/get_known_words/de')
+        known_words = self.json_from_api_get('/get_known_words/de')
 
         known_words_count_before = len(known_words)
         assert not any(word['from'] == latest_bookmark_word for word in known_words)
 
         self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ str(latest_bookmark_id))
 
-        known_words = self.api_get_json('/get_known_words/de')
+        known_words = self.json_from_api_get('/get_known_words/de')
 
         assert known_words_count_before +1 == len(known_words)
         assert any(word['word'] == latest_bookmark_word for word in known_words)
 
         self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ str(second_latest_bookmark_id))
-        known_words  = self.api_get_json ('/get_known_words/de')
+        known_words  = self.json_from_api_get ('/get_known_words/de')
 
         assert any(word['word'] == latest_bookmark_word for word in known_words)
         assert any(word['word'] == second_latest_bookmark_word for word in known_words)
         assert known_words_count_before +1 == len(known_words)
 
         self.api_post('/gym/create_new_exercise/Too easy/Recognize/10000/'+ str(third_latest_bookmark_id))
-        known_words = self.api_get_json('/get_known_words/de')
+        known_words = self.json_from_api_get('/get_known_words/de')
 
         assert known_words_count_before +2 == len(known_words)
         assert any(word['word'] == latest_bookmark_word for word in known_words)
@@ -244,7 +244,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         time.sleep(2) # delays for 2 seconds required for show solution
         self.api_post('/gym/create_new_exercise/Show solution/Recognize/10000/'+ str(third_latest_bookmark_id))
-        known_words = self.api_get_json('/get_known_words/de')
+        known_words = self.json_from_api_get('/get_known_words/de')
         assert not any(word['word'] == third_latest_bookmark_word for word in known_words)
 
 
@@ -340,7 +340,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         # print rv.data
 
     def test_get_bookmarks_by_date(self):
-        elements  = self.api_get_json ('/bookmarks_by_day/with_context')
+        elements  = self.json_from_api_get ('/bookmarks_by_day/with_context')
         some_date = elements[0]
         assert some_date ["date"]
 
@@ -350,7 +350,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         # if we don't pass the context argument, we don't get
         # the context
-        elements = self.api_get_json ('/bookmarks_by_day/no_context')
+        elements = self.json_from_api_get ('/bookmarks_by_day/no_context')
         some_date = elements[0]
         some_contrib = some_date ["bookmarks"][0]
         assert not "context" in some_contrib
@@ -466,7 +466,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
 
     def test_delete_bookmark1(self):
-        bookmarks_by_day_dict_before_delete = self.api_get_json('/bookmarks_by_day/with_context')
+        bookmarks_by_day_dict_before_delete = self.json_from_api_get('/bookmarks_by_day/with_context')
         bookmarks_on_first_date_before_delete = bookmarks_by_day_dict_before_delete[0]['bookmarks']
         first_bookmark_on_first_date_id = bookmarks_on_first_date_before_delete[0]['id']
 
@@ -475,7 +475,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         assert "OK" == self.api_post('/delete_bookmark/'+ str(first_bookmark_on_first_date_id)).data
 
-        bookmarks_by_day_dict_after_delete = self.api_get_json('/bookmarks_by_day/with_context')
+        bookmarks_by_day_dict_after_delete = self.json_from_api_get('/bookmarks_by_day/with_context')
         bookmarks_on_first_date_after_delete = bookmarks_by_day_dict_after_delete[0]['bookmarks']
         assert not any(bookmark['id'] == first_bookmark_on_first_date_id for bookmark in bookmarks_on_first_date_after_delete)
 
@@ -494,12 +494,12 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                 context=u'Die kleine Jägermeister',
                 word="Die")
 
-            bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
+            bookmark1 = self.json_from_api_post('/translate_and_bookmark/de/en', form_data)
             Bookmark.find(bookmark1["bookmark_id"])
 
             form_data["word"] = "kleine"
 
-            bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
+            bookmark2 = self.json_from_api_post('/translate_and_bookmark/de/en', form_data)
             b2 = Bookmark.find(bookmark2["bookmark_id"])
 
             assert len (b2.text.all_bookmarks()) == 2
@@ -514,16 +514,16 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             context=u'Die kleine Jägermeister',
             word="Die")
 
-        bookmark1 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
-        bookmark2 = self.api_post_json('/translate_and_bookmark/de/en', form_data)
-        bookmark3  = self.api_post_json('/translate_and_bookmark/de/en', form_data)
+        bookmark1 = self.json_from_api_post('/translate_and_bookmark/de/en', form_data)
+        bookmark2 = self.json_from_api_post('/translate_and_bookmark/de/en', form_data)
+        bookmark3  = self.json_from_api_post('/translate_and_bookmark/de/en', form_data)
 
         assert (bookmark1["bookmark_id"] == bookmark2["bookmark_id"] == bookmark3["bookmark_id"])
 
 
     def test_get_user_details(self):
 
-        details = self.api_get_json('/get_user_details')
+        details = self.json_from_api_get('/get_user_details')
         assert details
         assert details["name"]
         assert details["email"]
@@ -533,22 +533,20 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         # parameters
         manual_check = False
 
-        data = """
-            {"urls":
-                [
-                    {"url": "http://www.derbund.ch/wirtschaft/unternehmen-und-konjunktur/die-bankenriesen-in-den-bergkantonen/story/26984250", "id": 1},
+        form_data = dict(
+            urls=[dict(url="http://www.derbund.ch/wirtschaft/unternehmen-und-konjunktur/die-bankenriesen-in-den-bergkantonen/story/26984250", id=1),
+                  dict(url="http://www.computerbase.de/2015-11/bundestag-parlament-beschliesst-das-ende-vom-routerzwang-erneut/", id=2)],
+            lang_code="de")
 
-                    {"url": "http://www.computerbase.de/2015-11/bundestag-parlament-beschliesst-das-ende-vom-routerzwang-erneut/", "id": 2}
-                ]
-            }
-        """
+        jsonified = json.dumps(form_data)
+        data = self.json_from_api_post('/get_content_from_url', jsonified, "application/json")
 
-        rv = self.api_post('/get_content_from_url', data, 'application/json')
-
-        urls = json.loads(rv.data)['contents']
+        urls = data['contents']
         for url in urls:
             assert url['content'] is not None
             assert url['image'] is not None
+            assert url['difficulty'] is not None
+            print url['difficulty']
             if manual_check:
                 print (url['content'])
                 print (url['image'])
@@ -558,7 +556,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_get_feeds_at_inexistent_source(self):
 
-        feeds = self.api_post_json('/get_feeds_at_url', dict(url="http://nothinghere.is"))
+        feeds = self.json_from_api_post('/get_feeds_at_url', dict(url="http://nothinghere.is"))
         assert len(feeds) == 0
 
 
@@ -573,7 +571,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                         "http://www.handelsblatt.com"]
 
         for each_url in urls_to_test:
-            feeds = self.api_post_json('/get_feeds_at_url', dict(url=each_url))
+            feeds = self.json_from_api_post('/get_feeds_at_url', dict(url=each_url))
             resulting_feeds += feeds
 
             # following assertion makes sure that we find at least on feed
@@ -594,7 +592,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             feeds=json.dumps(feed_urls))
         self.api_post('/start_following_feeds', form_data)
 
-        feeds = self.api_get_json("get_feeds_being_followed")
+        feeds = self.json_from_api_get("get_feeds_being_followed")
         # Assumes that the derspiegel site will always have two feeds
         assert len(feeds) >= 1
         assert feeds[0]["language"] == "de"
@@ -604,21 +602,21 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         self.start_following_feeds()
         # After this test, we will have a bunch of feeds for the user
 
-        feeds = self.api_get_json("get_feeds_being_followed")
+        feeds = self.json_from_api_get("get_feeds_being_followed")
         initial_feed_count = len(feeds)
 
         # Now delete one
         response = self.api_get("stop_following_feed/1")
         assert response.data == "OK"
 
-        feeds = self.api_get_json("get_feeds_being_followed")
+        feeds = self.json_from_api_get("get_feeds_being_followed")
         assert len(feeds) == initial_feed_count - 1
 
         # Now delete the second
         self.api_get("stop_following_feed/2")
         assert response.data == "OK"
 
-        feeds = self.api_get_json("get_feeds_being_followed")
+        feeds = self.json_from_api_get("get_feeds_being_followed")
         assert len(feeds) == initial_feed_count - 2
 
     def test_multiple_stop_following_same_feed(self):
@@ -635,7 +633,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         self.start_following_feeds()
         # After this test, we will have two feeds for the user
 
-        feed_items = self.api_get_json("get_feed_items/1")
+        feed_items = self.json_from_api_get("get_feed_items/1")
         assert len(feed_items) > 0
         assert feed_items[0]["title"]
         assert feed_items[0]["summary"]
