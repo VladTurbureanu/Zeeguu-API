@@ -228,6 +228,7 @@ def post_bookmarks_by_day():
 
     :param (POST) after_date: the date after which to start retrieving
      the bookmarks. if no date is specified, all the bookmarks are returned.
+     The date format is: %Y-%m-%dT%H:%M:%S. E.g. 2001-01-01T01:55:00
 
     """
     with_context = request.form.get("with_context", False) == "true"
