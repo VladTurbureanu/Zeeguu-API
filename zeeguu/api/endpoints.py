@@ -231,8 +231,8 @@ def post_bookmarks_by_day():
      The date format is: %Y-%m-%dT%H:%M:%S. E.g. 2001-01-01T01:55:00
 
     """
-    with_context = request.form.get("with_context", False) == "true"
-    after_date_string = request.form.get("after_date", None)
+    with_context = request.form.get("with_context", "false") == "true"
+    after_date_string = request.form.get("after_date", "1970-01-01T00:00:00")
     after_date = datetime.datetime.strptime(after_date_string, '%Y-%m-%dT%H:%M:%S')
 
     return json_result(flask.g.user.bookmarks_by_day(with_context, after_date))
