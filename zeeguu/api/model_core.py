@@ -95,17 +95,20 @@ class User(db.Model):
         )
         self.password = util.password_hash(password, self.password_salt)
 
-    def all_bookmarks(self):
-        return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
+    def all_bookmarks(self, after_date=datetime.datetime(1970,1,1)):
+        return Bookmark.query.\
+            filter_by(user_id=self.id).\
+            filter(Bookmark.time >= after_date).\
+            order_by(Bookmark.time.desc()).all()
 
     def bookmarks_chronologically(self):
         return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
 
-    def bookmarks_by_date(self):
+    def bookmarks_by_date(self, after_date=datetime.datetime(1970,1,1)):
         def extract_day_from_date(bookmark):
             return (bookmark, bookmark.time.replace(bookmark.time.year, bookmark.time.month, bookmark.time.day,0,0,0,0))
 
-        bookmarks = self.all_bookmarks()
+        bookmarks = self.all_bookmarks(after_date)
         bookmarks_by_date = dict()
 
         for elem in map(extract_day_from_date, bookmarks):
@@ -115,8 +118,8 @@ class User(db.Model):
         sorted_dates.sort(reverse=True)
         return bookmarks_by_date, sorted_dates
 
-    def bookmarks_by_day(self, with_context):
-        bookmarks_by_date, sorted_dates = self.bookmarks_by_date()
+    def bookmarks_by_day(self, with_context, after_date=datetime.datetime(2014,1,1)):
+        bookmarks_by_date, sorted_dates = self.bookmarks_by_date(after_date)
 
         dates = []
         for date in sorted_dates:

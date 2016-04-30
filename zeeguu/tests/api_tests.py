@@ -159,6 +159,30 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert any(translation['word'] == first_translation_word for translation in translations_dict_bookmark_after_add)
         assert any(translation['word'] == 'women' for translation in translations_dict_bookmark_after_add)
 
+    def test_get_known_bookmarks_after_date(self):
+        def first_day_of(year):
+            return str(year)+"-01-01T00:00:00"
+
+        # If we don't ask for the context, we don't get it
+        # Also, we have two days after 2010
+        form_data = dict(after_date=first_day_of(2010))
+        bookmarks = self.json_from_api_post('/bookmarks_by_day', form_data)
+        assert "context" not in bookmarks[0]["bookmarks"][0]
+        assert len(bookmarks) == 2
+
+        # If we ask for context, we get it
+        # Also, only one day withbookmarks after 2012
+        form_data["after_date"]=first_day_of(2012)
+        form_data["with_context"]="true"
+        bookmarks = self.json_from_api_post('/bookmarks_by_day', form_data)
+        assert bookmarks[0]["bookmarks"][0]["context"]
+        assert len(bookmarks) == 1
+
+        # No bookmarks in the tests after 2015
+        form_data["after_date"]=first_day_of(2015)
+        bookmarks = self.json_from_api_post('/bookmarks_by_day', form_data)
+        assert len(bookmarks) == 0
+
 
     def test_get_known_bookmarks(self):
         self.api_post('/bookmark_with_context/de/sondern/en/but rather', sondern_example_data)

@@ -202,7 +202,7 @@ def studied_words():
 @api.route("/bookmarks_by_day/<return_context>", methods=["GET"])
 @cross_domain
 @with_session
-def bookmarks_by_day(return_context):
+def get_bookmarks_by_day(return_context):
     """
     Returns the bookmarks of this user organized by date
     :param return_context: If "with_context" it also returns the
@@ -212,6 +212,30 @@ def bookmarks_by_day(return_context):
     """
     with_context = return_context == "with_context"
     return json_result(flask.g.user.bookmarks_by_day(with_context))
+
+
+@api.route("/bookmarks_by_day", methods=["POST"])
+@cross_domain
+@with_session
+def post_bookmarks_by_day():
+    """
+    Returns the bookmarks of this user organized by date. Based on the
+    POST arguments, it can return also the context of the bookmark as
+    well as it can return only the bookmarks after a given date.
+
+    :param (POST) with_context: If this parameter is "true", the endpoint
+    also returns the text where the bookmark was found.
+
+    :param (POST) after_date: the date after which to start retrieving
+     the bookmarks. if no date is specified, all the bookmarks are returned.
+
+    """
+    with_context = request.form.get("with_context", False) == "true"
+    after_date_string = request.form.get("after_date", None)
+    after_date = datetime.datetime.strptime(after_date_string, '%Y-%m-%dT%H:%M:%S')
+
+    return json_result(flask.g.user.bookmarks_by_day(with_context, after_date))
+
 
 @api.route("/translate_and_bookmark/<from_lang_code>/<to_lang_code>", methods=["POST"])
 @cross_domain
