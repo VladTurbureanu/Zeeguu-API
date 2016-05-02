@@ -123,8 +123,6 @@ def add_probability_to_existing_words_of_user(user,bookmark,language):
 
 def create_test_db():
 
-
-
     de = Language("de", "German")
     da = Language("da", "Danish")
     en = Language("en", "English")
@@ -247,5 +245,10 @@ def create_test_db():
 
 
 if __name__ == "__main__":
+
     "in populate..."
+    zeeguu.app.test_request_context().push()
+    zeeguu.db.session.commit()
+    zeeguu.db.drop_all()
+    zeeguu.db.create_all()
     create_test_db()
