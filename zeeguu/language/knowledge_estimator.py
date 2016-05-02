@@ -9,6 +9,10 @@ from zeeguu.api.model_core import Language, RankedWord, KnownWordProbability, En
 
 
 class SethiKnowledgeEstimator(object):
+    """
+    Computes statistics about this user.
+     
+    """
 
     def __init__(self, user, lang_code = None):
         self.user = user
