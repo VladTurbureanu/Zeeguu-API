@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<style>
+
+    body {
+        font: 10px sans-serif;
+        shape-rendering: crispEdges;
+    }
+
+    .wday {
+        box-sizing: border-box;
+        display: block;
+        text-anchor: middle;
+        font: 11px sans-serif;
+        padding: 2px 0px 4px;
+    }
+
+    .day {
+        fill: #eeeeee;
+        stroke: #ccc;
+    }
+
+    .month {
+        fill: none;
+        stroke: #000;
+        stroke-width: 2px;
+    }
+
+    /* 1 - 9 */
+    .RdYlGn .q0-5 {
+        fill: #d6e685
+    }
+
+    /* 10 - 19 */
+    .RdYlGn .q1-5 {
+        fill: #8cc665
+    }
+
+    /* 20 - 29 */
+    .RdYlGn .q2-5 {
+        fill: #44a340
+    }
+
+    /* 30 - 39 */
+    .RdYlGn .q3-5 {
+        fill: #1e6823
+    }
+
+    /* 40+ */
+    .RdYlGn .q4-5 {
+        fill: #304030
+    }
+
+</style>
+
+<body>
+
+<script src="//d3js.org/d3.v3.min.js"></script>
+
+<div style="display:inline-block;height: 136px;">
+    <text text-anchor="middle" class="wday" dx="-10" dy="9">Mo</text>
+    <text text-anchor="middle" class="wday" dx="-10" dy="22">Tu</text>
+    <text text-anchor="middle" class="wday" dx="-10" dy="35">We</text>
+    <text text-anchor="middle" class="wday" dx="-10" dy="48">Th</text>
+    <text text-anchor="middle" class="wday" dx="-10" dy="61">Fr</text>
+    <text text-anchor="middle" class="wday" dx="-10" dy="74">Sa</text>
+    <text text-anchor="middle" class="wday" dx="-10" dy="87">Su</text>
+</div>
+
+<script>
+
+    var width = 960,
+            height = 136,
+            cellSize = 17; // cell size
+
+    var day = function (d) {
+                return (d.getDay() + 6) % 7;
+            },
+            week = d3.time.format("%W"),
+            format = d3.time.format("%Y-%m-%d");
+    ;
+
+    var color = d3.scale.quantize()
+            .domain([0, 60])
+            .range(d3.range(5).map(function (d) {
+                return "q" + d + "-5";
+            }));
+
+    var year = new Date().getFullYear();
+
+    var svg = d3.select("graph").selectAll("svg")
+            .data(d3.range(year, year+1))
+            .enter().append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("class", "RdYlGn")
+            .append("g")
+            .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
+    /*
+     svg.append("text")
+     .attr("transform", "translate(-6," + cellSize * 3.5 + ")")
+     .style("text-anchor", "middle")
+     .text("2016");*/
+
+    var rect = svg.selectAll(".day")
+            .data(function (d) {
+                return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1));
+            })
+            .enter().append("rect")
+            .attr("class", "day")
+            .attr("width", cellSize)
+            .attr("height", cellSize)
+            .attr("x", function (d) {
+                return week(d) * cellSize;
+            })
+            .attr("y", function (d) {
+                return day(d) * cellSize;
+            })
+            .datum(format);
+
+    rect.append("title")
+            .text(function (d) {
+                return d;
+            });
+
+    svg.selectAll(".month")
+            .data(function (d) {
+                return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1));
+            })
+            .enter().append("path")
+            .attr("class", "month")
+            .attr("d", monthPath);
+
+    var dataa = {% block body %}{{ json_data|safe }}{% endblock %};
+
+    console.log(dataa);
+
+    d3.json(dataa, function () {
+
+        var data = d3.nest()
+                .key(function (d) {
+                    return d.date;
+                })
+                .rollup(function (d) {
+                    return d[0].count;
+                })
+                .map(dataa);
+
+        rect.filter(function (d) {
+            return d in data;
+        })
+                .attr("class", function (d) {
+                    return "day " + color(data[d]);
+                })
+                .select("title")
+                .text(function (d) {
+                    return d + ": " + data[d];
+                });
+    });
+
+    function monthPath(t0) {
+        var t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
+                d0 = day(t0), w0 = +week(t0),
+                d1 = day(t1), w1 = +week(t1);
+        return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
+                + "H" + w0 * cellSize + "V" + 7 * cellSize
+                + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
+                + "H" + (w1 + 1) * cellSize + "V" + 0
+                + "H" + (w0 + 1) * cellSize + "Z";
+    }
+
+</script>
