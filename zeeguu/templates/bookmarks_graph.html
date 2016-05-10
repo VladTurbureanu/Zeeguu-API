@@ -23,8 +23,8 @@
 
     .month {
         fill: none;
-        stroke: #000;
-        stroke-width: 2px;
+        stroke: #A6A6A6;
+        stroke-width: 1px;
     }
 
     /* 1 - 9 */
@@ -58,28 +58,18 @@
 
 <script src="//d3js.org/d3.v3.min.js"></script>
 
-<div style="display:inline-block;height: 136px;">
-    <text text-anchor="middle" class="wday" dx="-10" dy="9">Mo</text>
-    <text text-anchor="middle" class="wday" dx="-10" dy="22">Tu</text>
-    <text text-anchor="middle" class="wday" dx="-10" dy="35">We</text>
-    <text text-anchor="middle" class="wday" dx="-10" dy="48">Th</text>
-    <text text-anchor="middle" class="wday" dx="-10" dy="61">Fr</text>
-    <text text-anchor="middle" class="wday" dx="-10" dy="74">Sa</text>
-    <text text-anchor="middle" class="wday" dx="-10" dy="87">Su</text>
-</div>
-
 <script>
 
-    var width = 960,
-            height = 136,
-            cellSize = 17; // cell size
+    var width = 900,
+            height = 126,
+            cellSize = 15; // cell size
 
     var day = function (d) {
                 return (d.getDay() + 6) % 7;
             },
             week = d3.time.format("%W"),
+            year_format = d3.time.format("%y") ,
             format = d3.time.format("%Y-%m-%d");
-    ;
 
     var color = d3.scale.quantize()
             .domain([0, 60])
@@ -88,31 +78,27 @@
             }));
 
     var year = new Date().getFullYear();
+    var month = new Date().getMonth();
 
     var svg = d3.select("graph").selectAll("svg")
-            .data(d3.range(year, year+1))
+            .data(d3.range(year, year + 1))
             .enter().append("svg")
             .attr("width", width)
             .attr("height", height)
             .attr("class", "RdYlGn")
             .append("g")
             .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
-    /*
-     svg.append("text")
-     .attr("transform", "translate(-6," + cellSize * 3.5 + ")")
-     .style("text-anchor", "middle")
-     .text("2016");*/
 
     var rect = svg.selectAll(".day")
             .data(function (d) {
-                return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1));
+                return d3.time.days(new Date(d - 1, month + 1, 1), new Date(d, month + 1, 1));
             })
             .enter().append("rect")
             .attr("class", "day")
             .attr("width", cellSize)
             .attr("height", cellSize)
             .attr("x", function (d) {
-                return week(d) * cellSize;
+                return week_distance(d)-15;
             })
             .attr("y", function (d) {
                 return day(d) * cellSize;
@@ -124,17 +110,54 @@
                 return d;
             });
 
-    svg.selectAll(".month")
+    var j=0;
+    var month_names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    var months = svg.selectAll(".month")
             .data(function (d) {
-                return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1));
+                return d3.time.months(new Date(d - 1, month + 1, 1), new Date(d, month + 1, 1));
             })
             .enter().append("path")
             .attr("class", "month")
+            .attr("name", function () {
+                j++;
+                return month_names[(j+month)%12];
+            })
             .attr("d", monthPath);
 
-    var dataa = {% block body %}{{ json_data|safe }}{% endblock %};
+    // text adding
 
-    console.log(dataa);
+    var i = 0;
+    while(i<12){
+        svg.append("text")
+                .attr("transform", "translate(" + (i * (800 / 12) + 44) + ",0)")
+                .style("text-anchor", "end")
+                .attr("dy", "-.25em")
+                .text( function () {
+                    if (i+month < 11) {
+                        return month_names[(i + month + 1) % 12] + " " + (year-1);
+                    } else {
+                        return month_names[(i + month + 1) % 12] + " " + year;
+                    }
+                });
+        i++;
+    }
+
+    week_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+    for (var i = 0; i < 7; i++) {
+        svg.append("text")
+                .attr("transform", "translate(-8," + cellSize * (i + 1) + ")")
+                .style("text-anchor", "end")
+                .attr("dy", "-.25em")
+                .text(function (d) {
+                    return week_days[i];
+                });
+    }
+
+    // end of text adding
+
+    var dataa = {% block body %}{{ json_data|safe }}{% endblock %};
 
     d3.json(dataa, function () {
 
@@ -163,11 +186,27 @@
         var t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
                 d0 = day(t0), w0 = +week(t0),
                 d1 = day(t1), w1 = +week(t1);
-        return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
-                + "H" + w0 * cellSize + "V" + 7 * cellSize
-                + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
-                + "H" + (w1 + 1) * cellSize + "V" + 0
-                + "H" + (w0 + 1) * cellSize + "Z";
+
+                var e = week_distance(t0);
+                var f = week_distance(t1);
+
+        return "M" + e + "," + d0 * cellSize //(w0 + 1) * cellSize
+                + "H" + (e - 15) + "V" + 7 * cellSize //w0 * cellSize
+                + "H" + (f - 15) + "V" + (d1 + 1) * cellSize //w1 * cellSize
+                + "H" + f + "V" + 0 //(w1 + 1) * cellSize
+                + "H" + e + "Z";
+    }
+
+    function week_distance(d){
+        var res;
+        if ((year_format(d)-(year-2000)+1) == 0 ) {
+            res = week(new Date(year, month+1, 1)) * 15;
+            res = (cellSize * (+week(d) + 1) - (res) );
+        }else{
+            res = week(new Date(year, month+3, 1)) * 15-15;
+            res = (cellSize * (+week(d) + 1) + (res) );
+        }
+        return res;
     }
 
 </script>
