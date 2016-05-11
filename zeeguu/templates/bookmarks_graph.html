@@ -98,7 +98,7 @@
             .attr("width", cellSize)
             .attr("height", cellSize)
             .attr("x", function (d) {
-                return week_distance(d)-15;
+                return week_distance(d) - 15;
             })
             .attr("y", function (d) {
                 return day(d) * cellSize;
@@ -115,6 +115,7 @@
 
     var months = svg.selectAll(".month")
             .data(function (d) {
+
                 return d3.time.months(new Date(d - 1, month + 1, 1), new Date(d, month + 1, 1));
             })
             .enter().append("path")
@@ -135,9 +136,9 @@
                 .attr("dy", "-.25em")
                 .text( function () {
                     if (i+month < 11) {
-                        return month_names[(i + month + 1) % 12] + " " + (year-1);
+                        return month_names[(i + month + 1 ) % 12] + " " + (year-1);
                     } else {
-                        return month_names[(i + month + 1) % 12] + " " + year;
+                        return month_names[(i + month + 1 ) % 12] + " " + year;
                     }
                 });
         i++;
@@ -188,7 +189,9 @@
                 d1 = day(t1), w1 = +week(t1);
 
                 var e = week_distance(t0);
-                var f = week_distance(t1);
+                var f = e + ((w1-w0)*cellSize);
+
+                //console.log(t0.getMonth() + " " + e + " " + f + " | diff = " + (f-e));
 
         return "M" + e + "," + d0 * cellSize //(w0 + 1) * cellSize
                 + "H" + (e - 15) + "V" + 7 * cellSize //w0 * cellSize
@@ -198,15 +201,15 @@
     }
 
     function week_distance(d){
-        var res;
+        var res, t;
         if ((year_format(d)-(year-2000)+1) == 0 ) {
-            res = week(new Date(year, month+1, 1)) * 15;
-            res = (cellSize * (+week(d) + 1) - (res) );
+            t = week( new Date (year, month+1, 1));
+            res = (cellSize * (+week(d) - parseInt(t) + 1) );
         }else{
-            res = week(new Date(year, month+3, 1)) * 15-15;
-            res = (cellSize * (+week(d) + 1) + (res) );
+            t = week( new Date (year-1, 11-month, 1));
+            res = (cellSize * (+week(d) + parseInt(t) + 1) );
         }
-        return res;
+        return Math.min(Math.max(res,15),795);
     }
 
 </script>
