@@ -16,9 +16,12 @@
         <p>Make sure to <a href="install">install the Chrome extension and Android App</a>
         </p>
 
-
     {% else %}
         <h2>Here are some statistics about you:</h2>
+
+        <h3>Visualization</h3>
+
+        <graph>  {% include "activity_graph/activity_graph.html" %}  </graph>
 
         <h3>Vocabulary</h3>
 

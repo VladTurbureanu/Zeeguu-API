@@ -105,6 +105,11 @@ class User(db.Model):
         return Bookmark.query.filter_by(user_id=self.id).order_by(Bookmark.time.desc()).all()
 
     def bookmarks_by_date(self, after_date=datetime.datetime(1970,1,1)):
+        """
+
+        :param after_date:
+        :return: a pair of 1. a dict with date-> bookmarks and 2. a sorted list of dates
+        """
         def extract_day_from_date(bookmark):
             return (bookmark, bookmark.time.replace(bookmark.time.year, bookmark.time.month, bookmark.time.day,0,0,0,0))
 
@@ -750,7 +755,6 @@ class Url(db.Model):
             return ""
 
 
-
 class Bookmark(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
 
@@ -769,9 +773,6 @@ class Bookmark(db.Model):
     time = db.Column(db.DateTime)
 
     exercise_log = relationship("Exercise", secondary="bookmark_exercise_mapping")
-
-
-
 
     def __init__(self, origin, translation, user, text, time):
         self.origin = origin

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+    <link rel="stylesheet" type="text/css"
+          href=" {{ url_for('static', filename='css/activity_graph/activity_graph.css') }} ">
+</head>
+
+<body>
+
+<script src="//d3js.org/d3.v3.min.js"></script>
+
+<script>
+
+    var width = 900,
+            height = 126,
+            cellSize = 15; // cell size
+
+    // function convert_day_of_week_from_sun_to_mon
+    var eu_day_format = function (d) {
+                return (d.getDay() + 6) % 7;
+            },
+            week_format = d3.time.format("%W"),
+            year_format = d3.time.format("%y"),
+            date_format = d3.time.format("%Y-%m-%d");
+
+    var color_getter = d3.scale.quantize()
+            .domain([0, 60])
+            .range(d3.range(5).map(function (d) {
+                return "q" + d + "-5";
+            }));
+
+    var year = new Date().getFullYear();
+    var month = new Date().getMonth();
+
+
+    const week_count_in_year = 53;
+    const day_count_in_week = 7;
+    var svg = d3.select("graph").selectAll("svg")
+            .data(d3.range(year, year + 1))
+            .enter().append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("class", "RdYlGn")
+            .append("g")
+            .attr("transform", "translate(" + ((width - cellSize * week_count_in_year) / 2) + "," + (height - cellSize * day_count_in_week - 1) + ")");
+
+    var day_rectangles = svg.selectAll(".day")
+            .data(function (d) {
+                return d3.time.days(new Date(d - 1, month + 1, 1), new Date(d, month + 1, 1));
+            })
+            .enter().append("rect")
+            .attr("class", "day")
+            .attr("width", cellSize)
+            .attr("height", cellSize)
+            .attr("x", function (d) {
+                return week_distance(d) - cellSize;
+            })
+            .attr("y", function (d) {
+                return eu_day_format(d) * cellSize;
+            })
+            .datum(date_format);
+
+    day_rectangles.append("title")
+            .text(function (d) {
+                return d;
+            });
+
+    var j = 0;
+    var month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    var months = svg.selectAll(".month")
+            .data(function (d) {
+                return d3.time.months(new Date(d - 1, month + 1, 1), new Date(d, month + 1, 1));
+            })
+            .enter().append("path")
+            .attr("class", "month")
+            .attr("name", function () {
+                j++;
+                return month_names[(j + month) % 12];
+            })
+            .attr("d", monthPath);
+
+    // text adding
+
+    var i = 0;
+    while (i < 12) {
+        svg.append("text")
+                .attr("transform", "translate(" + (i * (800 / 12) + 44) + ",0)")
+                .style("text-anchor", "end")
+                .attr("dy", "-.25em")
+                .text(function () {
+                    if (i + month < 11) {
+                        return month_names[(i + month + 1 ) % 12] + " " + (year - 1);
+                    } else {
+                        return month_names[(i + month + 1 ) % 12] + " " + year;
+                    }
+                });
+        i++;
+    }
+
+    week_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+    for (var i = 0; i < 7; i++) {
+        svg.append("text")
+                .attr("transform", "translate(-8," + cellSize * (i + 1) + ")")
+                .style("text-anchor", "end")
+                .attr("dy", "-.25em")
+                .text(function (d) {
+                    return week_days[i];
+                });
+    }
+
+    // end of text adding
+
+    var dataa = {% block body %}{{ bookmark_counts_by_date|safe }}{% endblock %};
+
+    d3.json(dataa, function () {
+
+        var data = d3.nest()
+                .key(function (d) {
+                    return d.date;
+                })
+                .rollup(function (d) {
+                    return d[0].count;
+                })
+                .map(dataa);
+
+        day_rectangles.filter(function (d) {
+            return d in data;
+        })
+                .attr("class", function (d) {
+                    return "day " + color_getter(data[d]);
+                })
+                .select("title")
+                .text(function (d) {
+                    return d + ": " + data[d];
+                });
+    });
+
+    function monthPath(t0) {
+        var t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
+                d0 = eu_day_format(t0), w0 = +week_format(t0),
+                d1 = eu_day_format(t1), w1 = +week_format(t1);
+
+        var e = week_distance(t0);
+        var f = e + ((w1 - w0) * cellSize);
+
+        //console.log(t0.getMonth() + " " + e + " " + f + " | diff = " + (f-e));
+
+        return "M" + e + "," + d0 * cellSize //(w0 + 1) * cellSize
+                + "H" + (e - cellSize) + "V" + 7 * cellSize //w0 * cellSize
+                + "H" + (f - cellSize) + "V" + (d1 + 1) * cellSize //w1 * cellSize
+                + "H" + f + "V" + 0 //(w1 + 1) * cellSize
+                + "H" + e + "Z";
+    }
+
+    function week_distance(d) {
+        var res, t;
+        if ((year_format(d) - (year - 2000) + 1) == 0) {
+            t = week_format(new Date(year, month + 1, 1));
+            res = (cellSize * (+week_format(d) - parseInt(t) + 1) );
+        } else {
+            t = week_format(new Date(year - 1, 11 - month, 1));
+            res = (cellSize * (+week_format(d) + parseInt(t) + 1) );
+        }
+        return res;
+    }
+
+    function total_bookmarks_per_year() {
+        var sum = 0;
+        dataa.forEach(function (entry) {
+            sum = sum + entry.count;
+        });
+        return sum;
+    }
+
+    function compare_dates_in_days(d1, d2){
+        var date1 = new Date(d1);
+        var date2 = new Date(d2);
+        var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+        var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        return diffDays;
+    }
+
+    function longest_streak(){
+        var max = 0, temp = 0;
+        var prev_date = dataa[0].date;
+        dataa.forEach(function (entry) {
+            if(entry.count > 0 && compare_dates_in_days(entry.date,prev_date) == 1){
+                temp++;
+                prev_date = entry.date;
+            }else{
+                max = Math.max(max, temp);
+                temp = 0;
+            }
+        });
+        if (dataa.length > 0) max++;
+        return  max;
+    }
+
+    function current_streak(){
+        var streak = 0;
+        var size = dataa.length;
+        var today = new Date().getDate();  // better get today's date
+        var last_entry_date = dataa[size-1];
+
+        // check if the last entry date is today/yesterday, if yes proceed counting else return
+        while(compare_dates_in_days(today, last_entry_date) <= 1+streak){
+                size = size - 1;
+                last_entry_date = dataa[size - 1];
+                streak++;
+        }
+
+        return streak;
+    }
+
+    function day_or_days(num){
+        if (num == 1) {
+            return " day";
+        } else {
+            return " days";
+        }
+    }
+
+</script>
+
+<br/><br/><br/>
+
+<div class="row" style="width: 850px;height: 80px; padding: 0px 50px;">
+    <div class="col-xs-4 col-md-4">
+        <h4>Bookmarks in the last year</h4>
+        <h3>
+            <script>
+                document.write(total_bookmarks_per_year() + " Total");
+            </script>
+        </h3>
+    </div>
+    <div class="col-xs-6 col-md-4" style="padding-left: 40px;">
+        <h4>Longest streak this year</h4>
+        <h3>
+            <script>
+                var longest_streak = longest_streak();
+                document.write(longest_streak + day_or_days(longest_streak));
+            </script>
+        </h3>
+    </div>
+    <div class="col-xs-4 col-md-4" style="padding-left: 30px;">
+        <h4>Current streak</h4>
+        <h3>
+            <script>
+                var current_streak = current_streak();
+                document.write(current_streak + day_or_days(current_streak));
+            </script>
+        </h3>
+    </div>
+</div>
+
+</body>
