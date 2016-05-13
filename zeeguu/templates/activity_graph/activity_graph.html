@@ -125,18 +125,17 @@
                     return d[0].count;
                 })
                 .map(dataa);
-        console.log(data);
 
         day_rectangles.filter(function (d) {
-                return d in data;
-            })
-            .attr("class", function (d) {
-                return "day " + color_getter(data[d]);
-            })
-            .select("title")
-            .text(function (d) {
-                return d + ": " + data[d];
-            });
+            return d in data;
+        })
+                .attr("class", function (d) {
+                    return "day " + color_getter(data[d]);
+                })
+                .select("title")
+                .text(function (d) {
+                    return d + ": " + data[d];
+                });
     });
 
     function monthPath(t0) {
@@ -168,4 +167,93 @@
         return res;
     }
 
+    function total_bookmarks_per_year() {
+        var sum = 0;
+        dataa.forEach(function (entry) {
+            sum = sum + entry.count;
+        });
+        return sum;
+    }
+
+    function compare_dates_in_days(d1, d2){
+        var date1 = new Date(d1);
+        var date2 = new Date(d2);
+        var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+        var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        return diffDays;
+    }
+
+    function longest_streak(){
+        var max = 0, temp = 0;
+        var prev_date = dataa[0].date;
+        dataa.forEach(function (entry) {
+            if(entry.count > 0 && compare_dates_in_days(entry.date,prev_date) == 1){
+                temp++;
+                prev_date = entry.date;
+            }else{
+                max = Math.max(max, temp);
+                temp = 0;
+            }
+        });
+        if (dataa.length > 0) max++;
+        return  max;
+    }
+
+    function current_streak(){
+        var streak = 0;
+        var size = dataa.length;
+        var today = new Date().getDate();  // better get today's date
+        var last_entry_date = dataa[size-1];
+
+        // check if the last entry date is today/yesterday, if yes proceed counting else return
+        while(compare_dates_in_days(today, last_entry_date) <= 1+streak){
+                size = size - 1;
+                last_entry_date = dataa[size - 1];
+                streak++;
+        }
+
+        return streak;
+    }
+
+    function day_or_days(num){
+        if (num == 1) {
+            return " day";
+        } else {
+            return " days";
+        }
+    }
+
 </script>
+
+<br/><br/><br/>
+
+<div class="row" style="width: 850px;height: 80px; padding: 0px 50px;">
+    <div class="col-xs-4 col-md-4">
+        <h4>Bookmarks in the last year</h4>
+        <h3>
+            <script>
+                document.write(total_bookmarks_per_year() + " Total");
+            </script>
+        </h3>
+    </div>
+    <div class="col-xs-6 col-md-4" style="padding-left: 40px;">
+        <h4>Longest streak this year</h4>
+        <h3>
+            <script>
+                var longest_streak = longest_streak();
+                document.write(longest_streak + day_or_days(longest_streak));
+            </script>
+        </h3>
+    </div>
+    <div class="col-xs-4 col-md-4" style="padding-left: 30px;">
+        <h4>Current streak</h4>
+        <h3>
+            <script>
+                var current_streak = current_streak();
+                document.write(current_streak + day_or_days(current_streak));
+            </script>
+        </h3>
+    </div>
+</div>
+
+</body>
