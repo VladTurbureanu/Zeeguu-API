@@ -1,58 +1,10 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 
-<style>
-
-    body {
-        font: 10px sans-serif;
-        shape-rendering: crispEdges;
-    }
-
-    .wday {
-        box-sizing: border-box;
-        display: block;
-        text-anchor: middle;
-        font: 11px sans-serif;
-        padding: 2px 0px 4px;
-    }
-
-    .day {
-        fill: #eeeeee;
-        stroke: #ccc;
-    }
-
-    .month {
-        fill: none;
-        stroke: #A6A6A6;
-        stroke-width: 1px;
-    }
-
-    /* 1 - 9 */
-    .RdYlGn .q0-5 {
-        fill: #d6e685
-    }
-
-    /* 10 - 19 */
-    .RdYlGn .q1-5 {
-        fill: #8cc665
-    }
-
-    /* 20 - 29 */
-    .RdYlGn .q2-5 {
-        fill: #44a340
-    }
-
-    /* 30 - 39 */
-    .RdYlGn .q3-5 {
-        fill: #1e6823
-    }
-
-    /* 40+ */
-    .RdYlGn .q4-5 {
-        fill: #304030
-    }
-
-</style>
+<head>
+    <link rel="stylesheet" type="text/css"
+          href=" {{ url_for('static', filename='css/activity_graph/activity_graph.css') }} ">
+</head>
 
 <body>
 
@@ -64,14 +16,15 @@
             height = 126,
             cellSize = 15; // cell size
 
-    var day = function (d) {
+    // function convert_day_of_week_from_sun_to_mon
+    var eu_day_format = function (d) {
                 return (d.getDay() + 6) % 7;
             },
-            week = d3.time.format("%W"),
-            year_format = d3.time.format("%y") ,
-            format = d3.time.format("%Y-%m-%d");
+            week_format = d3.time.format("%W"),
+            year_format = d3.time.format("%y"),
+            date_format = d3.time.format("%Y-%m-%d");
 
-    var color = d3.scale.quantize()
+    var color_getter = d3.scale.quantize()
             .domain([0, 60])
             .range(d3.range(5).map(function (d) {
                 return "q" + d + "-5";
@@ -80,6 +33,9 @@
     var year = new Date().getFullYear();
     var month = new Date().getMonth();
 
+
+    const week_count_in_year = 53;
+    const day_count_in_week = 7;
     var svg = d3.select("graph").selectAll("svg")
             .data(d3.range(year, year + 1))
             .enter().append("svg")
@@ -87,9 +43,9 @@
             .attr("height", height)
             .attr("class", "RdYlGn")
             .append("g")
-            .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
+            .attr("transform", "translate(" + ((width - cellSize * week_count_in_year) / 2) + "," + (height - cellSize * day_count_in_week - 1) + ")");
 
-    var rect = svg.selectAll(".day")
+    var day_rectangles = svg.selectAll(".day")
             .data(function (d) {
                 return d3.time.days(new Date(d - 1, month + 1, 1), new Date(d, month + 1, 1));
             })
@@ -98,45 +54,44 @@
             .attr("width", cellSize)
             .attr("height", cellSize)
             .attr("x", function (d) {
-                return week_distance(d) - 15;
+                return week_distance(d) - cellSize;
             })
             .attr("y", function (d) {
-                return day(d) * cellSize;
+                return eu_day_format(d) * cellSize;
             })
-            .datum(format);
+            .datum(date_format);
 
-    rect.append("title")
+    day_rectangles.append("title")
             .text(function (d) {
                 return d;
             });
 
-    var j=0;
-    var month_names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var j = 0;
+    var month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     var months = svg.selectAll(".month")
             .data(function (d) {
-
                 return d3.time.months(new Date(d - 1, month + 1, 1), new Date(d, month + 1, 1));
             })
             .enter().append("path")
             .attr("class", "month")
             .attr("name", function () {
                 j++;
-                return month_names[(j+month)%12];
+                return month_names[(j + month) % 12];
             })
             .attr("d", monthPath);
 
     // text adding
 
     var i = 0;
-    while(i<12){
+    while (i < 12) {
         svg.append("text")
                 .attr("transform", "translate(" + (i * (800 / 12) + 44) + ",0)")
                 .style("text-anchor", "end")
                 .attr("dy", "-.25em")
-                .text( function () {
-                    if (i+month < 11) {
-                        return month_names[(i + month + 1 ) % 12] + " " + (year-1);
+                .text(function () {
+                    if (i + month < 11) {
+                        return month_names[(i + month + 1 ) % 12] + " " + (year - 1);
                     } else {
                         return month_names[(i + month + 1 ) % 12] + " " + year;
                     }
@@ -158,7 +113,7 @@
 
     // end of text adding
 
-    var dataa = {% block body %}{{ json_data|safe }}{% endblock %};
+    var dataa = {% block body %}{{ bookmark_counts_by_date|safe }}{% endblock %};
 
     d3.json(dataa, function () {
 
@@ -170,46 +125,47 @@
                     return d[0].count;
                 })
                 .map(dataa);
+        console.log(data);
 
-        rect.filter(function (d) {
-            return d in data;
-        })
-                .attr("class", function (d) {
-                    return "day " + color(data[d]);
-                })
-                .select("title")
-                .text(function (d) {
-                    return d + ": " + data[d];
-                });
+        day_rectangles.filter(function (d) {
+                return d in data;
+            })
+            .attr("class", function (d) {
+                return "day " + color_getter(data[d]);
+            })
+            .select("title")
+            .text(function (d) {
+                return d + ": " + data[d];
+            });
     });
 
     function monthPath(t0) {
         var t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
-                d0 = day(t0), w0 = +week(t0),
-                d1 = day(t1), w1 = +week(t1);
+                d0 = eu_day_format(t0), w0 = +week_format(t0),
+                d1 = eu_day_format(t1), w1 = +week_format(t1);
 
-                var e = week_distance(t0);
-                var f = e + ((w1-w0)*cellSize);
+        var e = week_distance(t0);
+        var f = e + ((w1 - w0) * cellSize);
 
-                //console.log(t0.getMonth() + " " + e + " " + f + " | diff = " + (f-e));
+        //console.log(t0.getMonth() + " " + e + " " + f + " | diff = " + (f-e));
 
         return "M" + e + "," + d0 * cellSize //(w0 + 1) * cellSize
-                + "H" + (e - 15) + "V" + 7 * cellSize //w0 * cellSize
-                + "H" + (f - 15) + "V" + (d1 + 1) * cellSize //w1 * cellSize
+                + "H" + (e - cellSize) + "V" + 7 * cellSize //w0 * cellSize
+                + "H" + (f - cellSize) + "V" + (d1 + 1) * cellSize //w1 * cellSize
                 + "H" + f + "V" + 0 //(w1 + 1) * cellSize
                 + "H" + e + "Z";
     }
 
-    function week_distance(d){
+    function week_distance(d) {
         var res, t;
-        if ((year_format(d)-(year-2000)+1) == 0 ) {
-            t = week( new Date (year, month+1, 1));
-            res = (cellSize * (+week(d) - parseInt(t) + 1) );
-        }else{
-            t = week( new Date (year-1, 11-month, 1));
-            res = (cellSize * (+week(d) + parseInt(t) + 1) );
+        if ((year_format(d) - (year - 2000) + 1) == 0) {
+            t = week_format(new Date(year, month + 1, 1));
+            res = (cellSize * (+week_format(d) - parseInt(t) + 1) );
+        } else {
+            t = week_format(new Date(year - 1, 11 - month, 1));
+            res = (cellSize * (+week_format(d) + parseInt(t) + 1) );
         }
-        return Math.min(Math.max(res,15),795);
+        return res;
     }
 
 </script>

@@ -75,15 +75,19 @@ def my_account():
     estimator = SethiKnowledgeEstimator(flask.g.user, flask.g.user.learned_language_id)
 
     year = datetime.date.today().year -1 # get data from year 2015(if this year is 2016)
-    bookmarks_dict, dates = flask.g.user.bookmarks_by_date(datetime.datetime(year, 1, 1))
+    month = datetime.date.today().month
+    bookmarks_dict, dates = flask.g.user.bookmarks_by_date(datetime.datetime(year, month, 1))
 
     counts = []
     for date in dates:
-        counts.append(dict(date=date.strftime('%Y-%m-%d'),count=len(bookmarks_dict[date])))
-    json_data = json.dumps(counts)
+        the_date = date.strftime('%Y-%m-%d')
+        the_count = len(bookmarks_dict[date])
+        counts.append(dict(date = the_date, count = the_count))
+
+    bookmark_counts_by_date = json.dumps(counts)
 
     return flask.render_template("my_account.html",
                                  user=flask.g.user,
                                  estimator=estimator,
-                                 json_data=json_data)
+                                 bookmark_counts_by_date=bookmark_counts_by_date)
 
