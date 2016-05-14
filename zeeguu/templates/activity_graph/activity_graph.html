@@ -187,7 +187,7 @@
         var max = 0, temp = 0;
         var prev_date = dataa[0].date;
         dataa.forEach(function (entry) {
-            if(entry.count > 0 && compare_dates_in_days(entry.date,prev_date) == 1){
+            if(compare_dates_in_days(entry.date,prev_date) <= 1){
                 temp++;
                 prev_date = entry.date;
             }else{
@@ -195,7 +195,6 @@
                 temp = 0;
             }
         });
-        if (dataa.length > 0) max++;
         return  max;
     }
 
