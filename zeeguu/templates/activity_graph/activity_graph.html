@@ -32,7 +32,7 @@
 
     var year = new Date().getFullYear();
     var month = new Date().getMonth();
-
+    var day = new Date().getDate();
 
     const week_count_in_year = 53;
     const day_count_in_week = 7;
@@ -47,14 +47,14 @@
 
     var day_rectangles = svg.selectAll(".day")
             .data(function (d) {
-                return d3.time.days(new Date(d - 1, month + 1, 1), new Date(d, month + 1, 1));
+                return d3.time.days(new Date(d - 1, month, day+1), new Date(d, month, day+1));
             })
             .enter().append("rect")
             .attr("class", "day")
             .attr("width", cellSize)
             .attr("height", cellSize)
             .attr("x", function (d) {
-                return week_distance(d) - cellSize;
+                return week_distance(d);
             })
             .attr("y", function (d) {
                 return eu_day_format(d) * cellSize;
@@ -68,7 +68,7 @@
 
     var j = 0;
     var month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
+/*
     var months = svg.selectAll(".month")
             .data(function (d) {
                 return d3.time.months(new Date(d - 1, month + 1, 1), new Date(d, month + 1, 1));
@@ -80,21 +80,23 @@
                 return month_names[(j + month) % 12];
             })
             .attr("d", monthPath);
-
+*/
     // text adding
 
     var i = 0;
     while (i < 12) {
+        var y = year;
+        var m = month;
+        if (day<10)m--;
+        if (i + m < 11) y = y-1;
+        m =(i + m + 1 ) % 12;
+
         svg.append("text")
-                .attr("transform", "translate(" + (i * (800 / 12) + 44) + ",0)")
+                .attr("transform", "translate(" + (week_distance(new Date(y,m,4))+45)  + ",0)") //(i * (800 / 12) + 44)
                 .style("text-anchor", "end")
                 .attr("dy", "-.25em")
                 .text(function () {
-                    if (i + month < 11) {
-                        return month_names[(i + month + 1 ) % 12] + " " + (year - 1);
-                    } else {
-                        return month_names[(i + month + 1 ) % 12] + " " + year;
-                    }
+                        return month_names[m] + " " + y;
                 });
         i++;
     }
@@ -143,7 +145,7 @@
                 d0 = eu_day_format(t0), w0 = +week_format(t0),
                 d1 = eu_day_format(t1), w1 = +week_format(t1);
 
-        var e = week_distance(t0);
+        var e = week_distance(t0)+cellSize;
         var f = e + ((w1 - w0) * cellSize);
 
         //console.log(t0.getMonth() + " " + e + " " + f + " | diff = " + (f-e));
@@ -158,11 +160,11 @@
     function week_distance(d) {
         var res, t;
         if ((year_format(d) - (year - 2000) + 1) == 0) {
-            t = week_format(new Date(year, month + 1, 1));
-            res = (cellSize * (+week_format(d) - parseInt(t) + 1) );
+            t = week_format(new Date(year, month, day));
+            res = ( cellSize * ( +week_format(d) - parseInt(t) ) );
         } else {
-            t = week_format(new Date(year - 1, 11 - month, 1));
-            res = (cellSize * (+week_format(d) + parseInt(t) + 1) );
+            t = week_format(new Date(year-1, 11-month, 31-day+1));
+            res = ( cellSize * ( +week_format(d) + parseInt(t) ) );
         }
         return res;
     }
