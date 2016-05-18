@@ -17,10 +17,11 @@
             cellSize = 15; // cell size
 
     // function convert_day_of_week_from_sun_to_mon
-    var eu_day_format = function (d) {
-                return (d.getDay() + 6) % 7;
-            },
-            week_format = d3.time.format("%W"),
+    var convert_day_of_week_from_sun_to_mon = function (d) {
+        return (d.getDay() + 6) % 7;
+    };
+
+    var week_format = d3.time.format("%W"),
             year_format = d3.time.format("%y"),
             date_format = d3.time.format("%Y-%m-%d");
 
@@ -47,7 +48,7 @@
 
     var day_rectangles = svg.selectAll(".day")
             .data(function (d) {
-                return d3.time.days(new Date(d - 1, month, day+1), new Date(d, month, day+1));
+                return d3.time.days(new Date(d - 1, month, day + 1), new Date(d, month, day + 1));
             })
             .enter().append("rect")
             .attr("class", "day")
@@ -57,7 +58,7 @@
                 return week_distance(d);
             })
             .attr("y", function (d) {
-                return eu_day_format(d) * cellSize;
+                return convert_day_of_week_from_sun_to_mon(d) * cellSize;
             })
             .datum(date_format);
 
@@ -68,35 +69,35 @@
 
     var j = 0;
     var month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-/*
-    var months = svg.selectAll(".month")
-            .data(function (d) {
-                return d3.time.months(new Date(d - 1, month + 1, 1), new Date(d, month + 1, 1));
-            })
-            .enter().append("path")
-            .attr("class", "month")
-            .attr("name", function () {
-                j++;
-                return month_names[(j + month) % 12];
-            })
-            .attr("d", monthPath);
-*/
+    /*
+     var months = svg.selectAll(".month")
+     .data(function (d) {
+     return d3.time.months(new Date(d - 1, month + 1, 1), new Date(d, month + 1, 1));
+     })
+     .enter().append("path")
+     .attr("class", "month")
+     .attr("name", function () {
+     j++;
+     return month_names[(j + month) % 12];
+     })
+     .attr("d", monthPath);
+     */
     // text adding
 
     var i = 0;
     while (i < 12) {
         var y = year;
         var m = month;
-        if (day<10)m--;
-        if (i + m < 11) y = y-1;
-        m =(i + m + 1 ) % 12;
+        if (day < 10)m--;
+        if (i + m < 11) y = y - 1;
+        m = (i + m + 1 ) % 12;
 
         svg.append("text")
-                .attr("transform", "translate(" + (week_distance(new Date(y,m,4))+45)  + ",0)") //(i * (800 / 12) + 44)
+                .attr("transform", "translate(" + (week_distance(new Date(y, m, 4)) + 45) + ",0)") //(i * (800 / 12) + 44)
                 .style("text-anchor", "end")
                 .attr("dy", "-.25em")
                 .text(function () {
-                        return month_names[m] + " " + y;
+                    return month_names[m] + " " + y;
                 });
         i++;
     }
@@ -142,10 +143,10 @@
 
     function monthPath(t0) {
         var t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
-                d0 = eu_day_format(t0), w0 = +week_format(t0),
-                d1 = eu_day_format(t1), w1 = +week_format(t1);
+                d0 = convert_day_of_week_from_sun_to_mon(t0), w0 = +week_format(t0),
+                d1 = convert_day_of_week_from_sun_to_mon(t1), w1 = +week_format(t1);
 
-        var e = week_distance(t0)+cellSize;
+        var e = week_distance(t0) + cellSize;
         var f = e + ((w1 - w0) * cellSize);
 
         //console.log(t0.getMonth() + " " + e + " " + f + " | diff = " + (f-e));
@@ -163,7 +164,7 @@
             t = week_format(new Date(year, month, day));
             res = ( cellSize * ( +week_format(d) - parseInt(t) ) );
         } else {
-            t = week_format(new Date(year-1, 11-month, 31-day+1));
+            t = week_format(new Date(year - 1, 11 - month, 31 - day + 1));
             res = ( cellSize * ( +week_format(d) + parseInt(t) ) );
         }
         return res;
@@ -177,46 +178,56 @@
         return sum;
     }
 
-    function compare_dates_in_days(d1, d2){
-        var date1 = new Date(d1);
-        var date2 = new Date(d2);
+    function compare_dates_in_days(date1, date2) {
         var timeDiff = Math.abs(date2.getTime() - date1.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
         return diffDays;
     }
 
-    function longest_streak(){
+    function StrToDate(str) {
+        var strParts = str.split("-");
+        var d = strParts[2],
+                m = strParts[1],
+                y = strParts[0];
+
+        return new Date(y, m, d);
+    }
+
+    function longest_streak() {
         var max = 0, temp = 0;
         var prev_date = dataa[0].date;
         dataa.forEach(function (entry) {
-            if(compare_dates_in_days(entry.date,prev_date) <= 1){
+            if (compare_dates_in_days(StrToDate(entry.date), StrToDate(prev_date)) <= 1) {
                 temp++;
                 prev_date = entry.date;
-            }else{
+            } else {
                 max = Math.max(max, temp);
                 temp = 0;
             }
         });
-        return  max;
+        return max;
     }
 
-    function current_streak(){
+    function current_streak() {
         var streak = 0;
         var size = dataa.length;
-        var today = new Date().getDate();  // better get today's date
-        var last_entry_date = dataa[size-1];
+        var today = new Date();  // better get today's date
 
         // check if the last entry date is today/yesterday, if yes proceed counting else return
-        while(compare_dates_in_days(today, last_entry_date) <= 1+streak){
-                size = size - 1;
-                last_entry_date = dataa[size - 1];
+        for (var i = size - 1; i >= 0; i--) {
+            var last_entry_date = dataa[i].date;
+            if (compare_dates_in_days(today, StrToDate(last_entry_date)) <= 1) {
+                today = StrToDate(last_entry_date);
                 streak++;
+            } else {
+                break;
+            }
         }
 
         return streak;
     }
 
-    function day_or_days(num){
+    function day_or_days(num) {
         if (num == 1) {
             return " day";
         } else {
