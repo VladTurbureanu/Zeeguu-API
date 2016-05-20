@@ -76,10 +76,10 @@
             .datum(date_format);
 
     // adding default tooltip for empty day_rectangles
-//    day_rectangles.append("title")
-//            .text(function (date) {
-//                return date;
-//            });
+    day_rectangles.append("title")
+            .text(function (date) {
+                return " ";
+            });
 
     // text adding
 
@@ -141,8 +141,7 @@
                 })
                 .select("title")
                 .text(function (date) {
-                    console.log(date + " " + str(nested_bookmark_counts_by_date_array[date]));
-                    return str(nested_bookmark_counts_by_date_array[date]);
+                    return " " + nested_bookmark_counts_by_date_array[date];
                 });
     });
 
