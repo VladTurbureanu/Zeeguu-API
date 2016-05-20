@@ -16,6 +16,7 @@
     var height = 126;
     var cellSize = 15; // cell size
 
+    const months_in_year = 12;
     const week_count_in_year = 53;
     const day_count_in_week = 7;
 
@@ -24,7 +25,7 @@
     var day = new Date().getDate();
 
     var week_format = d3.time.format("%W");
-    var year_format = d3.time.format("%y");
+    var year_format = d3.time.format("%Y");
     var date_format = d3.time.format("%Y-%m-%d");
 
     var month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -35,11 +36,12 @@
         return (date.getDay() + 6) % 7;
     };
 
-    // function which returns the color tone depending on what is count of the bookmarks
+    // function which returns the style class for the color tone, depending on what is the count of the bookmarks
     // more bookmarks -> more darker tone
+    var range_scale = 5;
     var color_getter = d3.scale.quantize()
             .domain([0, 60])
-            .range(d3.range(5).map(function (index) {
+            .range(d3.range(range_scale).map(function (index) {
                 return "q" + index + "-5";
             }));
 
@@ -53,7 +55,7 @@
             .attr("height", height)
             .attr("class", "RdYlGn")
             .append("g")
-            .attr("transform", "translate(" + (graph_table_x) + "," + (graph_table_y) + ")");
+            .attr("transform", "translate(" + graph_table_x + "," + graph_table_y + ")");
 
     var day_rectangles = activity_graph.selectAll(".day")
             .data(function (year) {
@@ -71,6 +73,7 @@
             })
             .datum(date_format);
 
+    // adding default tooltip for empty day_rectangles
     day_rectangles.append("title")
             .text(function (date) {
                 return date;
@@ -78,18 +81,19 @@
 
     // text adding
 
-    for (var index = 0; index < 12; index++) {
+    // adding month names to the graph
+    for (var index = 0; index < months_in_year; index++) {
         var temp_year = year;
         var temp_month = month;
-        var offset = 45;
+        var left_offset_of_matrix = 45;
 
         // calculating on top of which day should be printed month name
         if (day < 10) temp_month--; // on which side of the table to print month name if the month divided in half
-        if (index + temp_month < 11) temp_year = temp_year - 1; // which year to add to the month name
-        temp_month = (index + temp_month + 1) % 12; // calculating correct index of the month name in the month_names array
+        if (index + temp_month < months_in_year - 1) temp_year = temp_year - 1; // which year to add to the month name
+        temp_month = (index + temp_month + 1) % months_in_year; // calculating correct index of the month name in the month_names array
 
         activity_graph.append("text")
-                .attr("transform", "translate(" + (week_number(new Date(temp_year, temp_month, 4)) + offset) + ",0)")
+                .attr("transform", "translate(" + (week_number(new Date(temp_year, temp_month, 4)) + left_offset_of_matrix) + ",0)")
                 .style("text-anchor", "end")
                 .attr("dy", "-.25em")
                 .text(function () {
@@ -97,6 +101,7 @@
                 });
     }
 
+    // adding day names to the graph
     for (var index = 0; index < day_count_in_week; index++) {
         activity_graph.append("text")
                 .attr("transform", "translate(-8," + cellSize * (index + 1) + ")")
@@ -122,6 +127,7 @@
                 })
                 .map(bookmark_counts_by_date_array);
 
+        // editing tooltip for filled day_rectangles
         day_rectangles.filter(
                 function (date) {
                     return date in nested_bookmark_counts_by_date_array;
@@ -136,22 +142,21 @@
     });
 
     function week_number(date) {
-        var result, week_count;
-        var months_in_year = 11; // counting from 0
-        var days_in_year = 31;
+        var result, week_count_in_our_interval;
+        var days_in_month = 31;
 
-        if ((year_format(date) - (year - 2000) + 1) == 0) {
-            week_count = week_format(new Date(year, month, day));
-            result = ( cellSize * ( +week_format(date) - parseInt(week_count) ) );
+        if ((year_format(date) - year + 1) == 0) {
+            week_count_in_our_interval = week_format(new Date(year, month, day));
+            result = ( cellSize * ( +week_format(date) - parseInt(week_count_in_our_interval) ) );
         } else {
-            week_count = week_format(new Date(year - 1, months_in_year - month, days_in_year - day + 1));
-            result = ( cellSize * ( +week_format(date) + parseInt(week_count) ) );
+            week_count_in_our_interval = week_format(new Date(year - 1, months_in_year - month - 1, days_in_month - day + 1));
+            result = ( cellSize * ( +week_format(date) + parseInt(week_count_in_our_interval) ) );
         }
 
         return result;
     }
 
-    function total_bookmarks_per_year() {
+    function total_bookmarks_per_displayed_period() {
         var sum = 0;
         bookmark_counts_by_date_array.forEach(function (entry) {
             sum = sum + entry.count;
@@ -228,7 +233,7 @@
         <h4>Bookmarks in this period</h4>
         <h3>
             <script>
-                document.write(total_bookmarks_per_year() + " Total");
+                document.write(total_bookmarks_per_displayed_period() + " Total");
             </script>
         </h3>
     </div>
