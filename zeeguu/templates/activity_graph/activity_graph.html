@@ -118,7 +118,7 @@
 
     var bookmark_counts_by_date_array = {% block body %}{{ bookmark_counts_by_date|safe }}{% endblock %};
 
-    console.log(bookmark_counts_by_date_array);
+//    console.log(bookmark_counts_by_date_array);
 
     d3.json(bookmark_counts_by_date_array, function () {
 
@@ -141,7 +141,8 @@
                 })
                 .select("title")
                 .text(function (year) {
-                    return str(nested_bookmark_counts_by_date_array[year]);
+                    console.log(year);
+                    return year + ": " + nested_bookmark_counts_by_date_array[year];
                 });
     });
 
