@@ -19,6 +19,8 @@
     const months_in_year = 12;
     const week_count_in_year = 53;
     const day_count_in_week = 7;
+    const milliseconds_in_day = 1000 * 3600 * 24;
+
 
     var year = new Date().getFullYear();
     var month = new Date().getMonth();
@@ -38,10 +40,10 @@
 
     // function which returns the style class for the color tone, depending on what is the count of the bookmarks
     // more bookmarks -> more darker tone
-    var range_scale = 5;
+    var number_of_intervals = 5;
     var color_getter = d3.scale.quantize()
             .domain([0, 60])
-            .range(d3.range(range_scale).map(function (index) {
+            .range(d3.range(number_of_intervals).map(function (index) {
                 return "q" + index + "-5";
             }));
 
@@ -116,6 +118,8 @@
 
     var bookmark_counts_by_date_array = {% block body %}{{ bookmark_counts_by_date|safe }}{% endblock %};
 
+    console.log(bookmark_counts_by_date_array);
+
     d3.json(bookmark_counts_by_date_array, function () {
 
         var nested_bookmark_counts_by_date_array = d3.nest()
@@ -142,15 +146,15 @@
     });
 
     function week_number(date) {
-        var result, week_count_in_our_interval;
+        var result, week_count_in_displayed_interval;
         var days_in_month = 31;
 
         if ((year_format(date) - year + 1) == 0) {
-            week_count_in_our_interval = week_format(new Date(year, month, day));
-            result = ( cellSize * ( +week_format(date) - parseInt(week_count_in_our_interval) ) );
+            week_count_in_displayed_interval = week_format(new Date(year, month, day));
+            result = ( cellSize * ( +week_format(date) - parseInt(week_count_in_displayed_interval) ) );
         } else {
-            week_count_in_our_interval = week_format(new Date(year - 1, months_in_year - month - 1, days_in_month - day + 1));
-            result = ( cellSize * ( +week_format(date) + parseInt(week_count_in_our_interval) ) );
+            week_count_in_displayed_interval = week_format(new Date(year - 1, months_in_year - month - 1, days_in_month - day + 1));
+            result = ( cellSize * ( +week_format(date) + parseInt(week_count_in_displayed_interval) ) );
         }
 
         return result;
@@ -166,7 +170,7 @@
 
     function compute_distance_between_dates_in_days(date1, date2) {
         var timeDiff = Math.abs(date2.getTime() - date1.getTime());
-        var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        var diffDays = Math.ceil(timeDiff / (milliseconds_in_day));
         return diffDays;
     }
 
