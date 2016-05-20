@@ -141,7 +141,7 @@
                 })
                 .select("title")
                 .text(function (year) {
-                    return year + ": " + nested_bookmark_counts_by_date_array[year];
+                    return str(nested_bookmark_counts_by_date_array[year]);
                 });
     });
 
