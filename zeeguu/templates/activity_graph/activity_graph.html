@@ -140,9 +140,9 @@
                     return "day " + color_getter(nested_bookmark_counts_by_date_array[index]);
                 })
                 .select("title")
-                .text(function (year) {
-                    console.log(year);
-                    return year + ": " + nested_bookmark_counts_by_date_array[year];
+                .text(function (date) {
+                    console.log(date + " " + nested_bookmark_counts_by_date_array[date]);
+                    return ": " + nested_bookmark_counts_by_date_array[date];
                 });
     });
 
