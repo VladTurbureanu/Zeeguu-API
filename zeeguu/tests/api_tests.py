@@ -58,6 +58,11 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         latest_bookmark_id = int(first_date["bookmarks"][0]['id'])
         assert latest_bookmark_id  == added_bookmark_id
 
+    def test_report_exercise_outcome(self):
+        rv = self.api_post('/report_exercise_outcome/Too easy/ZeeKoe/100/1')
+        assert rv.data == "OK"
+
+
     # note that this is about PROBABLY KNOWN WORDS.... KNOWN WORDS are tested elsewhere!
     def test_get_probably_known(self):
 

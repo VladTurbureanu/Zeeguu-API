@@ -156,6 +156,7 @@ def create_test_db():
 
     recognize = ExerciseSource("Recognize")
     translate = ExerciseSource("Translate")
+    zeekoe = ExerciseSource("ZeeKoe")
 
     zeeguu.db.session.add(show_solution)
     zeeguu.db.session.add(retry)
@@ -166,6 +167,8 @@ def create_test_db():
 
     zeeguu.db.session.add(recognize)
     zeeguu.db.session.add(translate)
+    zeeguu.db.session.add(zeekoe)
+
 
     user = User("i@mir.lu", "Mircea", "pass", de, ro)
     user2 = User("i@ada.lu", "Ada", "pass", fr)
