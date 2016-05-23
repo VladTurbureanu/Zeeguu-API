@@ -397,7 +397,7 @@ def report_exercise_outcome(exercise_outcome,exercise_source,exercise_solving_sp
             return "could not find source"
 
         if not new_outcome:
-            return "not found outcome"
+            return "could not find outcome"
 
         exercise = Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
         bookmark.add_new_exercise(exercise)
