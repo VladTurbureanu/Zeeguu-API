@@ -214,6 +214,9 @@ def submit_answer(answer, expected,question_id):
            methods=["POST"])
 def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,bookmark_id):
     """
+    OBSOLETE!
+    Use the /report_exercise_outcome/... API endpoint
+
     In the model parlance, an exercise is an entry in a table that
     logs the performance of an exercise. Every such performance, has a source, and an outcome.
 

@@ -12,6 +12,7 @@ import Queue
 import json
 import threading
 import time
+import traceback
 from urllib import unquote_plus
 
 import datetime
@@ -25,7 +26,7 @@ import translation_service
 from route_wrappers import cross_domain, with_session, json_result
 from feedparser_extensions import two_letter_language_code, list_of_feeds_at_url
 from zeeguu import util
-from zeeguu.api.model_core import RankedWord, Language, Bookmark, UserWord
+from zeeguu.api.model_core import RankedWord, Language, Bookmark, UserWord, ExerciseOutcome, ExerciseSource, Exercise
 from zeeguu.api.model_core import Session, User, Url, KnownWordProbability, Text
 from zeeguu.api.model_feeds import RSSFeed, RSSFeedRegistration
 from zeeguu.language.knowledge_estimator import SethiKnowledgeEstimator
@@ -370,6 +371,45 @@ def get_exercise_log_for_bookmark(bookmark_id):
                                       time = exercise.time.strftime('%m/%d/%Y')))
 
     return json_result(exercise_log_dict)
+
+
+@api.route("/report_exercise_outcome/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<bookmark_id>",
+           methods=["POST"])
+@with_session
+def report_exercise_outcome(exercise_outcome,exercise_source,exercise_solving_speed,bookmark_id):
+    """
+    In the model parlance, an exercise is an entry in a table that
+    logs the performance of an exercise. Every such performance, has a source, and an outcome.
+
+    :param exercise_outcome: One of: Correct, Retry, Wrong, Typo, Too easy
+    :param exercise_source: has been assigned to your app by zeeguu
+    :param exercise_solving_speed: in milliseconds
+    :param bookmark_id: the bookmark for which the data is reported
+    :return:
+    """
+
+    try:
+        bookmark = Bookmark.find(bookmark_id)
+        new_source = ExerciseSource.find_by_source(exercise_source)
+        new_outcome = ExerciseOutcome.find(exercise_outcome)
+
+        if not new_source:
+            return "could not find source"
+
+        if not new_outcome:
+            return "not found outcome"
+
+        exercise = Exercise(new_outcome,new_source,exercise_solving_speed,datetime.datetime.now())
+        bookmark.add_new_exercise(exercise)
+        zeeguu.db.session.add(exercise)
+        zeeguu.db.session.commit()
+
+        from zeeguu.language.knowledge_estimator import update_probabilities_for_word
+        update_probabilities_for_word(bookmark.origin)
+        return "OK"
+    except :
+        traceback.print_exc()
+        return "FAIL"
 
 
 @api.route("/add_new_translation_to_bookmark/<word_translation>/<bookmark_id>",
