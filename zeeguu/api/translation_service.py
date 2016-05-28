@@ -63,3 +63,25 @@ def translate_from_to(word, from_lang_code, to_lang_code):
     result = json.loads(urlopen(url).read())
     translation = result['data']['translations'][0]['translatedText']
     return translation
+
+
+def translate_using_collins_dictionary(word):
+    from zeeguu.libs.collins_api import API
+    api = API(baseUrl="https://api.collinsdictionary.com"+'/api/v1/', accessKey=zeeguu.app.config.get("COLLINS_API_KEY"))
+    data = json.loads(api.searchFirst("german-english", word, "html"), "utf-8")
+
+    import xml.etree.ElementTree
+    e = xml.etree.ElementTree.fromstring(data["entryContent"].encode('utf-8'))
+
+    for atype in e.findall(".//*[@class='quote']"):
+        try:
+            print "-" + str(atype.text)
+        except:
+            pass
+
+    return e
+
+
+
+
+

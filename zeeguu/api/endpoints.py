@@ -921,6 +921,44 @@ def get_feed_items_for(feed_id):
     return json_result(registration.rss_feed.feed_items())
 
 
+@api.route("/get_possible_translations/<from_lang_code>/<to_lang_code>", methods=["POST"])
+@cross_domain
+@with_session
+def get_possible_translations(from_lang_code, to_lang_code):
+    """
+    Returns a list of possible translations for this
+    :param word: word to be translated
+    :param from_lang_code:
+    :param to_lang_code:
+    :return: json array with dictionaries. each of the dictionaries contains at least
+        one 'translation' and one 'translation_id' key.
+
+        In the future we envision that the dict will contain
+        other types of information, such as relative frequency,
+    """
+
+    context = request.form.get('context', '')
+    url = request.form.get('url', '')
+    word = request.form['word']
+
+    translation = translation_service.translate_from_to(word, from_lang_code, to_lang_code)
+    lan = Language.find(to_lang_code)
+
+    wor = UserWord.find(translation, lan)
+    zeeguu.db.session.add(wor)
+    zeeguu.db.session.commit()
+
+    translation_id = wor.id
+
+    translations = [
+        dict(translation_id=translation_id, translation=translation),
+        dict(translation_id=2, translation='something'),
+        dict(translation_id=3, translation='another thing')]
+
+    return json_result(dict(translations=translations))
+
+
+
 # Warning:
 # Might be deprecated at some point... or at least, reduced to translating single words...
 # It would make more sense to use translate_and_bookmark instead
