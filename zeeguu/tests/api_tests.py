@@ -483,7 +483,8 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             context=u'Die kleine Jägermeister',
             word="Die")
         alternatives = self.json_from_api_post('/get_possible_translations/de/en', form_data)
-        print alternatives['translations'][0]
+        # print alternatives['translations'][0]
+        # print alternatives['translations'][1]
         assert alternatives['translations'][0] is not None
         assert alternatives['translations'][1] is not None
 

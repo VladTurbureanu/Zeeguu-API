@@ -942,18 +942,17 @@ def get_possible_translations(from_lang_code, to_lang_code):
     word = request.form['word']
 
     translation = translation_service.translate_from_to(word, from_lang_code, to_lang_code)
-    lan = Language.find(to_lang_code)
+    lan = Language.find(from_lang_code)
 
     wor = UserWord.find(translation, lan)
+    smtg = UserWord.find("something", lan)
     zeeguu.db.session.add(wor)
+    zeeguu.db.session.add(smtg)
     zeeguu.db.session.commit()
 
-    translation_id = wor.id
-
     translations = [
-        dict(translation_id=translation_id, translation=translation),
-        dict(translation_id=2, translation='something'),
-        dict(translation_id=3, translation='another thing')]
+        dict(translation_id=wor.id, translation=translation),
+        dict(translation_id=smtg.id, translation='something')]
 
     return json_result(dict(translations=translations))
 
