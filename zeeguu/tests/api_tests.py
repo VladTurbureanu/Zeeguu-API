@@ -485,8 +485,12 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         alternatives = self.json_from_api_post('/get_possible_translations/de/en', form_data)
         # print alternatives['translations'][0]
         # print alternatives['translations'][1]
-        assert alternatives['translations'][0] is not None
-        assert alternatives['translations'][1] is not None
+        first_alternative = alternatives['translations'][0]
+        second_alternative = alternatives['translations'][1]
+        assert first_alternative is not None
+        assert second_alternative  is not None
+        assert first_alternative["likelihood"] > second_alternative["likelihood"]
+
 
 
     def test_same_text_does_not_get_created_multiple_Times(self):
@@ -562,6 +566,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         bookmark3  = self.json_from_api_post('/translate_and_bookmark/de/en', form_data)
 
         assert (bookmark1["bookmark_id"] == bookmark2["bookmark_id"] == bookmark3["bookmark_id"])
+
+        form_data["word"] = "kleine"
+        bookmark4  = self.json_from_api_post('/translate_and_bookmark/de/en', form_data)
+        print bookmark4
 
 
     def test_get_user_details(self):

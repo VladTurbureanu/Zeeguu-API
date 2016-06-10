@@ -302,6 +302,9 @@ def bookmark_with_context(from_lang_code, to_lang_code, word_str, url_str, title
 
     try:
         bookmark = Bookmark.find_all_by_user_word_and_text(flask.g.user, user_word, context)[0]
+    #     TODO: Think about updating the date of this bookmark, or maybe creating a duplicate
+    #       otherwise, in the history this translation will not be visible!
+
     except Exception:
         bookmark = Bookmark(user_word, translation, flask.g.user, context, datetime.datetime.now())
         zeeguu.db.session.add(bookmark)
@@ -951,8 +954,8 @@ def get_possible_translations(from_lang_code, to_lang_code):
     zeeguu.db.session.commit()
 
     translations = [
-        dict(translation_id=wor.id, translation=translation),
-        dict(translation_id=smtg.id, translation='something')]
+        dict(translation_id=wor.id, translation=translation, likelihood=1.0),
+        dict(translation_id=smtg.id, translation='something', likelihood=0.1)]
 
     return json_result(dict(translations=translations))
 
