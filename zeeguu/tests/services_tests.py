@@ -16,8 +16,11 @@ class ServicesTests(zeeguu_testcase.ZeeguuTestCase):
         pass
 
     def test_collins_translation(self):
-        from zeeguu.api.translation_service import translate_using_collins_dictionary
-        assert translate_using_collins_dictionary("entspricht") is not None
+        from zeeguu.translation.german.german_translator \
+            import get_all_possible_translations_from_the_collins_api
+
+        print get_all_possible_translations_from_the_collins_api("tor")
+        assert len(get_all_possible_translations_from_the_collins_api("haus")) > 0
 
 if __name__ == '__main__':
     # unittest.main()
