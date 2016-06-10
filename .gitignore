@@ -13,3 +13,4 @@ zeeguu/static/Zeegg.apk
 
 *.map
 build/*
+dist/zeeguu-0.1-py2.7.egg
