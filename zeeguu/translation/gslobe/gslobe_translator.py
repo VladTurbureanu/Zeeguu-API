@@ -13,7 +13,7 @@ def get_translations_from_gslobe(word, from_language, to_language):
               "from="+ from_language +\
               "&dest="+to_language +\
               "&format=json" \
-              "&phrase="+ urllib.quote_plus(word) +\
+              "&phrase="+ urllib.quote_plus(word.encode('utf8')) +\
               "&pretty=true"
     result = urllib2.urlopen(request).read()
 

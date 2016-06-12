@@ -26,8 +26,8 @@ class ServicesTests(zeeguu_testcase.ZeeguuTestCase):
         from zeeguu.translation.gslobe.gslobe_translator import get_translations_from_gslobe
 
         assert "will" in get_translations_from_gslobe("Wollen", "de", "en")
-        assert "fun" in get_translations_from_gslobe("Spaß", "de", "en")
-        assert "tired" in get_translations_from_gslobe("müde", "de", "en")
+        assert "fun" in get_translations_from_gslobe(u"Spaß", "de", "en")
+        assert "tired" in get_translations_from_gslobe(u"müde", "de", "en")
         assert "I am" in get_translations_from_gslobe("ich bin", "de", "en")
         assert len(get_translations_from_gslobe("trululu", "de", "en")) == 0
 
