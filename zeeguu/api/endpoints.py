@@ -261,7 +261,7 @@ def translate_and_bookmark(from_lang_code, to_lang_code):
     context_str = request.form.get('context', '')
 
     # Call the translate API
-    translation_str = translation_service.translate_from_to(word_str, from_lang_code, to_lang_code)
+    translation_str, alternative_translations = translation_service.translate_from_to(word_str, from_lang_code, to_lang_code)
     translation_str = unquote_plus(translation_str)
 
     id = bookmark_with_context(from_lang_code, to_lang_code, word_str, url_str, title_str, context_str, translation_str)
@@ -945,11 +945,11 @@ def get_possible_translations(from_lang_code, to_lang_code):
     url = request.form.get('url', '')
     word = request.form['word']
 
-    translations = translation_service.translate_from_to(word, from_lang_code, to_lang_code)
+    main_translation, alternatives = translation_service.translate_from_to(word, from_lang_code, to_lang_code)
 
     lan = Language.find(from_lang_code)
     likelihood = 1.0
-    for translation in translations:
+    for translation in alternatives:
         wor = UserWord.find(translation, lan)
         zeeguu.db.session.add(wor)
         zeeguu.db.session.commit()
@@ -986,6 +986,6 @@ def translate(from_lang_code, to_lang_code):
     context = request.form.get('context', '')
     url = request.form.get('url', '')
     word = request.form['word']
-    translation = translation_service.translate_from_to(word, from_lang_code, to_lang_code)
+    main_translation, alternatives = translation_service.translate_from_to(word, from_lang_code, to_lang_code)
 
-    return translation
+    return main_translation

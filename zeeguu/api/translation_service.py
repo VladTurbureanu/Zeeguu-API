@@ -26,22 +26,26 @@ def get_cached_translation_if_available(word, from_lang_code, to_lang_code):
                 test_translation["lang"] == from_lang_code and \
                 test_translation["to_lang"] == to_lang_code:
             return True, test_translation["to"]
-    return False, None
+    return False, []
 
 
 def translate_from_to(word, from_lang_code, to_lang_code):
-    """ translate_from_to('Der', 'de', 'en') -> 'the'
+    """
+
     :param word: expected to be an unicode string
     :param from_lang_code:
     :param to_lang_code:
-    :return:
+    :returns: a tuple (main translation, alternative translations)
     """
 
-    available, translation = get_cached_translation_if_available(word, from_lang_code, to_lang_code)
+    available, translations = get_cached_translation_if_available(word, from_lang_code, to_lang_code)
     if available:
-        return translation
+        return translations[0], translations
 
-    return get_translations_from_gslobe(word, from_lang_code, to_lang_code)
+    all_translations = get_translations_from_gslobe(word, from_lang_code, to_lang_code)
+    return all_translations[0], all_translations
+
+
 
 
 
