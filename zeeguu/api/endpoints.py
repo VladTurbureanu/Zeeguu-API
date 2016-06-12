@@ -940,24 +940,26 @@ def get_possible_translations(from_lang_code, to_lang_code):
         other types of information, such as relative frequency,
     """
 
+    translations_json = []
     context = request.form.get('context', '')
     url = request.form.get('url', '')
     word = request.form['word']
 
-    translation = translation_service.translate_from_to(word, from_lang_code, to_lang_code)
+    translations = translation_service.translate_from_to(word, from_lang_code, to_lang_code)
+
     lan = Language.find(from_lang_code)
+    likelihood = 1.0
+    for translation in translations:
+        wor = UserWord.find(translation, lan)
+        zeeguu.db.session.add(wor)
+        zeeguu.db.session.commit()
+        t_dict = dict(translation_id= wor.id,
+                 translation=translation,
+                 likelihood=likelihood)
+        translations_json.append(t_dict)
+        likelihood -= 0.01
 
-    wor = UserWord.find(translation, lan)
-    smtg = UserWord.find("something", lan)
-    zeeguu.db.session.add(wor)
-    zeeguu.db.session.add(smtg)
-    zeeguu.db.session.commit()
-
-    translations = [
-        dict(translation_id=wor.id, translation=translation, likelihood=1.0),
-        dict(translation_id=smtg.id, translation='something', likelihood=0.1)]
-
-    return json_result(dict(translations=translations))
+    return json_result(dict(translations=translations_json))
 
 
 

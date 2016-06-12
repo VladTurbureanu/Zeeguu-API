@@ -1,11 +1,11 @@
 # -*- coding: utf8 -*-
 #
-# Dispatching translation requests to the Google Translate backend
+# Dispatching translation requests to the translation backend
 # or loading some of the locally cached translations
 #
 # __author__ = 'mircea'
 #
-from zeeguu.translation.google_api import translate_using_the_google_API
+from zeeguu.translation.gslobe.gslobe_translator import get_translations_from_gslobe
 
 
 def get_cached_translation_if_available(word, from_lang_code, to_lang_code):
@@ -17,8 +17,8 @@ def get_cached_translation_if_available(word, from_lang_code, to_lang_code):
     """
 
     cached_translations = [
-        dict(fro="Die", lang="de", to_lang="en", to="the"),
-        dict(fro="kleine", lang="de", to_lang="en", to="small")
+        dict(fro="Die", lang="de", to_lang="en", to=["the"]),
+        dict(fro="kleine", lang="de", to_lang="en", to=["small","tiny"])
     ]
 
     for test_translation in cached_translations:
@@ -41,7 +41,7 @@ def translate_from_to(word, from_lang_code, to_lang_code):
     if available:
         return translation
 
-    return translate_using_the_google_API(from_lang_code, to_lang_code, word)
+    return get_translations_from_gslobe(word, from_lang_code, to_lang_code)
 
 
 

@@ -481,12 +481,12 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         form_data = dict(
             url='http://mir.lu',
             context=u'Die kleine Jägermeister',
-            word="Die")
+            word="kleine")
         alternatives = self.json_from_api_post('/get_possible_translations/de/en', form_data)
-        # print alternatives['translations'][0]
-        # print alternatives['translations'][1]
+
         first_alternative = alternatives['translations'][0]
         second_alternative = alternatives['translations'][1]
+
         assert first_alternative is not None
         assert second_alternative  is not None
         assert first_alternative["likelihood"] > second_alternative["likelihood"]

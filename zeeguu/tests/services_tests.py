@@ -22,6 +22,20 @@ class ServicesTests(zeeguu_testcase.ZeeguuTestCase):
         print get_all_possible_translations_from_the_collins_api("tor")
         assert len(get_all_possible_translations_from_the_collins_api("haus")) > 0
 
+    def test_gslobe_translation(self):
+        from zeeguu.translation.gslobe.gslobe_translator import get_translations_from_gslobe
+
+        assert "will" in get_translations_from_gslobe("Wollen", "de", "en")
+        assert "fun" in get_translations_from_gslobe("Spaß", "de", "en")
+        assert "tired" in get_translations_from_gslobe("müde", "de", "en")
+        assert "I am" in get_translations_from_gslobe("ich bin", "de", "en")
+        assert len(get_translations_from_gslobe("trululu", "de", "en")) == 0
+
+
+
+
+
+
 if __name__ == '__main__':
     # unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(ServicesTests)
