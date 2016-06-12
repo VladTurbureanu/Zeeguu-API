@@ -491,6 +491,16 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert second_alternative  is not None
         assert first_alternative["likelihood"] > second_alternative["likelihood"]
 
+    def test_get_translation_where_gslobe_fails_but_translate_succeeds(self):
+
+        form_data = dict(
+            url='http://mir.lu',
+            context=u'Die krassen Jägermeister',
+            word="krassen")
+        alternatives = self.json_from_api_post('/get_possible_translations/de/en', form_data)
+
+        first_alternative = alternatives['translations'][0]
+        assert first_alternative is not None
 
 
     def test_same_text_does_not_get_created_multiple_Times(self):
