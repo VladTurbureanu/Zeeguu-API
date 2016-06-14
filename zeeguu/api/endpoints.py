@@ -25,14 +25,21 @@ import translation_service
 
 from route_wrappers import cross_domain, with_session, json_result
 from feedparser_extensions import two_letter_language_code, list_of_feeds_at_url
-from zeeguu import util
-from zeeguu.api.model_core import RankedWord, Language, Bookmark, UserWord, ExerciseOutcome, ExerciseSource, Exercise
-from zeeguu.api.model_core import Session, User, Url, KnownWordProbability, Text
+from zeeguu.model.exercise import Exercise
+from zeeguu.model.exercise_outcome import ExerciseOutcome
+from zeeguu.model.exercise_source import ExerciseSource
+from zeeguu.model.user_word import UserWord
+from zeeguu.model.bookmark import Bookmark
+from zeeguu.model.language import Language
+from zeeguu.api.model_core import Session
+from zeeguu.model.url import Url
+from zeeguu.model.text import Text
+from zeeguu.model.known_word_probability import KnownWordProbability
+from zeeguu.model.user import User
 from zeeguu.api.model_feeds import RSSFeed, RSSFeedRegistration
 from zeeguu.language.knowledge_estimator import SethiKnowledgeEstimator
 from zeeguu.language.text_difficulty import text_difficulty
 from zeeguu.language.text_learnability import text_learnability
-from zeeguu.language import knowledge_estimator
 
 
 from flask import request
@@ -940,7 +947,7 @@ def get_interesting_feeds_for_language_id(language_id):
                 feed_id = feed.id,
                 feed_title = feed.title,
                 feed_url = feed.url.as_string(),
-                popularity = 1  
+                popularity = 1
             )
         )
     return json_result(feed_data)

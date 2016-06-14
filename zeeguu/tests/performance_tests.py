@@ -10,7 +10,8 @@ import zeeguu_testcase
 # Always must be imported first
 # it sets the test DB
 
-from zeeguu.api.model_core import User, RankedWord
+from zeeguu import RankedWord
+from zeeguu.model.user import User
 import zeeguu
 import json
 import time

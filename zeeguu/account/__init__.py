@@ -2,7 +2,7 @@
 
 import flask
 
-from zeeguu.api.model_core import User
+from zeeguu.model.user import User
 
 # we define the blueprint here, and extended it in several files
 acc = flask.Blueprint("account", __name__)

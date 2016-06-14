@@ -1,5 +1,9 @@
 import flask
-from zeeguu.api.model_core import UserWord, Bookmark, User, Text, Language
+from zeeguu.model.text import Text
+from zeeguu.model.user_word import UserWord
+from zeeguu.model.bookmark import Bookmark
+from zeeguu.model.language import Language
+from zeeguu.model.user import User
 from user_message import UserVisibleException
 import random
 from datetime import timedelta, date

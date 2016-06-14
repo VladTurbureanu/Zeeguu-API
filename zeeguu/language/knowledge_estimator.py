@@ -1,8 +1,12 @@
 import flask
 
 from zeeguu import db
-from zeeguu.api.model_core import Language, RankedWord, KnownWordProbability, EncounterBasedProbability, Bookmark, \
-    ExerciseBasedProbability
+from zeeguu.model.exercise_based_probability import ExerciseBasedProbability
+from zeeguu.model.encounter_based_probability import EncounterBasedProbability
+from zeeguu.model.known_word_probability import KnownWordProbability
+from zeeguu.model.bookmark import Bookmark
+from zeeguu.model.language import Language
+from zeeguu.model.ranked_word import RankedWord
 
 
 # import zeeguu

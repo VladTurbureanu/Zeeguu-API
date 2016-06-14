@@ -6,8 +6,8 @@ Used on Jan 15, 2015 to prepare the DB for commit
 """
 
 import zeeguu
-from zeeguu.api.model_core import Url, DomainName
-
+from zeeguu.model.domain_name import DomainName
+from zeeguu.model.url import Url
 
 
 def set_default_exercise_based_prob():

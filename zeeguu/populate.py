@@ -3,9 +3,15 @@ import re
 
 import zeeguu
 import datetime
-from zeeguu.api.model_core import RankedWord, Language, Bookmark, \
-    UserWord, User, Url, Text, ExerciseOutcome, ExerciseSource
-
+from zeeguu.model.url import Url
+from zeeguu.model.text import Text
+from zeeguu.model.exercise_outcome import ExerciseOutcome
+from zeeguu.model.exercise_source import ExerciseSource
+from zeeguu.model.user_word import UserWord
+from zeeguu import RankedWord
+from zeeguu.model.bookmark import Bookmark
+from zeeguu.model.language import Language
+from zeeguu.model.user import User
 
 WORD_PATTERN = re.compile("\[?([^{\[]+)\]?( {[^}]+})?( \[[^\]]\])?")
 

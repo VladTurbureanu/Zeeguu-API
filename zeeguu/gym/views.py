@@ -2,7 +2,13 @@ import json
 import flask
 import zeeguu
 
-from zeeguu.api.model_core import UserWord, Bookmark, User, Text, ExerciseSource, ExerciseOutcome, Exercise
+from zeeguu.model.text import Text
+from zeeguu.model.exercise import Exercise
+from zeeguu.model.exercise_outcome import ExerciseOutcome
+from zeeguu.model.exercise_source import ExerciseSource
+from zeeguu.model.user_word import UserWord
+from zeeguu.model.bookmark import Bookmark
+from zeeguu.model.user import User
 from zeeguu.gym.model import Card
 from zeeguu.api.model_core import db
 import datetime

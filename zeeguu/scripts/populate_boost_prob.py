@@ -3,11 +3,14 @@
 import re
 import zeeguu
 import decimal
-from zeeguu.api.model_core import RankedWord, Language, Bookmark, \
-    UserWord, User, ExerciseBasedProbability, \
-    EncounterBasedProbability,\
-    KnownWordProbability
-
+from zeeguu.model.exercise_based_probability import ExerciseBasedProbability
+from zeeguu.model.encounter_based_probability import EncounterBasedProbability
+from zeeguu.model.known_word_probability import KnownWordProbability
+from zeeguu.model.user_word import UserWord
+from zeeguu import RankedWord
+from zeeguu.model.bookmark import Bookmark
+from zeeguu.model.language import Language
+from zeeguu.model.user import User
 
 
 def set_default_exercise_based_prob():

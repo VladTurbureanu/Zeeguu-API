@@ -2,6 +2,7 @@
 
 # Always must be imported first
 # it sets the test DB
+import zeeguu.model.ranked_word
 from zeeguu.the_librarian.website_recommender import recent_domains_with_times, frequent_domains
 
 __author__ = 'mircea'
@@ -10,7 +11,8 @@ import zeeguu_testcase
 from zeeguu_testcase import ZeeguuTestCase
 import unittest
 from zeeguu import model, db
-from zeeguu.api.model_core import UserWord, Language
+from zeeguu.model.user_word import UserWord
+from zeeguu.model.language import Language
 import datetime
 import random
 import zeeguu
@@ -87,7 +89,7 @@ class Dbtest(ZeeguuTestCase):
 
     def test_preferred_words(self):
         word = "hauen"
-        if(zeeguu.api.model_core.RankedWord.exists(word.lower(), self.de)):
+        if(zeeguu.model.ranked_word.RankedWord.exists(word.lower(), self.de)):
             rank = model.UserWord.find_rank(word.lower(), self.de)
             someword = model.UserWord.find(word,self.de)
         else:
@@ -126,7 +128,7 @@ class Dbtest(ZeeguuTestCase):
 
     def test_importance_level(self):
         word = "beschloss"
-        if zeeguu.api.model_core.RankedWord.exists(word.lower(), self.de):
+        if zeeguu.model.ranked_word.RankedWord.exists(word.lower(), self.de):
             rank = model.UserWord.find_rank(word.lower(), self.de)
             new_word = model.UserWord.find(word,self.de)
         else:

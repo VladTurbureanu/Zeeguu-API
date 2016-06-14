@@ -12,7 +12,7 @@
 #
 
 from zeeguu.the_librarian.text import split_words_from_text
-from zeeguu.api.model_core import RankedWord
+from zeeguu.model.ranked_word import RankedWord
 
 
 REFERENCE_VOCABULARY_SIZE = 10000.0

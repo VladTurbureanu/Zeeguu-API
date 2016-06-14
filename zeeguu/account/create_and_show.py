@@ -11,8 +11,8 @@ from flask import flash
 import json
 import zeeguu
 import sqlalchemy.exc
-from zeeguu.api.model_core import Language
-from zeeguu.api.model_core import User
+from zeeguu.model.language import Language
+from zeeguu.model.user import User
 
 from zeeguu.account import acc
 

@@ -6,8 +6,13 @@ import zeeguu_testcase
 import unittest
 import zeeguu.populate
 import zeeguu.model
-from zeeguu.api.model_core import User, RankedWord, Text, Language, Url, \
-    Bookmark
+from zeeguu.model.url import Url
+from zeeguu.model.text import Text
+from zeeguu.model.bookmark import Bookmark
+from zeeguu.model.language import Language
+from zeeguu.model.user import User
+from zeeguu.model.ranked_word import RankedWord
+
 from zeeguu import util
 import json
 import re
@@ -40,7 +45,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         self.api_post('/bookmark_with_context/de/sondern/en/but', form_data)
 
         with zeeguu.app.app_context():
-            t = zeeguu.model.Url.find("android:app","Songs by Iz")
+            t = zeeguu.model.url.Url.find("android:app","Songs by Iz")
             assert t
 
         bookmarks = self.json_from_api_get('/get_learned_bookmarks/de')

@@ -1,7 +1,8 @@
 from functools import wraps
 import flask
 from zeeguu.gym import gym
-from zeeguu.api.model_core import User
+from zeeguu.model.user import User
+
 
 @gym.before_request
 def setup():
