@@ -9,7 +9,6 @@ class RSSFeed(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}
     __tablename__ = 'rss_feed'
 
-
     id = db.Column(db.Integer, primary_key=True)
 
     title = db.Column(db.String(2083))
@@ -67,6 +66,10 @@ class RSSFeed(db.Model):
                                 .one())
         except sqlalchemy.orm.exc.NoResultFound:
             return cls(url, title, description, image_url, language)
+
+    @classmethod
+    def find_for_language_id(cls, language_id):
+        return cls.query.filter(cls.language_id == language_id).all()
 
 
 

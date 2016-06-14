@@ -924,6 +924,28 @@ def get_feed_items_for(feed_id):
     return json_result(registration.rss_feed.feed_items())
 
 
+@api.route("/interesting_feeds/<language_id>", methods=("GET",))
+@cross_domain
+@with_session
+def get_interesting_feeds_for_language_id(language_id):
+    """
+    Get a list of feeds for the given language
+
+    :return:
+    """
+    feed_data = []
+    for feed in RSSFeed.find_for_language_id(language_id):
+        feed_data.append(
+            dict(
+                feed_id = feed.id,
+                feed_title = feed.title,
+                feed_url = feed.url.as_string(),
+                popularity = 1
+            )
+        )
+    return json_result(feed_data)
+
+
 @api.route("/get_possible_translations/<from_lang_code>/<to_lang_code>", methods=["POST"])
 @cross_domain
 @with_session

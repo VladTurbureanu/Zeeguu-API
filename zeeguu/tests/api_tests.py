@@ -574,6 +574,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         bookmark1 = self.json_from_api_post('/translate_and_bookmark/de/en', form_data)
         bookmark2 = self.json_from_api_post('/translate_and_bookmark/de/en', form_data)
         bookmark3  = self.json_from_api_post('/translate_and_bookmark/de/en', form_data)
+        print bookmark3
 
         assert (bookmark1["bookmark_id"] == bookmark2["bookmark_id"] == bookmark3["bookmark_id"])
 
@@ -627,7 +628,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
         urls_to_test = ["http://derspiegel.de",
                         "http://tageschau.de",
-                        "http://derbund.ch",
                         "http://zeit.de",
                         "http://www.handelsblatt.com"]
 
@@ -698,6 +698,14 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert len(feed_items) > 0
         assert feed_items[0]["title"]
         assert feed_items[0]["summary"]
+
+    def test_get_interesting_feeds(self):
+
+        self.start_following_feeds()
+        # After this test, we will have two feeds for the user
+
+        interesting_feeds = self.json_from_api_get("interesting_feeds/de")
+        assert len(interesting_feeds) > 0
 
 
 
