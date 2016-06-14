@@ -7,7 +7,7 @@ import flask
 import zeeguu
 from zeeguu.gym import gym
 from zeeguu.account import acc
-import zeeguu.api.endpoints
+import zeeguu.api
 
 
 class CrossDomainApp(flask.Flask):
