@@ -6,6 +6,19 @@ from zeeguu.api.route_wrappers import cross_domain, with_session
 from zeeguu.api.json_result import json_result
 
 
+@api.route("/get_user_details", methods=("GET",))
+@cross_domain
+@with_session
+def get_user_details():
+    """
+    after the login, this information might be useful to be displayed
+    by an app
+    :param lang_code:
+    :return:
+    """
+    return json_result(flask.g.user.details_as_dictionary())
+
+
 @api.route("/learned_language", methods=["GET"])
 @cross_domain
 @with_session

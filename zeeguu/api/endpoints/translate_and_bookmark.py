@@ -193,3 +193,69 @@ def get_translations_for_bookmark(bookmark_id):
         for translation in bookmark.translations_list]
 
     return json_result(result)
+
+
+@api.route("/get_possible_translations/<from_lang_code>/<to_lang_code>", methods=["POST"])
+@cross_domain
+@with_session
+def get_possible_translations(from_lang_code, to_lang_code):
+    """
+    Returns a list of possible translations for this
+    :param word: word to be translated
+    :param from_lang_code:
+    :param to_lang_code:
+    :return: json array with dictionaries. each of the dictionaries contains at least
+        one 'translation' and one 'translation_id' key.
+
+        In the future we envision that the dict will contain
+        other types of information, such as relative frequency,
+    """
+
+    translations_json = []
+    context = request.form.get('context', '')
+    url = request.form.get('url', '')
+    word = request.form['word']
+
+    main_translation, alternatives = zeeguu.api.translation_service.translate_from_to(word, from_lang_code, to_lang_code)
+
+    lan = Language.find(from_lang_code)
+    likelihood = 1.0
+    for translation in alternatives:
+        wor = UserWord.find(translation, lan)
+        zeeguu.db.session.add(wor)
+        zeeguu.db.session.commit()
+        t_dict = dict(translation_id= wor.id,
+                 translation=translation,
+                 likelihood=likelihood)
+        translations_json.append(t_dict)
+        likelihood -= 0.01
+
+    return json_result(dict(translations=translations_json))
+
+
+# Warning:
+# Might be deprecated at some point... or at least, reduced to translating single words...
+# It would make more sense to use translate_and_bookmark instead
+#
+# Sincerely your's,
+# Tom Petty and the Zeeguus
+
+@api.route("/translate/<from_lang_code>/<to_lang_code>", methods=["POST"])
+@cross_domain
+def translate(from_lang_code, to_lang_code):
+    """
+    This will be deprecated soon...
+    # TODO: Zeeguu Translate for Android should stop relying on this
+    :param word:
+    :param from_lang_code:
+    :param to_lang_code:
+    :return:
+    """
+
+    # print str(request.get_data())
+    context = request.form.get('context', '')
+    url = request.form.get('url', '')
+    word = request.form['word']
+    main_translation, alternatives = zeeguu.api.translation_service.translate_from_to(word, from_lang_code, to_lang_code)
+
+    return main_translation
