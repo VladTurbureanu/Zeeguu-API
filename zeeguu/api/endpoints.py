@@ -19,33 +19,28 @@ import datetime
 import feedparser
 import flask
 import sqlalchemy.exc
+from flask import request
 
-import zeeguu
 import translation_service
-
-from route_wrappers import cross_domain, with_session, json_result
+import zeeguu
 from feedparser_extensions import two_letter_language_code, list_of_feeds_at_url
-from zeeguu.model.exercise import Exercise
-from zeeguu.model.exercise_outcome import ExerciseOutcome
-from zeeguu.model.exercise_source import ExerciseSource
-from zeeguu.model.user_word import UserWord
-from zeeguu.model.bookmark import Bookmark
-from zeeguu.model.language import Language
-from zeeguu.api.model_core import Session
-from zeeguu.model.url import Url
-from zeeguu.model.text import Text
-from zeeguu.model.known_word_probability import KnownWordProbability
-from zeeguu.model.user import User
-from zeeguu.api.model_feeds import RSSFeed, RSSFeedRegistration
+from route_wrappers import cross_domain, with_session, json_result
+from zeeguu.model.session import Session
 from zeeguu.language.knowledge_estimator import SethiKnowledgeEstimator
 from zeeguu.language.text_difficulty import text_difficulty
 from zeeguu.language.text_learnability import text_learnability
-
-
-from flask import request
-
+from zeeguu.model.bookmark import Bookmark
+from zeeguu.model.exercise import Exercise
+from zeeguu.model.exercise_outcome import ExerciseOutcome
+from zeeguu.model.exercise_source import ExerciseSource
+from zeeguu.model.known_word_probability import KnownWordProbability
+from zeeguu.model.language import Language
+from zeeguu.model.feeds import RSSFeed, RSSFeedRegistration
+from zeeguu.model.text import Text
+from zeeguu.model.url import Url
+from zeeguu.model.user import User
+from zeeguu.model.user_word import UserWord
 from zeeguu.the_librarian.page_content_extractor import PageExtractor
-
 
 api = flask.Blueprint("api", __name__)
 
@@ -942,14 +937,7 @@ def get_interesting_feeds_for_language_id(language_id):
     """
     feed_data = []
     for feed in RSSFeed.find_for_language_id(language_id):
-        feed_data.append(
-            dict(
-                feed_id = feed.id,
-                feed_title = feed.title,
-                feed_url = feed.url.as_string(),
-                popularity = 1
-            )
-        )
+        feed_data.append(feed.as_dictionary())
     return json_result(feed_data)
 
 

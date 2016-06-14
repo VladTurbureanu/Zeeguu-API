@@ -1,8 +1,7 @@
 import functools
 import json
 import flask
-from zeeguu.api.model_core import Session
-
+from zeeguu.model.session import Session
 
 
 def with_session(view):

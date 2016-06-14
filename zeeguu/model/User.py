@@ -1,5 +1,6 @@
 import random
 
+from sqlalchemy import Column, Table, ForeignKey, Integer
 import sqlalchemy.orm
 from sqlalchemy.orm import relationship
 
@@ -7,6 +8,10 @@ from zeeguu import db, util
 from zeeguu.model.language import Language
 import datetime
 
+starred_words_association_table = Table('starred_words_association', db.Model.metadata,
+    Column('user_id', Integer, ForeignKey('user.id')),
+    Column('starred_word_id', Integer, ForeignKey('user_word.id'))
+)
 
 class User(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}

@@ -26,6 +26,7 @@ strassen_example_form_data = dict(
     url='http://mir.lu',
     context='chilling on the streets')
 
+
 class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_logout(self):
@@ -710,8 +711,11 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         # After this test, we will have two feeds for the user
 
         interesting_feeds = self.json_from_api_get("interesting_feeds/de")
+        first_feed = interesting_feeds[0]
+        assert first_feed["id"]
+        assert first_feed["title"]
+        assert first_feed["url"]
         assert len(interesting_feeds) > 0
-
 
 
 if __name__ == '__main__':

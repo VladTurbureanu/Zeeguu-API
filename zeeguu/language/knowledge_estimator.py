@@ -9,9 +9,6 @@ from zeeguu.model.language import Language
 from zeeguu.model.ranked_word import RankedWord
 
 
-# import zeeguu
-
-
 class SethiKnowledgeEstimator(object):
     """
     Computes statistics about this user.
