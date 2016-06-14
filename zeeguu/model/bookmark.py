@@ -27,6 +27,8 @@ bookmark_exercise_mapping = Table('bookmark_exercise_mapping', db.Model.metadata
     Column('exercise_id', Integer, ForeignKey('exercise.id'))
 )
 
+WordAlias = db.aliased(UserWord, name="translated_word")
+
 
 class Bookmark(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_bin'}

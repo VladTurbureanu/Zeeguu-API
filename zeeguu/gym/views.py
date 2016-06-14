@@ -10,7 +10,6 @@ from zeeguu.model.user_word import UserWord
 from zeeguu.model.bookmark import Bookmark
 from zeeguu.model.user import User
 from zeeguu.gym.model import Card
-from zeeguu.api.model_core import db
 import datetime
 
 from zeeguu.gym import gym
