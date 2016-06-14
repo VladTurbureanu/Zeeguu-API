@@ -2,10 +2,6 @@
 
 
 from zeeguu import db
-from zeeguu.model.user_word import UserWord
-
-
-WordAlias = db.aliased(UserWord, name="translated_word")
 
 
 class Search(db.Model):

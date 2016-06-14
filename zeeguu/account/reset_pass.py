@@ -10,7 +10,7 @@ from flask import flash
 import zeeguu
 from zeeguu import db
 
-from zeeguu.account.model import UniqueCode
+from zeeguu.model.unique_code import UniqueCode
 
 # the account blueprint is defined in the __init__ of the module
 from zeeguu.account import acc
