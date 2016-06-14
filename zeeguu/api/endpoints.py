@@ -940,7 +940,7 @@ def get_interesting_feeds_for_language_id(language_id):
                 feed_id = feed.id,
                 feed_title = feed.title,
                 feed_url = feed.url.as_string(),
-                popularity = 1
+                popularity = 1  
             )
         )
     return json_result(feed_data)
