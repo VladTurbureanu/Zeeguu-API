@@ -1,5 +1,8 @@
 # Always must be imported first
 # it sets the test DB
+from zeeguu.model.bookmark import Bookmark
+from zeeguu.model.smartwatch.watch_interaction_event import WatchInteractionEvent
+
 __author__ = 'mircea'
 import zeeguu_testcase
 
@@ -13,7 +16,7 @@ import unittest
 from zeeguu import model, db
 from zeeguu.model.user_word import UserWord
 from zeeguu.model.language import Language
-import datetime
+from datetime import datetime
 import random
 import zeeguu
 
@@ -208,6 +211,19 @@ class Dbtest(zeeguu_testcase.ZeeguuTestCase):
 
         retrieved = WatchEventType.find_by_name("glance")
         assert (retrieved.name == "glance")
+        return retrieved
+
+    def test_watch_event(self):
+        glance = self.test_watch_event_type()
+        a_bookmark = Bookmark.find(1)
+
+        new_glance = WatchInteractionEvent(glance, 1, datetime.now())
+        db.session.add(new_glance)
+        db.session.commit()
+
+        assert len(WatchInteractionEvent.events_for_bookmark(a_bookmark)) == 1
+
+
 
 
 

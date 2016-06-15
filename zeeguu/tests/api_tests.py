@@ -717,6 +717,22 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert first_feed["url"]
         assert len(interesting_feeds) > 0
 
+    def test_upload_events(self):
+        events = [
+            dict(
+                bookmark_id=1,
+                time="2016-05-05T10:10:10",
+                event="Glance"
+            ),
+            dict(
+                bookmark_id=2,
+                time="2016-06-05T11:10:10",
+                event="Glance"
+            )
+        ]
+        result = self.api_post('/upload_smartwatch_events', dict(events=json.dumps(events)))
+        print result
+
 
 if __name__ == '__main__':
     # unittest.main()

@@ -7,6 +7,7 @@ from zeeguu.api.endpoints import endpoints
 from zeeguu.api.endpoints import exercises
 from zeeguu.api.endpoints import feeds
 from zeeguu.api.endpoints import sessions
+from zeeguu.api.endpoints import smartwatch
 from zeeguu.api.endpoints import system_languages
 from zeeguu.api.endpoints import text_analysis
 from zeeguu.api.endpoints import translate_and_bookmark
