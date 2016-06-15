@@ -26,6 +26,9 @@ class WatchInteractionEvent(db.Model):
     def events_for_bookmark(cls, bookmark):
         return cls.query.filter_by(bookmark_id=bookmark.id).all()
 
+    @classmethod
+    def events_for_bookmark_id(cls, bookmark_id):
+        return cls.query.filter_by(bookmark_id=bookmark_id).all()
 
 
 

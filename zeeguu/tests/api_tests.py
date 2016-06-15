@@ -6,6 +6,7 @@ import zeeguu_testcase
 import unittest
 import zeeguu.populate
 import zeeguu.model
+from zeeguu.model.smartwatch.watch_interaction_event import WatchInteractionEvent
 from zeeguu.model.url import Url
 from zeeguu.model.text import Text
 from zeeguu.model.bookmark import Bookmark
@@ -718,6 +719,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert len(interesting_feeds) > 0
 
     def test_upload_events(self):
+        # Create a test array with two glances, one after the other
         events = [
             dict(
                 bookmark_id=1,
@@ -725,13 +727,19 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                 event="Glance"
             ),
             dict(
-                bookmark_id=2,
-                time="2016-06-05T11:10:10",
+                bookmark_id=1,
+                time="2016-06-05T10:10:11",
                 event="Glance"
             )
         ]
         result = self.api_post('/upload_smartwatch_events', dict(events=json.dumps(events)))
-        print result
+        assert (result.data == "OK")
+
+        with zeeguu.app.app_context():
+            events = WatchInteractionEvent.events_for_bookmark_id(1)
+            first_glance = events[0]
+            second_glance = events[1]
+            assert first_glance.time < second_glance.time
 
 
 if __name__ == '__main__':
