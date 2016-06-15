@@ -119,41 +119,50 @@ class Bookmark(db.Model):
         return known_word_prob
 
     def calculate_probabilities_after_adding_a_bookmark(self, user,language):
-        # computations for adding encounter based probability
-        for word in self.context_words_with_rank():
-            enc_prob = EncounterBasedProbability.find_or_create(word,user)
-            zeeguu.db.session.add(enc_prob)
-            zeeguu.db.session.commit()
-            user_word = None
-            ranked_word = enc_prob.ranked_word
-            if UserWord.exists(word,language):
-                user_word = UserWord.find(word,language)
-                if ExerciseBasedProbability.exists(user,user_word): #checks if exercise based probability exists for words in context
-                    ex_prob = ExerciseBasedProbability.find(user,user_word)
-                    known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word)
-                    known_word_prob_1.probability = known_word_prob_1.calculateKnownWordProb(ex_prob, enc_prob) #updates known word probability as exercise based probability already existed.
-            else:
-                if KnownWordProbability.exists(user, user_word,ranked_word):
-                    known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word)
-                    known_word_prob_1.probability = enc_prob.probability # updates known word probability as encounter based probability already existed
+        try:
+            # computations for adding encounter based probability
+            for word in self.context_words_with_rank():
+                enc_prob = EncounterBasedProbability.find_or_create(word,user)
+                zeeguu.db.session.add(enc_prob)
+                zeeguu.db.session.commit()
+                user_word = None
+                ranked_word = enc_prob.ranked_word
+                if UserWord.exists(word,language):
+                    user_word = UserWord.find(word,language)
+                    if ExerciseBasedProbability.exists(user,user_word): #checks if exercise based probability exists for words in context
+                        ex_prob = ExerciseBasedProbability.find(user,user_word)
+                        known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word)
+                        known_word_prob_1.probability = known_word_prob_1.calculateKnownWordProb(ex_prob.probability, enc_prob.probability) #updates known word probability as exercise based probability already existed.
                 else:
-                    known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word, enc_prob.probability) # new known word probability created as it did not exist
-                    zeeguu.db.session.add(known_word_prob_1)
+                    if KnownWordProbability.exists(user, user_word,ranked_word):
+                        known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word)
+                        known_word_prob_1.probability = enc_prob.probability # updates known word probability as encounter based probability already existed
+                    else:
+                        known_word_prob_1 = KnownWordProbability.find(user,user_word,ranked_word, enc_prob.probability) # new known word probability created as it did not exist
+                        zeeguu.db.session.add(known_word_prob_1)
 
-        # computations for adding exercise based probability
-        enc_prob = None
-        ex_prob = ExerciseBasedProbability.find(user, self.origin)
-        if RankedWord.exists(self.origin.word, language): #checks if ranked_word exists for that looked up word
-            ranked_word = RankedWord.find(self.origin.word, language)
-            if EncounterBasedProbability.exists(user, ranked_word): # checks if encounter based probability exists for that looked up word
-                enc_prob = EncounterBasedProbability.find(user, ranked_word)
-                enc_prob.reset_prob() # reset encounter based probability to 0.5
-            if ExerciseBasedProbability.exists(user, self.origin):
-                ex_prob.update_probability_after_adding_bookmark_with_same_word(self,user)
-            zeeguu.db.session.add(ex_prob)
-            known_word_prob_2 = self.calculate_known_word_probability_after_adding_exercise_based_probability(ex_prob,enc_prob, user)
-            zeeguu.db.session.add(known_word_prob_2)
-            zeeguu.db.session.commit()
+            # computations for adding exercise based probability
+            enc_prob = None
+            ex_prob = ExerciseBasedProbability.find(user, self.origin)
+            if RankedWord.exists(self.origin.word, language): #checks if ranked_word exists for that looked up word
+                ranked_word = RankedWord.find(self.origin.word, language)
+                if EncounterBasedProbability.exists(user, ranked_word): # checks if encounter based probability exists for that looked up word
+                    enc_prob = EncounterBasedProbability.find(user, ranked_word)
+                    enc_prob.reset_prob() # reset encounter based probability to 0.5
+                if ExerciseBasedProbability.exists(user, self.origin):
+                    ex_prob.update_probability_after_adding_bookmark_with_same_word(self,user)
+                zeeguu.db.session.add(ex_prob)
+                # ML: TODO: This seems to break sometimes.
+                # To Investigate
+                known_word_prob_2 = self.calculate_known_word_probability_after_adding_exercise_based_probability(ex_prob.probability,enc_prob.probability, user)
+                zeeguu.db.session.add(known_word_prob_2)
+                zeeguu.db.session.commit()
+        except Exception as e:
+            print(sys.exc_info()[0])
+
+
+
+
 
     @classmethod
     def find_by_specific_user(cls, user):
