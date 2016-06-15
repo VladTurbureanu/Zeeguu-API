@@ -1,14 +1,14 @@
-
-
 # Always must be imported first
 # it sets the test DB
-import zeeguu.model.ranked_word
-from zeeguu.the_librarian.website_recommender import recent_domains_with_times, frequent_domains
-
 __author__ = 'mircea'
 import zeeguu_testcase
 
-from zeeguu_testcase import ZeeguuTestCase
+
+import zeeguu.model.ranked_word
+from zeeguu.model.smartwatch.watch_event_type import WatchEventType
+from zeeguu.model.user import User
+from zeeguu.the_librarian.website_recommender import recent_domains_with_times, frequent_domains
+
 import unittest
 from zeeguu import model, db
 from zeeguu.model.user_word import UserWord
@@ -18,21 +18,21 @@ import random
 import zeeguu
 
 
-class Dbtest(ZeeguuTestCase):
+class Dbtest(zeeguu_testcase.ZeeguuTestCase):
 
     def setUp(self):
         # Superclass does prepare the DB before each of the tests
         super(Dbtest, self).setUp()
 
         # Some common test fixtures
-        self.mir = model.User.find("i@mir.lu")
+        self.mir = User.find("i@mir.lu")
         assert self.mir
         self.de = Language.find("de")
 
     def tearDown(self):
+        super(Dbtest, self).tearDown()
         self.de = None #if we don't do this, the test holds onto this object across runs sometimes, and
         # this messes up the test db initialization. two hours well spent... aiii iaaa!
-
         self.mir = None
 
     def test_languages_exists(self):
@@ -63,7 +63,7 @@ class Dbtest(ZeeguuTestCase):
 
     def test_add_new_word_to_DB(self):
         word = "baum"
-        rank = model.UserWord.find_rank(word, self.de)
+        rank = UserWord.find_rank(word, self.de)
         new_word = UserWord(word, self.de, rank)
 
         db.session.add(new_word)
@@ -198,6 +198,18 @@ class Dbtest(ZeeguuTestCase):
 
         d = model.DomainName.find("https://mir.lu")
         print (d.domainNameString)
+
+    def test_watch_event_type(self):
+        retrieved = WatchEventType.find_by_name("glance")
+        if not retrieved:
+            retrieved = WatchEventType("glance")
+            db.session.add(retrieved)
+            db.session.commit()
+
+        retrieved = WatchEventType.find_by_name("glance")
+        assert (retrieved.name == "glance")
+
+
 
 
 

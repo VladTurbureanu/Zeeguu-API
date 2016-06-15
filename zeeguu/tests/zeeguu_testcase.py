@@ -14,14 +14,19 @@ TEST_EMAIL='i@mir.lu'
 import zeeguu
 import unittest
 import zeeguu.populate
-# _without_rank
-import zeeguu.model
 import json
 
 
 class ZeeguuTestCase(unittest.TestCase):
 
     def setUp(self):
+        # Flask can work with multiple apps. To know which of them
+        # is needed we explicitly set it here
+        zeeguu.db.app = zeeguu.app
+
+        # We have to do a commit() before the drop_all()
+        # Otherwise the system just freezes sometimes!
+        zeeguu.db.session.commit()
         # Initial cleanup
         zeeguu.db.drop_all(app=zeeguu.app)
         # Creating the tables again
@@ -36,6 +41,7 @@ class ZeeguuTestCase(unittest.TestCase):
     def tearDown(self):
         self.app = None
         self.session = None
+
 
     def login(self, email, password):
         return self.app.post('/login', data=dict(
