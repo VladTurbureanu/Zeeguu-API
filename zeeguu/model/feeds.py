@@ -69,8 +69,7 @@ class RSSFeed(db.Model):
 
     @classmethod
     def find_for_language_id(cls, language_id):
-        return cls.query.filter(cls.language_id == language_id).all()
-
+        return cls.query.filter(cls.language_id == language_id).group_by(cls.title).all()
 
 
 class RSSFeedRegistration(db.Model):
