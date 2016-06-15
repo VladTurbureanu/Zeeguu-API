@@ -14,16 +14,16 @@ from zeeguu.model.smartwatch.watch_event_type import WatchEventType
 @with_session
 def upload_smartwatch_events():
     """
-    This expects in apost parameter
+    This expects a post parameter named
 
-        :events:
+        events
 
-    which is a json array with elements of the form
+    which is a json array of dictionaries of the form:
 
         dict (
-            bookmark_id: 1,
-            time: 'YYYY-MM-DDTHH:MM:SS',
-            event: "Glance"
+                bookmark_id: 1,
+                time: 'YYYY-MM-DDTHH:MM:SS',
+                event: "Glance"
             }
 
     :return: OK or FAIL
