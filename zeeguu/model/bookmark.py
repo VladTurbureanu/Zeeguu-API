@@ -15,6 +15,7 @@ from zeeguu.model.exercise import Exercise
 from zeeguu.model.exercise_outcome import ExerciseOutcome
 from zeeguu.model.user_word import UserWord
 from zeeguu.model.ranked_word import RankedWord
+import sys
 
 
 bookmark_translation_mapping = Table('bookmark_translation_mapping', db.Model.metadata,
