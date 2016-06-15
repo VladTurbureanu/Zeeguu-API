@@ -196,11 +196,12 @@ def update_probabilities_for_word(word):
             if EncounterBasedProbability.exists(flask.g.user, ranked_word):
                 enc_prob = EncounterBasedProbability.find(flask.g.user, ranked_word)
                 known_word_prob = KnownWordProbability.find(flask.g.user, word, ranked_word)
-                print "known word prob before: " + str(known_word_prob.probability)
-                print "ex_prob: " + str(ex_prob.probability)
-                print "enc_prob: " + str(enc_prob.probability)
+                print "!known word prob before: " + str(known_word_prob.probability)
+                print "!ex_prob: " + str(ex_prob.probability)
+                print "!enc_prob: " + str(enc_prob.probability)
                 known_word_prob.probability = KnownWordProbability.calculateKnownWordProb(ex_prob.probability,
                                                                                           enc_prob.probability)
+                print "!known word prob after: " + str(known_word_prob.probability)
             else:
                 known_word_prob = KnownWordProbability.find(flask.g.user, word, ranked_word)
                 known_word_prob.probability = ex_prob.probability
@@ -209,4 +210,4 @@ def update_probabilities_for_word(word):
     except:
         print "failed to update probabilities for word with id: " + str(word.id)
 
-    print "successfully updated probabilities for word with id: " + str(word.id)
+    print "!successfully updated probabilities for word with id: " + str(word.id)
