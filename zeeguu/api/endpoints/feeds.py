@@ -74,9 +74,6 @@ def start_following_feeds():
         if "language" in feed:
             lan = Language.find(two_letter_language_code(feed))
 
-        if not "title" in feed:
-            feed.title = urlString
-
         url = Url.find(urlString)
         zeeguu.db.session.add(url)
         # Important to commit this url first; otherwise we end up creating
