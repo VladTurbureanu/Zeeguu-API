@@ -25,7 +25,7 @@ class KnownWordProbability(db.Model):
 
     @classmethod
     def calculateKnownWordProb(cls,exerciseProb, encounterProb):
-        return 0.8 * float(exerciseProb.probability) + 0.2 * float(encounterProb.probability)
+        return 0.8 * float(exerciseProb) + 0.2 * float(encounterProb)
 
     @classmethod
     def find(cls, user, user_word, ranked_word, probability=None):
