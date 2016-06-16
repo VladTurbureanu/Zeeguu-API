@@ -23,85 +23,87 @@
 
         <hr/>
 
-        <line_graph>  {% include "graphs/learner_graph/learner_graph.html" %}  </line_graph>
+        <!--<line_graph>  {% include "graphs/learner_graph/learner_graph.html" %}  </line_graph>-->
 
-        <hr/>
+        <!--<hr/>-->
+
+        <h3>Vocabulary Statistics</h3>
 
         <pie_graph>  {% include "graphs/learner_statistics_piechart/learner_statistics_piechart.html" %}  </pie_graph>
 
         <hr/>
 		
-        <h3>Vocabulary</h3>
+        <!--<h3>Vocabulary</h3>-->
 
-         <h4>
-            - Not Looked Up Words: {{ estimator.get_not_looked_up_words_count() }}
-        </h4>
+         <!--<h4>-->
+            <!-- - Not Looked Up Words: {{ estimator.get_not_looked_up_words_count() }}-->
+        <!--</h4>-->
 
-        <h5>
-              &nbsp;&nbsp;&nbsp; Words that were not looked up in a context where a word was bookmarked.
-        </h5>
+        <!--<h5>-->
+              <!--&nbsp;&nbsp;&nbsp; Words that were not looked up in a context where a word was bookmarked.-->
+        <!--</h5>-->
 
-        <h4>
-            - Not Encountered Words: {{ estimator.get_not_encountered_words_count() }}
-        </h4>
+        <!--<h4>-->
+            <!-- - Not Encountered Words: {{ estimator.get_not_encountered_words_count() }}-->
+        <!--</h4>-->
 
-        <h5>
-              &nbsp;&nbsp;&nbsp; Words that have been not encountered yet in the list of 10'000 words used in day to day life.
-        </h5>
-
-
-
-         <h4>
-            - Percentage of Basic Vocabulary Known: {{ estimator.get_lower_bound_percentage_of_basic_vocabulary()}}% - {{estimator.get_upper_bound_percentage_of_basic_vocabulary() }}%
-        </h4>
-
-        <h5>
-              &nbsp;&nbsp;&nbsp; Percentage of words you have learned looking at the top 3'000 words used in day to day life.
-        </h5>
-
-        <h4>
-            - Percentage of Extended Vocabulary Known: {{ estimator.get_lower_bound_percentage_of_extended_vocabulary()}}% - {{estimator.get_upper_bound_percentage_of_extended_vocabulary() }}%
-        </h4>
-
-        <h5>
-              &nbsp;&nbsp;&nbsp; Percentage of words you have learned looking at the top 10'000 words used in day to day life.
-        </h5>
-
-        <h3>
-            Bookmarks
-        </h3>
-
-        <h4>
-            - Words Being Learned: {{ user.bookmark_count() }}
-        </h4>
-        <h5>
-              &nbsp;&nbsp;&nbsp; Words that have been looked up and are saved in your profile.
-        </h5>
-
-        <h4>
-            - Probably Known Words: {{ estimator.get_probably_known_words_count() }}
-        </h4>
-
-        <h5>
-              &nbsp;&nbsp;&nbsp; Words that you probably have learned according to your performance in Zeeguu .
-        </h5>
-
-        <h4>
-            - Words Already Learned: {{ estimator.get_known_bookmarks_count() }}
-        </h4>
-
-        <h5>
-              &nbsp;&nbsp;&nbsp; Words that have been marked as Too Easy.
-        </h5>
+        <!--<h5>-->
+              <!--&nbsp;&nbsp;&nbsp; Words that have been not encountered yet in the list of 10'000 words used in day to day life.-->
+        <!--</h5>-->
 
 
-        <h4>
-            - Percentage of Probably Known Bookmarks: {{ estimator.get_percentage_of_probably_known_bookmarked_words() }}%
-        </h4>
 
-        <h5>
-              &nbsp;&nbsp;&nbsp; Percentage of bookmarks you probably have learned according to your performance in Zeeguu.
-        </h5>
+         <!--<h4>-->
+            <!-- - Percentage of Basic Vocabulary Known: {{ estimator.get_lower_bound_percentage_of_basic_vocabulary()}}% - {{estimator.get_upper_bound_percentage_of_basic_vocabulary() }}%-->
+        <!--</h4>-->
+
+        <!--<h5>-->
+              <!--&nbsp;&nbsp;&nbsp; Percentage of words you have learned looking at the top 3'000 words used in day to day life.-->
+        <!--</h5>-->
+
+        <!--<h4>-->
+            <!-- - Percentage of Extended Vocabulary Known: {{ estimator.get_lower_bound_percentage_of_extended_vocabulary()}}% - {{estimator.get_upper_bound_percentage_of_extended_vocabulary() }}%-->
+        <!--</h4>-->
+
+        <!--<h5>-->
+              <!--&nbsp;&nbsp;&nbsp; Percentage of words you have learned looking at the top 10'000 words used in day to day life.-->
+        <!--</h5>-->
+
+        <!--<h3>-->
+            <!--Bookmarks-->
+        <!--</h3>-->
+
+        <!--<h4>-->
+            <!-- - Words Being Learned: {{ user.bookmark_count() }}-->
+        <!--</h4>-->
+        <!--<h5>-->
+              <!--&nbsp;&nbsp;&nbsp; Words that have been looked up and are saved in your profile.-->
+        <!--</h5>-->
+
+        <!--<h4>-->
+            <!-- - Probably Known Words: {{ estimator.get_probably_known_words_count() }}-->
+        <!--</h4>-->
+
+        <!--<h5>-->
+              <!--&nbsp;&nbsp;&nbsp; Words that you probably have learned according to your performance in Zeeguu .-->
+        <!--</h5>-->
+
+        <!--<h4>-->
+            <!-- - Words Already Learned: {{ estimator.get_known_bookmarks_count() }}-->
+        <!--</h4>-->
+
+        <!--<h5>-->
+              <!--&nbsp;&nbsp;&nbsp; Words that have been marked as Too Easy.-->
+        <!--</h5>-->
+
+
+        <!--<h4>-->
+            <!-- - Percentage of Probably Known Bookmarks: {{ estimator.get_percentage_of_probably_known_bookmarked_words() }}%-->
+        <!--</h4>-->
+
+        <!--<h5>-->
+              <!--&nbsp;&nbsp;&nbsp; Percentage of bookmarks you probably have learned according to your performance in Zeeguu.-->
+        <!--</h5>-->
 
 
 

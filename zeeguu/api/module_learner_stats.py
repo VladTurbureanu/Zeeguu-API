@@ -47,7 +47,8 @@ def compute_learner_stats_after(user, learner_stats_before):
         current_bookmark_month = int(bookmark.time.strftime("%m"))
         index = (current_bookmark_month - current_month) % 12
 
-        learned = is_bookmark_word_learned(bookmark, datetime.datetime(current_year, index + 1, days_in_month))
+        learned = is_bookmark_word_learned(bookmark, datetime.datetime(current_year, index + 1, 28))
+
         if learned:
             learned_stats_after[index] += 1
         else:
