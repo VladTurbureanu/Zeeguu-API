@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+    <link rel="stylesheet" type="text/css"
+          href=" {{ url_for('static', filename='css/graphs/learner_statistics_piechart/learner_statistics_piechart.css') }} ">
+</head>
+
+<body>
+
+<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+<script>
+
+    var learner_statistics_data = [
+        {
+            "label": "Not Looked Up",
+            "value": {{ estimator.get_not_looked_up_words_count() }}
+        },
+        {
+            "label": "Not Encountered",
+            "value": {{ estimator.get_not_encountered_words_count() }}
+        },
+        {
+            "label": "Being Learned",
+            "value": {{ user.bookmark_count() }}
+        },
+        {
+            "label": "Probably Known",
+            "value": {{ estimator.get_probably_known_words_count() }}
+        },
+        {
+            "label": "Already Learned",
+            "value": {{ estimator.get_known_bookmarks_count() }}
+        }
+    ];
+
+    var width = 680;
+    var height = 350;
+    var radius = Math.min(width, height) / 2;
+    var pie_slice_color = d3.scale.category20c();
+
+    var pie_graph = d3.select('pie_graph')
+            .append("svg:svg")
+            .data([learner_statistics_data])
+            .attr("width", width)
+            .attr("height", height)
+            .append("svg:g")
+            .attr("transform", "translate(" + radius + "," + radius + ")");
+
+    var pie = d3.layout.pie().value(function (entry) {
+        return entry.value;
+    });
+
+    // declare an arc generator function
+    // circular arc is a curved boundary of length L from a circular sector(slice).
+    var arc = d3.svg.arc().outerRadius(radius);
+
+    // select paths, use arc generator to draw
+    var arcs = pie_graph.selectAll("g.slice")
+            .data(pie).enter()
+            .append("svg:g")
+            .attr("class", "arc");
+
+    // draw the slices
+    arcs.append("svg:path")
+            .attr("fill", function (entry, index) {
+                return pie_slice_color(index);
+            })
+            .attr("d", function (entry) {
+                return arc(entry);
+            });
+
+    // add the text
+    arcs.append("svg:text")
+            .attr("transform", function (entry) {
+                entry.innerRadius = radius/2.5;
+                entry.outerRadius = radius;
+                return "translate(" + arc.centroid(entry) + ")";
+            })
+            .attr("text-anchor", "middle")
+            .text(function (entry, index) {
+                if (entry.value > 0)
+                    return learner_statistics_data[index].label;
+                return ""
+            });
+
+</script>

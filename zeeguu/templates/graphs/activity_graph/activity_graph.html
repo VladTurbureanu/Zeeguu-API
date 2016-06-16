@@ -3,12 +3,12 @@
 
 <head>
     <link rel="stylesheet" type="text/css"
-          href=" {{ url_for('static', filename='css/activity_graph/activity_graph.css') }} ">
+          href=" {{ url_for('static', filename='css/graphs/activity_graph/activity_graph.css') }} ">
 </head>
 
 <body>
 
-<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
 <script>
 
@@ -51,7 +51,7 @@
     var graph_table_x = (width - cellSize * week_count_in_year) / 2;
     var graph_table_y = height - cellSize * day_count_in_week - 1;
 
-    var activity_graph = d3.select("graph").selectAll("svg")
+    var activity_graph = d3.select("activity_graph").selectAll("svg")
             .data(d3.range(year, year + 1))
             .enter().append("svg")
             .attr("width", width)
