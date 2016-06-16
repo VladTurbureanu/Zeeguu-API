@@ -17,12 +17,12 @@ def upload_user_activity_data():
     for submitting a user id.
 
     There are four elements that can be submitted for
-    an user activity event:
+    an user activity event. Within an example they are:
 
-            time: 'YYYY-MM-DDTHH:MM:SS',
-            event: "user used app",
-            value: "1sec",
-            extra_data: "{times: 1 sec}"
+            time: '2016-05-05T10:11:12',
+            event: "User Looked at Article",
+            value: "300s",
+            extra_data: "{article_source: 2, ...}"
 
     All these four elements have to be submitted as POST
     arguments
