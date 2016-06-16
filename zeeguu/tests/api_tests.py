@@ -742,6 +742,17 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             assert first_glance.time < second_glance.time
 
 
+    def test_upload_user_activity(self):
+        event = dict(
+                time="2016-05-05T10:10:10",
+                event="Reading",
+                value="200",
+                extra_data="seconds"
+            )
+        result = self.api_post('/upload_user_activity_data', event)
+        assert (result.data == "OK")
+
+
 if __name__ == '__main__':
     # unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(API_Tests)

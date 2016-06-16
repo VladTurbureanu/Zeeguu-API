@@ -1,11 +1,11 @@
 # Always must be imported first
 # it sets the test DB
-from zeeguu.model.bookmark import Bookmark
-from zeeguu.model.smartwatch.watch_interaction_event import WatchInteractionEvent
-
 __author__ = 'mircea'
 import zeeguu_testcase
 
+from zeeguu.model.bookmark import Bookmark
+from zeeguu.model.smartwatch.watch_interaction_event import WatchInteractionEvent
+from zeeguu.model.user_activitiy_data import UserActivityData
 
 import zeeguu.model.ranked_word
 from zeeguu.model.smartwatch.watch_event_type import WatchEventType
@@ -223,6 +223,15 @@ class Dbtest(zeeguu_testcase.ZeeguuTestCase):
 
         assert len(WatchInteractionEvent.events_for_bookmark(a_bookmark)) == 1
 
+    def test_user_activity_data(self):
+        uad = UserActivityData(self.mir,
+                               datetime.now(),
+                               "reading",
+                               "1200",
+                               "")
+        assert uad.event == "reading"
+        db.session.add(uad)
+        db.session.commit()
 
 
 
