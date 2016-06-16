@@ -44,7 +44,6 @@ def populate(from_, to, dict_file):
                 orig.translations.append(trans)
 
 
-
 def filter_word_list(word_list):
     filtered_word_list = []
     lowercase_word_list = []
@@ -78,6 +77,7 @@ def test_word_list(lang_code):
     words_list = words_file.read().splitlines()
     return words_list
 
+
 def add_ranked_word_to_db(lang_code):
     zeeguu.app.test_request_context().push()
     zeeguu.db.session.commit()
@@ -97,6 +97,7 @@ def clean_word(word):
         return word.decode("utf8")
     return match.group(1).decode("utf8")
 
+
 def add_bookmark(user, original_language, original_word, translation_language, translation_word,  date, the_context, the_url, the_url_title):
 
     url = Url.find (the_url)
@@ -106,12 +107,12 @@ def add_bookmark(user, original_language, original_word, translation_language, t
         rank1 = UserWord.find_rank(original_word.lower(), original_language)
         w1 = UserWord(original_word, original_language,rank1)
     else:
-        w1  = UserWord(original_word, original_language,None)
+        w1 = UserWord(original_word, original_language,None)
     if RankedWord.exists(translation_word.lower(), translation_language):
         rank2 = UserWord.find_rank(translation_word.lower(), translation_language)
         w2 = UserWord(translation_word, translation_language,rank2)
     else:
-        w2  = UserWord(translation_word, translation_language,None)
+        w2 = UserWord(translation_word, translation_language,None)
 
     zeeguu.db.session.add(url)
     zeeguu.db.session.add(text)
@@ -122,6 +123,7 @@ def add_bookmark(user, original_language, original_word, translation_language, t
 
     zeeguu.db.session.commit()
     add_probability_to_existing_words_of_user(user,t1,original_language)
+
 
 def add_probability_to_existing_words_of_user(user,bookmark,language):
     bookmark.calculate_probabilities_after_adding_a_bookmark(user,language)
@@ -152,7 +154,6 @@ def create_test_db():
     zeeguu.db.session.add(ro)
     zeeguu.db.session.commit()
 
-
     show_solution = ExerciseOutcome("Show solution")
     retry = ExerciseOutcome("Retry")
     correct = ExerciseOutcome("Correct")
@@ -174,7 +175,6 @@ def create_test_db():
     zeeguu.db.session.add(recognize)
     zeeguu.db.session.add(translate)
     zeeguu.db.session.add(zeekoe)
-
 
     user = User("i@mir.lu", "Mircea", "pass", de, ro)
     user2 = User("i@ada.lu", "Ada", "pass", fr)
@@ -199,7 +199,6 @@ def create_test_db():
         'besteht':'smtg. exists'
     }
 
-
     dict = {
             u'Spaß': 'fun',
             'solche': 'suchlike',
@@ -208,8 +207,6 @@ def create_test_db():
             'Ufer':'shore',
             u'höchstens':'at most'
             }
-
-
 
     french_dict = {
         'jambes':'legs',
@@ -231,8 +228,6 @@ def create_test_db():
             ['Entsetzen','horror','Entsetzt starrte Teramichi auf die Wolke',story_url]
         ]
 
-
-
     add_ranked_word_to_db('de')
 
     for key in today_dict:
@@ -248,7 +243,6 @@ def create_test_db():
                          "http://url1", "title of url1")
     for w in japanese_story:
         add_bookmark(user, de, w[0], en, w[1],jan14, w[2],w[3], "japanese story")
-
 
     zeeguu.db.session.commit()
 
