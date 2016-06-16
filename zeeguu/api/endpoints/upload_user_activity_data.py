@@ -20,7 +20,7 @@ def upload_user_activity_data():
     an user activity event. Within an example they are:
 
             time: '2016-05-05T10:11:12',
-            event: "User Looked at Article",
+            event: "User Read Article",
             value: "300s",
             extra_data: "{article_source: 2, ...}"
 
