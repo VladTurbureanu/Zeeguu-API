@@ -11,6 +11,7 @@ from zeeguu.api.endpoints import smartwatch
 from zeeguu.api.endpoints import system_languages
 from zeeguu.api.endpoints import text_analysis
 from zeeguu.api.endpoints import translate_and_bookmark
+from zeeguu.api.endpoints import upload_user_activity_data
 from zeeguu.api.endpoints import user_data
 from zeeguu.api.endpoints import user_settings
 from zeeguu.api.endpoints import user_statistics
