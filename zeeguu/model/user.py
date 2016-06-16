@@ -90,11 +90,12 @@ class User(db.Model):
         )
         self.password = util.password_hash(password, self.password_salt)
 
-    def all_bookmarks(self, after_date=datetime.datetime(1970,1,1)):
+    def all_bookmarks(self, after_date=datetime.datetime(1970,1,1), before_date=datetime.date):
         from zeeguu.model.bookmark import Bookmark
         return Bookmark.query.\
             filter_by(user_id=self.id).\
-            filter(Bookmark.time >= after_date).\
+            filter(Bookmark.time >= after_date). \
+            filter(Bookmark.time <= before_date). \
             order_by(Bookmark.time.desc()).all()
 
     def bookmarks_chronologically(self):

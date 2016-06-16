@@ -104,7 +104,7 @@
         // draw the lines itself
         learner_graph.append('svg:path')
                 .attr('d', line_gen(entry.values))
-                .attr('stroke', function (entry) {
+                .attr('stroke', function () {
                     return "hsl(" + 200 + ",100%, "+ color_tone +"% )";
                 })
                 .attr('stroke-width', 2)

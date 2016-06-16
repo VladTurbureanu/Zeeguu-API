@@ -85,7 +85,8 @@ def my_account():
         counts.append(dict(date = the_date, count = the_count))
 
     bookmark_counts_by_date = json.dumps(counts)
-    learner_stats_data = zeeguu.api.module_learner_stats.compute_learner_stats(flask.g.user)
+    from zeeguu.api.module_learner_stats import compute_learner_stats
+    learner_stats_data = compute_learner_stats(flask.g.user)
 
     return flask.render_template("my_account.html",
                                  user=flask.g.user,
