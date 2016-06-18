@@ -31,13 +31,17 @@ class RSSFeed(db.Model):
         self.description = description
 
     def as_dictionary(self):
+        image_url = ""
+        if self.image_url:
+            image_url = self.image_url.as_string()
+
         return dict(
                 id = self.id,
                 title = self.title,
                 url = self.url.as_string(),
                 description = self.description,
                 language = self.language.id,
-                image_url = self.image_url.as_string()
+                image_url = image_url
         )
 
     def feed_items(self):
