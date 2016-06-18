@@ -59,8 +59,8 @@
     var yScale = d3.scale.linear()
             .range([HEIGHT - MARGINS.top, MARGINS.bottom])
             .domain([
-                d3.min(learner_stats_data, function (entry) {return entry.words;}),
-                d3.max(learner_stats_data, function (entry) {return entry.words;})
+                0,
+                +d3.max(learner_stats_data, function (entry) {return (entry.words);})+50
             ]);
 
     var xAxis = d3.svg.axis()

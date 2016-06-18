@@ -4,7 +4,7 @@ import datetime
 current_year = datetime.date.today().year
 current_month = datetime.date.today().month
 current_day = datetime.date.today().day
-days_in_month = 31
+days_in_month = 28
 
 
 # return true if learned or false if not
