@@ -58,13 +58,16 @@ class RSSFeed(db.Model):
     @classmethod
     def find_or_create(cls, url, title, description, image_url, language):
         try:
-            return (cls.query.filter(cls.url == url)
+            result = (cls.query.filter(cls.url == url)
                                 .filter(cls.title == title)
                                 .filter(cls.language == language)
                                 .filter(cls.image_url == image_url)
                                 .filter(cls.description == description)
                                 .one())
+            # print "found an existing RSSFeed object"
+            return result
         except sqlalchemy.orm.exc.NoResultFound:
+            # print "creating new feed object for " + title
             return cls(url, title, description, image_url, language)
 
     @classmethod
