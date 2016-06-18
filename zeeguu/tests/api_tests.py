@@ -672,6 +672,27 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert feed_count == len(feeds)
 
 
+    def test_start_following_feed(self):
+
+        form_data = dict(
+            feed_info=json.dumps(
+                dict(
+                    image="http://www.nieuws.nl/img",
+                    url="http://www.nieuws.nl/rss",
+                    language="nl",
+                    title="Nieuws",
+                    description="Description"
+                )))
+        self.api_post('/start_following_feed', form_data)
+
+        feeds = self.json_from_api_get("get_feeds_being_followed")
+        # Assumes that the derspiegel site will always have two feeds
+        print feeds
+
+
+
+
+
     def test_stop_following_feed(self):
 
         self.test_start_following_feeds()

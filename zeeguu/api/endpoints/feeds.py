@@ -81,7 +81,11 @@ def start_following_feeds():
         zeeguu.db.session.commit()
 
         feed_image_url = Url.find(feed_image_url_string)
-        feed_object = RSSFeed.find_or_create(url, feed.title, feed.description, feed_image_url, lan)
+        title = url
+        if "title" in feed:
+            title = feed.title
+
+        feed_object = RSSFeed.find_or_create(url, title, feed.description, feed_image_url, lan)
         feed_registration = RSSFeedRegistration.find_or_create(flask.g.user, feed_object)
 
         zeeguu.db.session.add_all([feed_image_url, feed_object, feed_registration])
@@ -89,6 +93,41 @@ def start_following_feeds():
 
     return "OK"
 
+
+@api.route("/start_following_feed", methods=("POST",))
+@cross_domain
+@with_session
+def start_following_feed():
+    """
+    Start following a feed for which the client provides all the
+    metadata. This is useful for the cases where badly formed
+    feeds can't be parsed by feedparser.
+
+    :return:
+    """
+
+    feed_info = json.loads(request.form.get('feed_info', ''))
+    image_url = feed_info["image"]
+    language = Language.find(feed_info["language"])
+    url_string = feed_info["url"]
+    title = feed_info["title"]
+    description = feed_info["description"]
+
+    url = Url.find(url_string)
+    zeeguu.db.session.add(url)
+    # Important to commit this url first; otherwise we end up creating
+    # two domains with the same name for both the urls...
+    zeeguu.db.session.commit()
+
+    feed_image_url = Url.find(image_url)
+
+    feed_object = RSSFeed.find_or_create(url, title, description, feed_image_url, language)
+    feed_registration = RSSFeedRegistration.find_or_create(flask.g.user, feed_object)
+
+    zeeguu.db.session.add_all([feed_image_url, feed_object, feed_registration])
+    zeeguu.db.session.commit()
+
+    return "OK"
 
 @api.route("/stop_following_feed/<feed_id>", methods=("GET",))
 @cross_domain
