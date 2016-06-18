@@ -127,25 +127,24 @@ class User(db.Model):
         dates = []
         for date in sorted_dates:
             bookmarks = []
-            for b in bookmarks_by_date[date]:
-                bookmark = dict(
-                    id=b.id,
-                    to=b.translation_words_list(),
-                    from_lang=b.origin.language_id,
-                    to_lang=b.translation().language.id,
-                    title=b.text.url.title,
-                    url=b.text.url.as_string()
-                )
-                bookmark["from"] = b.origin.word
-                if with_context:
-                    bookmark['context'] = b.text.content
-                bookmarks.append(bookmark)
+            for bookmark in bookmarks_by_date[date]:
+                bookmarks.append(bookmark.json_serializable_dict(with_context))
             date_entry = dict(
                 date=date.strftime("%A, %d %B %Y"),
                 bookmarks=bookmarks
             )
             dates.append(date_entry)
         return dates
+
+    def bookmarks_to_study(self):
+        from zeeguu.model.bookmark import Bookmark
+
+        all_bookmarks = Bookmark.query.\
+            filter_by(user_id=self.id).\
+            order_by(Bookmark.time.desc()).all()
+
+        return map(lambda x: x.json_serializable_dict(), all_bookmarks[0:50])
+
 
     def user_words(self):
         return map((lambda x: x.origin.word), self.all_bookmarks())
