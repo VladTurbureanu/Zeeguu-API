@@ -70,9 +70,19 @@ class EncounterBasedProbability(db.Model):
             enc_prob = EncounterBasedProbability.find(user,ranked_word, EncounterBasedProbability.DEFAULT_PROBABILITY)
         return enc_prob
 
-
     def reset_prob (self):
+        # Why is this 0.5? Should be lower! I just looked up the word...
+        # ugh...
         self.probability = 0.5
+
+    def word_has_just_beek_bookmarked(self):
+        """
+            the user can't know this word very well if he's
+            bookmarking it again
+        :return:
+        """
+
+        self.probability /= 2
 
 #         This function controls if prob is already 1.0, else it adds 0.1. It maximum adds 0.1, therefore cannot exceed 1
     def boost_prob(self):
