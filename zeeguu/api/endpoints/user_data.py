@@ -57,12 +57,13 @@ def post_bookmarks_by_day():
     return json_result(flask.g.user.bookmarks_by_day(with_context, after_date))
 
 
-@api.route("/bookmarks_to_study", methods=["GET"])
+@api.route("/bookmarks_to_study/<bookmark_count>", methods=["GET"])
 @cross_domain
 @with_session
-def bookmarks_to_study():
+def bookmarks_to_study(bookmark_count):
     """
-    Returns the bookmarks that are recommended for this user to study
+    Returns a number of <bookmark_count> bookmarks that
+    are recommended for this user to study
 
     """
-    return json_result(flask.g.user.bookmarks_to_study())
+    return json_result(flask.g.user.bookmarks_to_study(bookmark_count))
