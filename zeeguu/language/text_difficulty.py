@@ -56,6 +56,14 @@ def text_difficulty(text, language, known_probabilities, difficulty_computer = '
         difficulty = word_difficulty(known_probabilities, True, rank_boundary, ranked_word, word)
         word_difficulties.append(difficulty)
 
+    # If we can't compute the text difficulty, we estimate hard
+    if (len(word_difficulties)) == 0:
+        return \
+            dict(
+                score_median=1,
+                score_average=1,
+                estimated_difficulty=1)
+
     # Average difficulty for text
     difficulty_average = sum(word_difficulties) / float(len(word_difficulties))
 
@@ -63,8 +71,6 @@ def text_difficulty(text, language, known_probabilities, difficulty_computer = '
     word_difficulties.sort()
     center = int(round(len(word_difficulties) / 2, 0))
     difficulty_median = word_difficulties[center]
-
-    #
 
     difficulty_scores = dict(
         score_median=difficulty_median,

@@ -23,6 +23,9 @@ class KnownWordProbability(db.Model):
         self.ranked_word = ranked_word
         self.probability = probability
 
+    def word_has_just_beek_bookmarked(self):
+        self.probability /= 2
+
     @classmethod
     def calculateKnownWordProb(cls,exerciseProb, encounterProb):
         return 0.8 * float(exerciseProb) + 0.2 * float(encounterProb)

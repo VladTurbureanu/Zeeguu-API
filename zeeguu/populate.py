@@ -125,6 +125,7 @@ def add_bookmark(user, original_language, original_word, translation_language, t
     add_probability_to_existing_words_of_user(user,t1,original_language)
 
 
+
 def add_probability_to_existing_words_of_user(user,bookmark,language):
     bookmark.calculate_probabilities_after_adding_a_bookmark(user,language)
 
@@ -182,9 +183,9 @@ def create_test_db():
     zeeguu.db.session.add(user)
     zeeguu.db.session.add(user2)
 
-    jan111 = datetime.date(2011,01,01)
-    ian101 = datetime.date(2001,01,01)
-    jan14 = datetime.date(2014,1,14)
+    jan111 = datetime.datetime(2011,01,01,01,01,01)
+    ian101 = datetime.datetime(2001,01,01,01,01,01)
+    jan14 = datetime.datetime(2014,1,14,01,01,01)
 
     today_dict = {
         'sogar':'actually',
