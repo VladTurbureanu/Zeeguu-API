@@ -99,10 +99,9 @@ def start_following_feeds():
 @with_session
 def start_following_feed():
     """
-    A user can start following multiple feeds at once.
-
-    The feeds are passed as the post parameter :feeds:
-     which contains a json list with URLs for the feeds to be followed.
+    Start following a feed for which the client provides all the
+    metadata. This is useful for the cases where badly formed
+    feeds can't be parsed by feedparser.
 
     :return:
     """
