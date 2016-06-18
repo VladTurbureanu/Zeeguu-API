@@ -717,7 +717,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
 
     def test_bookmarks_to_study(self):
         to_study = self.json_from_api_get("bookmarks_to_study/10")
-        assert len(to_study) == 10
+        assert len(to_study) < 10
 
     def test_multiple_stop_following_same_feed(self):
 

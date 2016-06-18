@@ -75,6 +75,9 @@ class Bookmark(db.Model):
     def add_new_translation(self, translation):
         self.translations_list.append(translation)
 
+    def context_is_not_too_long(self):
+        return len(self.text.content) < 60
+
     def remove_translation(self,translation):
         if translation in self.translations_list:
             self.translations_list.remove(translation)
