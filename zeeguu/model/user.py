@@ -136,14 +136,14 @@ class User(db.Model):
             dates.append(date_entry)
         return dates
 
-    def bookmarks_to_study(self):
+    def bookmarks_to_study(self, bookmark_count):
         from zeeguu.model.bookmark import Bookmark
 
         all_bookmarks = Bookmark.query.\
             filter_by(user_id=self.id).\
             order_by(Bookmark.time.desc()).all()
 
-        return map(lambda x: x.json_serializable_dict(), all_bookmarks[0:50])
+        return map(lambda x: x.json_serializable_dict(), all_bookmarks[0:bookmark_count])
 
 
     def user_words(self):

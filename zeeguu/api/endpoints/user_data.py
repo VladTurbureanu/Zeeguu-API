@@ -66,4 +66,4 @@ def bookmarks_to_study(bookmark_count):
     are recommended for this user to study
 
     """
-    return json_result(flask.g.user.bookmarks_to_study(bookmark_count))
+    return json_result(flask.g.user.bookmarks_to_study(int(bookmark_count)))
