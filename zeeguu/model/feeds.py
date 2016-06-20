@@ -58,6 +58,15 @@ class RSSFeed(db.Model):
 
         return feed_items
 
+    @classmethod
+    def find_by_url(cls, url):
+        try:
+            result = (cls.query.filter(cls.url == url).one())
+            # print "found an existing RSSFeed object"
+            return result
+        except:
+            return None
+
 
     @classmethod
     def find_or_create(cls, url, title, description, image_url, language):
@@ -65,7 +74,7 @@ class RSSFeed(db.Model):
             result = (cls.query.filter(cls.url == url)
                                 .filter(cls.title == title)
                                 .filter(cls.language == language)
-                                .filter(cls.image_url == image_url)
+                                # .filter(cls.image_url == image_url)
                                 .filter(cls.description == description)
                                 .one())
             # print "found an existing RSSFeed object"

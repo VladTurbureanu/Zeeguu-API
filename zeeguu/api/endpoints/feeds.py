@@ -80,15 +80,19 @@ def start_following_feeds():
         # two domains with the same name for both the urls...
         zeeguu.db.session.commit()
 
-        feed_image_url = Url.find(feed_image_url_string)
-        title = url
-        if "title" in feed:
-            title = feed.title
+        feed_object = RSSFeed.find_by_url(url)
+        if not feed_object:
+            feed_image_url = Url.find(feed_image_url_string)
+            title = url
+            if "title" in feed:
+                title = feed.title
+            feed_object = RSSFeed.find_or_create(url, title, feed.description, feed_image_url, lan)
+            zeeguu.db.session.add_all([feed_image_url, feed_object])
+            zeeguu.db.session.commit()
 
-        feed_object = RSSFeed.find_or_create(url, title, feed.description, feed_image_url, lan)
         feed_registration = RSSFeedRegistration.find_or_create(flask.g.user, feed_object)
 
-        zeeguu.db.session.add_all([feed_image_url, feed_object, feed_registration])
+        zeeguu.db.session.add(feed_registration)
         zeeguu.db.session.commit()
 
     return "OK"
@@ -106,7 +110,8 @@ def start_following_feed():
     :return:
     """
 
-    feed_info = json.loads(request.form.get('feed_info', ''))
+    feed_info = json.loads(request.form.get('feed_info', ''), "utf-8")
+
     image_url = feed_info["image"]
     language = Language.find(feed_info["language"])
     url_string = feed_info["url"]
