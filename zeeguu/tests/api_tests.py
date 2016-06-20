@@ -715,6 +715,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         feeds = self.json_from_api_get("get_feeds_being_followed")
         assert len(feeds) == initial_feed_count - 2
 
+    def test_bookmarks_to_study(self):
+        to_study = self.json_from_api_get("bookmarks_to_study/10")
+        assert len(to_study) < 10
+
     def test_multiple_stop_following_same_feed(self):
 
         self.test_stop_following_feed()

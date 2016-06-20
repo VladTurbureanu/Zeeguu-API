@@ -75,6 +75,9 @@ class Bookmark(db.Model):
     def add_new_translation(self, translation):
         self.translations_list.append(translation)
 
+    def context_is_not_too_long(self):
+        return len(self.text.content) < 60
+
     def remove_translation(self,translation):
         if translation in self.translations_list:
             self.translations_list.remove(translation)
@@ -96,8 +99,6 @@ class Bookmark(db.Model):
         words_of_bookmark_content.extend(bookmark_content_words)
         return words_of_bookmark_content
 
-
-
     def context_words_with_rank(self):
         ranked_context_words = self.split_words_from_context()
         while self.origin.word in ranked_context_words: ranked_context_words.remove(self.origin.word)
@@ -106,6 +107,20 @@ class Bookmark(db.Model):
             if RankedWord.exists(word_known.lower(), self.origin.language):
                 filtered_words_known_from_user.append(word_known)
         return filtered_words_known_from_user
+
+    def json_serializable_dict(self, with_context=True):
+        result = dict(
+                    id=self.id,
+                    to=self.translation_words_list(),
+                    from_lang=self.origin.language_id,
+                    to_lang=self.translation().language.id,
+                    title=self.text.url.title,
+                    url=self.text.url.as_string()
+                )
+        result["from"] = self.origin.word
+        if with_context:
+            result['context'] = self.text.content
+        return result
 
     def calculate_probabilities_after_adding_a_bookmark(self, user,language):
         """
