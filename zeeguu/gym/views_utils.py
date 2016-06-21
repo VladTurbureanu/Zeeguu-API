@@ -6,10 +6,8 @@ from zeeguu.model.user import User
 
 @gym.before_request
 def setup():
-    if "user" in flask.session:
-        flask.g.user = User.query.get(flask.session["user"])
-    else:
-        flask.g.user = None
+    # Code moved to login_first
+    pass
 
 def login_first(fun):
     """
@@ -19,6 +17,11 @@ def login_first(fun):
     """
     @wraps(fun)
     def decorated_function(*args, **kwargs):
+        if "user" in flask.session:
+            flask.g.user = User.query.get(flask.session["user"])
+        else:
+            flask.g.user = None
+
         if flask.g.user:
             return fun(*args, **kwargs)
         else:

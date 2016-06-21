@@ -58,8 +58,15 @@ def login():
                 return flask.redirect(flask.request.args.get("next") or flask.url_for("account.my_account"))
     return flask.render_template("login.html")
 
+@gym.route("/login_with_session", methods=["POST"])
+def login_with_session():
+    form = flask.request.form
+    print form
+    return "OK"
+
 
 @gym.route("/logout")
+@login_first
 def logout():
     # Note, that there is also an API endpoint for logout called logout_session
     flask.session.pop("user", None)
@@ -111,6 +118,7 @@ def recognize():
         return flask.render_template("message.html",message = e.value)
 
 @gym.route("/m_recognize")
+@login_first
 def m_recognize():
     if flask.g.user:
         try:
@@ -123,30 +131,6 @@ def m_recognize():
             return flask.render_template("message.html",mobile=True, message=e.value)
     else:
         return "not logged in..."
-
-
-@gym.route ("/browser_home/expanded/")
-def browser_home_expand():
-    return browser_home(42)
-
-
-@gym.route ("/browser_home/")
-def browser_home(item_count = 3):
-    return flask.render_template(
-            "browser_home.html",
-            recent_domains_and_times = recent_domains_with_times(flask.g.user),
-            # recent_domains_and_times = [],
-            recent_domains_and_times_count = len(recent_domains_with_times(flask.g.user)),
-            # recent_domains_and_times_count = 0,
-
-            domain_and_frequency_map = frequent_domains(flask.g.user),
-            # domain_and_frequency_map = [],
-            domain_and_frequency_map_size = len(frequent_domains(flask.g.user)),
-            # domain_and_frequency_map_size = 0,
-
-            recommendations = recommendations(flask.g.user),
-            item_count = item_count,
-            mobile=True)
 
 
 @gym.route("/study_before_play")
@@ -205,6 +189,7 @@ def delete(bookmark_id):
 
 
 @gym.route("/gym/test_answer/<answer>/<expected>/<question_id>", methods=["POST"])
+@login_first
 def submit_answer(answer, expected,question_id):
     if answer.lower() == expected.lower() \
             or (answer+".").lower() == expected.lower():
@@ -217,6 +202,7 @@ def submit_answer(answer, expected,question_id):
 
 @gym.route("/gym/create_new_exercise/<exercise_outcome>/<exercise_source>/<exercise_solving_speed>/<bookmark_id>",
            methods=["POST"])
+@login_first
 def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,bookmark_id):
     """
     OBSOLETE!
@@ -253,6 +239,7 @@ def create_new_exercise(exercise_outcome,exercise_source,exercise_solving_speed,
 
 
 @gym.route("/gym/exercise_outcome/<bookmark_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
+@login_first
 def correct(bookmark_id, exercise_source, exercise_outcome, exercise_solving_speed):
     # bookmark = Bookmark.query.get(bookmark_id)
     # bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)
@@ -261,6 +248,7 @@ def correct(bookmark_id, exercise_source, exercise_outcome, exercise_solving_spe
 
 
 @gym.route("/gym/wrong/<bookmark_id>/<exercise_source>/<exercise_outcome>/<exercise_solving_speed>", methods=("POST",))
+@login_first
 def wrong(bookmark_id, exercise_source, exercise_outcome, exercise_solving_speed):
     # bookmark = Bookmark.query.get(bookmark_id)
     # bookmark.add_exercise_outcome(exercise_source, exercise_outcome, exercise_solving_speed)
@@ -268,6 +256,7 @@ def wrong(bookmark_id, exercise_source, exercise_outcome, exercise_solving_speed
     return "OK"
 
 @gym.route("/gym/starred_card/<card_id>", methods=("POST",))
+@login_first
 def starred(card_id):
     card = Card.query.get(card_id)
     card.star()
@@ -275,6 +264,7 @@ def starred(card_id):
     return "OK"
 
 @gym.route("/gym/unstarred_card/<card_id>", methods=("POST",))
+@login_first
 def unstarred(card_id):
     card = Card.query.get(card_id)
     card.unstar()
@@ -282,6 +272,7 @@ def unstarred(card_id):
     return "OK"
 
 @gym.route("/gym/starred_word/<word_id>/<user_id>", methods=("POST",))
+@login_first
 def starred_word(word_id,user_id):
     word = UserWord.query.get(word_id)
     user = User.find_by_id(user_id)
@@ -290,6 +281,7 @@ def starred_word(word_id,user_id):
     return "OK"
 
 @gym.route("/gym/unstarred_word/<word_id>/<user_id>", methods=("POST",))
+@login_first
 def unstarred_word(word_id,user_id):
     word = UserWord.query.get(word_id)
     user = User.find_by_id(user_id)
