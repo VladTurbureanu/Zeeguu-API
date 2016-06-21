@@ -1,4 +1,5 @@
 from zeeguu import db
+from zeeguu.model.bookmark import Bookmark
 
 
 class WatchInteractionEvent(db.Model):
@@ -21,6 +22,12 @@ class WatchInteractionEvent(db.Model):
         self.bookmark_id = bookmark_id
         self.event_type = event_type
 
+    def data_as_dictionary(self):
+        return dict(
+                bookmark_id= self.bookmark_id,
+                time= self.time.strftime("%Y-%M-%dT%H:%M:%S"),
+                event= self.event_type.name
+        )
 
     @classmethod
     def events_for_bookmark(cls, bookmark):
@@ -29,6 +36,10 @@ class WatchInteractionEvent(db.Model):
     @classmethod
     def events_for_bookmark_id(cls, bookmark_id):
         return cls.query.filter_by(bookmark_id=bookmark_id).all()
+
+    @classmethod
+    def events_for_user(cls, user):
+        return cls.query.join(Bookmark).filter(Bookmark.user_id == user.id).all()
 
 
 

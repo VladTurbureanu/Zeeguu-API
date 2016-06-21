@@ -234,6 +234,12 @@ class Dbtest(zeeguu_testcase.ZeeguuTestCase):
         db.session.commit()
 
 
+    def test_get_user_activity_data(self):
+        events = WatchInteractionEvent.events_for_user(self.mir)
+        assert len(events) == 0
+        self.test_watch_event()
+        events = WatchInteractionEvent.events_for_user(self.mir)
+        assert len(events) == 1
 
 
 

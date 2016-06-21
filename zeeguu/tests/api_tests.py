@@ -773,6 +773,12 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             second_glance = events[1]
             assert first_glance.time < second_glance.time
 
+    def test_get_user_events(self):
+        self.test_upload_events()
+        result = self.json_from_api_get('/get_smartwatch_events')
+        assert len(result) == 2
+
+
 
     def test_upload_user_activity(self):
         event = dict(

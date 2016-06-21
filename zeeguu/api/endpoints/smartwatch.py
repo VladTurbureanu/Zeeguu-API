@@ -1,10 +1,10 @@
 import json
 from flask import request
-from zeeguu import db
+from zeeguu import db, flask
 
 from zeeguu.api import api
+from zeeguu.api.json_result import json_result
 from zeeguu.api.route_wrappers import cross_domain, with_session
-from zeeguu.model.bookmark import Bookmark
 from zeeguu.model.smartwatch.watch_interaction_event import WatchInteractionEvent
 from zeeguu.model.smartwatch.watch_event_type import WatchEventType
 
@@ -45,3 +45,22 @@ def upload_smartwatch_events():
     db.session.commit()
 
     return "OK"
+
+@api.route("/get_smartwatch_events", methods=["GET"])
+@cross_domain
+@with_session
+def get_smartwatch_events():
+    """
+    Returns an array of entries which are dicts:
+        dict (
+                bookmark_id: 1,
+                time: 'YYYY-MM-DDTHH:MM:SS',
+                event: "Glance"
+            }
+
+    :return: OK or FAIL
+    """
+    event_objects = WatchInteractionEvent.events_for_user(flask.g.user)
+    events = [x.data_as_dictionary() for x in event_objects]
+
+    return json_result(events)
