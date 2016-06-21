@@ -1,6 +1,7 @@
 import json
 import flask
 import zeeguu
+from zeeguu.model.session import Session
 
 from zeeguu.model.text import Text
 from zeeguu.model.exercise import Exercise
@@ -58,10 +59,22 @@ def login():
                 return flask.redirect(flask.request.args.get("next") or flask.url_for("account.my_account"))
     return flask.render_template("login.html")
 
+
 @gym.route("/login_with_session", methods=["POST"])
 def login_with_session():
     form = flask.request.form
-    print form
+    session_string = form.get("session_id", 0)
+    session = Session.find_for_id(session_string)
+
+    if session:
+        user = session.user
+        flask.g.user = user
+        flask.session["user"] = user.id
+    else:
+        print "somebody tried to login_with_session but failed. " \
+              "however we are still keeping the current session if it exists"
+        return "FAIL"
+
     return "OK"
 
 
@@ -130,7 +143,7 @@ def m_recognize():
         except UserVisibleException as e:
             return flask.render_template("message.html",mobile=True, message=e.value)
     else:
-        return "not logged in..."
+        return "FAIL"
 
 
 @gym.route("/study_before_play")

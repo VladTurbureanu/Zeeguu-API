@@ -6,6 +6,7 @@ import zeeguu_testcase
 import unittest
 import zeeguu.populate
 import zeeguu.model
+from zeeguu.model.session import Session
 from zeeguu.model.smartwatch.watch_interaction_event import WatchInteractionEvent
 from zeeguu.model.url import Url
 from zeeguu.model.text import Text
@@ -778,8 +779,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         result = self.json_from_api_get('/get_smartwatch_events')
         assert len(result) == 2
 
-
-
     def test_upload_user_activity(self):
         event = dict(
                 time="2016-05-05T10:10:10",
@@ -789,6 +788,38 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             )
         result = self.api_post('/upload_user_activity_data', event)
         assert (result.data == "OK")
+
+    def test_user_session(self):
+        user = User.find("i@mir.lu")
+        with zeeguu.app.app_context():
+            s = Session.find_for_user(user)
+            s2 = Session.find_for_id(s.id)
+            assert (s2.user == user)
+
+            s3 = Session.find_for_id(3)
+            assert not s3
+
+    def test_login_with_session(self):
+        self.logout()
+        result = self.api_post("/login_with_session", dict(session_id="101"))
+        assert (result.data == "FAIL")
+        result = self.api_get("/m_recognize")
+        assert "Redirecting..." in result.data
+
+        user = User.find("i@mir.lu")
+        with zeeguu.app.app_context():
+            actual_session = str(Session.find_for_user(user).id)
+            result = self.api_post("/login_with_session",dict(session_id=actual_session))
+            assert result.data == "OK"
+
+            result = self.api_get("/m_recognize")
+            assert "Redirecting..." not in result.data
+
+
+
+
+
+
 
 
 if __name__ == '__main__':

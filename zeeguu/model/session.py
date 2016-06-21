@@ -26,3 +26,14 @@ class Session(db.Model):
             if cls.query.get(id_) is None:
                 break
         return cls(user, id_)
+
+    @classmethod
+    def find_for_id(cls, session_id):
+        try:
+            return cls.query.filter(cls.id == session_id).one()
+        except:
+            return None
+
+    @classmethod
+    def find_for_user(cls, user):
+        return cls.query.filter(cls.user == user).first()
