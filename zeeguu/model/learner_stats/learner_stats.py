@@ -4,7 +4,7 @@ import datetime
 current_year = datetime.date.today().year
 current_month = datetime.date.today().month
 current_day = datetime.date.today().day
-days_in_month = 31
+days_in_month = 28
 
 
 # return true if learned or false if not
@@ -23,8 +23,8 @@ def compute_learner_stats_before(user):
     all_bookmarks = user.all_bookmarks(before_date=before_date)
 
     for bookmark in all_bookmarks:
-        learned = is_bookmark_word_learned(bookmark, before_date)
-        if learned:
+        learned_bool = is_bookmark_word_learned(bookmark, before_date)
+        if learned_bool:
             learned += 1
         else:
             learning += 1
@@ -38,6 +38,7 @@ def compute_learner_stats_after(user, learner_stats_before):
     # array of months , each month will hold amount of number learned/learning words
     learning_stats_after = [0] * 12
     learned_stats_after = [learner_stats_before[0]] * 12
+    learning_stats_after[0] = learner_stats_before[1];
 
     after_date = datetime.datetime(current_year - 1, current_month, current_day)
     all_bookmarks_after_date = user.all_bookmarks(after_date)
@@ -47,15 +48,17 @@ def compute_learner_stats_after(user, learner_stats_before):
         current_bookmark_month = int(bookmark.time.strftime("%m"))
         index = (current_bookmark_month - current_month) % 12
 
-        learned = is_bookmark_word_learned(bookmark, datetime.datetime(current_year, index + 1, 28))
+        learned = is_bookmark_word_learned(bookmark, datetime.datetime(current_year, index + 1, days_in_month))
 
         if learned:
             learned_stats_after[index] += 1
         else:
             learning_stats_after[index] += 1
     #learned_stats_after[10] = 27;  # for testing purpose
-    for i in range(0, 12):
-        learning_stats_after[i] += learning_stats_after[max(0, (i - 1))] + (learner_stats_before[1] - learned_stats_after[i])
+
+    learning_stats_after[0] -= learned_stats_after[0]
+    for i in range(1, 12):
+        learning_stats_after[i] += learning_stats_after[(i - 1)] - learned_stats_after[i]
 
     # uncomment below 2 lines to show total learned each month, but not only per month
     #for i in range(1, 12):
