@@ -16,6 +16,9 @@ from zeeguu.model.unique_code import UniqueCode
 from zeeguu.account import acc
 
 from smtplib import SMTP
+import traceback
+import sys
+from zeeguu.model.user import User
 
 
 @acc.route("/reset_pass", methods=("POST", "GET",))
@@ -42,8 +45,9 @@ def reset_password():
     if email and code and password:
         try:
             return change_password_if_code_is_correct(code, email, password)
-        except:
+        except Exception as e:
             flash("Something went wrong")
+            traceback.print_exc(file=sys.stdout)
             return flask.render_template("reset_pass.html",message=True)
 
     flash("This will be fast. We promise.")
@@ -86,7 +90,7 @@ def change_password_if_code_is_correct(code, email, password):
                                          code_active=True,
                                          email=email,
                                          code=code)
-        user = zeeguu.model.User.find(email)
+        user = User.find(email)
         user.update_password(password)
         db.session.commit()
 
