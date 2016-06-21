@@ -62,6 +62,17 @@ def login():
 
 @gym.route("/login_with_session", methods=["POST"])
 def login_with_session():
+    """
+    Call this with a post parameter session_id
+    The server will remember that the user is logged in,
+    so you can display pages w/o being redirected to the
+    login screen.
+
+    Mainly designed with the mobile apps in mind, apps which
+    might want to display exercises in a webview. For that, check
+    out /m_recognize
+    :return:
+    """
     form = flask.request.form
     session_string = form.get("session_id", 0)
     session = Session.find_for_id(session_string)
