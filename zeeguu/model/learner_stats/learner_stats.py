@@ -6,14 +6,6 @@ current_month = datetime.date.today().month
 current_day = datetime.date.today().day
 
 
-# if learned then return the datetime when learned, or return false if not learned yet
-def is_bookmark_word_learned(bookmark):
-    exercise = bookmark.check_is_latest_outcome_too_easy_and_when_it_happened()
-    if not exercise:
-        return False
-    return exercise
-
-
 # compute learned and learning words per month after the given date which is 1 year ago
 def compute_learner_stats_during_last_year(user):
     # initialize variables
@@ -34,10 +26,10 @@ def compute_learner_stats_during_last_year(user):
             learning_stats[0] += 1
 
         # when bookmark was learned if it was learned
-        was_bookmark_learned = is_bookmark_word_learned(bookmark)
-        if was_bookmark_learned != False:
-            if was_bookmark_learned > date_one_year_ago:
-                index_month_when_learned = (int(was_bookmark_learned.strftime("%m")) - current_month) % 12
+        was_bookmark_learned, time_when_bookmark_was_learned = bookmark.check_is_latest_outcome_too_easy(True)
+        if was_bookmark_learned:
+            if time_when_bookmark_was_learned > date_one_year_ago:
+                index_month_when_learned = (int(time_when_bookmark_was_learned.strftime("%m")) - current_month) % 12
                 learned_stats[index_month_when_learned] += 1
             else:
                 learning_stats[0] -= 1
