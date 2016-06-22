@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
 from zeeguu.language.knowledge_estimator import SethiKnowledgeEstimator
+from zeeguu.model.session import Session
 
 __author__ = 'mir.lu'
 
@@ -88,8 +89,12 @@ def my_account():
     from zeeguu.model.learner_stats.learner_stats import compute_learner_stats
     learner_stats_data = compute_learner_stats(flask.g.user)
 
+    session_id = str(Session.for_user(flask.g.user).id).zfill(8)
+    smartwatch_login_code = session_id[:4] + "-" + session_id[4:]
+
     return flask.render_template("my_account.html",
                                  user=flask.g.user,
                                  estimator=estimator,
                                  bookmark_counts_by_date=bookmark_counts_by_date,
-                                 learner_stats_data=learner_stats_data)
+                                 learner_stats_data=learner_stats_data,
+                                 smartwatch_login_code=smartwatch_login_code)
