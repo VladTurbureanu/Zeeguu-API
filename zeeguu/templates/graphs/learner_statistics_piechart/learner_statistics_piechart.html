@@ -35,8 +35,8 @@
         }
     ];
 
-    var width = 680;
-    var height = 350;
+    var width = 360;
+    var height = 360;
     var radius = Math.min(width, height) / 2;
     var pie_slice_color = d3.scale.category20c();
 
@@ -46,6 +46,7 @@
             .attr("width", width)
             .attr("height", height)
             .append("svg:g")
+            .attr("class", "pie_graph")
             .attr("transform", "translate(" + radius + "," + radius + ")");
 
     var pie = d3.layout.pie().value(function (entry) {
@@ -54,7 +55,9 @@
 
     // declare an arc generator function
     // circular arc is a curved boundary of length L from a circular sector(slice).
-    var arc = d3.svg.arc().outerRadius(radius);
+    var arc = d3.svg.arc()
+            .innerRadius(radius * 0.65)  // NEW
+            .outerRadius(radius);
 
     // select paths, use arc generator to draw
     var arcs = pie_graph.selectAll("g.slice")
@@ -71,18 +74,67 @@
                 return arc(entry);
             });
 
-    // add the text
-    arcs.append("svg:text")
-            .attr("transform", function (entry) {
-                entry.innerRadius = radius/2.5;
-                entry.outerRadius = radius;
-                return "translate(" + arc.centroid(entry) + ")";
-            })
-            .attr("text-anchor", "middle")
-            .text(function (entry, index) {
-                if (entry.value > 0)
-                    return learner_statistics_data[index].label;
-                return ""
+
+    // add legends
+    var legendRectSize = 18;
+    var legendSpacing = 4;
+
+    var legend = pie_graph.selectAll('.legend')
+            .data(pie_slice_color.domain())
+            .enter()
+            .append('g')
+            .attr('class', 'legend')
+            .attr('transform', function (d, i) {
+                var height = legendRectSize + legendSpacing;
+                var offset = height * pie_slice_color.domain().length / 2;
+                var horz = -2 * legendRectSize;
+                var vert = i * height - offset;
+                return 'translate(' + horz + ',' + vert + ')';
             });
+
+    legend.append('rect')
+            .attr('width', legendRectSize)
+            .attr('height', legendRectSize)
+            .style('fill', pie_slice_color)
+            .style('stroke', pie_slice_color);
+
+    legend.append('text')
+            .attr('x', legendRectSize + legendSpacing)
+            .attr('y', legendRectSize - legendSpacing)
+            .text(function (index) {
+                return learner_statistics_data[index].label;
+            });
+
+
+    // add tooltips
+    var tooltip = d3.select('pie_graph')
+            .append('div')
+            .attr('class', 'pie_tooltip');
+
+    tooltip.append('div')
+            .attr('class', 'name');
+
+    tooltip.append('div')
+            .attr('class', 'value');
+
+    tooltip.append('div')
+            .attr('class', 'percent');
+
+    var path = pie_graph.selectAll('path');
+
+    path.on('mouseover', function (entry) {
+        var total = d3.sum(learner_statistics_data.map(function (entry) {
+            return entry.value;
+        }));
+        var percent = Math.round(1000 * entry.data.value / total) / 10;
+        tooltip.select('.name').html(entry.data.label);
+        tooltip.select('.value').html(entry.data.value);
+        tooltip.select('.percent').html(percent + '%');
+        tooltip.style('display', 'inline-block');
+    });
+
+    path.on('mouseout', function () {
+        tooltip.style('display', 'none');
+    });
 
 </script>
