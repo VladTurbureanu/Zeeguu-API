@@ -246,3 +246,12 @@ class Bookmark(db.Model):
             elif exercise.outcome.outcome == ExerciseOutcome.SHOW_SOLUTION or exercise.outcome.outcome == ExerciseOutcome.WRONG:
                 return False
         return False
+
+    def check_is_latest_outcome_too_easy_and_when_it_happened(self):
+        sorted_exercise_log_by_latest=sorted(self.exercise_log, key=lambda x: x.time, reverse=True)
+        for exercise in sorted_exercise_log_by_latest:
+            if exercise.outcome.outcome == ExerciseOutcome.TOO_EASY:
+                return exercise.time
+            elif exercise.outcome.outcome == ExerciseOutcome.SHOW_SOLUTION or exercise.outcome.outcome == ExerciseOutcome.WRONG:
+                return False
+        return False

@@ -4,67 +4,50 @@ import datetime
 current_year = datetime.date.today().year
 current_month = datetime.date.today().month
 current_day = datetime.date.today().day
-days_in_month = 28
 
 
-# return true if learned or false if not
-# implement that outcome too easy includes before date
-# before_date is not used yet, but it will be needed later for implementing more precision in calculations
-def is_bookmark_word_learned(bookmark, before_date):
-    return bookmark.check_is_latest_outcome_too_easy()
-
-
-# calculate totals before the date which is 1 year ago
-def compute_learner_stats_before(user):
-    learned = 0
-    learning = 0
-
-    before_date = datetime.datetime(current_year - 1, current_month, current_day)
-    all_bookmarks = user.all_bookmarks(before_date=before_date)
-
-    for bookmark in all_bookmarks:
-        learned_bool = is_bookmark_word_learned(bookmark, before_date)
-        if learned_bool:
-            learned += 1
-        else:
-            learning += 1
-
-    return [learned, learning]
+# if learned then return the datetime when learned, or return false if not learned yet
+def is_bookmark_word_learned(bookmark):
+    exercise = bookmark.check_is_latest_outcome_too_easy_and_when_it_happened()
+    if not exercise:
+        return False
+    return exercise
 
 
 # compute learned and learning words per month after the given date which is 1 year ago
-# compute_learner_stats_during_last_year
-def compute_learner_stats_after(user, learner_stats_before):
-    # array of months , each month will hold amount of number learned/learning words
-    learning_stats_after = [0] * 12
-    learned_stats_after = [learner_stats_before[0]] * 12
-    learning_stats_after[0] = learner_stats_before[1];
+def compute_learner_stats_during_last_year(user):
+    # initialize variables
+    learning_stats = [0] * 12
+    learned_stats = [0] * 12
 
-    after_date = datetime.datetime(current_year - 1, current_month, current_day)
-    all_bookmarks_after_date = user.all_bookmarks(after_date)
+    all_bookmarks = user.all_bookmarks()
+    date_one_year_ago = datetime.datetime(current_year - 1, current_month, current_day)
 
-    for bookmark in all_bookmarks_after_date:
-        # bookmark.time needs to return the month number
-        current_bookmark_month = int(bookmark.time.strftime("%m"))
-        index = (current_bookmark_month - current_month) % 12
+    # start the loop through all bookmarks
+    for bookmark in all_bookmarks:
 
-        learned = is_bookmark_word_learned(bookmark, datetime.datetime(current_year, index + 1, days_in_month))
-
-        if learned:
-            learned_stats_after[index] += 1
+        # when bookmark was started to be learn
+        if bookmark.time > date_one_year_ago:
+            index_month_when_start_learning = (int(bookmark.time.strftime("%m")) - current_month) % 12
+            learning_stats[index_month_when_start_learning] += 1
         else:
-            learning_stats_after[index] += 1
-    #learned_stats_after[10] = 27;  # for testing purpose
+            learning_stats[0] += 1
 
-    learning_stats_after[0] -= learned_stats_after[0]
+        # when bookmark was learned if it was learned
+        was_bookmark_learned = is_bookmark_word_learned(bookmark)
+        if was_bookmark_learned != False:
+            if was_bookmark_learned > date_one_year_ago:
+                index_month_when_learned = (int(was_bookmark_learned.strftime("%m")) - current_month) % 12
+                learned_stats[index_month_when_learned] += 1
+            else:
+                learning_stats[0] -= 1
+
+    # take into the account already learned and learning words before in the learning array
+    learning_stats[0] -= learned_stats[0]
     for i in range(1, 12):
-        learning_stats_after[i] += learning_stats_after[(i - 1)] - learned_stats_after[i]
+        learning_stats[i] += learning_stats[(i - 1)] - learned_stats[i]
 
-    # uncomment below 2 lines to show total learned each month, but not only per month
-    #for i in range(1, 12):
-    #    learned_stats_after[i] += learned_stats_after[i-1]
-
-    return [learning_stats_after, learned_stats_after]
+    return [learning_stats, learned_stats]
 
 
 def data_to_json(learner_stats_after):
@@ -90,9 +73,5 @@ def data_to_json(learner_stats_after):
 
 
 def compute_learner_stats(user):
-    # first compute before the given date
-    learner_stats_before = compute_learner_stats_before(user)
-    # start computing per month after the given date
-    learner_stats_after = compute_learner_stats_after(user, learner_stats_before)
     # return the result array as json
-    return data_to_json(learner_stats_after)
+    return data_to_json(compute_learner_stats_during_last_year(user))
