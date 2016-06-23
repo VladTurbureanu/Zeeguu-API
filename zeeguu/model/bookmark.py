@@ -176,8 +176,8 @@ class Bookmark(db.Model):
         #     zeeguu.db.session.add(ex_prob)
 
         # 2.b) encounter based prob
-        if RankedWord.exists(self.origin.word, language): #checks if ranked_word exists for that looked up word
-            ranked_word = RankedWord.find(self.origin.word, language)
+        ranked_word = RankedWord.find(self.origin.word, language)
+        if ranked_word: #checks if ranked_word exists for that looked up word
             if EncounterBasedProbability.exists(user, ranked_word): # checks if encounter based probability exists for that looked up word
                 enc_prob = EncounterBasedProbability.find(user, ranked_word)
                 enc_prob.word_has_just_beek_bookmarked()
