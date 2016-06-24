@@ -89,7 +89,11 @@ def my_account():
     from zeeguu.model.learner_stats.learner_stats import compute_learner_stats
     learner_stats_data = compute_learner_stats(flask.g.user)
 
-    session_id = str(Session.find_for_user(flask.g.user).id).zfill(8)
+    s = Session.find_for_user(flask.g.user)
+    zeeguu.db.session.add(s)
+    zeeguu.db.session.commit()
+
+    session_id = str(s.id).zfill(8)
     smartwatch_login_code = session_id[:4] + "-" + session_id[4:]
 
     return flask.render_template("my_account.html",
