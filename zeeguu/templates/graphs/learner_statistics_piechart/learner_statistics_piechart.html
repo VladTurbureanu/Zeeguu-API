@@ -14,31 +14,29 @@
 
     var learner_statistics_data = [
         {
-            "label": "Not Looked Up",
-            "value": {{ estimator.get_not_looked_up_words_count() }}
-        },
-        {
             "label": "Not Encountered",
             "value": {{ estimator.get_not_encountered_words_count() }}
         },
         {
-            "label": "Being Learned",
+            "label": "Known",
+            "value": {{ estimator.get_not_looked_up_words_count() }}
+        },
+        {
+            "label": "Learned",
+            "value": {{ estimator.get_known_bookmarks_count() + estimator.get_probably_known_words_count() }}
+        },
+        {
+            "label": "Learning",
             "value": {{ user.bookmark_count() }}
-        },
-        {
-            "label": "Probably Known",
-            "value": {{ estimator.get_probably_known_words_count() }}
-        },
-        {
-            "label": "Already Learned",
-            "value": {{ estimator.get_known_bookmarks_count() }}
         }
     ];
 
-    var width = 360;
+    var width = 560;
     var height = 360;
     var radius = Math.min(width, height) / 2;
-    var pie_slice_color = d3.scale.category20c();
+    var pie_slice_color = d3.scale.ordinal()
+            .domain([0, 1 , 2 , 3])
+            .range([ '#c7c7c7', '#2AE816' , '#9AFF0B' , '#FFD918']);
 
     var pie_graph = d3.select('pie_graph')
             .append("svg:svg")
@@ -87,7 +85,7 @@
             .attr('transform', function (d, i) {
                 var height = legendRectSize + legendSpacing;
                 var offset = height * pie_slice_color.domain().length / 2;
-                var horz = -2 * legendRectSize;
+                var horz = 12 * legendRectSize;
                 var vert = i * height - offset;
                 return 'translate(' + horz + ',' + vert + ')';
             });
@@ -136,5 +134,21 @@
     path.on('mouseout', function () {
         tooltip.style('display', 'none');
     });
+
+
+    // add title
+    pie_graph.append("text")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("text-anchor", "middle")
+        .style("font-size", "25px")
+        .style("text-decoration", "underline")
+        .text(function () {
+                var total = d3.sum(learner_statistics_data.map(function (entry) {
+                    return entry.value;
+                }));
+                return total + " words ";
+            });
+
 
 </script>
