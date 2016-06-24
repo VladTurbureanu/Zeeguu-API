@@ -815,13 +815,6 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
             result = self.api_get("/m_recognize")
             assert "Redirecting..." not in result.data
 
-
-
-
-
-
-
-
 if __name__ == '__main__':
     # unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(API_Tests)
