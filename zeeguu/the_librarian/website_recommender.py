@@ -8,14 +8,14 @@ def recent_domains_with_times(user):
     domains = []
     domains_and_times = []
     for b in user.bookmarks_chronologically():
-        if not b.text.url.domain() in domains and 'http' in b.text.url.domain():
-                domains_and_times.append([b.text.url.domain(), b.time])
-                domains.append(b.text.url.domain())
+        if not b.text.url.domain_name() in domains and 'http' in b.text.url.domain_name():
+                domains_and_times.append([b.text.url.domain_name(), b.time])
+                domains.append(b.text.url.domain_name())
     return domains_and_times
 
 
 def frequent_domains(user):
-    domains = map (lambda b: b.text.url.domain(), user.bookmarks_chronologically())
+    domains = map (lambda b: b.text.url.domain_name(), user.bookmarks_chronologically())
     from collections import Counter
     counter = Counter(domains)
     return counter.most_common()

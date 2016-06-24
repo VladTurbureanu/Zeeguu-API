@@ -37,6 +37,15 @@ class Session(db.Model):
         except:
             return None
 
+    # @classmethod
+    # def find_for_user(cls, user):
+    #     return cls.query.filter(cls.user == user).order_by(desc(cls.last_use)).first()
+
     @classmethod
     def find_for_user(cls, user):
-        return cls.query.filter(cls.user == user).order_by(desc(cls.last_use)).first()
+        s = cls.query.filter(cls.user == user).\
+            filter(cls.id < zeeguu.app.config.get("MAX_SESSION")).\
+            order_by(desc(cls.last_use)).first()
+        if not s:
+            s = cls.for_user(user)
+        return s
