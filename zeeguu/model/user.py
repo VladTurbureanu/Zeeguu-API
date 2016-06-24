@@ -90,7 +90,7 @@ class User(db.Model):
         )
         self.password = util.password_hash(password, self.password_salt)
 
-    def all_bookmarks(self, after_date=datetime.datetime(1970,1,1), before_date=datetime.datetime):
+    def all_bookmarks(self, after_date=datetime.datetime(1970,1,1), before_date=datetime.date.today() + datetime.timedelta(days=1)):
         from zeeguu.model.bookmark import Bookmark
         return Bookmark.query.\
             filter_by(user_id=self.id).\
