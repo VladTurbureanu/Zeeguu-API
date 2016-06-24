@@ -31,6 +31,9 @@ class Url(db.Model):
     def as_string(self):
         return self.domain.domain_name + self.path
 
+    def domain_name(self):
+        return self.domain.domain_name
+
     @classmethod
     def get_domain(self, url):
         protocol_re = '(.*://)?'
