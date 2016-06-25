@@ -14,7 +14,7 @@ class UserActivityData(db.Model):
 
     event = db.Column(db.String(255))
     value = db.Column(db.String(255))
-    extra_data = db.Column(db.String(255))
+    extra_data = db.Column(db.String(4096))
 
     def __init__(self, user, time, event, value, extra_data):
         self.user = user
