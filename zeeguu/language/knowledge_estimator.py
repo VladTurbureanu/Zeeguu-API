@@ -108,6 +108,7 @@ class SethiKnowledgeEstimator(object):
         return len(self.get_not_looked_up_words_for_learned_language())
 
     def get_probably_known_words(self):
+        # TODO: Why the hell does this function return a dict with one key named word???
         probabilities = KnownWordProbability.get_probably_known_words(self.user)
 
         probable_known_words_dict_list = []
@@ -115,9 +116,11 @@ class SethiKnowledgeEstimator(object):
             probable_known_word_dict = {}
             if prob.ranked_word is not None and prob.ranked_word.language == self.language:
                 probable_known_word_dict['word'] = prob.ranked_word.word
-            else:
+                probable_known_words_dict_list.append(probable_known_word_dict)
+            elif prob.user_word is not None and prob.user_word.language == self.language:
                 probable_known_word_dict['word'] = prob.user_word.word
-            probable_known_words_dict_list.append(probable_known_word_dict)
+                probable_known_words_dict_list.append(probable_known_word_dict)
+                
         return probable_known_words_dict_list
 
     def get_probably_known_words_count(self):
