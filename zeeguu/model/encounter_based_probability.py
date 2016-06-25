@@ -60,8 +60,8 @@ class EncounterBasedProbability(db.Model):
             return False
 
     @classmethod
-    def find_or_create(cls, word, user):
-        ranked_word = RankedWord.find(word.lower(), user.learned_language)
+    def find_or_create(cls, word, user, language):
+        ranked_word = RankedWord.find(word.lower(), language)
         if EncounterBasedProbability.exists(user, ranked_word):
             enc_prob = EncounterBasedProbability.find(user,ranked_word)
             enc_prob.not_looked_up_counter +=1

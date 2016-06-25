@@ -145,7 +145,7 @@ class Bookmark(db.Model):
 
         # 1. computations for adding encounter based probability for the context words
         for word in self.context_words_with_rank():
-            enc_prob = EncounterBasedProbability.find_or_create(word,user)
+            enc_prob = EncounterBasedProbability.find_or_create(word, user, language)
             zeeguu.db.session.add(enc_prob)
             zeeguu.db.session.commit()
             user_word = None
