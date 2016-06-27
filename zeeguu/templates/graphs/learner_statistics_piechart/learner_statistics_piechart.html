@@ -141,13 +141,15 @@
         .attr("x", 0)
         .attr("y", 0)
         .attr("text-anchor", "middle")
-        .style("font-size", "25px")
-        .style("text-decoration", "underline")
+        .style("fill", "#606060")
+        .style("font-size", "23px")
+        .style("font-weight", "bold")
+        .style("font-family", "'Arial', Gadget, sans-serif")
         .text(function () {
                 var total = d3.sum(learner_statistics_data.map(function (entry) {
                     return entry.value;
                 }));
-                return total + " words ";
+                return "Top " + total + " Words ";
             });
 
 
