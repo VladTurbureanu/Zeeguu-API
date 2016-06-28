@@ -738,6 +738,8 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert len(feed_items) > 0
         assert feed_items[0]["title"]
         assert feed_items[0]["summary"]
+        assert feed_items[0]["published"]
+
 
     def test_get_interesting_feeds(self):
 

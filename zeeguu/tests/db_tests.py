@@ -1,11 +1,17 @@
 # Always must be imported first
 # it sets the test DB
+
 __author__ = 'mircea'
 import zeeguu_testcase
+import time
+
+
+from zeeguu.model.url import Url
 
 from zeeguu.model.bookmark import Bookmark
 from zeeguu.model.smartwatch.watch_interaction_event import WatchInteractionEvent
 from zeeguu.model.user_activitiy_data import UserActivityData
+from zeeguu.model.feeds import RSSFeed
 
 import zeeguu.model.ranked_word
 from zeeguu.model.smartwatch.watch_event_type import WatchEventType
@@ -241,7 +247,13 @@ class Dbtest(zeeguu_testcase.ZeeguuTestCase):
         events = WatchInteractionEvent.events_for_user(self.mir)
         assert len(events) == 1
 
+    def test_feed_items(self):
+        url = Url("http://www.bild.de/rss-feeds/rss-16725492,feed=home.bild.html", "Build")
+        feed = RSSFeed(url, "Bild.de Home", "build", image_url = None, language = None)
+        items = feed.feed_items()
 
+        first_item_date = items[0]["published"]
+        assert first_item_date
 
 
     # User Date No_ bookmarks
