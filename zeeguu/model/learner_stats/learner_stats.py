@@ -52,9 +52,9 @@ def data_to_json(learner_stats_after):
     result = ""
     for i in range(0, 12):
         entry_year = current_year
-        if current_month > i:
-            entry_year -= 1
         entry_month = (current_month + i) % 12 + 1
+        if current_month < entry_month:
+            entry_year -= 1
         entry_date = datetime.datetime(entry_year, entry_month, 1)
         entry_date = str(entry_date.strftime("%b %Y"))
         result = result + "{\"Status\": \"Learning\", \"words\": \"" + str(learning_stats_after[i]) + "\", \"date\": \"" + entry_date + "\"},"
