@@ -1,4 +1,6 @@
 # -*- coding: utf8 -*-
+import time
+
 from zeeguu import db
 from sqlalchemy.orm import relationship
 import sqlalchemy.orm.exc
@@ -48,11 +50,11 @@ class RSSFeed(db.Model):
         feed_data = feedparser.parse(self.url.as_string())
         feed_items = [
             dict(
-                    title   =   item.get("title",""),
-                    url     =   item.get("link",""),
-                    content =   item.get("content",""),
-                    summary =   item.get("summary",""),
-                    published=  item.get("published","")
+                    title=item.get("title",""),
+                    url=item.get("link",""),
+                    content=item.get("content",""),
+                    summary=item.get("summary",""),
+                    published=time.strftime("%Y-%m-%dT%H:%M:%S%z", item.published_parsed)
             )
             for item in feed_data.entries]
 
