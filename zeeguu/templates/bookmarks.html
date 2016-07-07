@@ -3,13 +3,19 @@
 {% set tab = "bookmarks" %}
 
 {% block body %}
+
         <div class="col-md-offset-1 col-md-10">
 
-    <h3>Words</h3>
+    <script src="{{ url_for('static', filename='../static/js/d3.v3.min.js') }}" charset="utf-8"></script>
+    <activity_graph>  {% include "graphs/activity_graph/activity_graph.html" %}  </activity_graph>
+
+                <br/><br/><br/>
+                <br/><br/><br/>
+    <!--<h3>Words</h3>-->
 
     {% if sorted_dates %}
-        <p>{{ g.user.name}}, these are the <b>{{ g.user.all_bookmarks()|length }}</b> words you are currently learning.<br/>
-            Context and importance are listed when available.</p>
+        <!--<p>{{ g.user.name}}, these are the <b>{{ g.user.all_bookmarks()|length }}</b> words you are currently learning.<br/>-->
+            <!--Context and importance are listed when available.</p>-->
 
         <table class="table table-striped table-no-borders">
             <tr>
