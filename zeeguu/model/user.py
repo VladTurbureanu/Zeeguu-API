@@ -143,7 +143,7 @@ class User(db.Model):
             filter_by(user_id=self.id).\
             order_by(Bookmark.time.desc()).all()
 
-        good_for_study = [x for x in all_bookmarks if x.context_is_not_too_long() ]
+        good_for_study = [x for x in all_bookmarks if x.good_for_study() ]
 
         return map(lambda x: x.json_serializable_dict(), good_for_study[0:bookmark_count])
 

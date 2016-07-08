@@ -29,6 +29,9 @@ class WatchInteractionEvent(db.Model):
                 event= self.event_type.name
         )
 
+    def is_learned_event(self):
+        return self.event_type.name == "learnedIt"
+
     @classmethod
     def events_for_bookmark(cls, bookmark):
         return cls.query.filter_by(bookmark_id=bookmark.id).all()
