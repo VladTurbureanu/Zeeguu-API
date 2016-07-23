@@ -78,22 +78,14 @@ class Bookmark(db.Model):
     def context_is_not_too_long(self):
         return len(self.text.content) < 60
 
-    def already_learned(self):
+    def events_prevent_further_study(self):
         from zeeguu.model.smartwatch.watch_interaction_event import WatchInteractionEvent
         events_for_self = WatchInteractionEvent.events_for_bookmark(self)
-        return any([x.is_learned_event() for x in events_for_self])
-
-    def wrong_translation(self):
-        from zeeguu.model.smartwatch.watch_interaction_event import WatchInteractionEvent
-        events_for_self = WatchInteractionEvent.events_for_bookmark(self)
-        return any([x.is_wrong_translation_event() for x in events_for_self])
-
-
+        return any([x.prevents_further_study() for x in events_for_self])
 
     def good_for_study(self):
         return self.context_is_not_too_long() \
-               and not self.already_learned() \
-               and not self.wrong_translation()
+               and not self.events_prevent_further_study()
 
     def remove_translation(self,translation):
         if translation in self.translations_list:

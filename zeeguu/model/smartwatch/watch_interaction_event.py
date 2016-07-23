@@ -35,6 +35,14 @@ class WatchInteractionEvent(db.Model):
     def is_wrong_translation_event(self):
         return self.event_type.name == "wrongTranslation"
 
+    def prevents_further_study(self):
+        """
+        Some events prevent a bookmark for being good for study
+        in the future
+        :return:
+        """
+        return self.is_learned_event() or self.is_wrong_translation_event()
+
     @classmethod
     def events_for_bookmark(cls, bookmark):
         return cls.query.filter_by(bookmark_id=bookmark.id).all()
