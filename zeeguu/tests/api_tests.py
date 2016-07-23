@@ -726,6 +726,11 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
                 bookmark_id=to_study[0]["id"],
                 time="2016-05-05T10:10:10",
                 event="learnedIt"
+            ),
+            dict(
+                bookmark_id=to_study[1]["id"],
+                time="2016-05-05T10:11:10",
+                event="wrongTranslation"
             )
         ]
         result = self.api_post('/upload_smartwatch_events', dict(events=json.dumps(events)))
@@ -734,7 +739,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         to_study = self.json_from_api_get("bookmarks_to_study/10")
         to_study_count_after = len(to_study)
 
-        assert (to_study_count_before > to_study_count_after)
+        assert (to_study_count_before == 2 + to_study_count_after )
 
 
     def test_multiple_stop_following_same_feed(self):
