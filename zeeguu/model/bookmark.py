@@ -84,8 +84,7 @@ class Bookmark(db.Model):
         return any([x.prevents_further_study() for x in events_for_self])
 
     def good_for_study(self):
-        return self.context_is_not_too_long() \
-               and not self.events_prevent_further_study()
+        return not self.events_prevent_further_study()
 
     def remove_translation(self,translation):
         if translation in self.translations_list:
