@@ -61,6 +61,7 @@ def get_smartwatch_events():
     :return: OK or FAIL
     """
     event_objects = WatchInteractionEvent.events_for_user(flask.g.user)
-    events = [x.data_as_dictionary() for x in event_objects]
+    sorted_events = sorted(event_objects, key=lambda event: event.time)
+    events = [x.data_as_dictionary() for x in sorted_events]
 
     return json_result(events)
