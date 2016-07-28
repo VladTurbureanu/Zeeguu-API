@@ -23,6 +23,16 @@ class UserActivityData(db.Model):
         self.value = value
         self.extra_data = extra_data
 
+    def data_as_dictionary(self):
+        return dict(
+                user_id=self.user_id,
+                time=self.time.strftime("%Y-%m-%dT%H:%M:%S"),
+                event=self.event,
+                value=self.value,
+                extra_data=self.extra_data
+        )
+
+
 
 
 
