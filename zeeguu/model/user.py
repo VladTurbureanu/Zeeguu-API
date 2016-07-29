@@ -145,7 +145,7 @@ class User(db.Model):
 
         good_for_study = [x for x in all_bookmarks if x.good_for_study() ]
 
-        ranked_by_importance = sorted(good_for_study, key=lambda bookmark: bookmark.origin.importance_level())
+        ranked_by_importance = sorted(good_for_study, key=lambda bookmark: bookmark.origin.get_rank())
 
         return map(lambda x: x.json_serializable_dict(), ranked_by_importance[0:50])
 

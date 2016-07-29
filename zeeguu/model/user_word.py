@@ -38,6 +38,14 @@ class UserWord(db.Model, util.JSONSerializable):
         else:
             return  0
 
+    # returns the rank if in the DB, or the impossible rank
+    def get_rank(self):
+        if self.rank is not None:
+            return self.rank.rank
+        else:
+            return UserWord.IMPOSSIBLE_RANK
+
+
     # we use this in the bookmarks.html to show the rank.
     # for words in which there is no rank info, we don't display anything
     def importance_level_string(self):
