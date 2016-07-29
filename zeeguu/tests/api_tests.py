@@ -742,6 +742,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert (to_study_count_before == 2 + to_study_count_after )
 
 
+
     def test_multiple_stop_following_same_feed(self):
 
         self.test_stop_following_feed()
