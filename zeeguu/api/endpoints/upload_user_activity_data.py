@@ -51,7 +51,7 @@ def upload_user_activity_data():
 @api.route("/test_upload_user_activity_data", methods=["POST"])
 @cross_domain
 @with_session
-def upload_user_activity_data():
+def test_upload_user_activity_data():
     """
     The user needs to be logged in, so the event
     referst to themselves. Thus there is no need
