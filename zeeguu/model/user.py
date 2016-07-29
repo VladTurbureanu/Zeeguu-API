@@ -147,7 +147,7 @@ class User(db.Model):
 
         ranked_by_importance = good_for_study.sort(key=lambda bookmark: bookmark.origin.importance_level())
 
-        return map(lambda x: x.json_serializable_dict(), good_for_study[0:ranked_by_importance])
+        return map(lambda x: x.json_serializable_dict(), ranked_by_importance[0:50])
 
 
     def user_words(self):
