@@ -84,7 +84,7 @@ class Bookmark(db.Model):
         return any([x.prevents_further_study() for x in events_for_self])
 
     def good_for_study(self):
-        return not self.events_prevent_further_study()
+        return not self.check_is_latest_outcome_too_easy() and not self.events_prevent_further_study()
 
     def remove_translation(self,translation):
         if translation in self.translations_list:
@@ -123,7 +123,8 @@ class Bookmark(db.Model):
                     from_lang=self.origin.language_id,
                     to_lang=self.translation().language.id,
                     title=self.text.url.title,
-                    url=self.text.url.as_string()
+                    url=self.text.url.as_string(),
+                    origin_rank=self.origin.get_rank()
                 )
         result["from"] = self.origin.word
         if with_context:
