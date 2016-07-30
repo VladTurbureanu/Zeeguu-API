@@ -6,10 +6,8 @@ __author__ = 'mir.lu'
 
 # This file contains the REST endpoints for the user login & account management
 
-import datetime
 import flask
 from flask import flash
-import json
 import zeeguu
 import sqlalchemy.exc
 from zeeguu.model.language import Language
@@ -77,6 +75,7 @@ def my_account():
 
     # get learner_stats_data for the line_graph
     learner_stats_data = flask.g.user.learner_stats_data()
+
 
     s = Session.find_for_user(flask.g.user)
     zeeguu.db.session.add(s)

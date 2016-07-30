@@ -116,7 +116,6 @@ def bookmarks():
             urls_by_date.setdefault(date, set()).add(bookmark.text.url)
             bookmarks_by_url.setdefault(bookmark.text.url,[]).append(bookmark)
 
-    # get bookmark_counts_by_date for the activity graph
     bookmark_counts_by_date = flask.g.user.bookmark_counts_by_date()
 
     return flask.render_template("bookmarks.html",
