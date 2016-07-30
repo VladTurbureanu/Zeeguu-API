@@ -57,8 +57,8 @@ def data_to_json(learner_stats_after):
             entry_year -= 1
         entry_date = datetime.datetime(entry_year, entry_month, 1)
         entry_date = str(entry_date.strftime("%b %Y"))
-        result = result + "{\"Status\": \"Learning\", \"words\": \"" + str(learning_stats_after[i]) + "\", \"date\": \"" + entry_date + "\"},"
-        result = result + "{\"Status\": \"Learned\", \"words\": \"" + str(learned_stats_after[i]) + "\", \"date\": \"" + entry_date + "\"},"
+        result = result + "{\"name\": \"Learning\", \"amount\": \"" + str(learning_stats_after[i]) + "\", \"date\": \"" + entry_date + "\"},"
+        result = result + "{\"name\": \"Learned\", \"amount\": \"" + str(learned_stats_after[i]) + "\", \"date\": \"" + entry_date + "\"},"
 
     result = "[" + result[:-1] + "]"
     return json.dumps(result)

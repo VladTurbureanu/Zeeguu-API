@@ -4,51 +4,73 @@
 
 {% block body %}
 
-<div class="container welcome-message">
-    <!--<h2>Hi {{ user.name }}!</h2>-->
+    <div class="container welcome-message">
+        <!--<h2>Hi {{ user.name }}!</h2>-->
 
-    {% if user.bookmark_count() == 0 %}
-        <p>
-            It seems you have recently created an account. <br/>
-        </p><br/>
+        {% if user.bookmark_count() == 0 %}
+            <p>
+                It seems you have recently created an account. <br/>
+            </p><br/>
 
-        <h1>What next?</h1>
-        <p>Make sure to <a href="install">install the Chrome extension and Android App</a>
-        </p>
+            <h1>What next?</h1>
+            <p>Make sure to <a href="install">install the Chrome extension and Android App</a>
+            </p>
 
-    {% else %}
+        {% else %}
 
-        <script src="{{ url_for('static', filename='../static/js/d3.v3.min.js') }}" charset="utf-8"></script>
-
-        <hr/>
-
-        <line_graph>  {% include "graphs/learner_graph/learner_graph.html" %}  </line_graph>
-    
-        <h3>Vocabulary Statistics</h3>
-
-        <pie_graph>  {% include "graphs/learner_statistics_piechart/learner_statistics_piechart.html" %}  </pie_graph>
-
-        <hr/>
-
-            {#        <pie_graph>  {% include "graphs/learner_statistics_piechart/learner_statistics_piechart.html" %}  </pie_graph>#}
-
-            {% include "gamification/piechart_gamification.html" %}
+            <script src="{{ url_for('static', filename='../static/js/d3.v3.min.js') }}" charset="utf-8"></script>
+            <script type="text/javascript"
+                    src="https://rawgit.com/MrAlexDeluxe/zeeguu_learner_graph_module/master/DIST-zeeguu_learner_graph_module.js"
+                    charset="utf-8"></script>
 
             <hr/>
 
+            {#        <line_graph>  {% include "graphs/learner_graph/learner_graph.html" %}  </line_graph>#}
+            <line_graph></line_graph>
 
-    {% endif %}
+            <script>
+                var learner_stats_data = JSON.parse({{ learner_stats_data|safe }});
+                line_graph(learner_stats_data, "line_graph");
+            </script>
+
+            <h3>Vocabulary Statistics</h3>
+
+            {#        <pie_graph>  {% include "graphs/learner_statistics_piechart/learner_statistics_piechart.html" %}  </pie_graph>#}
+            <pie_graph></pie_graph>
+
+            <script>
+                var learner_statistics_data = [
+                    {
+                        "label": "Not Encountered",
+                        "value": {{ estimator.get_not_encountered_words_count() }}
+                    },
+                    {
+                        "label": "Known",
+                        "value": {{ estimator.get_not_looked_up_words_count() }}
+                    },
+                    {
+                        "label": "Learned",
+                        "value": {{ estimator.get_known_bookmarks_count() + estimator.get_probably_known_words_count() }}
+                    },
+                    {
+                        "label": "Learning",
+                        "value": {{ user.bookmark_count() }}
+                    }
+                ];
+                piechart_graph(learner_statistics_data, "pie_graph");
+            </script>
+            <hr/>
+
+        {% endif %}
+
+        <br/>
+        <h4>Smartwatch code: {{ smartwatch_login_code }}</h4>
+
+    </div>
 
 
 
-    <br/>
-    <h4>Smartwatch code: {{smartwatch_login_code}}</h4>
 
 
-
-
-
-
-</div>
 
 {% endblock %}
