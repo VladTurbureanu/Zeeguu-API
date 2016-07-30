@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 from zeeguu import db, util
 from zeeguu.model.language import Language
 import datetime
+import json
 
 starred_words_association_table = Table('starred_words_association', db.Model.metadata,
     Column('user_id', Integer, ForeignKey('user.id')),
@@ -149,6 +150,34 @@ class User(db.Model):
 
         return map(lambda x: x.json_serializable_dict(), ranked_by_importance[0:50])
 
+
+    # returns array with added bookmark amount per each date for the last year
+    # this function is for the activity_graph, generates data
+    def bookmark_counts_by_date(self):
+
+        # compute bookmark_counts_by_date
+        year = datetime.date.today().year - 1  # get data from year 2015(if this year is 2016)
+        month = datetime.date.today().month
+        bookmarks_dict, dates = self.bookmarks_by_date(datetime.datetime(year, month, 1))
+
+        counts = []
+        for date in dates:
+            the_date = date.strftime('%Y-%m-%d')
+            the_count = len(bookmarks_dict[date])
+            counts.append(dict(date=the_date, count=the_count))
+
+        bookmark_counts_by_date = json.dumps(counts)
+        return bookmark_counts_by_date
+
+    # returns array with learned and learning words count per each month for the last year
+    # this function is for the line_graph, generates data
+    def learner_stats_data(self):
+
+        # compute learner_stats_data
+        from zeeguu.model.learner_stats.learner_stats import compute_learner_stats
+        learner_stats_data = compute_learner_stats(self)
+
+        return learner_stats_data
 
     def user_words(self):
         return map((lambda x: x.origin.word), self.all_bookmarks())

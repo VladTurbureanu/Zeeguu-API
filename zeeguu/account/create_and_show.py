@@ -75,19 +75,8 @@ def my_account():
 
     estimator = SethiKnowledgeEstimator(flask.g.user, flask.g.user.learned_language_id)
 
-    year = datetime.date.today().year -1 # get data from year 2015(if this year is 2016)
-    month = datetime.date.today().month
-    bookmarks_dict, dates = flask.g.user.bookmarks_by_date(datetime.datetime(year, month, 1))
-
-    counts = []
-    for date in dates:
-        the_date = date.strftime('%Y-%m-%d')
-        the_count = len(bookmarks_dict[date])
-        counts.append(dict(date = the_date, count = the_count))
-
-    bookmark_counts_by_date = json.dumps(counts)
-    from zeeguu.model.learner_stats.learner_stats import compute_learner_stats
-    learner_stats_data = compute_learner_stats(flask.g.user)
+    # get learner_stats_data for the line_graph
+    learner_stats_data = flask.g.user.learner_stats_data()
 
     s = Session.find_for_user(flask.g.user)
     zeeguu.db.session.add(s)
@@ -99,6 +88,5 @@ def my_account():
     return flask.render_template("my_account.html",
                                  user=flask.g.user,
                                  estimator=estimator,
-                                 bookmark_counts_by_date=bookmark_counts_by_date,
                                  learner_stats_data=learner_stats_data,
                                  smartwatch_login_code=smartwatch_login_code)

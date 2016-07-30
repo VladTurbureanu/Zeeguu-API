@@ -116,18 +116,8 @@ def bookmarks():
             urls_by_date.setdefault(date, set()).add(bookmark.text.url)
             bookmarks_by_url.setdefault(bookmark.text.url,[]).append(bookmark)
 
-    year = datetime.date.today().year -1 # get data from year 2015(if this year is 2016)
-    month = datetime.date.today().month
-    bookmarks_dict, dates = flask.g.user.bookmarks_by_date(datetime.datetime(year, month, 1))
-
-    counts = []
-    for date in dates:
-        the_date = date.strftime('%Y-%m-%d')
-        the_count = len(bookmarks_dict[date])
-        counts.append(dict(date = the_date, count = the_count))
-
-    bookmark_counts_by_date = json.dumps(counts)
-
+    # get bookmark_counts_by_date for the activity graph
+    bookmark_counts_by_date = flask.g.user.bookmark_counts_by_date()
 
     return flask.render_template("bookmarks.html",
                                  bookmarks_by_url=bookmarks_by_url,
