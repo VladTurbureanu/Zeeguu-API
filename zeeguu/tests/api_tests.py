@@ -717,7 +717,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert len(feeds) == initial_feed_count - 2
 
     def test_bookmarks_to_study(self):
-        to_study = self.json_from_api_get("bookmarks_to_study/10")
+        to_study = self.json_from_api_get("bookmarks_to_study/50")
         to_study_count_before = len(to_study)
 
         # Create an learnedIt event
@@ -736,7 +736,7 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         result = self.api_post('/upload_smartwatch_events', dict(events=json.dumps(events)))
         assert (result.data == "OK")
 
-        to_study = self.json_from_api_get("bookmarks_to_study/10")
+        to_study = self.json_from_api_get("bookmarks_to_study/50")
         to_study_count_after = len(to_study)
 
         assert (to_study_count_before == 2 + to_study_count_after )

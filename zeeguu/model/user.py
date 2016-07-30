@@ -4,10 +4,13 @@ from sqlalchemy import Column, Table, ForeignKey, Integer
 import sqlalchemy.orm
 from sqlalchemy.orm import relationship
 
+
 from zeeguu import db, util
 from zeeguu.model.language import Language
 import datetime
 import json
+
+from zeeguu.model.user_word import UserWord
 
 starred_words_association_table = Table('starred_words_association', db.Model.metadata,
     Column('user_id', Integer, ForeignKey('user.id')),
@@ -139,16 +142,46 @@ class User(db.Model):
 
     def bookmarks_to_study(self, bookmark_count):
         from zeeguu.model.bookmark import Bookmark
+        from zeeguu import RankedWord
 
         all_bookmarks = Bookmark.query.\
             filter_by(user_id=self.id).\
-            order_by(Bookmark.time.desc()).all()
+            join(UserWord).\
+            join(RankedWord).\
+            filter(UserWord.id == Bookmark.origin_id).\
+            filter(UserWord.rank_id == RankedWord.id).\
+            order_by(RankedWord.rank.asc()).all()
 
-        good_for_study = [x for x in all_bookmarks if x.good_for_study() ]
+        good_for_study=[]
+        size = 0
+        for b in all_bookmarks:
+            if b.good_for_study():
+                good_for_study.append(b)
+                size += 1
 
-        ranked_by_importance = sorted(good_for_study, key=lambda bookmark: bookmark.origin.get_rank())
+            if size == bookmark_count:
+                break
 
-        return map(lambda x: x.json_serializable_dict(), ranked_by_importance[0:50])
+        if size < bookmark_count:
+        # we did not find enough words to study which are ranked
+        # add all the non-ranked ones, in chronological order
+
+            all_bookmarks = Bookmark.query. \
+                filter_by(user_id=self.id). \
+                join(UserWord). \
+                filter(UserWord.id == Bookmark.origin_id). \
+                filter(UserWord.rank_id is None). \
+                order_by(Bookmark.time.desc()).all()
+
+            for b in all_bookmarks:
+                if b.good_for_study():
+                    good_for_study.append(b)
+                    size += 1
+
+                if size == bookmark_count:
+                    break
+
+        return map(lambda x: x.json_serializable_dict(), good_for_study)
 
 
     # returns array with added bookmark amount per each date for the last year

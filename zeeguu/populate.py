@@ -102,23 +102,15 @@ def add_bookmark(user, original_language, original_word, translation_language, t
 
     url = Url.find (the_url)
     text = Text.find_or_create(the_context, translation_language, url)
+    origin = UserWord.find(original_word.lower(), original_language)
+    translation = UserWord.find(translation_word.lower(), translation_language)
 
-    if RankedWord.exists(original_word.lower(), original_language):
-        rank1 = UserWord.find_rank(original_word.lower(), original_language)
-        w1 = UserWord(original_word, original_language,rank1)
-    else:
-        w1 = UserWord(original_word, original_language,None)
-    if RankedWord.exists(translation_word.lower(), translation_language):
-        rank2 = UserWord.find_rank(translation_word.lower(), translation_language)
-        w2 = UserWord(translation_word, translation_language,rank2)
-    else:
-        w2 = UserWord(translation_word, translation_language,None)
 
     zeeguu.db.session.add(url)
     zeeguu.db.session.add(text)
-    zeeguu.db.session.add(w1)
-    zeeguu.db.session.add(w2)
-    t1= Bookmark(w1,w2, user, text, date)
+    zeeguu.db.session.add(origin)
+    zeeguu.db.session.add(translation)
+    t1= Bookmark(origin, translation, user, text, date)
     zeeguu.db.session.add(t1)
 
     zeeguu.db.session.commit()
@@ -197,7 +189,7 @@ def create_test_db():
         'Darstellung':'presentation',
         'Vertreter':'representative',
         'Knecht':'servant',
-        'besteht':'smtg. exists'
+        'der':'the'
     }
 
     dict = {
