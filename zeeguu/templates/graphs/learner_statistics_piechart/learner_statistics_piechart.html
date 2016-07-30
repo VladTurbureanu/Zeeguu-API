@@ -144,10 +144,7 @@
         .style("font-weight", "bold")
         .style("font-family", "'Arial', Gadget, sans-serif")
         .text(function () {
-                var total = d3.sum(learner_statistics_data.map(function (entry) {
-                    return entry.value;
-                }));
-                return "Top " + total + " Words ";
+                return "Top 10'000 Words "; // caption of the title
             });
 
 
