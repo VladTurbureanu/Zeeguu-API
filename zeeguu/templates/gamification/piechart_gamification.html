@@ -1,0 +1,38 @@
+<script>
+
+        function generate_learner_statistics_data(not_encountered, known, learned, learning){
+            var learner_statistics_data = [
+                { "label": "Not Encountered", "value": not_encountered },
+                { "label": "Known", "value": known },
+                { "label": "Learned", "value": learned },
+                { "label": "Learning", "value": learning }
+            ];
+            return learner_statistics_data;
+        }
+
+        var not_encountered = {{ estimator.get_not_encountered_words_count() }} ;
+        var known = {{ estimator.get_not_looked_up_words_count() }} ;
+        var learned = {{ estimator.get_known_bookmarks_count() + estimator.get_probably_known_words_count() }} ;
+        var learning = {{ user.bookmark_count() }} ;
+
+        var words_unlocked = + known + learned ;
+        var tiers = Math.round( Math.floor(parseInt(words_unlocked) / 3000) )+1;
+
+        for (i = 0; i <= tiers; i++) {
+            var total = 1000 + i * 2000;
+            var graph_name = "pie_graph"+(i+1);
+            document.write("<"+graph_name+"></"+graph_name+">");
+            if (words_unlocked > total) {
+                var learner_statistics_data =
+                        generate_learner_statistics_data(0, Math.min(Math.max(0, total-learned), known), Math.max(0, total-Math.min(total-learned, known)), 0);
+            } else {
+                var total_pie_sum = known + learned + learning;
+                var learner_statistics_data =
+                        generate_learner_statistics_data(Math.min(Math.max(0, total-total_pie_sum), not_encountered), known, learned, learning);
+            }
+            piechart_graph(learner_statistics_data, graph_name, "Top "+total+" Words ");
+        }
+
+        document.write("<h4> Your level is :"+ (tiers+1) +"</h4>");
+
+</script>
