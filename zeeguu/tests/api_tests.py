@@ -451,10 +451,10 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         for learnability in learnabilities:
             assert 0.0 <= learnability['score'] <= 1.0
             if learnability['id'] is 3:
-                assert learnability['score'] == 0.25
+                print learnability['score']
+                assert 0.16 < learnability['score'] < 0.17
             elif learnability['id'] is 4:
                 assert learnability['score'] == 0.0
-
 
     def test_get_lower_bound_percentage_of_vocabulary(self):
         rv_basic = self.api_get('/get_lower_bound_percentage_of_basic_vocabulary')
