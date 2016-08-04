@@ -25,7 +25,6 @@
 
             <hr/>
 
-            {#        <line_graph>  {% include "graphs/learner_graph/learner_graph.html" %}  </line_graph>#}
             <line_graph></line_graph>
 
             <script>
@@ -35,30 +34,8 @@
 
             <h3>Vocabulary Statistics</h3>
 
-            {#        <pie_graph>  {% include "graphs/learner_statistics_piechart/learner_statistics_piechart.html" %}  </pie_graph>#}
-            <pie_graph></pie_graph>
+            {% include "gamification/piechart_gamification.html" %}
 
-            <script>
-                var learner_statistics_data = [
-                    {
-                        "label": "Not Encountered",
-                        "value": {{ estimator.get_not_encountered_words_count() }}
-                    },
-                    {
-                        "label": "Known",
-                        "value": {{ estimator.get_not_looked_up_words_count() }}
-                    },
-                    {
-                        "label": "Learned",
-                        "value": {{ estimator.get_known_bookmarks_count() + estimator.get_probably_known_words_count() }}
-                    },
-                    {
-                        "label": "Learning",
-                        "value": {{ user.bookmark_count() }}
-                    }
-                ];
-                piechart_graph(learner_statistics_data, "pie_graph");
-            </script>
             <hr/>
 
         {% endif %}
