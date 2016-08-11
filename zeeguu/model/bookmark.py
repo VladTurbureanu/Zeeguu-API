@@ -261,3 +261,36 @@ class Bookmark(db.Model):
         if add_to_result_time:
             return False, None
         return False
+
+    def events_indicate_its_learned(self):
+        from zeeguu.model.smartwatch.watch_interaction_event import WatchInteractionEvent
+        events_for_self = WatchInteractionEvent.events_for_bookmark(self)
+
+        for event in events_for_self:
+            if event.is_learned_event():
+                return True, event.time
+
+    def has_been_learned(self, also_return_time=False):
+        """
+        :param also_return_time: should the function return also the time when
+        the bookmark has been learned?
+
+        :return: boolean indicating whether the bookmark has already been learned,
+        togetgher with the time when it was learned if also_return_time is set
+        """
+
+        # The first case is when we have an exercise outcome set to Too EASY
+        learned, time = self.check_is_latest_outcome_too_easy(True)
+        if learned:
+            if also_return_time:
+                return True, time
+            else:
+                return True
+
+        # The second case is when we have an event in the smartwatch event log
+        # that indicates that the word has been learned
+        learned, time = self.events_indicate_its_learned()
+        if learned:
+            return learned, time
+
+        return False

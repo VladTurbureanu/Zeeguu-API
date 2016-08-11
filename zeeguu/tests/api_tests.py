@@ -742,6 +742,31 @@ class API_Tests(zeeguu_testcase.ZeeguuTestCase):
         assert (to_study_count_before == 2 + to_study_count_after )
 
 
+    def test_bookmark_has_been_learned(self):
+        to_study = self.json_from_api_get("bookmarks_to_study/50")
+        to_study_count_before = len(to_study)
+
+        # Create an learnedIt event
+        learned_bookmark_id = to_study[0]["id"]
+        events = [
+            dict(
+                bookmark_id=to_study[0]["id"],
+                time="2016-05-05T10:10:10",
+                event="learnedIt"
+            ),
+            dict(
+                bookmark_id=to_study[1]["id"],
+                time="2016-05-05T10:11:10",
+                event="wrongTranslation"
+            )
+        ]
+        result = self.api_post('/upload_smartwatch_events', dict(events=json.dumps(events)))
+        assert (result.data == "OK")
+
+        with zeeguu.app.app_context():
+            b = Bookmark.find(learned_bookmark_id)
+            print b.has_been_learned()
+
 
     def test_multiple_stop_following_same_feed(self):
 
