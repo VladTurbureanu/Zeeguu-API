@@ -270,6 +270,8 @@ class Bookmark(db.Model):
             if event.is_learned_event():
                 return True, event.time
 
+        return False, None
+
     def has_been_learned(self, also_return_time=False):
         """
         :param also_return_time: should the function return also the time when
@@ -292,5 +294,8 @@ class Bookmark(db.Model):
         learned, time = self.events_indicate_its_learned()
         if learned:
             return learned, time
+
+        if also_return_time:
+            return False, None
 
         return False
