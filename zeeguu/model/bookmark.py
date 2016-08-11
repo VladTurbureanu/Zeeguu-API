@@ -84,6 +84,7 @@ class Bookmark(db.Model):
         return any([x.prevents_further_study() for x in events_for_self])
 
     def good_for_study(self):
+        # ML TODO: Must replace call to check_is_latest_outcome... with has_been_learned!
         return not self.check_is_latest_outcome_too_easy() and not self.events_prevent_further_study()
 
     def remove_translation(self,translation):
@@ -262,6 +263,36 @@ class Bookmark(db.Model):
             return False, None
         return False
 
+    def check_if_learned_based_on_exercise_outcomes (self, add_to_result_time=False):
+        """
+        TODO: This should replace check_is_latest_outcome in the future...
+
+        :param add_to_result_time:
+        :return:
+        """
+        sorted_exercise_log_by_latest=sorted(self.exercise_log, key=lambda x: x.time, reverse=True)
+
+        if sorted_exercise_log_by_latest:
+            last_exercise = sorted_exercise_log_by_latest[0]
+
+            # If last outcome is TOO EASY we know it
+            if last_exercise.outcome.outcome == ExerciseOutcome.TOO_EASY:
+                if add_to_result_time:
+                    return True, last_exercise.time
+                return True
+
+            CORRECTS_IN_A_ROW = 5
+            if len(sorted_exercise_log_by_latest) > CORRECTS_IN_A_ROW:
+
+                # If we got it right for the last CORRECTS_IN_A_ROW times, we know it
+                if all(exercise.outcome.outcome == ExerciseOutcome.CORRECT for exercise in sorted_exercise_log_by_latest[0:CORRECTS_IN_A_ROW-1]):
+                    return True, last_exercise.time
+
+        if add_to_result_time:
+            return False, None
+        return False
+
+
     def events_indicate_its_learned(self):
         from zeeguu.model.smartwatch.watch_interaction_event import WatchInteractionEvent
         events_for_self = WatchInteractionEvent.events_for_bookmark(self)
@@ -282,7 +313,7 @@ class Bookmark(db.Model):
         """
 
         # The first case is when we have an exercise outcome set to Too EASY
-        learned, time = self.check_is_latest_outcome_too_easy(True)
+        learned, time = self.check_if_learned_based_on_exercise_outcomes(True)
         if learned:
             if also_return_time:
                 return True, time
