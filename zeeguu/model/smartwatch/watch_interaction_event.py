@@ -24,6 +24,7 @@ class WatchInteractionEvent(db.Model):
 
     def data_as_dictionary(self):
         return dict(
+                user_id=self.bookmark.user_id,
                 bookmark_id= self.bookmark_id,
                 time= self.time.strftime("%Y-%m-%dT%H:%M:%S"),
                 event= self.event_type.name
