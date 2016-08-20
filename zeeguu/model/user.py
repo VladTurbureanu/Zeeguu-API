@@ -144,13 +144,14 @@ class User(db.Model):
         from zeeguu.model.bookmark import Bookmark
         from zeeguu import RankedWord
 
-        all_bookmarks = Bookmark.query.\
+        all_bookmarks_query = Bookmark.query.\
             filter_by(user_id=self.id).\
             join(UserWord).\
             join(RankedWord).\
             filter(UserWord.id == Bookmark.origin_id).\
             filter(UserWord.rank_id == RankedWord.id).\
-            order_by(RankedWord.rank.asc()).all()
+            order_by(RankedWord.rank.asc())
+        all_bookmarks = all_bookmarks_query.all()
 
         good_for_study=[]
         size = 0
@@ -170,7 +171,7 @@ class User(db.Model):
                 filter_by(user_id=self.id). \
                 join(UserWord). \
                 filter(UserWord.id == Bookmark.origin_id). \
-                filter(UserWord.rank_id is None). \
+                filter(UserWord.rank_id == None). \
                 order_by(Bookmark.time.desc()).all()
 
             for b in all_bookmarks:
