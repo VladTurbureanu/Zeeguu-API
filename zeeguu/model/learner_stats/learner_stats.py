@@ -33,11 +33,18 @@ def compute_learner_stats_during_last_year(user):
                 learned_stats[index_month_when_learned] += 1
             else:
                 learning_stats[0] -= 1
+                learned_stats[0] +=1
 
     # take into the account already learned and learning words before in the learning array
     learning_stats[0] -= learned_stats[0]
     for i in range(1, 12):
         learning_stats[i] += learning_stats[(i - 1)] - learned_stats[i]
+
+    # for loop which makes learned curve cumulative
+    index = 0
+    for (index) in range(0, 11):
+        learned_stats[index+1] += learned_stats[index]
+        index += 1
 
     return [learning_stats, learned_stats]
 
