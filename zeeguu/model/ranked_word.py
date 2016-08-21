@@ -18,12 +18,13 @@ class RankedWord(db.Model, util.JSONSerializable):
 
     ranked_words_cache = {}
 
-
     def __init__(self, word, language, rank):
         self.word = word
         self.language = language
         self.rank = rank
 
+    def set_rank(self, new_rank):
+        self.rank = new_rank
 
     @classmethod
     def find(cls, word, language):
