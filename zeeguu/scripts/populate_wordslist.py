@@ -81,7 +81,7 @@ def add_ranked_word_to_db(lang_code, word_list_file, number_of_words):
 
         if RankedWord.exists(word, language):
             ranked_word = RankedWord.find(word, language)
-            ranked_word.set_rank(current_line_number)
+            ranked_word.rank = current_line_number
         else:
             ranked_word = RankedWord(word, language, current_line_number)
         zeeguu.db.session.add(ranked_word)
