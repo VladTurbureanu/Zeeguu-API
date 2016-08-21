@@ -14,6 +14,7 @@ import sys
 import zeeguu
 from zeeguu import RankedWord
 from zeeguu.model.language import Language
+from zeeguu.model.user_word import UserWord
 
 
 def remove_duplicates_based_on_case(word_list):
@@ -91,7 +92,19 @@ def add_ranked_word_to_db(lang_code, word_list_file, number_of_words):
     # Commit everything at once - twice as fast as committing  after every word
     zeeguu.db.session.commit()
 
-    print ('-> Done importing the words in the DB')
+    print ('-> Done importing the ranked words in the DB')
+
+    print ('-> Updating word ranks for words already in the DB...')
+    update_existing_word_ranks(language)
+
+
+
+def update_existing_word_ranks(language):
+    for user_word in UserWord.find_by_language(language):
+        new_rank = RankedWord.find(user_word.word, language)
+        user_word.set_rank(new_rank)
+        zeeguu.db.session.add(user_word)
+    zeeguu.db.session.commit()
 
 
 def print_progress_stats(current_line_number, word):

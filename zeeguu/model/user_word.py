@@ -25,6 +25,9 @@ class UserWord(db.Model, util.JSONSerializable):
         self.language = language
         self.rank = rank
 
+    def set_rank(self, new_rank):
+        self.rank = new_rank
+
     def __repr__(self):
         return '<UserWord %r>' % (self.word)
 
