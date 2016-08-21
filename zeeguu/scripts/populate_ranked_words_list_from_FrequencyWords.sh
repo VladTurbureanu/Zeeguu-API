@@ -10,6 +10,7 @@
 if [ $# -eq 0 ]
   then
     echo "Please pass a language code as argument"
+    exit
 fi
 
 python populate_ranked_words_list.py $1 ../../../FrequencyWords/content/2016/$1/$1_50k.txt 10000 
