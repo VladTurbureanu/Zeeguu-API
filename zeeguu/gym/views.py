@@ -1,6 +1,7 @@
 import json
 import flask
 import zeeguu
+from flask import redirect
 from zeeguu.model.session import Session
 
 from zeeguu.model.text import Text
@@ -130,6 +131,11 @@ def bookmarks():
 @login_first
 def question(from_lang, to_lang):
     return json.dumps(new_random_question())
+
+
+@gym.route("/chrome")
+def chrome():
+    return redirect("https://chrome.google.com/webstore/detail/zeeguu/ckncjmaednfephhbpeookmknhmjjodcd?hl=en", code=302)
 
 
 @gym.route("/recognize")
