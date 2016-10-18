@@ -64,7 +64,9 @@ class ZeeguuTestCase(unittest.TestCase):
 
         return rv.data
 
-    def in_session(self, url, other_args=[]):
+    def in_session(self, url, other_args=None):
+        if other_args is None:
+            other_args = []
         url_with_session = url + "?session=" + self.session
         for each in other_args:
             url_with_session += "&" + each

@@ -29,7 +29,9 @@ class Live_API_Tests(unittest.TestCase):
         return rv.text
 
 
-    def in_session(self, session, url, other_args=[]):
+    def in_session(self, session, url, other_args=None):
+        if other_args is None:
+            other_args = []
         print session
         print url
         url_with_session = url + "?session=" + session
